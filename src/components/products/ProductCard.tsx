@@ -8,6 +8,7 @@ interface ProductCardProps {
   onAddToCart?: (product: Product) => void;
   onUpdateQuantity?: (productId: string, quantity: number) => void;
   onToggleWishlist?: (productId: string) => void;
+  onSelectProduct?: (product: Product) => void;
   isWishlisted?: boolean;
 }
 
@@ -17,8 +18,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onAddToCart,
   onUpdateQuantity,
   onToggleWishlist,
+  onSelectProduct,
   isWishlisted = false,
 }) => {
+  const handleCardClick = () => {
+    onSelectProduct?.(product);
+  };
+
   const handleAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
     onAddToCart?.(product);
@@ -39,33 +45,46 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     onToggleWishlist?.(product.id);
   };
 
+  const discountPercent =
+    product.originalPrice && product.originalPrice > product.price
+      ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+      : null;
+
   return (
     <div
       id={`product-${product.id}`}
-      className="group relative rounded-[20px] bg-white border border-[#eee7ed] hover:border-[#f1b8cb] p-3 sm:p-3.5 flex flex-col justify-between shadow-[0_2px_12px_rgba(50,31,63,0.03)] hover:shadow-[0_12px_32px_rgba(50,31,63,0.08)] hover:-translate-y-1 transition-all duration-300"
+      onClick={handleCardClick}
+      className="group relative rounded-[20px] bg-white border border-[#eee7ed] hover:border-[#f1b8cb] p-3 sm:p-3.5 flex flex-col justify-between shadow-[0_2px_12px_rgba(50,31,63,0.03)] hover:shadow-[0_12px_32px_rgba(50,31,63,0.08)] hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden max-w-full"
     >
-      
       {/* Product Image Container with Hardware-Accelerated Isolated Overflow Clipping */}
-      <div className="relative w-full aspect-square rounded-[14px] overflow-hidden bg-stone-50 mb-2.5 flex items-center justify-center isolate">
+      <div className="relative w-full max-w-full aspect-square rounded-[14px] overflow-hidden bg-white border border-[#f5edf2] mb-2.5 flex items-center justify-center isolate">
         <img
           src={product.image}
           alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-108 will-change-transform"
+          className="w-full h-full max-w-full object-contain p-1.5 transition-transform duration-500 ease-out group-hover:scale-105 will-change-transform"
           loading="lazy"
         />
 
-        {/* Product Badge */}
-        {product.badge && (
-          <span className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full bg-[#141219] text-white text-[9px] font-black uppercase tracking-wider shadow-xs z-10">
-            {product.badge}
-          </span>
-        )}
+        {/* Top-Left Badges Stack with Proper Flex Spacing & No Overlap */}
+        <div className="absolute top-1.5 left-1.5 flex flex-col items-start gap-1 max-w-[calc(100%-36px)] z-10">
+          {discountPercent && (
+            <span className="px-2 py-0.5 rounded-full bg-[#ec2f73] text-white text-[8.5px] sm:text-[9px] font-black uppercase tracking-wider shadow-xs">
+              {discountPercent}% OFF
+            </span>
+          )}
+
+          {product.badge && !discountPercent && (
+            <span className="px-2 py-0.5 rounded-full bg-[#141219] text-white text-[8.5px] sm:text-[9px] font-black uppercase tracking-wider shadow-xs truncate max-w-[90px]">
+              {product.badge}
+            </span>
+          )}
+        </div>
 
         {/* Wishlist Button with Hover Glow */}
         <button
           type="button"
           onClick={handleWishlist}
-          aria-label="Wishlist"
+          aria-label={isWishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
           className={`absolute top-1.5 right-1.5 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer shadow-xs active:scale-90 z-20 ${
             isWishlisted
               ? 'bg-[#ec2f73] text-white shadow-[0_4px_12px_rgba(236,47,115,0.3)]'
@@ -75,11 +94,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <Heart className={`w-3.5 h-3.5 ${isWishlisted ? 'fill-current' : ''}`} />
         </button>
 
-        {/* Surprise Pill Tag at Bottom of Image */}
+        {/* Surprise Pill Tag at Bottom of Image with Strict Truncation and No Overflow */}
         {product.surpriseValue && (
-          <div className="absolute bottom-1.5 left-1.5 right-1.5 bg-white/95 backdrop-blur-xs rounded-[8px] px-1.5 py-0.5 border border-[#f2e6ec] flex items-center gap-1 shadow-xs z-10 pointer-events-none">
+          <div className="absolute bottom-1.5 left-1.5 right-1.5 bg-white/95 backdrop-blur-xs rounded-[8px] px-2 py-0.5 border border-[#f2e6ec] flex items-center gap-1 shadow-2xs z-10 pointer-events-none overflow-hidden max-w-[calc(100%-12px)]">
             <Sparkles className="w-2.5 h-2.5 text-[#ec2f73] shrink-0 animate-pulse" />
-            <span className="text-[9px] sm:text-[10px] font-bold text-[#141219] truncate">
+            <span className="text-[9px] sm:text-[10px] font-bold text-[#141219] truncate leading-tight">
               {product.surpriseValue}
             </span>
           </div>
@@ -97,6 +116,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <div className="flex items-center gap-0.5 font-extrabold text-[#141219] shrink-0">
               <Star className="w-3 h-3 fill-[#ffa000] text-[#ffa000]" />
               <span>{product.rating.toFixed(1)}</span>
+              <span className="text-[#8a858f] font-normal text-[9px]">({product.reviewCount})</span>
             </div>
           </div>
 
@@ -108,7 +128,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
         {/* Price & Quick ADD Stepper Row */}
         <div className="mt-2 pt-2 border-t border-[#f5edf2] flex items-center justify-between gap-1">
-          
           <div className="flex flex-col">
             <span className="text-xs sm:text-sm font-black text-[#141219] leading-none">
               ${product.price.toFixed(2)}
@@ -141,11 +160,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               >
                 <Minus className="w-3.5 h-3.5 stroke-[3]" />
               </button>
-              
+
               <span className="w-6 text-center text-xs font-black select-none">
                 {cartQuantity}
               </span>
-              
+
               <button
                 type="button"
                 onClick={handleIncrement}
@@ -156,11 +175,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               </button>
             </div>
           )}
-
         </div>
-
       </div>
-
     </div>
   );
 };

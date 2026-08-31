@@ -163,19 +163,6 @@ export const Footer: React.FC = () => {
                     </svg>
                   </a>
 
-                  {/* TikTok */}
-                  <a
-                    href="https://tiktok.com"
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label="TikTok"
-                    className="w-9 h-9 rounded-[12px] bg-white border border-[#eedbe6] text-[#55505a] hover:text-white hover:bg-[#000000] hover:border-[#000000] hover:shadow-[0_6px_16px_rgba(0,0,0,0.3)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex items-center justify-center shadow-2xs group"
-                  >
-                    <svg className="w-4 h-4 fill-current transition-transform group-hover:scale-110" viewBox="0 0 24 24">
-                      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.86 4.46V12.9a8.16 8.16 0 0 0 5.73 2.29V11.74a4.84 4.84 0 0 1-2.14-.54 4.79 4.79 0 0 1-1.86-1.78v-2.73z"/>
-                    </svg>
-                  </a>
-
                   {/* Facebook */}
                   <a
                     href="https://facebook.com"
@@ -189,43 +176,26 @@ export const Footer: React.FC = () => {
                     </svg>
                   </a>
 
-                  {/* YouTube */}
-                  <a
-                    href="https://youtube.com"
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label="YouTube"
-                    className="w-9 h-9 rounded-[12px] bg-white border border-[#eedbe6] text-[#55505a] hover:text-white hover:bg-[#ff0000] hover:border-[#ff0000] hover:shadow-[0_6px_16px_rgba(255,0,0,0.3)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex items-center justify-center shadow-2xs group"
-                  >
-                    <svg className="w-4 h-4 fill-current transition-transform group-hover:scale-110" viewBox="0 0 24 24">
-                      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                    </svg>
-                  </a>
-
-                  {/* Pinterest */}
-                  <a
-                    href="https://pinterest.com"
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label="Pinterest"
-                    className="w-9 h-9 rounded-[12px] bg-white border border-[#eedbe6] text-[#55505a] hover:text-white hover:bg-[#e60023] hover:border-[#e60023] hover:shadow-[0_6px_16px_rgba(230,0,35,0.3)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex items-center justify-center shadow-2xs group"
-                  >
-                    <svg className="w-4 h-4 fill-current transition-transform group-hover:scale-110" viewBox="0 0 24 24">
-                      <path d="M12 0a12 12 0 0 0-4.37 23.18c-.07-.98-.13-2.48.03-3.55.14-.97.94-6.42.94-6.42s-.24-.48-.24-1.2c0-1.12.65-1.96 1.46-1.96.69 0 1.02.52 1.02 1.14 0 .69-.44 1.73-.67 2.69-.19.8.4 1.46 1.19 1.46 1.43 0 2.53-1.51 2.53-3.68 0-1.93-1.38-3.27-3.36-3.27-2.46 0-3.9 1.84-3.9 3.75 0 .74.29 1.54.64 1.97.07.09.08.16.06.25-.07.28-.22.9-.25 1.03-.04.17-.14.21-.32.13-1.18-.55-1.92-2.28-1.92-3.66 0-2.98 2.17-5.72 6.25-5.72 3.28 0 5.83 2.34 5.83 5.47 0 3.26-2.06 5.89-4.91 5.89-.96 0-1.86-.5-2.17-1.09l-.59 2.25c-.21.82-.79 1.84-1.17 2.47A12 12 0 1 0 12 0z"/>
-                    </svg>
-                  </a>
-
-                  {/* X / Twitter */}
+                  {/* Twitter / X */}
                   <a
                     href="https://twitter.com"
                     target="_blank"
                     rel="noreferrer"
-                    aria-label="X (Twitter)"
+                    aria-label="Twitter / X"
                     className="w-9 h-9 rounded-[12px] bg-white border border-[#eedbe6] text-[#55505a] hover:text-white hover:bg-[#141219] hover:border-[#141219] hover:shadow-[0_6px_16px_rgba(20,18,25,0.3)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex items-center justify-center shadow-2xs group"
                   >
                     <svg className="w-4 h-4 fill-current transition-transform group-hover:scale-110" viewBox="0 0 24 24">
                       <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                     </svg>
+                  </a>
+
+                  {/* Email */}
+                  <a
+                    href="mailto:support@ilovesurprises.com"
+                    aria-label="Email Support"
+                    className="w-9 h-9 rounded-[12px] bg-white border border-[#eedbe6] text-[#55505a] hover:text-white hover:bg-[#ec2f73] hover:border-[#ec2f73] hover:shadow-[0_6px_16px_rgba(236,47,115,0.3)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex items-center justify-center shadow-2xs group"
+                  >
+                    <Mail className="w-4 h-4 text-current transition-transform group-hover:scale-110" />
                   </a>
 
                 </div>
@@ -305,27 +275,27 @@ export const Footer: React.FC = () => {
             </h4>
             <ul className="list-none p-0 m-0 space-y-2 text-xs text-[#5e5963] font-medium">
               <li>
-                <a href="#experience" className="hover:text-[#ec2f73] hover:translate-x-1 inline-block transition-all py-0.5">
+                <a href="#categories" className="hover:text-[#ec2f73] hover:translate-x-1 inline-block transition-all py-0.5">
                   📦 Track Your Delivery
                 </a>
               </li>
               <li>
-                <a href="#experience" className="hover:text-[#ec2f73] hover:translate-x-1 inline-block transition-all py-0.5">
+                <a href="#featured" className="hover:text-[#ec2f73] hover:translate-x-1 inline-block transition-all py-0.5">
                   🚚 Free Shipping Over $50
                 </a>
               </li>
               <li>
-                <a href="#experience" className="hover:text-[#ec2f73] hover:translate-x-1 inline-block transition-all py-0.5">
+                <a href="#featured" className="hover:text-[#ec2f73] hover:translate-x-1 inline-block transition-all py-0.5">
                   🛡️ 100% Win Guarantee Policy
                 </a>
               </li>
               <li>
-                <a href="#experience" className="hover:text-[#ec2f73] hover:translate-x-1 inline-block transition-all py-0.5">
+                <a href="#featured" className="hover:text-[#ec2f73] hover:translate-x-1 inline-block transition-all py-0.5">
                   💎 Jewelry Appraisal Verification
                 </a>
               </li>
               <li>
-                <a href="#experience" className="hover:text-[#ec2f73] hover:translate-x-1 inline-block transition-all py-0.5">
+                <a href="#categories" className="hover:text-[#ec2f73] hover:translate-x-1 inline-block transition-all py-0.5">
                   🕯️ Soy Candle Care & Burn Tips
                 </a>
               </li>
@@ -335,7 +305,7 @@ export const Footer: React.FC = () => {
                 </a>
               </li>
               <li>
-                <a href="#experience" className="hover:text-[#ec2f73] hover:translate-x-1 inline-block transition-all py-0.5">
+                <a href="#affiliate" className="hover:text-[#ec2f73] hover:translate-x-1 inline-block transition-all py-0.5">
                   💬 24/7 Live Customer Help
                 </a>
               </li>

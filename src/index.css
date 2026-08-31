@@ -18,6 +18,13 @@
     --radius-xl: 32px;
     --radius-lg: 24px;
     --radius-md: 18px;
+
+    /* Global Easing & Timing Tokens (Enhanced Smoothness) */
+    --ease-quick: cubic-bezier(0.16, 1, 0.3, 1);
+    --duration-micro: 180ms;
+    --duration-modal: 280ms;
+    --duration-drawer: 340ms;
+    --duration-page: 300ms;
   }
 
   html {
@@ -68,12 +75,311 @@
   letter-spacing: -0.035em;
 }
 
+.font-luxury-editorial {
+  font-family: "Playfair Display", "Instrument Serif", "Iowan Old Style", "Baskerville", Georgia, serif;
+  letter-spacing: -0.01em;
+  font-style: italic;
+}
+
+/* ========================================================================= */
+/* GLOBAL TRANSITIONS & ENTRANCE/EXIT SUITE (ENHANCED SMOOTHNESS)           */
+/* ========================================================================= */
+
+/* 1. Page Transitions (Forward & Return / Back) */
+@keyframes pageForwardIn {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.992);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pageBackwardIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.992);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.page-transition-forward {
+  animation: pageForwardIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, transform;
+}
+
+.page-transition-backward {
+  animation: pageBackwardIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, transform;
+}
+
+/* Legacy/Default page transition */
+.page-transition {
+  animation: pageForwardIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, transform;
+}
+
+/* 2. Cart & Side Drawer Transitions */
+@keyframes drawerSlideRightIn {
+  0% {
+    transform: translateX(100%);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes drawerSlideRightOut {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-drawer-in {
+  animation: drawerSlideRightIn 0.34s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform;
+}
+
+.animate-drawer-out {
+  animation: drawerSlideRightOut 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform;
+}
+
+/* 3. Bottom Sheet Transitions (Mobile Filters) */
+@keyframes sheetSlideBottomIn {
+  0% {
+    transform: translateY(100%);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes sheetSlideBottomOut {
+  0% {
+    transform: translateY(0);
+  }
+
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+.animate-sheet-in {
+  animation: sheetSlideBottomIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform;
+}
+
+.animate-sheet-out {
+  animation: sheetSlideBottomOut 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform;
+}
+
+/* 4. Modal Pop In & Out */
+@keyframes modalPopIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes modalPopOut {
+  0% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+}
+
+.animate-modal-in {
+  animation: modalPopIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, transform;
+}
+
+.animate-modal-out {
+  animation: modalPopOut 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, transform;
+}
+
+/* 5. Backdrop Fade In & Out */
+@keyframes backdropFadeIn {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes backdropFadeOut {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+.animate-backdrop-in {
+  animation: backdropFadeIn 0.26s ease-out forwards;
+  will-change: opacity;
+}
+
+.animate-backdrop-out {
+  animation: backdropFadeOut 0.22s ease-in forwards;
+  will-change: opacity;
+}
+
+/* 6. Left Slide Drawer (Desktop Filter Panel) */
+@keyframes drawerSlideLeftIn {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes drawerSlideLeftOut {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+.animate-drawer-left-in {
+  animation: drawerSlideLeftIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+.animate-drawer-left-out {
+  animation: drawerSlideLeftOut 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+/* 7. Mega Panel Expand & Collapse Transitions */
+@keyframes megaPanelExpand {
+  0% {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.985);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes megaPanelCollapse {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.985);
+  }
+}
+
+.animate-panel-expand {
+  animation: megaPanelExpand 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, transform;
+}
+
+.animate-panel-collapse {
+  animation: megaPanelCollapse 0.30s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, transform;
+}
+
+/* Backward compatibility for backdrop/modal class names */
+.animate-backdrop-fade {
+  animation: backdropFadeIn 0.26s ease-out forwards;
+}
+
+.animate-modal-pop {
+  animation: modalPopIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-drawer-bottom {
+  animation: sheetSlideBottomIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* 6. Micro-Interactions (Cart Badge & Toast) */
+@keyframes badgePop {
+  0% {
+    transform: scale(0.8);
+  }
+
+  50% {
+    transform: scale(1.28);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.badge-pulse {
+  animation: badgePop 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform;
+}
+
+@keyframes toastSlideUp {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 14px) scale(0.95);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+.animate-toast {
+  animation: toastSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, transform;
+}
+
 /* Tactile Button Animations & Hover Polish */
 .btn-primary-glow {
   background: linear-gradient(135deg, #ec2f73 0%, #d92467 100%);
   color: #ffffff;
   box-shadow: 0 6px 20px rgba(236, 47, 115, 0.28);
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s ease;
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1), filter 0.18s ease;
   will-change: transform;
 }
 
@@ -93,7 +399,7 @@
   border: 1px solid #e8dfe5;
   color: #141219;
   box-shadow: 0 3px 10px rgba(50, 31, 63, 0.04);
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, color 0.2s ease, box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.18s ease, color 0.18s ease, box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform;
 }
 
@@ -109,16 +415,8 @@
 }
 
 /* GPU Accelerated Smooth Micro-Interactions */
-.gpu-layer {
-  transform: translate3d(0, 0, 0);
-  backface-visibility: hidden;
-  perspective: 1000px;
-  will-change: transform;
-}
-
 .hover-lift {
-  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: transform;
+  transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.26s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .hover-lift:hover {
@@ -126,20 +424,20 @@
 }
 
 .hover-lift:active {
-  transform: translateY(0px) scale(0.97) translateZ(0);
+  transform: translateY(0px) scale(0.96) translateZ(0);
 }
 
 .smooth-card {
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
-  will-change: transform;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s ease;
   transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
 }
 
 /* Tactile press feedback */
 .active-press {
-  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
 .active-press:active {
   transform: scale(0.96);
 }
@@ -165,6 +463,7 @@
 
 /* Accessibility: Respect Reduced Motion Preferences */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {

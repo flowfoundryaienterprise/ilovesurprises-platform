@@ -10,26 +10,20 @@ import {
   X,
   Star,
   Check,
-  Zap,
   Truck,
   LogOut,
   PackageCheck,
   Heart,
   Users,
-  UserPlus,
   Menu,
   Home as HomeIcon,
-  Flame,
   LayoutGrid,
   Info,
   Headphones,
   ArrowRight,
-  ArrowLeft,
   Phone,
   Mail,
   Mic,
-  TrendingUp,
-  Tag,
   Volume2,
 } from 'lucide-react';
 import type { UserProfile, Product } from '../../types';
@@ -39,10 +33,13 @@ export interface HeaderProps {
   cartCount?: number;
   cartSubtotal?: number;
   user?: UserProfile | null;
+  activeView?: 'home' | 'shop' | 'categories' | 'product-details';
   onOpenCart?: () => void;
-  onOpenAuth?: (mode?: 'login' | 'signup') => void;
+  onOpenAuth?: (mode?: 'login' | 'signup' | 'forgot') => void;
   onLogout?: () => void;
   onSearch?: (query: string) => void;
+  onNavigate?: (route: 'home' | 'shop' | 'categories') => void;
+  onSelectProduct?: (product: Product) => void;
 }
 
 export interface NavItem {
@@ -57,7 +54,6 @@ const NAV_LINKS: NavItem[] = [
   { id: 'home', label: 'Home', href: '/', targetSectionId: 'hero', icon: HomeIcon },
   { id: 'shop', label: 'Shop', href: '/shop', targetSectionId: 'featured', icon: ShoppingBag },
   { id: 'categories', label: 'Categories', href: '/categories', targetSectionId: 'categories', icon: LayoutGrid },
-  { id: 'experiences', label: 'Experiences', href: '/experiences', targetSectionId: 'experience', icon: Flame },
   { id: 'affiliate', label: 'Affiliate', href: '/affiliate', targetSectionId: 'affiliate', icon: Users },
   { id: 'about', label: 'About', href: '/about', targetSectionId: 'about', icon: Info },
   { id: 'contact', label: 'Contact', href: '/contact', targetSectionId: 'contact', icon: Headphones },
@@ -85,16 +81,20 @@ export const Header: React.FC<HeaderProps> = ({
   cartCount = 0,
   cartSubtotal: _cartSubtotal = 0,
   user = null,
+  activeView,
   onOpenCart,
   onOpenAuth,
   onLogout,
   onSearch,
+  onNavigate,
+  onSelectProduct,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
   const [currentLoc, setCurrentLoc] = useState(availableLocations[0]);
   const [isLocationOpen, setIsLocationOpen] = useState(false);
+  const [customZip, setCustomZip] = useState('');
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeNavId, setActiveNavId] = useState<string>('home');
@@ -103,11 +103,13 @@ export const Header: React.FC<HeaderProps> = ({
 
   const locationMenuRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const searchPopupRef = useRef<HTMLDivElement>(null);
+  const searchButtonRef = useRef<HTMLButtonElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef = useRef<any>(null);
 
-  // Filter matching products for full-screen search view
+  // Filter matching products for popup search view
   const matchingProducts = useMemo(() => {
     if (!searchQuery.trim()) {
       return productsData.filter((p) => p.isBestSeller).slice(0, 8);
@@ -124,36 +126,14 @@ export const Header: React.FC<HeaderProps> = ({
       .slice(0, 12);
   }, [searchQuery]);
 
-  // Open Search Modal with browser history push state (prevents device back button from exiting website)
-  const openSearchModal = () => {
-    setIsSearchModalOpen(true);
-    if (typeof window !== 'undefined' && window.history) {
-      window.history.pushState({ modal: 'search' }, '');
-    }
-  };
-
-  // Close Search Modal safely
-  const closeSearchModal = (fromPopState = false) => {
-    setIsSearchModalOpen(false);
-    if (!fromPopState && typeof window !== 'undefined' && window.history.state?.modal === 'search') {
-      window.history.back();
-    }
-  };
-
-  // Open Mobile Menu with browser history push state
+  // Open Mobile Menu safely
   const openMobileMenu = () => {
     setIsMobileMenuOpen(true);
-    if (typeof window !== 'undefined' && window.history) {
-      window.history.pushState({ modal: 'menu' }, '');
-    }
   };
 
   // Close Mobile Menu safely
-  const closeMobileMenu = (fromPopState = false) => {
+  const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
-    if (!fromPopState && typeof window !== 'undefined' && window.history.state?.modal === 'menu') {
-      window.history.back();
-    }
   };
 
   // Close Voice Modal safely
@@ -171,16 +151,15 @@ export const Header: React.FC<HeaderProps> = ({
 
   // Handle device hardware return/back button (popstate event)
   useEffect(() => {
-    const handlePopState = (_e: PopStateEvent) => {
+    const handlePopState = () => {
       if (isVoiceModalOpen) {
         closeVoiceModal();
-        return;
       }
-      if (isSearchModalOpen) {
-        closeSearchModal(true);
+      if (isSearchOpen) {
+        setIsSearchOpen(false);
       }
       if (isMobileMenuOpen) {
-        closeMobileMenu(true);
+        setIsMobileMenuOpen(false);
       }
       if (isListening && recognitionRef.current) {
         recognitionRef.current.stop();
@@ -190,7 +169,7 @@ export const Header: React.FC<HeaderProps> = ({
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [isSearchModalOpen, isMobileMenuOpen, isVoiceModalOpen, isListening]);
+  }, [isSearchOpen, isMobileMenuOpen, isVoiceModalOpen, isListening]);
 
   // Close menus when clicking outside
   useEffect(() => {
@@ -201,51 +180,48 @@ export const Header: React.FC<HeaderProps> = ({
       if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
         setIsUserMenuOpen(false);
       }
+      if (
+        searchPopupRef.current &&
+        !searchPopupRef.current.contains(e.target as Node) &&
+        searchButtonRef.current &&
+        !searchButtonRef.current.contains(e.target as Node)
+      ) {
+        setIsSearchOpen(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Keyboard accessibility: Close mobile drawer, search, and voice modal on Escape
+  // Keyboard accessibility: Close mobile drawer, search popup, and voice modal on Escape
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        setIsSearchOpen(false);
         closeVoiceModal();
         closeMobileMenu();
-        closeSearchModal();
         setIsLocationOpen(false);
         setIsUserMenuOpen(false);
       }
       // Quick search shortcut (/)
-      if (e.key === '/' && !isSearchModalOpen && !isVoiceModalOpen && (e.target as HTMLElement).tagName !== 'INPUT') {
+      if (e.key === '/' && !isSearchOpen && !isVoiceModalOpen && (e.target as HTMLElement).tagName !== 'INPUT') {
         e.preventDefault();
-        openSearchModal();
+        setIsSearchOpen(true);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isListening, isSearchModalOpen, isVoiceModalOpen]);
+  }, [isListening, isSearchOpen, isVoiceModalOpen]);
 
-  // Prevent background scrolling while mobile drawer, full-screen search, or voice modal is open
+  // Auto-focus input when search popup opens
   useEffect(() => {
-    if (isMobileMenuOpen || isSearchModalOpen || isVoiceModalOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isMobileMenuOpen, isSearchModalOpen, isVoiceModalOpen]);
-
-  // Auto-focus input when full-screen search modal opens
-  useEffect(() => {
-    if (isSearchModalOpen) {
-      setTimeout(() => {
+    if (isSearchOpen) {
+      const timer = setTimeout(() => {
         searchInputRef.current?.focus();
-      }, 100);
+      }, 80);
+      return () => clearTimeout(timer);
     }
-  }, [isSearchModalOpen]);
+  }, [isSearchOpen]);
 
   // Scroll spy to update active navigation state dynamically
   useEffect(() => {
@@ -302,14 +278,32 @@ export const Header: React.FC<HeaderProps> = ({
     }, 120);
   };
 
+  const handleApplyZip = (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanZip = customZip.trim();
+    if (cleanZip.length === 5 && /^\d+$/.test(cleanZip)) {
+      const matchCity =
+        availableLocations.find((l) => l.zip === cleanZip) || {
+          name: 'US Address',
+          zip: cleanZip,
+          state: 'USA',
+          eta: '2-3 Days',
+          tag: 'Express Delivery',
+        };
+      setCurrentLoc(matchCity);
+      setCustomZip('');
+      setIsLocationOpen(false);
+    }
+  };
+
   // Execute Search action
   const executeSearch = (queryToSearch?: string) => {
     const q = (queryToSearch !== undefined ? queryToSearch : searchQuery).trim();
     if (!q) return;
 
     onSearch?.(q);
+    setIsSearchOpen(false);
     closeVoiceModal();
-    closeSearchModal();
     closeMobileMenu();
 
     // Find best matched product
@@ -406,9 +400,13 @@ export const Header: React.FC<HeaderProps> = ({
   const handleSelectProduct = (product: Product) => {
     setSearchQuery(product.name);
     onSearch?.(product.name);
-    closeSearchModal();
+    setIsSearchOpen(false);
     closeMobileMenu();
-    scrollToProductOrFeatured(product.id);
+    if (onSelectProduct) {
+      onSelectProduct(product);
+    } else {
+      scrollToProductOrFeatured(product.id);
+    }
   };
 
   const handleSelectTag = (tag: string) => {
@@ -420,7 +418,22 @@ export const Header: React.FC<HeaderProps> = ({
     e.preventDefault();
     setActiveNavId(item.id);
     closeMobileMenu();
-    closeSearchModal();
+    setIsSearchOpen(false);
+
+    if (item.id === 'shop') {
+      onNavigate?.('shop');
+      return;
+    } else if (item.id === 'categories') {
+      onNavigate?.('categories');
+      return;
+    } else if (item.id === 'home') {
+      onNavigate?.('home');
+      return;
+    }
+
+    if (activeView && activeView !== 'home') {
+      onNavigate?.('home');
+    }
 
     if (window.history.pushState) {
       window.history.pushState(null, '', item.href);
@@ -438,12 +451,12 @@ export const Header: React.FC<HeaderProps> = ({
       } else if (item.id === 'home') {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
-    }, 50);
+    }, 150);
   };
 
   return (
     <header className="sticky top-0 z-40 w-full max-w-full bg-white/95 backdrop-blur-xl border-b border-[#eee7ed] shadow-[0_4px_24px_rgba(50,31,63,0.05)] transition-all">
-      
+
       {/* 1. Top VIP Announcement Ribbon (Hidden on mobile) */}
       <div className="hidden md:block bg-gradient-to-r from-[#fff1f6] via-[#fff8fb] to-[#fbf6ff] border-b border-[#f5e8ef] text-[10px] sm:text-[11px] font-bold text-[#716d77] py-1 sm:py-1.5 px-3 sm:px-4">
         <div className="max-w-[1460px] mx-auto flex items-center justify-between">
@@ -490,11 +503,11 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* 2. Main Brand & Navigation Header Bar */}
-      <div className="max-w-[1460px] mx-auto px-2.5 sm:px-6 py-2 sm:py-2.5">
-        <div className="flex items-center justify-between gap-1.5 sm:gap-4 lg:gap-6">
-          
-          {/* Left Block: Brand Logo + Mobile Search Bar directly next to it + Desktop Delivery Location */}
-          <div className="flex items-center gap-1 sm:gap-2 flex-1 min-w-0 lg:flex-initial">
+      <div className="relative max-w-[1460px] mx-auto px-2.5 sm:px-6 py-2 sm:py-2.5">
+        <div className="flex items-center justify-between gap-2 sm:gap-4 lg:gap-6">
+
+          {/* Left Block: Brand Logo + Desktop Delivery Location */}
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             {/* Brand Logo */}
             <a
               href="/"
@@ -513,84 +526,95 @@ export const Header: React.FC<HeaderProps> = ({
               <img
                 src="/assets/ilovesurprises/logo/i love surprises logo.jpeg"
                 alt="I Love Surprises Logo"
-                className="h-9 sm:h-11 md:h-12 w-auto max-w-[125px] sm:max-w-[160px] md:max-w-[240px] object-contain transition-transform duration-300 group-hover:scale-102"
+                className="h-9 sm:h-11 md:h-12 w-auto max-w-[130px] sm:max-w-[165px] md:max-w-[240px] object-contain transition-transform duration-300 group-hover:scale-102"
                 loading="eager"
               />
             </a>
 
-            {/* Mobile Search Bar (Placed directly near the logo) */}
-            <div className="lg:hidden flex-1 min-w-0 max-w-[210px] xs:max-w-[240px] sm:max-w-[320px]">
-              <div className="w-full h-[34px] rounded-[11px] bg-[#fff9fb] border border-[#ecdbe6] hover:border-[#ec2f73] transition-all flex items-center px-2 shadow-2xs">
-                <button
-                  type="button"
-                  onClick={openSearchModal}
-                  className="flex items-center flex-1 min-w-0 text-left cursor-pointer"
-                  aria-label="Open search"
-                >
-                  <Search className="w-3.5 h-3.5 text-[#ec2f73] shrink-0 mr-1.5" />
-                  <span className="w-full text-[11px] text-[#817c85] font-medium truncate">
-                    {searchQuery || 'Search...'}
-                  </span>
-                </button>
-
-                {/* Voice Search Button with YouTube Style Trigger */}
-                <button
-                  type="button"
-                  onClick={startVoiceSearch}
-                  className="p-1 rounded-full text-[#ec2f73] hover:bg-[#fff0f5] active:scale-90 transition-all cursor-pointer shrink-0 ml-0.5"
-                  title="Search with voice"
-                  aria-label="Voice search"
-                >
-                  <Mic className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-
-            {/* Quick Delivery Pill (Desktop >= 1280px) */}
-            <div ref={locationMenuRef} className="relative hidden xl:block ml-1">
+            {/* Quick Delivery Pill (Visible on md and desktop >= 768px) */}
+            <div ref={locationMenuRef} className="relative hidden md:block ml-1.5 lg:ml-2.5">
               <button
                 type="button"
                 onClick={() => setIsLocationOpen(!isLocationOpen)}
-                className="group flex items-center gap-2 px-3 py-1 rounded-[14px] bg-gradient-to-r from-[#fff3f7] to-[#fff8fb] hover:from-[#ffeaf2] hover:to-[#fff3f7] text-[#141219] border border-[#f5cad7] hover:border-[#ec2f73] shadow-2xs hover:shadow-[0_4px_16px_rgba(236,47,115,0.12)] active:scale-97 transition-all duration-200 cursor-pointer select-none text-left"
+                className="group flex items-center gap-2 px-3 py-1.5 rounded-[15px] bg-gradient-to-r from-[#fff3f7] via-[#fff8fb] to-[#fff3f7] hover:from-[#ffeaf2] hover:to-[#fff0f5] text-[#141219] border border-[#f5cad7] hover:border-[#ec2f73] shadow-2xs hover:shadow-[0_6px_20px_rgba(236,47,115,0.14)] active:scale-97 transition-all duration-200 cursor-pointer select-none text-left"
                 aria-haspopup="true"
                 aria-expanded={isLocationOpen}
+                aria-label={`Delivery location: ${currentLoc.name}, ${currentLoc.zip}. Click to change.`}
               >
-                <div className="w-6 h-6 rounded-full bg-[#ec2f73] text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-106 transition-transform duration-200">
-                  <Truck className="w-3 h-3" />
+                <div className="w-6 h-6 rounded-full bg-[#ec2f73] text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-108 transition-transform duration-200">
+                  <Truck className="w-3.5 h-3.5" />
                 </div>
 
                 <div className="leading-tight">
                   <div className="text-[9px] font-black text-[#ec2f73] uppercase tracking-wider flex items-center gap-1">
-                    <span>{currentLoc.eta}</span>
+                    <span>Deliver to</span>
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   </div>
-                  <div className="text-[11px] font-black text-[#141219] flex items-center gap-1">
-                    <span className="truncate max-w-[90px]">
+                  <div className="text-[11px] sm:text-xs font-black text-[#141219] flex items-center gap-1">
+                    <span className="truncate max-w-[105px]">
                       {currentLoc.name}, {currentLoc.zip}
                     </span>
                     <ChevronDown
-                      className={`w-3 h-3 text-[#716d77] group-hover:text-[#ec2f73] transition-transform duration-200 ${
-                        isLocationOpen ? 'rotate-180 text-[#ec2f73]' : ''
-                      }`}
+                      className={`w-3 h-3 text-[#716d77] group-hover:text-[#ec2f73] transition-transform duration-200 ${isLocationOpen ? 'rotate-180 text-[#ec2f73]' : ''
+                        }`}
                     />
                   </div>
                 </div>
               </button>
 
-              {/* Location Selector Dropdown Modal */}
+              {/* Enhanced Location Selector Dropdown Modal */}
               {isLocationOpen && (
-                <div className="absolute top-full left-0 mt-2 w-72 p-4 bg-white rounded-[22px] border border-[#eee7ed] shadow-[0_16px_40px_rgba(50,31,63,0.14)] z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                  <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-[#f4edf2]">
-                    <div>
-                      <h4 className="text-xs font-black text-[#141219] m-0">Delivery Location</h4>
-                      <p className="text-[10px] text-[#716d77] m-0">Express dispatch to your address</p>
+                <div className="absolute top-full left-0 mt-2.5 w-80 p-4 bg-white/98 backdrop-blur-xl rounded-[24px] border border-[#f0dae7] shadow-[0_20px_50px_rgba(50,31,63,0.18)] z-50 animate-in fade-in zoom-in-95 duration-200">
+
+                  {/* Modal Header */}
+                  <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#f4edf2]">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-[10px] bg-[#fff0f5] text-[#ec2f73] flex items-center justify-center border border-[#f5cad7]">
+                        <MapPin className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-black text-[#141219] m-0">Choose Delivery Location</h4>
+                        <p className="text-[10px] text-[#716d77] m-0">Instant dispatch rates & ETA</p>
+                      </div>
                     </div>
-                    <span className="p-1.5 rounded-full bg-[#fff0f5] text-[#ec2f73]">
-                      <Zap className="w-3.5 h-3.5 fill-current" />
-                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setIsLocationOpen(false)}
+                      className="p-1 rounded-full text-[#8a858f] hover:text-[#141219] hover:bg-[#fbf4f7] transition-colors cursor-pointer"
+                      aria-label="Close location selector"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
                   </div>
 
-                  <div className="space-y-1.5">
+                  {/* Direct ZIP Code Input Form */}
+                  <form onSubmit={handleApplyZip} className="mb-3">
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="text"
+                        maxLength={5}
+                        pattern="[0-9]*"
+                        placeholder="Enter 5-digit US ZIP..."
+                        value={customZip}
+                        onChange={(e) => setCustomZip(e.target.value.replace(/\D/g, ''))}
+                        className="flex-1 min-w-0 h-[36px] px-3 rounded-[11px] bg-[#fff9fb] border border-[#ecdbe6] focus:border-[#ec2f73] focus:bg-white text-xs font-bold text-[#141219] placeholder:text-[#8a858f] outline-none transition-all"
+                      />
+                      <button
+                        type="submit"
+                        disabled={customZip.trim().length !== 5}
+                        className="h-[36px] px-3.5 rounded-[11px] bg-[#ec2f73] hover:bg-[#d92467] disabled:opacity-45 disabled:cursor-not-allowed text-white text-xs font-black uppercase tracking-wider shadow-2xs active:scale-95 transition-all cursor-pointer shrink-0"
+                      >
+                        Apply
+                      </button>
+                    </div>
+                  </form>
+
+                  {/* Quick Select Popular Metros */}
+                  <div className="space-y-1.5 max-h-[220px] overflow-y-auto pr-0.5">
+                    <span className="block text-[10px] font-black uppercase tracking-wider text-[#8a858f] px-1 mb-1">
+                      Popular Express Hubs
+                    </span>
+
                     {availableLocations.map((loc) => {
                       const isSelected = currentLoc.zip === loc.zip;
                       return (
@@ -601,54 +625,64 @@ export const Header: React.FC<HeaderProps> = ({
                             setCurrentLoc(loc);
                             setIsLocationOpen(false);
                           }}
-                          className={`w-full p-2.5 rounded-[14px] flex items-center justify-between text-left transition-all duration-150 cursor-pointer ${
-                            isSelected
-                              ? 'bg-[#fff0f5] border border-[#f5cad7] text-[#ec2f73] shadow-2xs'
-                              : 'hover:bg-[#fff9fb] text-[#141219] border border-transparent hover:border-[#f5dce6]'
-                          }`}
+                          className={`w-full p-2.5 rounded-[13px] flex items-center justify-between text-left transition-all duration-150 cursor-pointer ${isSelected
+                            ? 'bg-[#fff0f5] border border-[#f5cad7] text-[#ec2f73] shadow-2xs'
+                            : 'hover:bg-[#fff9fb] text-[#141219] border border-[#f5e8ef] hover:border-[#f5dce6]'
+                            }`}
                         >
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2.5">
                             <MapPin
-                              className={`w-3.5 h-3.5 ${
-                                isSelected ? 'text-[#ec2f73]' : 'text-[#817c85]'
-                              }`}
+                              className={`w-3.5 h-3.5 shrink-0 ${isSelected ? 'text-[#ec2f73]' : 'text-[#817c85]'
+                                }`}
                             />
                             <div>
-                              <strong className="block text-xs font-bold">
+                              <strong className="block text-xs font-black">
                                 {loc.name}, {loc.state} ({loc.zip})
                               </strong>
-                              <span className="text-[10px] text-[#716d77]">
-                                Transit: {loc.eta} • {loc.tag}
+                              <span className="text-[10px] text-[#716d77] block font-medium">
+                                ETA: <span className="text-[#ec2f73] font-bold">{loc.eta}</span> • {loc.tag}
                               </span>
                             </div>
                           </div>
-                          {isSelected && <Check className="w-4 h-4 text-[#ec2f73] stroke-[3]" />}
+                          {isSelected && (
+                            <div className="w-5 h-5 rounded-full bg-[#ec2f73] text-white flex items-center justify-center shrink-0">
+                              <Check className="w-3 h-3 stroke-[3]" />
+                            </div>
+                          )}
                         </button>
                       );
                     })}
                   </div>
+
+                  {/* Free Shipping Footer Note */}
+                  <div className="mt-3 pt-2.5 border-t border-[#f4edf2] flex items-center justify-between text-[10px] font-bold text-[#716d77]">
+                    <span>🚚 Free Shipping on orders $50+</span>
+                    <span className="text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                      Live Rate
+                    </span>
+                  </div>
+
                 </div>
               )}
             </div>
           </div>
 
-          {/* Center Block: Desktop Primary Horizontal Navigation Menu (Visible on lg >= 1024px) */}
+          {/* Center Block: Desktop Primary Horizontal Navigation Menu (Centered in Desktop Mode) */}
           <nav
-            className="hidden lg:flex items-center justify-center gap-1 xl:gap-1.5 bg-white/80 px-2.5 py-1 rounded-[16px] border border-[#f2e7ee] shadow-2xs"
+            className="hidden lg:flex items-center justify-center gap-0.5 xl:gap-1.5 bg-white/90 backdrop-blur-md px-2 xl:px-3 py-1 rounded-[16px] border border-[#f2e7ee] shadow-2xs lg:absolute lg:left-1/2 lg:top-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 z-10"
             aria-label="Main Navigation"
           >
             {NAV_LINKS.map((item) => {
-              const isActive = activeNavId === item.id;
+              const isActive = (activeView && activeView === item.id) || (!activeView && activeNavId === item.id);
               return (
                 <a
                   key={item.id}
                   href={item.href}
                   onClick={(e) => handleNavClick(e, item)}
-                  className={`group relative flex items-center px-3.5 py-1.5 rounded-[12px] text-[13px] xl:text-[14px] font-extrabold transition-all duration-200 select-none whitespace-nowrap ${
-                    isActive
-                      ? 'text-[#ec2f73] bg-[#fff0f5] border border-[#f5cad7] shadow-2xs'
-                      : 'text-[#36323d] hover:text-[#ec2f73] hover:bg-[#fff5f8] border border-transparent'
-                  }`}
+                  className={`group relative flex items-center px-3 xl:px-3.5 py-1.5 rounded-[12px] text-[13px] xl:text-[14px] font-extrabold transition-all duration-200 select-none whitespace-nowrap ${isActive
+                    ? 'text-[#ec2f73] bg-[#fff0f5] border border-[#f5cad7] shadow-2xs'
+                    : 'text-[#36323d] hover:text-[#ec2f73] hover:bg-[#fff5f8] border border-transparent'
+                    }`}
                   aria-current={isActive ? 'page' : undefined}
                 >
                   <span>{item.label}</span>
@@ -657,60 +691,39 @@ export const Header: React.FC<HeaderProps> = ({
             })}
           </nav>
 
-          {/* Right Header Actions: Desktop Search, Account, Cart & Mobile Hamburger Button */}
+          {/* Right Header Actions: Search Icon Button, Account, Cart & Mobile Hamburger Button */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            
-            {/* Desktop Search Trigger (Clicking opens Full-Screen Search Modal) */}
-            <div className="hidden lg:flex items-center w-40 xl:w-48 2xl:w-56 h-[34px] rounded-[11px] bg-[#fff9fb] border border-[#ecdbe6] hover:border-[#ec2f73] transition-all px-2.5 shadow-2xs group">
-              <button
-                type="button"
-                onClick={openSearchModal}
-                className="flex items-center flex-1 min-w-0 text-left cursor-pointer"
-                aria-label="Open search modal"
-              >
-                <Search className="w-3.5 h-3.5 text-[#ec2f73] shrink-0 mr-1.5" />
-                <span className="w-full text-[11px] text-[#817c85] font-medium truncate">
-                  {searchQuery || 'Search products...'}
-                </span>
-              </button>
 
-              {/* Desktop Voice Search Trigger */}
-              <button
-                type="button"
-                onClick={startVoiceSearch}
-                title="Search by voice"
-                className="p-1 rounded-full text-[#8a858f] hover:text-[#ec2f73] hover:bg-[#fff0f5] cursor-pointer transition-colors shrink-0"
-                aria-label="Voice search"
-              >
-                <Mic className="w-3.5 h-3.5" />
-              </button>
+            {/* Search Icon Trigger Button (DEFAULT: ONLY THE SEARCH ICON IS VISIBLE) */}
+            <button
+              ref={searchButtonRef}
+              type="button"
+              onClick={() => setIsSearchOpen((prev) => !prev)}
+              className={`flex items-center justify-center w-[36px] sm:w-[38px] h-[36px] sm:h-[38px] rounded-[11px] sm:rounded-[13px] border transition-all duration-200 cursor-pointer shadow-2xs ${isSearchOpen
+                ? 'bg-[#fff0f5] border-[#ec2f73] text-[#ec2f73] ring-2 ring-[#ec2f73]/15'
+                : 'bg-[#fffafb] border-[#f0e4ec] text-[#141219] hover:text-[#ec2f73] hover:border-[#ec2f73]'
+                }`}
+              title={isSearchOpen ? 'Close search' : 'Search catalog'}
+              aria-label={isSearchOpen ? 'Close search' : 'Open search'}
+              aria-expanded={isSearchOpen}
+            >
+              {isSearchOpen ? (
+                <X className="w-4 h-4" />
+              ) : (
+                <Search className="w-4 h-4" />
+              )}
+            </button>
 
-              <span className="text-[8px] font-extrabold uppercase px-1 py-0.5 rounded bg-white text-[#817c85] border border-[#f0e4ec] shrink-0 shadow-2xs ml-1">
-                /
-              </span>
-            </div>
-
-            {/* When NOT logged in: Sign In & Sign Up Buttons (Desktop only) */}
+            {/* When NOT logged in: Single Login Button */}
             {!user ? (
-              <div className="hidden sm:flex items-center gap-1 sm:gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => onOpenAuth?.('login')}
-                  className="flex items-center gap-1 h-[38px] px-3 rounded-[13px] bg-[#fffafb] border border-[#f0e4ec] hover:border-[#ec2f73] hover:text-[#ec2f73] text-xs font-black text-[#141219] transition-all shadow-2xs cursor-pointer"
-                >
-                  <User className="w-3.5 h-3.5 text-[#716d77]" />
-                  <span>Sign In</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => onOpenAuth?.('signup')}
-                  className="hidden md:flex items-center gap-1 h-[38px] px-3 rounded-[13px] bg-[#fff0f5] border border-[#f5cad7] hover:bg-[#ec2f73] hover:text-white text-xs font-black text-[#ec2f73] transition-all shadow-2xs cursor-pointer"
-                >
-                  <UserPlus className="w-3.5 h-3.5" />
-                  <span>Sign Up</span>
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => onOpenAuth?.('login')}
+                className="hidden sm:flex items-center gap-1.5 h-[38px] px-4 rounded-[13px] bg-[#fff0f5] border border-[#f5cad7] hover:border-[#ec2f73] hover:bg-[#ec2f73] hover:text-white text-xs font-black text-[#ec2f73] transition-all shadow-2xs cursor-pointer select-none"
+              >
+                <User className="w-3.5 h-3.5" />
+                <span>Login</span>
+              </button>
             ) : (
               /* When LOGGED IN: User Profile Pill */
               <div ref={userMenuRef} className="relative">
@@ -740,9 +753,8 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
 
                   <ChevronDown
-                    className={`w-3 h-3 text-[#716d77] transition-transform ${
-                      isUserMenuOpen ? 'rotate-180 text-[#ec2f73]' : ''
-                    }`}
+                    className={`w-3 h-3 text-[#716d77] transition-transform ${isUserMenuOpen ? 'rotate-180 text-[#ec2f73]' : ''
+                      }`}
                   />
                 </button>
 
@@ -844,7 +856,10 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <ShoppingBag className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
               {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 min-w-[17px] h-[17px] px-1 rounded-full bg-white text-[#ec2f73] text-[9px] font-black flex items-center justify-center shadow-xs border border-[#f5cad7]">
+                <span
+                  key={cartCount}
+                  className="badge-pulse absolute -top-1.5 -right-1.5 min-w-[17px] h-[17px] px-1 rounded-full bg-white text-[#ec2f73] text-[9px] font-black flex items-center justify-center shadow-xs border border-[#f5cad7]"
+                >
                   {cartCount}
                 </span>
               )}
@@ -863,6 +878,139 @@ export const Header: React.FC<HeaderProps> = ({
 
           </div>
         </div>
+
+        {/* Expandable / Popup Search Interface (Opens smoothly when Search icon is clicked) */}
+        {isSearchOpen && (
+          <div
+            ref={searchPopupRef}
+            className="absolute top-full right-2 sm:right-6 lg:right-auto lg:left-1/2 lg:-translate-x-1/2 mt-1.5 w-[calc(100vw-20px)] sm:w-[500px] md:w-[580px] max-w-[620px] bg-white/98 backdrop-blur-xl rounded-[20px] border-2 border-[#f5cad7] shadow-[0_16px_40px_rgba(50,31,63,0.18)] p-3 sm:p-4 z-50 animate-in fade-in zoom-in-95 duration-200 ease-out isolate"
+            role="search"
+            aria-label="Site Search"
+          >
+            {/* Search Input Bar */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                executeSearch();
+              }}
+              className="relative flex items-center w-full h-[44px] rounded-[14px] bg-[#fff9fb] border border-[#eedbe6] focus-within:border-[#ec2f73] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#ec2f73]/15 transition-all px-3 shadow-2xs"
+            >
+              <Search className="w-4 h-4 text-[#ec2f73] shrink-0 mr-2" />
+              <input
+                ref={searchInputRef}
+                type="search"
+                value={searchQuery}
+                onChange={handleSearchChange}
+                placeholder="Search candles, jewelry, cash surprises..."
+                className="w-full text-xs sm:text-sm text-[#141219] placeholder:text-[#8a858f] bg-transparent outline-none border-0 font-bold"
+                aria-label="Search keywords"
+              />
+
+              {/* Voice Search inside popup */}
+              <button
+                type="button"
+                onClick={startVoiceSearch}
+                title="Search by voice"
+                className="p-1 rounded-full text-[#8a858f] hover:text-[#ec2f73] hover:bg-[#fff0f5] transition-colors shrink-0 ml-1 cursor-pointer"
+                aria-label="Voice search"
+              >
+                <Mic className="w-3.5 h-3.5" />
+              </button>
+
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="p-1 text-[#8a858f] hover:text-[#141219] cursor-pointer shrink-0 ml-0.5"
+                  aria-label="Clear search text"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+
+              <button
+                type="submit"
+                className="ml-2 px-3.5 py-1.5 rounded-[10px] bg-[#ec2f73] hover:bg-[#d92467] text-white text-xs font-black uppercase tracking-wider transition-all cursor-pointer shrink-0 shadow-2xs active:scale-95"
+              >
+                Search
+              </button>
+            </form>
+
+            {/* Quick Trending Searches */}
+            <div className="mt-2.5 pt-2.5 border-t border-[#f4edf2]">
+              <div className="flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-[#8a858f] mb-1.5">
+                <Sparkles className="w-3 h-3 text-[#ec2f73]" />
+                <span>Popular Searches:</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {POPULAR_TAGS.map((tag) => (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => handleSelectTag(tag)}
+                    className="px-2.5 py-1 rounded-[8px] bg-[#fff0f5] hover:bg-[#ec2f73] text-[#ec2f73] hover:text-white border border-[#f5cad7] text-[11px] font-bold transition-all cursor-pointer shadow-2xs"
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Live Quick Results inside popup if search query present */}
+            {searchQuery.trim() && matchingProducts.length > 0 && (
+              <div className="mt-2.5 pt-2.5 border-t border-[#f4edf2] max-h-[220px] overflow-y-auto space-y-1.5 pr-1">
+                <div className="text-[10px] font-black uppercase tracking-wider text-[#8a858f] mb-1 flex items-center justify-between">
+                  <span>Matching Products</span>
+                  <span className="text-[#ec2f73] font-bold">{matchingProducts.length} items</span>
+                </div>
+                {matchingProducts.slice(0, 4).map((p) => (
+                  <div
+                    key={p.id}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => handleSelectProduct(p)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleSelectProduct(p);
+                      }
+                    }}
+                    className="p-1.5 sm:p-2 rounded-[10px] hover:bg-[#fff0f5] flex items-center justify-between transition-colors cursor-pointer group"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <img
+                        src={p.image}
+                        alt={p.name}
+                        className="w-9 h-9 rounded-[8px] object-cover shrink-0 border border-[#eee0e8]"
+                      />
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-[#141219] group-hover:text-[#ec2f73] truncate m-0">
+                          {p.name}
+                        </p>
+                        <p className="text-[10px] text-[#716d77] m-0">
+                          ${p.price.toFixed(2)} • {p.category} • {p.surpriseType === 'cash' ? '💵 Cash' : '💍 Jewelry'}
+                        </p>
+                      </div>
+                    </div>
+                    <ArrowRight className="w-3.5 h-3.5 text-[#ec2f73] opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Close hint */}
+            <div className="mt-2 pt-2 border-t border-[#f4edf2] flex items-center justify-between text-[10px] text-[#8a858f]">
+              <span>Press <kbd className="px-1 py-0.5 rounded bg-stone-100 border border-stone-300 font-mono text-[9px]">Esc</kbd> to close</span>
+              <button
+                type="button"
+                onClick={() => setIsSearchOpen(false)}
+                className="text-[#ec2f73] font-bold hover:underline cursor-pointer"
+              >
+                Close Search
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 3. Full-Screen Mobile Navigation Drawer Portal */}
@@ -870,7 +1018,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="fixed inset-0 z-[99999] flex justify-end">
           {/* Backdrop overlay with blur */}
           <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity duration-200"
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs animate-backdrop-fade"
             onClick={() => closeMobileMenu()}
             aria-hidden="true"
           />
@@ -880,7 +1028,7 @@ export const Header: React.FC<HeaderProps> = ({
             role="dialog"
             aria-modal="true"
             aria-label="Mobile Navigation Menu"
-            className="relative w-[85%] max-w-[340px] h-full bg-white shadow-2xl z-10 flex flex-col justify-between overflow-y-auto border-l border-[#eee7ed] animate-in slide-in-from-right duration-200"
+            className="relative w-[85%] max-w-[340px] h-full bg-white shadow-2xl z-10 flex flex-col justify-between overflow-y-auto border-l border-[#eee7ed] animate-drawer-in"
           >
             {/* Drawer Top Header */}
             <div>
@@ -923,7 +1071,7 @@ export const Header: React.FC<HeaderProps> = ({
                     type="button"
                     onClick={() => {
                       closeMobileMenu();
-                      openSearchModal();
+                      setIsSearchOpen(true);
                     }}
                     className="flex items-center flex-1 min-w-0 text-left cursor-pointer"
                   >
@@ -954,26 +1102,24 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="space-y-1">
                   {NAV_LINKS.map((item) => {
                     const IconComponent = item.icon;
-                    const isActive = activeNavId === item.id;
+                    const isActive = (activeView && activeView === item.id) || (!activeView && activeNavId === item.id);
                     return (
                       <a
                         key={item.id}
                         href={item.href}
                         onClick={(e) => handleNavClick(e, item)}
-                        className={`w-full min-h-[48px] px-3.5 py-2.5 rounded-[14px] flex items-center justify-between text-left font-bold text-sm transition-all duration-200 cursor-pointer ${
-                          isActive
-                            ? 'bg-[#fff0f5] text-[#ec2f73] border border-[#f5cad7] shadow-2xs font-black'
-                            : 'hover:bg-[#fff9fb] text-[#141219] border border-transparent'
-                        }`}
+                        className={`w-full min-h-[48px] px-3.5 py-2.5 rounded-[14px] flex items-center justify-between text-left font-bold text-sm transition-all duration-200 cursor-pointer ${isActive
+                          ? 'bg-[#fff0f5] text-[#ec2f73] border border-[#f5cad7] shadow-2xs font-black'
+                          : 'hover:bg-[#fff9fb] text-[#141219] border border-transparent'
+                          }`}
                         aria-current={isActive ? 'page' : undefined}
                       >
                         <div className="flex items-center gap-3">
                           <div
-                            className={`w-8 h-8 rounded-[10px] flex items-center justify-center transition-colors ${
-                              isActive
-                                ? 'bg-[#ec2f73] text-white shadow-xs'
-                                : 'bg-[#fff0f5] text-[#ec2f73]'
-                            }`}
+                            className={`w-8 h-8 rounded-[10px] flex items-center justify-center transition-colors ${isActive
+                              ? 'bg-[#ec2f73] text-white shadow-xs'
+                              : 'bg-[#fff0f5] text-[#ec2f73]'
+                              }`}
                           >
                             <IconComponent className="w-4 h-4" />
                           </div>
@@ -981,9 +1127,8 @@ export const Header: React.FC<HeaderProps> = ({
                         </div>
 
                         <ArrowRight
-                          className={`w-3.5 h-3.5 transition-transform ${
-                            isActive ? 'text-[#ec2f73] translate-x-0.5' : 'text-[#beb8c2]'
-                          }`}
+                          className={`w-3.5 h-3.5 transition-transform ${isActive ? 'text-[#ec2f73] translate-x-0.5' : 'text-[#beb8c2]'
+                            }`}
                         />
                       </a>
                     );
@@ -1014,31 +1159,17 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="p-4 border-t border-[#f4edf2] bg-gradient-to-b from-[#fffafc] to-[#fff3f7] space-y-3">
               {/* Account Status */}
               {!user ? (
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      closeMobileMenu();
-                      onOpenAuth?.('login');
-                    }}
-                    className="h-[40px] px-3 rounded-[12px] bg-white border border-[#eedbe6] text-[#141219] text-xs font-black shadow-2xs hover:border-[#ec2f73] hover:text-[#ec2f73] transition-all cursor-pointer flex items-center justify-center gap-1.5"
-                  >
-                    <User className="w-3.5 h-3.5 text-[#716d77]" />
-                    <span>Sign In</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      closeMobileMenu();
-                      onOpenAuth?.('signup');
-                    }}
-                    className="h-[40px] px-3 rounded-[12px] bg-[#ec2f73] hover:bg-[#d92467] text-white text-xs font-black shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-1.5"
-                  >
-                    <UserPlus className="w-3.5 h-3.5" />
-                    <span>Sign Up</span>
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    closeMobileMenu();
+                    onOpenAuth?.('login');
+                  }}
+                  className="w-full h-[42px] px-3.5 rounded-[12px] bg-[#fff0f5] border border-[#f5cad7] hover:border-[#ec2f73] hover:bg-[#ec2f73] hover:text-white text-[#ec2f73] text-xs font-black shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-2 select-none"
+                >
+                  <User className="w-4 h-4" />
+                  <span>Login</span>
+                </button>
               ) : (
                 <div className="p-2.5 bg-white rounded-[14px] border border-[#f5cad7] shadow-2xs">
                   <div className="flex items-center justify-between mb-2">
@@ -1090,200 +1221,11 @@ export const Header: React.FC<HeaderProps> = ({
         document.body
       )}
 
-      {/* 4. Full-Screen Luxury Search Experience (Both Desktop and Mobile) */}
-      {typeof document !== 'undefined' && isSearchModalOpen && createPortal(
-        <div className="fixed inset-0 z-[999999] bg-white/98 backdrop-blur-2xl flex flex-col animate-in fade-in zoom-in-98 duration-150 overflow-hidden">
-          {/* Top Search Action Header */}
-          <div className="w-full max-w-4xl mx-auto px-3 sm:px-6 pt-3 sm:pt-6 pb-2 sm:pb-3">
-            {/* Top Bar with Close Button (No Logo) */}
-            <div className="flex items-center justify-between gap-3 mb-2 sm:mb-4">
-              <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-[#ec2f73]">
-                <Sparkles className="w-3.5 h-3.5 fill-[#ec2f73]" />
-                <span>Search Catalog</span>
-              </div>
-
-              {/* Close Button */}
-              <button
-                type="button"
-                onClick={() => closeSearchModal()}
-                className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#fff0f5] hover:bg-[#ec2f73] text-[#ec2f73] hover:text-white border border-[#f5cad7] text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-2xs"
-                aria-label="Close search"
-              >
-                <span>Close</span>
-                <span className="hidden sm:inline text-[10px] opacity-75">(Esc)</span>
-                <X className="w-3.5 h-3.5 stroke-[2.5]" />
-              </button>
-            </div>
-
-            {/* Form for keyboard Return / Search key */}
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                executeSearch();
-              }}
-              action="#"
-              className="relative w-full h-[42px] sm:h-[48px] rounded-[13px] sm:rounded-[16px] bg-[#fff9fb] border-2 border-[#f5cad7] focus-within:border-[#ec2f73] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#ec2f73]/15 transition-all flex items-center px-2.5 sm:px-4 shadow-xs"
-            >
-              {/* Back button on mobile */}
-              <button
-                type="button"
-                onClick={() => closeSearchModal()}
-                className="sm:hidden p-1 rounded-full text-[#716d77] hover:text-[#ec2f73] active:scale-90 transition-all cursor-pointer shrink-0 mr-1"
-                aria-label="Back"
-              >
-                <ArrowLeft className="w-4 h-4 stroke-[2.5]" />
-              </button>
-
-              <button
-                type="submit"
-                className="p-1 rounded-full text-[#ec2f73] hover:bg-[#fff0f5] active:scale-95 transition-all cursor-pointer shrink-0 mr-1"
-                aria-label="Search"
-              >
-                <Search className="w-4 h-4 sm:w-5 sm:h-5" />
-              </button>
-
-              <input
-                ref={searchInputRef}
-                type="search"
-                enterKeyHint="search"
-                placeholder="Search candles, jewelry, cash surprises..."
-                value={searchQuery}
-                onChange={handleSearchChange}
-                className="w-full text-xs sm:text-sm text-[#141219] placeholder:text-[#817c85] bg-transparent outline-none border-0 font-bold"
-                aria-label="Full-screen Search"
-              />
-
-              {/* Voice Search inside Full-screen Search */}
-              <button
-                type="button"
-                onClick={startVoiceSearch}
-                title="Search by voice"
-                className="p-1.5 rounded-full text-[#8a858f] hover:text-[#ec2f73] hover:bg-[#fff0f5] transition-all cursor-pointer relative shrink-0"
-                aria-label="Voice search"
-              >
-                <Mic className="w-4 h-4 text-[#ec2f73]" />
-              </button>
-
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={handleClearSearch}
-                  className="p-1 text-[#716d77] hover:text-[#141219] cursor-pointer shrink-0 ml-0.5"
-                  aria-label="Clear search"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              )}
-
-              {/* Search Submit Action Button */}
-              <button
-                type="submit"
-                className="ml-1.5 px-3 sm:px-4 h-[30px] sm:h-[34px] rounded-[9px] sm:rounded-[11px] bg-gradient-to-r from-[#ec2f73] to-[#d92467] hover:from-[#d92467] hover:to-[#c21a57] text-white text-[11px] sm:text-xs font-black uppercase tracking-wider shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
-              >
-                Search
-              </button>
-            </form>
-          </div>
-
-          {/* Full-Screen Scrollable Results Body */}
-          <div className="flex-1 overflow-y-auto w-full max-w-4xl mx-auto px-3 sm:px-6 pb-8 space-y-3 sm:space-y-5">
-            {/* Trending Keyword Pills */}
-            <div>
-              <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-black uppercase tracking-wider text-[#8a858f] mb-1.5 sm:mb-2">
-                <TrendingUp className="w-3.5 h-3.5 text-[#ec2f73]" />
-                <span>Trending Searches</span>
-              </div>
-              <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                {POPULAR_TAGS.map((tag) => (
-                  <button
-                    key={tag}
-                    type="button"
-                    onClick={() => handleSelectTag(tag)}
-                    className="px-2.5 sm:px-3 py-1 rounded-[10px] sm:rounded-[11px] bg-white hover:bg-[#ec2f73] text-[#141219] hover:text-white border border-[#eedbe6] hover:border-[#ec2f73] text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 group"
-                  >
-                    <Tag className="w-3 h-3 text-[#ec2f73] group-hover:text-white transition-colors" />
-                    <span>{tag}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Live Matching Product Cards Grid */}
-            <div>
-              <div className="flex items-center justify-between text-[11px] sm:text-xs font-black uppercase tracking-wider text-[#8a858f] mb-2 sm:mb-3 pb-1.5 border-b border-[#f4edf2]">
-                <div className="flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                  <span>{searchQuery.trim() ? 'Matching Surprise Items' : 'Featured Bestsellers'}</span>
-                </div>
-                {matchingProducts.length > 0 && (
-                  <span className="text-[10px] sm:text-[11px] font-bold text-[#ec2f73] bg-[#fff0f5] px-2 py-0.5 rounded-full border border-[#f5cad7]">
-                    {matchingProducts.length} Found
-                  </span>
-                )}
-              </div>
-
-              {matchingProducts.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
-                  {matchingProducts.map((p) => (
-                    <div
-                      key={p.id}
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => handleSelectProduct(p)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          handleSelectProduct(p);
-                        }
-                      }}
-                      className="p-2 sm:p-3 rounded-[13px] sm:rounded-[16px] bg-white hover:bg-[#fff9fb] border border-[#eee7ed] hover:border-[#f5cad7] shadow-2xs hover:shadow-sm transition-all flex items-center justify-between text-left cursor-pointer group"
-                    >
-                      <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                        <img
-                          src={p.image}
-                          alt={p.name}
-                          className="w-11 h-11 sm:w-14 sm:h-14 rounded-[9px] sm:rounded-[12px] object-cover border border-[#eee0e8] shrink-0"
-                        />
-                        <div className="min-w-0">
-                          <strong className="block text-xs sm:text-[13px] font-black text-[#141219] truncate group-hover:text-[#ec2f73]">
-                            {p.name}
-                          </strong>
-                          <span className="block text-[10px] sm:text-[11px] text-[#716d77] truncate mt-0.2">
-                            {p.category}
-                          </span>
-                          <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className="text-xs sm:text-[13px] font-black text-[#141219]">
-                              ${p.price.toFixed(2)}
-                            </span>
-                            <span className="text-[9px] font-extrabold text-[#ec2f73] bg-[#fff0f5] px-1.5 py-0.2 rounded-[5px] border border-[#f5cad7]">
-                              {p.surpriseType === 'cash' ? '💵 Cash' : '💍 Jewelry'}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1 text-xs font-bold text-[#ec2f73] shrink-0 ml-1.5">
-                        <span className="hidden sm:inline text-[11px]">Select</span>
-                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="p-6 text-center text-xs sm:text-sm text-[#8a858f] bg-white rounded-[16px] border border-[#eee7ed]">
-                  No exact products found for &quot;{searchQuery}&quot;. Try searching &quot;Cash Candle&quot;, &quot;Jewelry&quot;, or &quot;Bath Bomb&quot;.
-                </div>
-              )}
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
-
-      {/* 5. YouTube-Style Animated Voice Search Modal Overlay */}
+      {/* 4. YouTube-Style Animated Voice Search Modal Overlay */}
       {typeof document !== 'undefined' && isVoiceModalOpen && createPortal(
         <div className="fixed inset-0 z-[9999999] bg-black/65 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in zoom-in-95 duration-200">
           <div className="relative w-full max-w-md bg-white rounded-[28px] p-6 sm:p-8 shadow-[0_25px_60px_rgba(0,0,0,0.35)] border border-[#f0dae7] text-center flex flex-col items-center overflow-hidden">
-            
+
             {/* Close Button in Top-Right */}
             <button
               type="button"
@@ -1312,27 +1254,24 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="relative my-4 flex items-center justify-center w-40 h-40">
               {/* Outer Ripple Wave 1 */}
               <div
-                className={`absolute w-36 h-36 rounded-full bg-[#ec2f73]/15 transition-all duration-1000 ${
-                  isListening ? 'animate-ping' : 'scale-90 opacity-20'
-                }`}
+                className={`absolute w-36 h-36 rounded-full bg-[#ec2f73]/15 transition-all duration-1000 ${isListening ? 'animate-ping' : 'scale-90 opacity-20'
+                  }`}
               />
 
               {/* Middle Ripple Wave 2 */}
               <div
-                className={`absolute w-28 h-28 rounded-full bg-[#ec2f73]/25 transition-all duration-700 ${
-                  isListening ? 'animate-pulse' : 'scale-90 opacity-40'
-                }`}
+                className={`absolute w-28 h-28 rounded-full bg-[#ec2f73]/25 transition-all duration-700 ${isListening ? 'animate-pulse' : 'scale-90 opacity-40'
+                  }`}
               />
 
               {/* Center YouTube Mic Button */}
               <button
                 type="button"
                 onClick={startVoiceSearch}
-                className={`relative z-10 w-20 h-20 rounded-full flex items-center justify-center text-white shadow-[0_10px_30px_rgba(236,47,115,0.45)] transition-transform duration-200 cursor-pointer active:scale-95 ${
-                  isListening
-                    ? 'bg-gradient-to-tr from-[#ec2f73] via-[#ff4081] to-[#ff2a6d] scale-105'
-                    : 'bg-gradient-to-tr from-[#716d77] to-[#36323d] hover:bg-[#ec2f73]'
-                }`}
+                className={`relative z-10 w-20 h-20 rounded-full flex items-center justify-center text-white shadow-[0_10px_30px_rgba(236,47,115,0.45)] transition-transform duration-200 cursor-pointer active:scale-95 ${isListening
+                  ? 'bg-gradient-to-tr from-[#ec2f73] via-[#ff4081] to-[#ff2a6d] scale-105'
+                  : 'bg-gradient-to-tr from-[#716d77] to-[#36323d] hover:bg-[#ec2f73]'
+                  }`}
                 title={isListening ? 'Listening... Tap to stop' : 'Tap to start speaking'}
                 aria-label="Toggle voice search"
               >

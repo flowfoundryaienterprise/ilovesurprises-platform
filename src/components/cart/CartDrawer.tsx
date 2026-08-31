@@ -20,11 +20,23 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   onRemoveItem,
   onCheckout,
 }) => {
+  const [isClosing, setIsClosing] = useState(false);
   const [promoCode, setPromoCode] = useState('');
   const [appliedPromo, setAppliedPromo] = useState<{ code: string; discountPercent: number } | null>(null);
   const [promoError, setPromoError] = useState('');
 
-  if (typeof document === 'undefined' || !isOpen) return null;
+  React.useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
+  if (typeof document === 'undefined' || (!isOpen && !isClosing)) return null;
 
   const totalCartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
   const rawSubtotal = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
@@ -36,6 +48,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const isFreeShipping = finalSubtotal >= freeShippingThreshold;
   const freeShippingProgress = Math.min(100, (finalSubtotal / freeShippingThreshold) * 100);
   const amountToFreeShipping = Math.max(0, freeShippingThreshold - finalSubtotal);
+
+  const handleTriggerClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose();
+    }, 280);
+  };
 
   const handleApplyPromo = (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,16 +76,22 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   return createPortal(
     <div className="fixed inset-0 z-[99999] overflow-hidden">
       
-      {/* Dark Blurred Backdrop with Smooth Fade-in */}
+      {/* Dark Blurred Backdrop with Smooth Fade */}
       <div
-        className="fixed inset-0 bg-[#141219]/60 backdrop-blur-xs transition-opacity duration-300 ease-out animate-in fade-in"
-        onClick={onClose}
+        className={`fixed inset-0 bg-[#141219]/60 backdrop-blur-xs transition-all ${
+          isClosing ? 'animate-backdrop-out' : 'animate-backdrop-in'
+        }`}
+        onClick={handleTriggerClose}
         aria-hidden="true"
       />
 
-      {/* Drawer Panel Container with Smooth Slide-in from Right */}
+      {/* Drawer Panel Container with Smooth Slide-in / Slide-out */}
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-0 sm:pl-10 w-full sm:w-auto z-10 pointer-events-auto">
-        <div className="w-full sm:w-screen sm:max-w-md bg-white shadow-2xl flex flex-col justify-between border-l border-[#eedbe6] animate-in slide-in-from-right duration-300 ease-out">
+        <div
+          className={`w-full sm:w-screen sm:max-w-md bg-white shadow-2xl flex flex-col justify-between border-l border-[#eedbe6] ${
+            isClosing ? 'animate-drawer-out' : 'animate-drawer-in'
+          }`}
+        >
           
           {/* 1. Header with Mobile Handle */}
           <div className="p-3.5 sm:p-5 border-b border-[#f0e2ec] bg-white sticky top-0 z-10">
@@ -80,22 +105,22 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   <ShoppingBag className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm sm:text-base font-black text-[#141219] m-0 hero-title-font leading-tight">
+                  <h2 className="text-base sm:text-lg font-black text-[#141219] m-0 font-display leading-tight">
                     Your Shopping Bag
-                  </h3>
-                  <span className="text-[10px] font-bold text-[#716d77]">
-                    {totalCartCount} {totalCartCount === 1 ? 'item' : 'items'} ready for unboxing
+                  </h2>
+                  <span className="text-xs text-[#716d77] font-semibold">
+                    {totalCartCount} {totalCartCount === 1 ? 'item' : 'items'}
                   </span>
                 </div>
               </div>
 
               <button
                 type="button"
-                onClick={onClose}
-                className="w-8 h-8 rounded-full bg-stone-100 hover:bg-[#fff0f5] text-[#716d77] hover:text-[#ec2f73] flex items-center justify-center transition-colors cursor-pointer shadow-2xs"
+                onClick={handleTriggerClose}
+                className="w-8 h-8 rounded-full bg-stone-100 hover:bg-[#fff0f5] text-[#716d77] hover:text-[#ec2f73] flex items-center justify-center transition-all cursor-pointer shadow-2xs active:scale-90"
                 aria-label="Close cart"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4 stroke-[2.5]" />
               </button>
             </div>
           </div>

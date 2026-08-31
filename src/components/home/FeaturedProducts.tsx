@@ -12,6 +12,7 @@ interface FeaturedProductsProps {
   onAddToCart?: (product: Product) => void;
   onUpdateQuantity?: (productId: string, delta: number) => void;
   onWishlistToggle?: (product: Product) => void;
+  onSelectProduct?: (product: Product) => void;
 }
 
 const filterChips = [
@@ -32,6 +33,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
   onAddToCart,
   onUpdateQuantity,
   onWishlistToggle,
+  onSelectProduct,
 }) => {
   const activeChip = selectedCategory || 'All Surprises';
 
@@ -64,7 +66,8 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
   };
 
   return (
-    <section id="featured" className="max-w-[1460px] mx-auto px-3 sm:px-6 py-4 sm:py-6">
+    <section id="featured" data-section="best-sellers" className="relative max-w-[1460px] mx-auto px-3 sm:px-6 py-4 sm:py-6">
+      <div id="best-sellers" className="absolute -top-20" />
       
       {/* Header & Quick Category Filter Chips */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
@@ -123,6 +126,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
               onAddToCart={onAddToCart}
               onUpdateQuantity={(id, qty) => onUpdateQuantity?.(id, qty - getProductQuantity(id))}
               onToggleWishlist={() => onWishlistToggle?.(product)}
+              onSelectProduct={onSelectProduct}
             />
           ))}
         </div>

@@ -1,168 +1,232 @@
-import React, { useState } from 'react';
-import { ArrowRight, Check, Sparkles, DollarSign, TrendingUp, PackageCheck, Zap, Copy, CheckCheck, Users } from 'lucide-react';
+import React from 'react';
+import { User, Check, Sparkles, ArrowRight, ShieldCheck, DollarSign } from 'lucide-react';
 
 export const AffiliateSection: React.FC = () => {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = () => {
-    navigator.clipboard?.writeText('https://ilovesurprises.com/rep/sparkle');
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   return (
-    <section id="affiliate" className="max-w-[1460px] mx-auto px-3 sm:px-6 py-4 sm:py-6 overflow-hidden">
-      
-      {/* State-of-the-Art Partner & Earn Portal Card */}
-      <div className="relative rounded-[24px] sm:rounded-[30px] border border-[#ebd2e2] bg-gradient-to-br from-[#fff2f7] via-[#fffafc] to-[#fbf5ff] p-5 sm:p-7 lg:p-8 shadow-[0_16px_45px_rgba(50,31,63,0.08)] overflow-hidden">
+    <section id="affiliate" className="max-w-[1460px] mx-auto px-3 sm:px-6 py-6 sm:py-9">
+      {/* Luxury Affiliate Showcase Card */}
+      <div className="relative rounded-[28px] sm:rounded-[32px] border border-[#f1dbe8] bg-[radial-gradient(circle_at_80%_25%,rgba(255,203,222,0.45),transparent_40%),linear-gradient(120deg,#fffafb_0%,#fff5f8_50%,#fcf8ff_100%)] p-6 sm:p-10 lg:p-12 shadow-[0_20px_50px_rgba(50,31,63,0.07)] overflow-hidden">
         
-        {/* Soft Ambient Radial Glow */}
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#ec2f73]/8 rounded-full blur-3xl pointer-events-none" />
+        {/* Soft Ambient Radial Backlight */}
+        <div className="absolute -top-10 right-1/4 w-[420px] h-[420px] bg-[#ec2f73]/8 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
           
-          {/* Left Column: Partnership Program Details & Perks */}
-          <div className="lg:col-span-7 xl:col-span-7 flex flex-col items-start z-10 w-full">
+          {/* Left Column: Program Headline, Key Highlights & CTAs */}
+          <div className="lg:col-span-5 flex flex-col items-start text-left z-10">
             
-            {/* Top Eyebrow Tag */}
-            <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#ec2f73]/10 text-[#ec2f73] text-[10px] sm:text-[11px] font-black uppercase tracking-wider mb-2.5 shadow-2xs">
-              <Sparkles className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: '4s' }} />
-              <span>Partner & Earn</span>
+            {/* Eyebrow Tag */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#fff0f5] border border-[#f5cad7] text-[#ec2f73] text-[10px] sm:text-[11px] font-black uppercase tracking-[0.18em] mb-3 shadow-2xs">
+              <Sparkles className="w-3.5 h-3.5 text-[#ec2f73] animate-pulse" />
+              <span>Affiliate Program</span>
             </div>
 
-            {/* Main Headline */}
-            <h2 className="text-2xl sm:text-3xl lg:text-[34px] font-black text-[#141219] tracking-tight leading-snug hero-title-font m-0 mb-2">
-              Earn 20% Commission with{' '}
+            {/* Main Heading */}
+            <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-black text-[#141219] leading-[1.06] tracking-tight m-0 mb-3 font-display">
+              Earn More with{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ec2f73] via-[#ff3b83] to-[#d92467]">
                 I Love Surprises
               </span>
             </h2>
 
-            {/* Subtitle */}
-            <p className="text-xs sm:text-sm lg:text-[14px] text-[#55505a] leading-relaxed max-w-xl m-0 mb-4 font-medium">
-              Share viral cash candles & jewelry reveal surprises with your personal vanity link. Earn <strong className="text-[#141219] font-black">20% direct retail commission</strong> plus 5 levels of sponsor team overrides (<strong className="text-[#ec2f73] font-black">5%, 4%, 3%, 2%, 1%</strong>).
+            {/* Description */}
+            <p className="text-xs sm:text-sm text-[#55505a] leading-[1.65] m-0 mb-5 font-medium">
+              Sell products and earn 20%. Refer other reps and earn from customer sales through five sponsor levels.
             </p>
 
-            {/* 4 Representative Advantage Badges */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full mb-4">
-              
-              <div className="flex items-center gap-2.5 p-2.5 rounded-[12px] bg-white/95 backdrop-blur-xs border border-[#f0e2ec] shadow-2xs">
-                <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                  <DollarSign className="w-3.5 h-3.5 stroke-[3]" />
+            {/* Checkmark Perks List */}
+            <div className="space-y-2.5 mb-6 w-full text-xs sm:text-[13px] text-[#2c2830] font-bold">
+              <div className="flex items-center gap-2.5 p-2 rounded-[12px] bg-white/70 border border-[#f5e4ee] shadow-2xs hover:bg-white hover:border-[#f1b8cb] transition-all">
+                <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
                 </div>
-                <div className="min-w-0">
-                  <strong className="block text-xs font-black text-[#141219] truncate">20% Direct Commission</strong>
-                  <span className="text-[10px] text-[#716d77] truncate block">Instant tracking on every retail order</span>
-                </div>
+                <span><strong className="text-emerald-700">20%</strong> on your personal customer sales</span>
               </div>
 
-              <div className="flex items-center gap-2.5 p-2.5 rounded-[12px] bg-white/95 backdrop-blur-xs border border-[#f0e2ec] shadow-2xs">
-                <div className="w-7 h-7 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
-                  <TrendingUp className="w-3.5 h-3.5 stroke-[3]" />
+              <div className="flex items-center gap-2.5 p-2 rounded-[12px] bg-white/70 border border-[#f5e4ee] shadow-2xs hover:bg-white hover:border-[#f1b8cb] transition-all">
+                <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
                 </div>
-                <div className="min-w-0">
-                  <strong className="block text-xs font-black text-[#141219] truncate">5-Tier Sponsor Overrides</strong>
-                  <span className="text-[10px] text-[#716d77] truncate block">5%, 4%, 3%, 2%, 1% team bonuses</span>
-                </div>
+                <span><strong className="text-[#141219]">5%</strong> on Level 1 customer sales</span>
               </div>
 
-              <div className="flex items-center gap-2.5 p-2.5 rounded-[12px] bg-white/95 backdrop-blur-xs border border-[#f0e2ec] shadow-2xs">
-                <div className="w-6 h-6 rounded-full bg-pink-100 text-[#ec2f73] flex items-center justify-center shrink-0">
-                  <PackageCheck className="w-3.5 h-3.5 stroke-[3]" />
+              <div className="flex items-center gap-2.5 p-2 rounded-[12px] bg-white/70 border border-[#f5e4ee] shadow-2xs hover:bg-white hover:border-[#f1b8cb] transition-all">
+                <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
                 </div>
-                <div className="min-w-0">
-                  <strong className="block text-xs font-black text-[#141219] truncate">Zero Inventory Required</strong>
-                  <span className="text-[10px] text-[#716d77] truncate block">We pack, ship & deliver nationwide</span>
-                </div>
+                <span><strong className="text-[#141219]">4%</strong> on Level 2</span>
               </div>
 
-              <div className="flex items-center gap-2.5 p-2.5 rounded-[12px] bg-white/95 backdrop-blur-xs border border-[#f0e2ec] shadow-2xs">
-                <div className="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
-                  <Zap className="w-3.5 h-3.5 stroke-[3]" />
+              <div className="flex items-center gap-2.5 p-2 rounded-[12px] bg-white/70 border border-[#f5e4ee] shadow-2xs hover:bg-white hover:border-[#f1b8cb] transition-all">
+                <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
                 </div>
-                <div className="min-w-0">
-                  <strong className="block text-xs font-black text-[#141219] truncate">Weekly Automated Payouts</strong>
-                  <span className="text-[10px] text-[#716d77] truncate block">Direct deposit to Bank or PayPal</span>
-                </div>
+                <span><strong className="text-[#141219]">3%</strong> on Level 3</span>
               </div>
 
+              <div className="flex items-center gap-2.5 p-2 rounded-[12px] bg-white/70 border border-[#f5e4ee] shadow-2xs hover:bg-white hover:border-[#f1b8cb] transition-all">
+                <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                </div>
+                <span><strong className="text-[#141219]">2%</strong> on Level 4</span>
+              </div>
+
+              <div className="flex items-center gap-2.5 p-2 rounded-[12px] bg-white/70 border border-[#f5e4ee] shadow-2xs hover:bg-white hover:border-[#f1b8cb] transition-all">
+                <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                </div>
+                <span><strong className="text-[#141219]">1%</strong> on Level 5</span>
+              </div>
+
+              {/* Maximum Total Payout Pill */}
+              <div className="flex items-center gap-2.5 p-2.5 rounded-[12px] bg-gradient-to-r from-[#fff0f5] to-[#ffeef4] border border-[#f5cad7] shadow-2xs text-[#ec2f73]">
+                <div className="w-5 h-5 rounded-full bg-[#ec2f73] text-white flex items-center justify-center shrink-0">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                </div>
+                <span className="font-black text-[13px]">Maximum total payout: 35%</span>
+              </div>
             </div>
 
-            {/* Simulated Vanity Link Pill */}
-            <div className="w-full max-w-lg mb-5 p-1.5 rounded-[14px] bg-white border border-[#ebdce5] flex items-center justify-between gap-2 shadow-2xs">
-              <div className="flex items-center gap-1.5 px-2 min-w-0 overflow-hidden">
-                <span className="text-[9px] font-black uppercase text-[#ec2f73] bg-[#fff0f5] px-2 py-0.5 rounded-full shrink-0">
-                  Your Link
-                </span>
-                <span className="text-[11px] sm:text-xs font-bold text-[#141219] truncate font-mono">
-                  ilovesurprises.com/rep/<span className="text-[#ec2f73]">yourname</span>
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={handleCopy}
-                className="h-[28px] sm:h-[30px] px-3 rounded-[9px] bg-[#fff3f7] hover:bg-[#ec2f73] text-[#ec2f73] hover:text-white border border-[#f5cad7] hover:border-[#ec2f73] text-[10px] sm:text-[11px] font-black uppercase flex items-center gap-1 transition-all duration-200 cursor-pointer shrink-0"
-              >
-                {copied ? <CheckCheck className="w-3 h-3 stroke-[3]" /> : <Copy className="w-3 h-3" />}
-                <span>{copied ? 'Copied!' : 'Copy'}</span>
-              </button>
-            </div>
-
-            {/* CTAs */}
-            <div className="flex flex-wrap items-center gap-3">
+            {/* CTAs with Smooth Hover States */}
+            <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
               <a
-                href="#featured"
-                className="group inline-flex items-center justify-center gap-2 h-[42px] sm:h-[44px] px-6 rounded-[13px] bg-[#ec2f73] hover:bg-[#d92467] text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-[0_6px_20px_rgba(236,47,115,0.28)] hover:shadow-[0_12px_28px_rgba(236,47,115,0.42)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 cursor-pointer"
+                href="#join"
+                className="group inline-flex items-center justify-center gap-2 min-h-[48px] px-7 rounded-[14px] bg-gradient-to-r from-[#ec2f73] to-[#d92467] hover:from-[#d92467] hover:to-[#c21a57] text-white font-black text-xs sm:text-[13px] uppercase tracking-wider shadow-[0_10px_26px_rgba(236,47,115,0.28)] hover:shadow-[0_14px_32px_rgba(236,47,115,0.40)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 cursor-pointer"
               >
-                <Users className="w-4 h-4" />
-                <span>Join as a Representative</span>
-                <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
+                <span>Join Now</span>
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </a>
 
               <a
-                href="#featured"
-                className="text-xs font-bold text-[#716d77] hover:text-[#ec2f73] transition-colors py-1.5 px-2 hover:underline"
+                href="#commission"
+                className="inline-flex items-center justify-center min-h-[48px] px-6 rounded-[14px] bg-white hover:bg-[#fff9fb] border border-[#e8dfe5] hover:border-[#ec2f73] text-[#141219] hover:text-[#ec2f73] font-bold text-xs sm:text-[13px] shadow-2xs hover:shadow-[0_6px_18px_rgba(50,31,63,0.06)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 cursor-pointer"
               >
-                View Full Compensation Plan →
+                See Commission Plan
               </a>
             </div>
 
           </div>
 
-          {/* Right Column: Perfectly Proportioned 1:1 Representative Community Visual */}
-          <div className="lg:col-span-5 xl:col-span-5 flex justify-center w-full">
-            <div className="w-full max-w-[310px] sm:max-w-[330px] rounded-[22px] overflow-hidden border border-[#eedbe6] bg-white p-3 shadow-[0_12px_32px_rgba(50,31,63,0.08)] group flex flex-col justify-between isolate">
+          {/* Middle Column: Commission Structure Table Card */}
+          <div id="commission" className="lg:col-span-4 z-10">
+            <div className="rounded-[24px] bg-white border border-[#ebdce5] p-5 sm:p-7 shadow-[0_14px_36px_rgba(50,31,63,0.07)] hover:shadow-[0_18px_45px_rgba(50,31,63,0.11)] transition-all duration-300">
               
-              {/* 1:1 Aspect Ratio Container - 100% Proportional Fit with Zero Overflow */}
-              <div className="relative w-full aspect-square rounded-[16px] overflow-hidden bg-stone-50">
-                <img
-                  src="/assets/ilovesurprises/affiliate/WhatsApp_Image_2026-08-19_at_3.42.29_PM_1.jpg"
-                  alt="I Love Surprises Representative Community"
-                  className="w-full h-full object-cover rounded-[16px] transition-transform duration-500 group-hover:scale-104 will-change-transform"
-                  loading="lazy"
-                />
-
-                {/* Floating Top Badge: Weekly Payout */}
-                <div className="absolute top-2 left-2 z-10 flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md border border-emerald-200 shadow-xs text-[9px] sm:text-[10px] font-black text-emerald-800 pointer-events-none">
-                  <Check className="w-3 h-3 text-emerald-600 stroke-[3]" />
-                  <span>Weekly Direct Deposit</span>
+              <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#f2e6ee]">
+                <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-[#141219]">
+                  <DollarSign className="w-4 h-4 text-[#ec2f73]" />
+                  <span>Commission Structure</span>
                 </div>
-
-                {/* Floating Bottom Badge: Overrides */}
-                <div className="absolute bottom-2 right-2 z-10 flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md border border-[#f5cad7] shadow-xs text-[9px] sm:text-[10px] font-black text-[#ec2f73] pointer-events-none">
-                  <Sparkles className="w-3 h-3 text-[#ec2f73]" />
-                  <span>5-Level Overrides</span>
-                </div>
+                <span className="text-[10px] font-black text-[#ec2f73] bg-[#fff0f5] px-2 py-0.5 rounded-full border border-[#f5cad7]">
+                  Up to 35%
+                </span>
               </div>
 
-              {/* Bottom Information Card */}
-              <div className="mt-2.5 pt-2 border-t border-[#f4edf2] flex items-center justify-between text-left">
-                <div className="min-w-0 pr-2">
-                  <strong className="block text-xs font-black text-[#141219] truncate">Top Reps Earn $1,200+/Mo</strong>
-                  <span className="text-[10px] text-[#716d77] truncate block">Free store link & marketing toolkit</span>
+              <div className="space-y-2 text-xs sm:text-sm font-medium">
+                
+                {/* Personal Sales */}
+                <div className="flex items-center justify-between p-2 rounded-[10px] bg-[#fffafc] border border-[#f7ecf2] hover:bg-[#fff0f5] hover:border-[#f5cad7] transition-all">
+                  <span className="font-bold text-[#141219]">Personal Sales</span>
+                  <strong className="text-emerald-700 font-black text-sm sm:text-base bg-emerald-50 px-2.5 py-0.5 rounded-[8px] border border-emerald-200">
+                    20%
+                  </strong>
                 </div>
-                <span className="text-[9px] sm:text-[10px] font-black text-[#ec2f73] bg-[#fff0f5] px-2.5 py-1 rounded-full uppercase shrink-0">
-                  Join Free
+
+                {/* Level 1 */}
+                <div className="flex items-center justify-between p-1.5 px-2.5 rounded-[8px] hover:bg-[#fffafc] transition-all">
+                  <span className="text-[#55505a]">Level 1</span>
+                  <strong className="text-[#141219] font-black">5%</strong>
+                </div>
+
+                {/* Level 2 */}
+                <div className="flex items-center justify-between p-1.5 px-2.5 rounded-[8px] hover:bg-[#fffafc] transition-all">
+                  <span className="text-[#55505a]">Level 2</span>
+                  <strong className="text-[#141219] font-black">4%</strong>
+                </div>
+
+                {/* Level 3 */}
+                <div className="flex items-center justify-between p-1.5 px-2.5 rounded-[8px] hover:bg-[#fffafc] transition-all">
+                  <span className="text-[#55505a]">Level 3</span>
+                  <strong className="text-[#141219] font-black">3%</strong>
+                </div>
+
+                {/* Level 4 */}
+                <div className="flex items-center justify-between p-1.5 px-2.5 rounded-[8px] hover:bg-[#fffafc] transition-all">
+                  <span className="text-[#55505a]">Level 4</span>
+                  <strong className="text-[#141219] font-black">2%</strong>
+                </div>
+
+                {/* Level 5 */}
+                <div className="flex items-center justify-between p-1.5 px-2.5 rounded-[8px] hover:bg-[#fffafc] transition-all">
+                  <span className="text-[#55505a]">Level 5</span>
+                  <strong className="text-[#141219] font-black">1%</strong>
+                </div>
+
+                {/* Maximum Total Payout Highlight */}
+                <div className="flex items-center justify-between p-3 rounded-[14px] bg-gradient-to-r from-[#fff0f5] to-[#ffeaf2] border border-[#f5cad7] shadow-xs mt-3">
+                  <div className="flex items-center gap-1.5">
+                    <ShieldCheck className="w-4 h-4 text-[#ec2f73]" />
+                    <span className="text-xs font-black text-[#ec2f73] uppercase tracking-wide">
+                      Maximum Total Payout
+                    </span>
+                  </div>
+                  <strong className="text-[#ec2f73] font-black text-base sm:text-lg">
+                    35%
+                  </strong>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+
+          {/* Right Column: 3D Tiered Rep Network Illustration */}
+          <div className="lg:col-span-3 flex justify-center items-center z-10">
+            <div className="w-full max-w-[290px] rounded-[24px] bg-white/75 backdrop-blur-md border border-[#ebdce5] p-5 sm:p-6 shadow-[0_14px_36px_rgba(50,31,63,0.07)] hover:shadow-[0_18px_45px_rgba(50,31,63,0.11)] transition-all duration-300 flex flex-col items-center justify-center">
+              
+              {/* Stepped Hierarchy Bars Matching Screenshot */}
+              <div className="flex items-end justify-center gap-2 h-44 w-full px-1">
+                
+                {/* Level 5 (1%) */}
+                <div className="group/tier flex-1 h-14 rounded-t-[12px] bg-gradient-to-t from-[#f5b3cb] to-[#ffc7da] flex flex-col items-center justify-center p-1 shadow-2xs hover:scale-105 transition-transform cursor-pointer" title="Level 5: 1%">
+                  <User className="w-3.5 h-3.5 text-white/95" />
+                  <span className="text-[8px] font-bold text-white mt-0.5">1%</span>
+                </div>
+
+                {/* Level 4 (2%) */}
+                <div className="group/tier flex-1 h-20 rounded-t-[12px] bg-gradient-to-t from-[#f085a8] to-[#f7a2bf] flex flex-col items-center justify-center p-1 shadow-2xs hover:scale-105 transition-transform cursor-pointer" title="Level 4: 2%">
+                  <User className="w-4 h-4 text-white/95" />
+                  <span className="text-[8px] font-bold text-white mt-0.5">2%</span>
+                </div>
+
+                {/* Center / Leader (You - 20%) */}
+                <div className="group/tier flex-1 h-36 rounded-t-[14px] bg-gradient-to-t from-[#ec2f73] to-[#ff4081] flex flex-col items-center justify-center p-1 shadow-md ring-4 ring-[#ec2f73]/15 hover:scale-105 transition-transform cursor-pointer relative" title="You: 20%">
+                  <div className="w-2.5 h-2.5 rounded-full bg-white absolute -top-1.5 animate-ping" />
+                  <User className="w-5 h-5 text-white" />
+                  <strong className="text-[10px] font-black text-white uppercase mt-1">You</strong>
+                  <span className="text-[9px] font-extrabold text-white/95">20%</span>
+                </div>
+
+                {/* Level 2 (4%) */}
+                <div className="group/tier flex-1 h-24 rounded-t-[12px] bg-gradient-to-t from-[#f085a8] to-[#f7a2bf] flex flex-col items-center justify-center p-1 shadow-2xs hover:scale-105 transition-transform cursor-pointer" title="Level 2: 4%">
+                  <User className="w-4 h-4 text-white/95" />
+                  <span className="text-[8px] font-bold text-white mt-0.5">4%</span>
+                </div>
+
+                {/* Level 3 (3%) */}
+                <div className="group/tier flex-1 h-16 rounded-t-[12px] bg-gradient-to-t from-[#f5b3cb] to-[#ffc7da] flex flex-col items-center justify-center p-1 shadow-2xs hover:scale-105 transition-transform cursor-pointer" title="Level 3: 3%">
+                  <User className="w-3.5 h-3.5 text-white/95" />
+                  <span className="text-[8px] font-bold text-white mt-0.5">3%</span>
+                </div>
+
+              </div>
+
+              {/* Caption */}
+              <div className="mt-3 text-center">
+                <span className="block text-xs font-black text-[#141219]">
+                  5-Tier Sponsor Network
+                </span>
+                <span className="text-[10px] text-[#716d77] font-medium">
+                  Earn overrides on every team sale
                 </span>
               </div>
 
