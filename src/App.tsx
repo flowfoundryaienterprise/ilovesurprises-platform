@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
-import { MobileBottomNav } from './components/layout/MobileBottomNav';
 import { AuthModal } from './components/auth/AuthModal';
 import { CartDrawer } from './components/cart/CartDrawer';
 import { ToastNotification, type ToastData } from './components/ui/ToastNotification';
@@ -390,7 +389,7 @@ export function App() {
       />
 
       {/* Main Dynamic View: Home | Shop | Categories | Product Details | Checkout | Order Confirmation | Account */}
-      <main className="flex-1 w-full overflow-hidden pb-16 lg:pb-0">
+      <main className="flex-1 w-full overflow-hidden">
         {currentView === 'home' && (
           <div key="page-home" className={transitionClass}>
             <Home
@@ -489,17 +488,6 @@ export function App() {
           </div>
         )}
       </main>
-
-      {/* Real App Fixed Mobile Bottom Navigation Bar & Floating Quick-Cart */}
-      <MobileBottomNav
-        activeView={currentView}
-        cartCount={totalCartCount}
-        cartSubtotal={cartSubtotal}
-        user={user}
-        onNavigate={handleNavigate}
-        onNavigateToAccount={() => handleNavigateToAccount('profile')}
-        onOpenCart={() => setIsCartOpen(true)}
-      />
 
       {/* Footer */}
       <Footer />
