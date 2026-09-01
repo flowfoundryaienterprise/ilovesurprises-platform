@@ -68,3 +68,5 @@ export interface UserProfile {
   repUsername?: string;
   avatar?: string;
 }
+
+export * from './order';

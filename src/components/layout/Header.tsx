@@ -33,12 +33,13 @@ export interface HeaderProps {
   cartCount?: number;
   cartSubtotal?: number;
   user?: UserProfile | null;
-  activeView?: 'home' | 'shop' | 'categories' | 'product-details';
+  activeView?: 'home' | 'shop' | 'categories' | 'product-details' | 'checkout' | 'order-confirmation' | 'account';
   onOpenCart?: () => void;
   onOpenAuth?: (mode?: 'login' | 'signup' | 'forgot') => void;
   onLogout?: () => void;
   onSearch?: (query: string) => void;
   onNavigate?: (route: 'home' | 'shop' | 'categories') => void;
+  onNavigateToAccount?: (tab?: 'profile' | 'orders' | 'addresses' | 'wishlist') => void;
   onSelectProduct?: (product: Product) => void;
 }
 
@@ -87,6 +88,7 @@ export const Header: React.FC<HeaderProps> = ({
   onLogout,
   onSearch,
   onNavigate,
+  onNavigateToAccount,
   onSelectProduct,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -793,16 +795,32 @@ export const Header: React.FC<HeaderProps> = ({
                       )}
 
                       <a
-                        href="/shop"
+                        href="/account"
                         onClick={(e) => {
+                          e.preventDefault();
                           setIsUserMenuOpen(false);
-                          handleNavClick(e, {
-                            id: 'shop',
-                            label: 'Shop',
-                            href: '/shop',
-                            targetSectionId: 'featured',
-                            icon: ShoppingBag,
-                          });
+                          if (onNavigateToAccount) {
+                            onNavigateToAccount('profile');
+                          } else {
+                            onNavigate?.('home');
+                          }
+                        }}
+                        className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff0f5] hover:text-[#ec2f73] transition-colors"
+                      >
+                        <User className="w-3.5 h-3.5 text-[#ec2f73]" />
+                        <span>My Account & Profile</span>
+                      </a>
+
+                      <a
+                        href="/account"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setIsUserMenuOpen(false);
+                          if (onNavigateToAccount) {
+                            onNavigateToAccount('orders');
+                          } else {
+                            onNavigate?.('home');
+                          }
                         }}
                         className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff0f5] hover:text-[#ec2f73] transition-colors"
                       >
@@ -811,16 +829,32 @@ export const Header: React.FC<HeaderProps> = ({
                       </a>
 
                       <a
-                        href="/shop"
+                        href="/account"
                         onClick={(e) => {
+                          e.preventDefault();
                           setIsUserMenuOpen(false);
-                          handleNavClick(e, {
-                            id: 'shop',
-                            label: 'Shop',
-                            href: '/shop',
-                            targetSectionId: 'featured',
-                            icon: ShoppingBag,
-                          });
+                          if (onNavigateToAccount) {
+                            onNavigateToAccount('addresses');
+                          } else {
+                            onNavigate?.('home');
+                          }
+                        }}
+                        className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff0f5] hover:text-[#ec2f73] transition-colors"
+                      >
+                        <MapPin className="w-3.5 h-3.5 text-purple-600" />
+                        <span>Saved Addresses</span>
+                      </a>
+
+                      <a
+                        href="/account"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setIsUserMenuOpen(false);
+                          if (onNavigateToAccount) {
+                            onNavigateToAccount('wishlist');
+                          } else {
+                            onNavigate?.('home');
+                          }
                         }}
                         className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff0f5] hover:text-[#ec2f73] transition-colors"
                       >
@@ -1171,18 +1205,98 @@ export const Header: React.FC<HeaderProps> = ({
                   <span>Login</span>
                 </button>
               ) : (
-                <div className="p-2.5 bg-white rounded-[14px] border border-[#f5cad7] shadow-2xs">
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <strong className="block text-xs font-black text-[#141219] truncate">
-                        {user.name}
-                      </strong>
-                      <span className="text-[10px] text-[#716d77]">{user.email}</span>
+                <div className="p-2.5 bg-white rounded-[14px] border border-[#f5cad7] shadow-2xs space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      {user.avatar ? (
+                        <img
+                          src={user.avatar}
+                          alt={user.name}
+                          className="w-8 h-8 rounded-full object-cover border border-[#ec2f73] shrink-0"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-[#ec2f73] text-white font-black text-xs flex items-center justify-center shrink-0">
+                          {user.name.charAt(0)}
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <strong className="block text-xs font-black text-[#141219] truncate">
+                          {user.name}
+                        </strong>
+                        <span className="text-[10px] text-[#716d77] block truncate">{user.email}</span>
+                      </div>
                     </div>
-                    <span className="text-[9px] font-black uppercase text-[#ec2f73] bg-[#fff0f5] px-2 py-0.5 rounded-full border border-[#f5cad7]">
+                    <span className="text-[9px] font-black uppercase text-[#ec2f73] bg-[#fff0f5] px-2 py-0.5 rounded-full border border-[#f5cad7] shrink-0">
                       {user.role === 'representative' ? '20% Rep' : 'VIP'}
                     </span>
                   </div>
+
+                  <div className="grid grid-cols-2 gap-1.5 pt-1 border-t border-[#f4edf2] text-[11px] font-bold text-[#55505a]">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        closeMobileMenu();
+                        if (onNavigateToAccount) {
+                          onNavigateToAccount('profile');
+                        } else {
+                          onNavigate?.('home');
+                        }
+                      }}
+                      className="p-1.5 rounded-[8px] bg-[#fffafc] hover:bg-[#fff0f5] hover:text-[#ec2f73] flex items-center gap-1.5 cursor-pointer text-left"
+                    >
+                      <User className="w-3 h-3 text-[#ec2f73]" />
+                      <span>Account</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        closeMobileMenu();
+                        if (onNavigateToAccount) {
+                          onNavigateToAccount('orders');
+                        } else {
+                          onNavigate?.('home');
+                        }
+                      }}
+                      className="p-1.5 rounded-[8px] bg-[#fffafc] hover:bg-[#fff0f5] hover:text-[#ec2f73] flex items-center gap-1.5 cursor-pointer text-left"
+                    >
+                      <PackageCheck className="w-3 h-3 text-emerald-600" />
+                      <span>Orders</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        closeMobileMenu();
+                        if (onNavigateToAccount) {
+                          onNavigateToAccount('addresses');
+                        } else {
+                          onNavigate?.('home');
+                        }
+                      }}
+                      className="p-1.5 rounded-[8px] bg-[#fffafc] hover:bg-[#fff0f5] hover:text-[#ec2f73] flex items-center gap-1.5 cursor-pointer text-left"
+                    >
+                      <MapPin className="w-3 h-3 text-purple-600" />
+                      <span>Addresses</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        closeMobileMenu();
+                        if (onNavigateToAccount) {
+                          onNavigateToAccount('wishlist');
+                        } else {
+                          onNavigate?.('home');
+                        }
+                      }}
+                      className="p-1.5 rounded-[8px] bg-[#fffafc] hover:bg-[#fff0f5] hover:text-[#ec2f73] flex items-center gap-1.5 cursor-pointer text-left"
+                    >
+                      <Heart className="w-3 h-3 text-[#ec2f73]" />
+                      <span>Wishlist</span>
+                    </button>
+                  </div>
+
                   <button
                     type="button"
                     onClick={() => {

@@ -122,7 +122,7 @@ export const authService = {
       email: isEmail ? identifier : `${identifier.replace(/\D/g, '')}@customer.ilovesurprises.com`,
       mobile: isEmail ? undefined : identifier,
       role: 'customer',
-      avatar: '/assets/ilovesurprises/reviews/WhatsApp_Image_2026-08-19_at_3.42.29_PM.jpg',
+      avatar: '/assets/ilovesurprises/Profile/profile%20image.webp',
     };
 
     return {
@@ -173,7 +173,7 @@ export const authService = {
       mobile: payload.mobile.trim(),
       role: payload.role || 'customer',
       repUsername: payload.repUsername?.trim().toLowerCase(),
-      avatar: '/assets/ilovesurprises/reviews/WhatsApp_Image_2026-08-19_at_3.42.29_PM.jpg',
+      avatar: '/assets/ilovesurprises/Profile/profile%20image.webp',
     };
 
     return {

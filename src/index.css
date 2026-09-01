@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
 @layer base {
   :root {
@@ -461,9 +462,321 @@
   background: #ec2f73;
 }
 
+/* ========================================================================= */
+/* DIGITAL PAYMENT-GRADE SUCCESS ANIMATION SUITE (ULTRA-PREMIUM)             */
+/* ========================================================================= */
+
+/* Circle Drawing Stroke */
+@keyframes successCircleDraw {
+  0% {
+    stroke-dashoffset: 283;
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.82);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+    transform: rotate(-90deg) scale(1);
+  }
+}
+
+/* Checkmark Drawing Stroke with Spring Easing */
+@keyframes successCheckDraw {
+  0% {
+    stroke-dashoffset: 65;
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+/* Tactile Spring Pop & Micro-Bounce */
+@keyframes successPopBounce {
+  0% {
+    transform: scale(0.85);
+  }
+  45% {
+    transform: scale(1.12);
+  }
+  70% {
+    transform: scale(0.96);
+  }
+  85% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Concentric Luminous Ripple Waves */
+@keyframes successRippleWave1 {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(1.55);
+    opacity: 0;
+  }
+}
+
+@keyframes successRippleWave2 {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.95);
+    opacity: 0;
+  }
+}
+
+@keyframes successRippleWave3 {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.35;
+  }
+  100% {
+    transform: scale(2.35);
+    opacity: 0;
+  }
+}
+
+/* Soft Emerald Aura Pulse */
+@keyframes successAuraPulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.08);
+  }
+}
+
+/* Particle / Confetti Sparkles Burst with 3D Physics */
+@keyframes particleFloatOut {
+  0% {
+    transform: translate(0, 0) scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+    transform: translate(calc(var(--tx, 30px) * 0.4), calc(var(--ty, -30px) * 0.4)) scale(1.2) rotate(90deg);
+  }
+  75% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(var(--tx, 30px), var(--ty, -30px)) scale(var(--s, 1)) rotate(calc(var(--r, 180deg)));
+    opacity: 0;
+  }
+}
+
+/* Staggered Content Slide & Spring Fade */
+@keyframes successContentFadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Card Luxury Shimmer */
+@keyframes luxuryCardShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.anim-success-circle {
+  stroke-dasharray: 283;
+  stroke-dashoffset: 283;
+  transform-origin: center;
+  animation: successCircleDraw 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.05s forwards;
+  will-change: stroke-dashoffset, transform;
+}
+
+.anim-success-check {
+  stroke-dasharray: 65;
+  stroke-dashoffset: 65;
+  animation: successCheckDraw 0.48s cubic-bezier(0.16, 1, 0.3, 1) 0.32s forwards;
+  will-change: stroke-dashoffset;
+}
+
+.anim-success-bounce {
+  animation: successPopBounce 0.65s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.28s forwards;
+  will-change: transform;
+}
+
+.anim-success-ripple-1 {
+  animation: successRippleWave1 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.45s infinite;
+  will-change: transform, opacity;
+}
+
+.anim-success-ripple-2 {
+  animation: successRippleWave2 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.58s infinite;
+  will-change: transform, opacity;
+}
+
+.anim-success-ripple-3 {
+  animation: successRippleWave3 1.8s cubic-bezier(0.16, 1, 0.3, 1) 0.7s infinite;
+  will-change: transform, opacity;
+}
+
+.anim-aura-pulse {
+  animation: successAuraPulse 3s ease-in-out infinite;
+}
+
+.anim-particle {
+  animation: particleFloatOut 1.25s cubic-bezier(0.16, 1, 0.3, 1) 0.35s forwards;
+  will-change: transform, opacity;
+}
+
+.anim-stagger-1 {
+  animation: successContentFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.48s both;
+}
+
+.anim-stagger-2 {
+  animation: successContentFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.68s both;
+}
+
+.anim-stagger-3 {
+  animation: successContentFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.88s both;
+}
+
+.anim-stagger-4 {
+  animation: successContentFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 1.08s both;
+}
+
+/* Delivery Stepper & Courier Vehicle Animations */
+@keyframes deliveryTruckMove {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-2px) rotate(-1.5deg);
+  }
+  75% {
+    transform: translateY(1px) rotate(1deg);
+  }
+}
+
+@keyframes deliveryRoadDash {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 28px 0;
+  }
+}
+
+@keyframes deliveryRadarPing {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+@keyframes deliveryPackageFloat {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-3px) scale(1.04);
+  }
+}
+
+@keyframes deliveryGlowPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(236, 47, 115, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(236, 47, 115, 0);
+  }
+}
+
+.anim-delivery-truck {
+  animation: deliveryTruckMove 1.8s ease-in-out infinite;
+}
+
+.anim-delivery-road {
+  background-image: repeating-linear-gradient(90deg, #ec2f73 0, #ec2f73 8px, transparent 8px, transparent 16px);
+  background-size: 28px 2px;
+  animation: deliveryRoadDash 0.8s linear infinite;
+}
+
+.anim-delivery-radar {
+  animation: deliveryRadarPing 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.anim-delivery-package {
+  animation: deliveryPackageFloat 2.4s ease-in-out infinite;
+}
+
+.anim-delivery-glow {
+  animation: deliveryGlowPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Authentic Google Maps Red Pin Animations */
+@keyframes googlePinHoverBob {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes googlePinShadowPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(0.85);
+    opacity: 0.38;
+  }
+}
+
+.leaflet-div-icon,
+.leaflet-marker-icon.google-map-marker-pin,
+.google-map-marker-pin {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.google-map-pin-body {
+  animation: googlePinHoverBob 2.6s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+.google-map-pin-shadow {
+  animation: googlePinShadowPulse 2.6s ease-in-out infinite;
+}
+
 /* Accessibility: Respect Reduced Motion Preferences */
 @media (prefers-reduced-motion: reduce) {
-
   *,
   *::before,
   *::after {
@@ -471,5 +784,28 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .anim-success-circle,
+  .anim-success-check {
+    stroke-dashoffset: 0 !important;
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+
+  .anim-success-bounce,
+  .anim-success-ripple-1,
+  .anim-success-ripple-2,
+  .anim-success-ripple-3,
+  .anim-aura-pulse,
+  .anim-particle,
+  .anim-stagger-1,
+  .anim-stagger-2,
+  .anim-stagger-3,
+  .anim-stagger-4 {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }

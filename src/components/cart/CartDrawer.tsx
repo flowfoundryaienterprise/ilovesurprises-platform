@@ -9,7 +9,7 @@ interface CartDrawerProps {
   onClose: () => void;
   onUpdateQuantity: (productId: string, delta: number) => void;
   onRemoveItem: (productId: string) => void;
-  onCheckout: () => void;
+  onCheckout: (appliedPromoCode?: string) => void;
 }
 
 export const CartDrawer: React.FC<CartDrawerProps> = ({
@@ -40,7 +40,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
   const totalCartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
   const rawSubtotal = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
-  
+
   const discountAmount = appliedPromo ? (rawSubtotal * appliedPromo.discountPercent) / 100 : 0;
   const finalSubtotal = Math.max(0, rawSubtotal - discountAmount);
 
@@ -75,12 +75,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
   return createPortal(
     <div className="fixed inset-0 z-[99999] overflow-hidden">
-      
+
       {/* Dark Blurred Backdrop with Smooth Fade */}
       <div
-        className={`fixed inset-0 bg-[#141219]/60 backdrop-blur-xs transition-all ${
-          isClosing ? 'animate-backdrop-out' : 'animate-backdrop-in'
-        }`}
+        className={`fixed inset-0 bg-[#141219]/60 backdrop-blur-xs transition-all ${isClosing ? 'animate-backdrop-out' : 'animate-backdrop-in'
+          }`}
         onClick={handleTriggerClose}
         aria-hidden="true"
       />
@@ -88,14 +87,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       {/* Drawer Panel Container with Smooth Slide-in / Slide-out */}
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-0 sm:pl-10 w-full sm:w-auto z-10 pointer-events-auto">
         <div
-          className={`w-full sm:w-screen sm:max-w-md bg-white shadow-2xl flex flex-col justify-between border-l border-[#eedbe6] ${
-            isClosing ? 'animate-drawer-out' : 'animate-drawer-in'
-          }`}
+          className={`w-full sm:w-screen sm:max-w-md bg-white shadow-2xl flex flex-col justify-between border-l border-[#eedbe6] ${isClosing ? 'animate-drawer-out' : 'animate-drawer-in'
+            }`}
         >
-          
+
           {/* 1. Header with Mobile Handle */}
           <div className="p-3.5 sm:p-5 border-b border-[#f0e2ec] bg-white sticky top-0 z-10">
-            
+
             {/* Mobile Drag Indicator */}
             <div className="w-10 h-1 bg-stone-200 rounded-full mx-auto mb-2.5 sm:hidden" />
 
@@ -156,11 +154,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             {/* Progress Bar Track */}
             <div className="w-full h-1.5 bg-[#f0dce6] rounded-full overflow-hidden">
               <div
-                className={`h-full transition-all duration-400 rounded-full ${
-                  isFreeShipping
+                className={`h-full transition-all duration-400 rounded-full ${isFreeShipping
                     ? 'bg-gradient-to-r from-emerald-500 to-emerald-600'
                     : 'bg-gradient-to-r from-[#ec2f73] to-[#ff3b83]'
-                }`}
+                  }`}
                 style={{ width: `${freeShippingProgress}%` }}
               />
             </div>
@@ -190,7 +187,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               cart.map((item) => (
                 <div
                   key={item.product.id}
-                  className="flex gap-2.5 sm:gap-3.5 p-2.5 sm:p-3 rounded-[18px] bg-[#fffafc] border border-[#eee2eb] hover:border-[#f5cad7] transition-all shadow-2xs group"
+                  className="flex gap-2.5 sm:gap-3.5 p-2.5 sm:p-3 rounded-[18px] bg-[#fffafc] border border-[#eee2eb] hover:border-[#f5cad7] transition-all shadow-2xs group w-full max-w-full overflow-hidden"
                 >
                   {/* Product Thumbnail */}
                   <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-[14px] bg-white border border-[#f0e4ec] overflow-hidden shrink-0 flex items-center justify-center p-1">
@@ -200,7 +197,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
                       loading="lazy"
                     />
-                    
+
                     {/* Tiny Surprise Type Chip */}
                     <span className="absolute bottom-1 left-1 right-1 text-[8px] font-black uppercase text-center py-0.5 rounded-[6px] bg-[#141219]/80 text-white backdrop-blur-2xs truncate">
                       {item.product.surpriseType === 'cash' ? '💵 Cash Win' : '💍 Jewelry'}
@@ -208,13 +205,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   </div>
 
                   {/* Product Info & Stepper */}
-                  <div className="flex-1 flex flex-col justify-between min-w-0">
-                    <div>
-                      <div className="flex items-start justify-between gap-1.5">
-                        <h4 className="text-xs sm:text-[13px] font-bold text-[#141219] m-0 line-clamp-1 leading-snug">
+                  <div className="flex-1 flex flex-col justify-between min-w-0 overflow-hidden">
+                    <div className="min-w-0 overflow-hidden">
+                      <div className="flex items-start justify-between gap-1.5 w-full">
+                        <h4 className="text-xs sm:text-[13px] font-bold text-[#141219] m-0 truncate leading-snug">
                           {item.product.name}
                         </h4>
-                        
+
                         <button
                           type="button"
                           onClick={() => onRemoveItem(item.product.id)}
@@ -225,11 +222,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         </button>
                       </div>
 
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className="text-[10px] text-[#716d77] font-medium">
+                      <div className="flex items-center gap-1.5 mt-0.5 overflow-hidden">
+                        <span className="text-[10px] text-[#716d77] font-medium shrink-0">
                           ${item.product.price.toFixed(2)} each
                         </span>
-                        <span className="text-[10px] text-[#eedbe6]">•</span>
+                        <span className="text-[10px] text-[#eedbe6] shrink-0">•</span>
                         <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200 truncate">
                           100% Win Guarantee
                         </span>
@@ -237,10 +234,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     </div>
 
                     {/* Quantity Stepper & Line Item Price */}
-                    <div className="flex items-center justify-between mt-2 pt-1 border-t border-[#f7eef3]">
-                      
+                    <div className="flex items-center justify-between mt-2 pt-1 border-t border-[#f7eef3] gap-2 w-full max-w-full">
+
                       {/* Stepper Buttons */}
-                      <div className="flex items-center border border-[#e8dfe5] rounded-[10px] bg-white px-1 py-0.5 gap-1.5 shadow-2xs">
+                      <div className="flex items-center border border-[#e8dfe5] rounded-[10px] bg-white px-1 py-0.5 gap-1.5 shadow-2xs shrink-0">
                         <button
                           type="button"
                           onClick={() => onUpdateQuantity(item.product.id, -1)}
@@ -250,7 +247,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                           <Minus className="w-3 h-3" />
                         </button>
 
-                        <span className="text-xs font-black text-[#141219] min-w-[18px] text-center">
+                        <span className="text-xs font-black text-[#141219] min-w-[20px] text-center shrink-0">
                           {item.quantity}
                         </span>
 
@@ -265,7 +262,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       </div>
 
                       {/* Total Item Price */}
-                      <span className="text-xs sm:text-sm font-black text-[#141219]">
+                      <span className="text-xs sm:text-sm font-black text-[#141219] shrink-0 whitespace-nowrap">
                         ${(item.product.price * item.quantity).toFixed(2)}
                       </span>
                     </div>
@@ -323,7 +320,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           {/* 4. Cart Footer & Checkout Summary */}
           {cart.length > 0 && (
             <div className="p-3.5 sm:p-5 border-t border-[#f0e2ec] bg-gradient-to-b from-white to-[#fffafc] space-y-2.5 sticky bottom-0 z-10 shadow-[0_-8px_20px_rgba(50,31,63,0.04)]">
-              
+
               {/* Pricing Breakdown */}
               <div className="space-y-1.5 text-xs text-[#716d77]">
                 <div className="flex items-center justify-between">
@@ -356,7 +353,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               {/* Primary Mobile-First Checkout Button */}
               <button
                 type="button"
-                onClick={onCheckout}
+                onClick={() => onCheckout(appliedPromo?.code)}
                 className="w-full h-[46px] sm:h-[48px] rounded-[14px] bg-[#ec2f73] hover:bg-[#d92467] text-white font-black text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_8px_22px_rgba(236,47,115,0.3)] hover:shadow-[0_12px_28px_rgba(236,47,115,0.42)] active:scale-97 transition-all cursor-pointer"
               >
                 <Lock className="w-4 h-4" />

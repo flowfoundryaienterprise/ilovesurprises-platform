@@ -115,7 +115,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
                 type="text"
                 required
                 disabled={isLoading}
-                placeholder="name@example.com or 555-123-4567"
+                placeholder="Enter registered email or mobile"
                 value={identifier}
                 onChange={(e) => {
                   setIdentifier(e.target.value);

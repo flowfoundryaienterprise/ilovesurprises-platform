@@ -1,22 +1,40 @@
 import { useState, useEffect, useRef } from 'react';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
+import { MobileBottomNav } from './components/layout/MobileBottomNav';
 import { AuthModal } from './components/auth/AuthModal';
 import { CartDrawer } from './components/cart/CartDrawer';
+import { ToastNotification, type ToastData } from './components/ui/ToastNotification';
 import { Home } from './pages/Home';
 import { Shop } from './pages/Shop';
 import { Categories } from './pages/Categories';
 import { ProductDetails } from './pages/ProductDetails';
-import type { Product, CartItem, UserProfile } from './types';
+import { Checkout } from './pages/Checkout';
+import { OrderConfirmation } from './pages/OrderConfirmation';
+import { Account, type AccountTab } from './pages/Account';
+import type { Product, CartItem, UserProfile, Order } from './types';
 import { productsData } from './data/products';
+import { accountService } from './services/accountService';
+
+export type AppView =
+  | 'home'
+  | 'shop'
+  | 'categories'
+  | 'product-details'
+  | 'checkout'
+  | 'order-confirmation'
+  | 'account';
 
 export function App() {
-  const [currentView, setCurrentView] = useState<'home' | 'shop' | 'categories' | 'product-details'>(() => {
+  const [currentView, setCurrentView] = useState<AppView>(() => {
     if (typeof window === 'undefined') return 'home';
     const path = window.location.pathname;
     if (path === '/shop') return 'shop';
     if (path === '/categories') return 'categories';
     if (path.startsWith('/product/')) return 'product-details';
+    if (path === '/checkout') return 'checkout';
+    if (path.startsWith('/order-confirmation/')) return 'order-confirmation';
+    if (path === '/account') return 'account';
     return 'home';
   });
 
@@ -30,18 +48,34 @@ export function App() {
     return null;
   });
 
-  const [cart, setCart] = useState<CartItem[]>([
-    { product: productsData[0], quantity: 1 },
-    { product: productsData[1], quantity: 1 },
-  ]);
-  const [wishlistIds, setWishlistIds] = useState<string[]>(['prod-cash-01']);
-  const [user, setUser] = useState<UserProfile | null>(null);
+  const [confirmedOrderId, setConfirmedOrderId] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    const path = window.location.pathname;
+    if (path.startsWith('/order-confirmation/')) {
+      return path.replace('/order-confirmation/', '');
+    }
+    return null;
+  });
+
+  const [latestPlacedOrder, setLatestPlacedOrder] = useState<Order | null>(null);
+  const [accountActiveTab, setAccountActiveTab] = useState<AccountTab>('profile');
+  const [highlightOrderId, setHighlightOrderId] = useState<string | null>(null);
+
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [wishlistIds, setWishlistIds] = useState<string[]>([]);
+  const [appliedCheckoutPromo, setAppliedCheckoutPromo] = useState<string | null>(null);
+
+  // Persistent user profile state
+  const [user, setUser] = useState<UserProfile | null>(() => {
+    return accountService.getStoredUser();
+  });
+
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup' | 'forgot'>('login');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All Surprises');
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toast, setToast] = useState<ToastData | null>(null);
   const [navDirection, setNavDirection] = useState<'forward' | 'backward'>('forward');
 
   // Track scroll position per page for smooth return navigation
@@ -50,9 +84,25 @@ export function App() {
   const totalCartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
   const cartSubtotal = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
 
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 2500);
+  const showToast = (
+    message: string,
+    options?: {
+      title?: string;
+      type?: 'cart' | 'wishlist' | 'order' | 'success' | 'info';
+      actionLabel?: string;
+      onAction?: () => void;
+      duration?: number;
+    }
+  ) => {
+    setToast({
+      id: Math.random().toString(),
+      message,
+      title: options?.title,
+      type: options?.type || 'info',
+      actionLabel: options?.actionLabel,
+      onAction: options?.onAction,
+      duration: options?.duration || 3200,
+    });
   };
 
   // Browser history popstate handler with back detection & drawer interception
@@ -71,12 +121,18 @@ export function App() {
       setNavDirection('backward');
 
       if (e.state?.view) {
-        const targetView = e.state.view;
+        const targetView = e.state.view as AppView;
         setCurrentView(targetView);
         if (e.state.category) setSelectedCategory(e.state.category);
         if (e.state.productId) {
           const matched = productsData.find((p) => p.id === e.state.productId);
           if (matched) setSelectedProduct(matched);
+        }
+        if (e.state.orderId) {
+          setConfirmedOrderId(e.state.orderId);
+        }
+        if (e.state.tab) {
+          setAccountActiveTab(e.state.tab);
         }
 
         // Restore scroll position
@@ -90,6 +146,17 @@ export function App() {
         } else if (path === '/categories') {
           setCurrentView('categories');
           window.scrollTo({ top: scrollPositions.current['categories'] || 0, behavior: 'smooth' });
+        } else if (path === '/checkout') {
+          setCurrentView('checkout');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (path.startsWith('/order-confirmation/')) {
+          const id = path.replace('/order-confirmation/', '');
+          setConfirmedOrderId(id);
+          setCurrentView('order-confirmation');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (path === '/account') {
+          setCurrentView('account');
+          window.scrollTo({ top: scrollPositions.current['account'] || 0, behavior: 'smooth' });
         } else if (path.startsWith('/product/')) {
           const slug = path.replace('/product/', '');
           const matched = productsData.find((p) => p.slug === slug || p.id === slug);
@@ -115,12 +182,20 @@ export function App() {
 
   const handleAuthSuccess = (authenticatedUser: UserProfile) => {
     setUser(authenticatedUser);
-    showToast(`Welcome back, ${authenticatedUser.name}!`);
+    accountService.updateStoredUser(authenticatedUser);
+    showToast(`Welcome back, ${authenticatedUser.name}!`, {
+      title: 'Signed In',
+      type: 'success',
+    });
   };
 
   const handleLogout = () => {
     setUser(null);
-    showToast('You have signed out successfully.');
+    accountService.updateStoredUser(null);
+    showToast('You have signed out successfully.', {
+      title: 'Signed Out',
+      type: 'info',
+    });
   };
 
   const handleAddToCart = (product: Product, quantity: number = 1) => {
@@ -133,7 +208,12 @@ export function App() {
       }
       return [...prev, { product, quantity }];
     });
-    showToast(`Added ${quantity > 1 ? `${quantity}x ` : ''}"${product.name}" to cart!`);
+    showToast(`Added ${quantity > 1 ? `${quantity}x ` : ''}"${product.name}" to your bag`, {
+      title: 'Added to Bag',
+      type: 'cart',
+      actionLabel: 'View Bag',
+      onAction: () => setIsCartOpen(true),
+    });
   };
 
   const handleUpdateQuantity = (productId: string, delta: number) => {
@@ -152,21 +232,77 @@ export function App() {
 
   const handleRemoveItem = (productId: string) => {
     setCart((prev) => prev.filter((item) => item.product.id !== productId));
-    showToast('Item removed from cart');
+    showToast('Item removed from bag', {
+      title: 'Bag Updated',
+      type: 'info',
+    });
   };
 
-  const handleCheckout = () => {
-    showToast('Redirecting to secure 256-bit checkout...');
+  const handleTriggerCheckout = (promoCode?: string) => {
+    setIsCartOpen(false);
+    setAppliedCheckoutPromo(promoCode || null);
+    scrollPositions.current[currentView] = window.scrollY;
+    setNavDirection('forward');
+    setCurrentView('checkout');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (window.history.pushState) {
+      window.history.pushState({ view: 'checkout' }, '', '/checkout');
+    }
+  };
+
+  const handleOrderCompleted = (createdOrder: Order) => {
+    setCart([]); // Clear cart upon successful order
+    setLatestPlacedOrder(createdOrder);
+    setConfirmedOrderId(createdOrder.id);
+    setNavDirection('forward');
+    setCurrentView('order-confirmation');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (window.history.pushState) {
+      window.history.pushState(
+        { view: 'order-confirmation', orderId: createdOrder.id },
+        '',
+        `/order-confirmation/${createdOrder.id}`
+      );
+    }
+    showToast(`Order #${createdOrder.id} confirmed!`, {
+      title: '🎉 Order Placed',
+      type: 'order',
+      actionLabel: 'Track Order',
+      onAction: () => handleNavigateToAccount('orders', createdOrder.id),
+      duration: 4500,
+    });
+  };
+
+  const handleNavigateToAccount = (tab: AccountTab = 'profile', targetOrderId?: string) => {
+    scrollPositions.current[currentView] = window.scrollY;
+    setNavDirection('forward');
+    setAccountActiveTab(tab);
+    if (targetOrderId) {
+      setHighlightOrderId(targetOrderId);
+    }
+    setCurrentView('account');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (window.history.pushState) {
+      window.history.pushState({ view: 'account', tab }, '', `/account?tab=${tab}`);
+    }
   };
 
   const handleWishlistToggle = (product: Product) => {
     setWishlistIds((prev) => {
       const isAlready = prev.includes(product.id);
       if (isAlready) {
-        showToast(`Removed "${product.name}" from wishlist`);
+        showToast(`Removed "${product.name}" from wishlist`, {
+          title: 'Wishlist Updated',
+          type: 'wishlist',
+        });
         return prev.filter((id) => id !== product.id);
       } else {
-        showToast(`Saved "${product.name}" to wishlist! ✨`);
+        showToast(`Saved "${product.name}" to your wishlist`, {
+          title: 'Wishlisted',
+          type: 'wishlist',
+          actionLabel: 'View Wishlist',
+          onAction: () => handleNavigateToAccount('wishlist'),
+        });
         return [...prev, product.id];
       }
     });
@@ -233,7 +369,7 @@ export function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-[#141219]">
-      {/* 1. Header / Navbar with Active Highlighting, Search, Location & Cart */}
+      {/* 1. Header / Navbar with Active Highlighting, Search, Location, User Menu & Cart */}
       <Header
         cartCount={totalCartCount}
         cartSubtotal={cartSubtotal}
@@ -249,11 +385,12 @@ export function App() {
           }
         }}
         onNavigate={handleNavigate}
+        onNavigateToAccount={handleNavigateToAccount}
         onSelectProduct={handleSelectProduct}
       />
 
-      {/* Main Dynamic View: Home | Store (Shop) | Categories | Product Details */}
-      <main className="flex-1 w-full overflow-hidden">
+      {/* Main Dynamic View: Home | Shop | Categories | Product Details | Checkout | Order Confirmation | Account */}
+      <main className="flex-1 w-full overflow-hidden pb-16 lg:pb-0">
         {currentView === 'home' && (
           <div key="page-home" className={transitionClass}>
             <Home
@@ -309,7 +446,60 @@ export function App() {
             />
           </div>
         )}
+
+        {currentView === 'checkout' && (
+          <div key="page-checkout" className={transitionClass}>
+            <Checkout
+              cart={cart}
+              user={user}
+              appliedPromoCode={appliedCheckoutPromo}
+              onOrderCompleted={handleOrderCompleted}
+              onNavigateToShop={() => handleNavigateToShop(undefined, 'forward')}
+              onBackToCart={() => setIsCartOpen(true)}
+            />
+          </div>
+        )}
+
+        {currentView === 'order-confirmation' && (
+          <div key={`page-order-confirmation-${confirmedOrderId || 'latest'}`} className={transitionClass}>
+            <OrderConfirmation
+              orderId={confirmedOrderId || undefined}
+              latestOrder={latestPlacedOrder}
+              onNavigateToShop={() => handleNavigateToShop(undefined, 'forward')}
+              onNavigateToAccountOrders={(orderId) => handleNavigateToAccount('orders', orderId)}
+            />
+          </div>
+        )}
+
+        {currentView === 'account' && (
+          <div key={`page-account-${accountActiveTab}`} className={transitionClass}>
+            <Account
+              user={user}
+              activeTab={accountActiveTab}
+              highlightOrderId={highlightOrderId}
+              wishlistIds={wishlistIds}
+              onOpenAuth={handleOpenAuth}
+              onLogout={handleLogout}
+              onNavigateToShop={() => handleNavigateToShop(undefined, 'forward')}
+              onSelectProduct={handleSelectProduct}
+              onAddToCart={handleAddToCart}
+              onWishlistToggle={handleWishlistToggle}
+              onTabChange={(tab) => setAccountActiveTab(tab)}
+            />
+          </div>
+        )}
       </main>
+
+      {/* Real App Fixed Mobile Bottom Navigation Bar & Floating Quick-Cart */}
+      <MobileBottomNav
+        activeView={currentView}
+        cartCount={totalCartCount}
+        cartSubtotal={cartSubtotal}
+        user={user}
+        onNavigate={handleNavigate}
+        onNavigateToAccount={() => handleNavigateToAccount('profile')}
+        onOpenCart={() => setIsCartOpen(true)}
+      />
 
       {/* Footer */}
       <Footer />
@@ -329,16 +519,14 @@ export function App() {
         onClose={() => setIsCartOpen(false)}
         onUpdateQuantity={handleUpdateQuantity}
         onRemoveItem={handleRemoveItem}
-        onCheckout={handleCheckout}
+        onCheckout={handleTriggerCheckout}
       />
 
-      {/* Floating Toast Notification */}
-      {toastMessage && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-[#171219] text-white px-4 py-2.5 rounded-[14px] shadow-2xl text-xs font-bold animate-toast border border-stone-800 flex items-center gap-2 pointer-events-none">
-          <span>✨</span>
-          <span>{toastMessage}</span>
-        </div>
-      )}
+      {/* State-of-the-Art Luxury Toast Notification (Dynamic Top Island & Glow) */}
+      <ToastNotification
+        toast={toast}
+        onDismiss={() => setToast(null)}
+      />
     </div>
   );
 }
