@@ -2,12 +2,14 @@ import React, { useMemo } from 'react';
 import { Sparkles } from 'lucide-react';
 import { productsData } from '../../data/products';
 import { ProductCard } from '../products/ProductCard';
+import { ProductCardSkeleton } from '../ui/ProductCardSkeleton';
 import type { Product, CartItem } from '../../types';
 
 interface FeaturedProductsProps {
   cart?: CartItem[];
   searchQuery?: string;
   selectedCategory?: string;
+  isLoading?: boolean;
   onSelectCategory?: (category: string) => void;
   onAddToCart?: (product: Product) => void;
   onUpdateQuantity?: (productId: string, delta: number) => void;
@@ -29,6 +31,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
   cart = [],
   searchQuery = '',
   selectedCategory = 'All Surprises',
+  isLoading = false,
   onSelectCategory,
   onAddToCart,
   onUpdateQuantity,
@@ -68,15 +71,17 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
   return (
     <section id="featured" data-section="best-sellers" className="relative max-w-[1460px] mx-auto px-3 sm:px-6 py-4 sm:py-6">
       <div id="best-sellers" className="absolute -top-20" />
-      
+
       {/* Header & Quick Category Filter Chips */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div>
           <h2 className="text-base sm:text-xl font-black text-[#141219] uppercase tracking-wide flex items-center gap-2 m-0 font-display">
             <span>Trending Best Sellers</span>
-            <span className="text-xs font-bold text-[#ec2f73] bg-[#fff0f5] px-2 py-0.5 rounded-full lowercase">
-              {filteredProducts.length} items
-            </span>
+            {!isLoading && (
+              <span className="text-xs font-bold text-[#ec2f73] bg-[#fff0f5] px-2 py-0.5 rounded-full lowercase">
+                {filteredProducts.length} items
+              </span>
+            )}
           </h2>
         </div>
 
@@ -89,11 +94,10 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
                 key={chip}
                 type="button"
                 onClick={() => handleChipClick(chip)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 cursor-pointer active:scale-95 ${
-                  isActive
-                    ? 'bg-[#ec2f73] text-white shadow-[0_4px_14px_rgba(236,47,115,0.35)] scale-102'
-                    : 'bg-white border border-[#eee7ed] text-[#716d77] hover:border-[#f5cad7] hover:bg-[#fff5f8] hover:text-[#ec2f73] hover:shadow-2xs'
-                }`}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 cursor-pointer active:scale-95 ${isActive
+                  ? 'bg-[#ec2f73] text-white shadow-[0_4px_14px_rgba(236,47,115,0.35)] scale-102'
+                  : 'bg-white border border-[#eee7ed] text-[#716d77] hover:border-[#f5cad7] hover:bg-[#fff5f8] hover:text-[#ec2f73] hover:shadow-2xs'
+                  }`}
               >
                 {chip}
               </button>
@@ -103,7 +107,17 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
       </div>
 
       {/* Dense Quick-Commerce Product Grid (2 mobile / 3 tablet / 4 desktop / 5 xl) */}
-      {filteredProducts.length === 0 ? (
+      {isLoading ? (
+        <div
+          className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 sm:gap-4 lg:gap-5 w-full transition-all duration-300"
+          role="status"
+          aria-label="Loading products"
+        >
+          {Array.from({ length: 11 }).map((_, index) => (
+            <ProductCardSkeleton key={index} />
+          ))}
+        </div>
+      ) : filteredProducts.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-2xl border border-[#eee7ed] p-6 shadow-2xs">
           <Sparkles className="w-8 h-8 text-[#ec2f73] mx-auto mb-2 opacity-50" />
           <h3 className="text-sm font-bold text-[#141219]">No surprises found matching your filter</h3>
@@ -117,7 +131,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5 sm:gap-3.5">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 sm:gap-4 lg:gap-5 w-full transition-all duration-300">
           {filteredProducts.map((product) => (
             <ProductCard
               key={product.id}

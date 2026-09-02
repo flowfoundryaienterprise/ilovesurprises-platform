@@ -1,6 +1,7 @@
 import React from 'react';
 
 export const Hero: React.FC = () => {
+
   return (
     <section id="hero" className="max-w-[1460px] mx-auto px-3 sm:px-6 pt-3 sm:pt-5 pb-3">
       {/* Exact Reference Screenshot Main Hero Showcase Banner */}
@@ -47,34 +48,34 @@ export const Hero: React.FC = () => {
               </a>
             </div>
 
-            {/* 3 High-Impact Feature Badges */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 w-full max-w-[560px] mx-auto lg:mx-0">
+            {/* 3 High-Impact Feature Badges (Exact Same Size & Same Line Heights) */}
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-3 w-full max-w-[480px] sm:max-w-[560px] mx-auto lg:mx-0 items-stretch">
               {/* Badge 1: Real Jewelry */}
-              <div className="group p-3 sm:p-3.5 rounded-[15px] bg-white/80 hover:bg-white border border-[#ebdce5] hover:border-[#ec2f73] text-center sm:text-left shadow-[0_4px_16px_rgba(50,31,63,0.03)] hover:shadow-[0_10px_24px_rgba(236,47,115,0.12)] hover:-translate-y-1 transition-all duration-300">
-                <strong className="block text-xs font-black text-[#ec2f73] mb-0.5 group-hover:translate-x-0.5 transition-transform">
+              <div className="group p-2 sm:p-3.5 rounded-[12px] sm:rounded-[15px] bg-white/80 hover:bg-white border border-[#ebdce5] hover:border-[#ec2f73] shadow-[0_4px_16px_rgba(50,31,63,0.03)] hover:shadow-[0_10px_24px_rgba(236,47,115,0.12)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-center items-center sm:items-start h-full min-h-[58px] sm:min-h-[68px]">
+                <strong className="block text-[10px] sm:text-xs font-black text-[#ec2f73] mb-0.5 leading-tight whitespace-nowrap group-hover:translate-x-0.5 transition-transform">
                   ◇ Real Jewelry
                 </strong>
-                <span className="text-[10px] sm:text-[11px] text-[#716d77] block leading-tight font-medium">
+                <span className="text-[8px] sm:text-[11px] text-[#716d77] block leading-[1.2] font-medium text-center sm:text-left min-h-[20px] sm:min-h-[26px] flex items-center justify-center sm:justify-start">
                   In selected surprise products
                 </span>
               </div>
 
               {/* Badge 2: Cash Prizes */}
-              <div className="group p-3 sm:p-3.5 rounded-[15px] bg-white/80 hover:bg-white border border-[#ebdce5] hover:border-emerald-500 text-center sm:text-left shadow-[0_4px_16px_rgba(50,31,63,0.03)] hover:shadow-[0_10px_24px_rgba(16,185,129,0.12)] hover:-translate-y-1 transition-all duration-300">
-                <strong className="block text-xs font-black text-emerald-700 mb-0.5 group-hover:translate-x-0.5 transition-transform">
+              <div className="group p-2 sm:p-3.5 rounded-[12px] sm:rounded-[15px] bg-white/80 hover:bg-white border border-[#ebdce5] hover:border-emerald-500 shadow-[0_4px_16px_rgba(50,31,63,0.03)] hover:shadow-[0_10px_24px_rgba(16,185,129,0.12)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-center items-center sm:items-start h-full min-h-[58px] sm:min-h-[68px]">
+                <strong className="block text-[10px] sm:text-xs font-black text-emerald-700 mb-0.5 leading-tight whitespace-nowrap group-hover:translate-x-0.5 transition-transform">
                   ▣ Cash Prizes
                 </strong>
-                <span className="text-[10px] sm:text-[11px] text-[#716d77] block leading-tight font-medium">
+                <span className="text-[8px] sm:text-[11px] text-[#716d77] block leading-[1.2] font-medium text-center sm:text-left min-h-[20px] sm:min-h-[26px] flex items-center justify-center sm:justify-start">
                   Surprise reveals inside
                 </span>
               </div>
 
               {/* Badge 3: Made in USA */}
-              <div className="group p-3 sm:p-3.5 rounded-[15px] bg-white/80 hover:bg-white border border-[#ebdce5] hover:border-[#54217f] text-center sm:text-left shadow-[0_4px_16px_rgba(50,31,63,0.03)] hover:shadow-[0_10px_24px_rgba(84,33,127,0.12)] hover:-translate-y-1 transition-all duration-300">
-                <strong className="block text-xs font-black text-[#54217f] mb-0.5 group-hover:translate-x-0.5 transition-transform">
+              <div className="group p-2 sm:p-3.5 rounded-[12px] sm:rounded-[15px] bg-white/80 hover:bg-white border border-[#ebdce5] hover:border-[#54217f] shadow-[0_4px_16px_rgba(50,31,63,0.03)] hover:shadow-[0_10px_24px_rgba(84,33,127,0.12)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-center items-center sm:items-start h-full min-h-[58px] sm:min-h-[68px]">
+                <strong className="block text-[10px] sm:text-xs font-black text-[#54217f] mb-0.5 leading-tight whitespace-nowrap group-hover:translate-x-0.5 transition-transform">
                   □ Made in USA
                 </strong>
-                <span className="text-[10px] sm:text-[11px] text-[#716d77] block leading-tight font-medium">
+                <span className="text-[8px] sm:text-[11px] text-[#716d77] block leading-[1.2] font-medium text-center sm:text-left min-h-[20px] sm:min-h-[26px] flex items-center justify-center sm:justify-start">
                   Premium quality products
                 </span>
               </div>
@@ -119,14 +120,14 @@ export const Hero: React.FC = () => {
             {/* Mini Product 2: Birthday Cake Cash Slime */}
             <img
               src="/assets/ilovesurprises/hero/hero-mini-2.png"
-              alt="Birthday Cake Cash Slime with Surprise"
-              className="absolute bottom-[4%] left-[50%] lg:left-[31%] -translate-x-1/2 lg:translate-x-0 w-[25%] sm:w-[23%] lg:w-[26%] aspect-square object-contain drop-shadow-[0_8px_12px_rgba(35,14,30,0.14)] drop-shadow-[0_20px_30px_rgba(58,25,52,0.22)] drop-shadow-[0_32px_46px_rgba(236,47,115,0.16)] z-20 hover:scale-110 transition-all duration-300 hover:drop-shadow-[0_26px_38px_rgba(236,47,115,0.32)] animate-mini-float-2"
+              alt="Birthday Cake Slime"
+              className="absolute bottom-[4%] left-[37%] sm:left-[37%] lg:left-[31%] -translate-x-1/2 lg:translate-x-0 w-[24%] sm:w-[22%] lg:w-[25%] aspect-square object-contain drop-shadow-[0_8px_12px_rgba(35,14,30,0.14)] drop-shadow-[0_20px_30px_rgba(58,25,52,0.22)] drop-shadow-[0_32px_46px_rgba(236,47,115,0.16)] z-20 hover:scale-110 transition-all duration-300 hover:drop-shadow-[0_26px_38px_rgba(236,47,115,0.32)] animate-mini-float-2"
             />
 
-            {/* Mini Product 3: Surprise Bath Bomb */}
+            {/* Mini Product 3: Rainbow Gummy Bear Melts */}
             <img
               src="/assets/ilovesurprises/hero/hero-mini-3.png"
-              alt="Surprise Bath Bomb"
+              alt="Gummy Bear Jewelry Melts"
               className="absolute bottom-[4%] right-[5%] sm:right-[7%] lg:right-[2%] w-[25%] sm:w-[23%] lg:w-[26%] aspect-square object-contain drop-shadow-[0_8px_12px_rgba(35,14,30,0.14)] drop-shadow-[0_20px_30px_rgba(58,25,52,0.22)] drop-shadow-[0_32px_46px_rgba(236,47,115,0.16)] z-20 hover:scale-110 transition-all duration-300 hover:drop-shadow-[0_26px_38px_rgba(236,47,115,0.32)] animate-mini-float-3"
             />
 

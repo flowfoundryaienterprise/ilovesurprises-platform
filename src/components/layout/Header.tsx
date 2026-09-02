@@ -33,13 +33,14 @@ export interface HeaderProps {
   cartCount?: number;
   cartSubtotal?: number;
   user?: UserProfile | null;
-  activeView?: 'home' | 'shop' | 'categories' | 'product-details' | 'checkout' | 'order-confirmation' | 'account';
+  activeView?: 'home' | 'shop' | 'categories' | 'product-details' | 'checkout' | 'order-confirmation' | 'account' | 'affiliate' | 'about' | 'contact';
   onOpenCart?: () => void;
   onOpenAuth?: (mode?: 'login' | 'signup' | 'forgot') => void;
   onLogout?: () => void;
   onSearch?: (query: string) => void;
-  onNavigate?: (route: 'home' | 'shop' | 'categories') => void;
-  onNavigateToAccount?: (tab?: 'profile' | 'orders' | 'addresses' | 'wishlist') => void;
+  onNavigate?: (route: 'home' | 'shop' | 'categories' | 'affiliate' | 'about' | 'contact') => void;
+  onNavigateToAccount?: (tab?: 'profile' | 'orders' | 'addresses' | 'wishlist' | 'settings' | 'affiliate') => void;
+  onNavigateToAffiliate?: () => void;
   onSelectProduct?: (product: Product) => void;
 }
 
@@ -89,6 +90,7 @@ export const Header: React.FC<HeaderProps> = ({
   onSearch,
   onNavigate,
   onNavigateToAccount,
+  onNavigateToAffiliate,
   onSelectProduct,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -428,6 +430,19 @@ export const Header: React.FC<HeaderProps> = ({
     } else if (item.id === 'categories') {
       onNavigate?.('categories');
       return;
+    } else if (item.id === 'affiliate') {
+      if (onNavigateToAffiliate) {
+        onNavigateToAffiliate();
+      } else {
+        onNavigate?.('affiliate');
+      }
+      return;
+    } else if (item.id === 'about') {
+      onNavigate?.('about');
+      return;
+    } else if (item.id === 'contact') {
+      onNavigate?.('contact');
+      return;
     } else if (item.id === 'home') {
       onNavigate?.('home');
       return;
@@ -736,17 +751,11 @@ export const Header: React.FC<HeaderProps> = ({
                   aria-haspopup="true"
                   aria-expanded={isUserMenuOpen}
                 >
-                  {user.avatar ? (
-                    <img
-                      src={user.avatar}
-                      alt={user.name}
-                      className="w-6 h-6 rounded-full object-cover border border-[#ec2f73]"
-                    />
-                  ) : (
-                    <div className="w-6 h-6 rounded-full bg-[#ec2f73] text-white font-black text-[10px] flex items-center justify-center">
-                      {user.name.charAt(0)}
-                    </div>
-                  )}
+                  <img
+                    src={user.avatar || '/assets/ilovesurprises/Profile/profile%20image.webp'}
+                    alt={user.name}
+                    className="w-6 h-6 rounded-full object-cover border border-[#ec2f73]"
+                  />
 
                   <div className="leading-tight hidden sm:block">
                     <span className="block text-xs font-black text-[#141219] truncate max-w-[85px]">
@@ -860,6 +869,23 @@ export const Header: React.FC<HeaderProps> = ({
                       >
                         <Heart className="w-3.5 h-3.5 text-[#ec2f73]" />
                         <span>My Wishlist</span>
+                      </a>
+
+                      <a
+                        href="/account"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setIsUserMenuOpen(false);
+                          if (onNavigateToAccount) {
+                            onNavigateToAccount('settings');
+                          } else {
+                            onNavigate?.('home');
+                          }
+                        }}
+                        className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff0f5] hover:text-[#ec2f73] transition-colors"
+                      >
+                        <User className="w-3.5 h-3.5 text-stone-500" />
+                        <span>Account Settings</span>
                       </a>
 
                       <div className="pt-1.5 border-t border-[#f4edf2]">
@@ -1208,17 +1234,11 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="p-2.5 bg-white rounded-[14px] border border-[#f5cad7] shadow-2xs space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5 min-w-0">
-                      {user.avatar ? (
-                        <img
-                          src={user.avatar}
-                          alt={user.name}
-                          className="w-8 h-8 rounded-full object-cover border border-[#ec2f73] shrink-0"
-                        />
-                      ) : (
-                        <div className="w-8 h-8 rounded-full bg-[#ec2f73] text-white font-black text-xs flex items-center justify-center shrink-0">
-                          {user.name.charAt(0)}
-                        </div>
-                      )}
+                      <img
+                        src={user.avatar || '/assets/ilovesurprises/Profile/profile%20image.webp'}
+                        alt={user.name}
+                        className="w-8 h-8 rounded-full object-cover border border-[#ec2f73] shrink-0"
+                      />
                       <div className="min-w-0">
                         <strong className="block text-xs font-black text-[#141219] truncate">
                           {user.name}

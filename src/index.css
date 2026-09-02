@@ -473,9 +473,11 @@
     opacity: 0;
     transform: rotate(-90deg) scale(0.82);
   }
+
   25% {
     opacity: 1;
   }
+
   100% {
     stroke-dashoffset: 0;
     opacity: 1;
@@ -489,9 +491,11 @@
     stroke-dashoffset: 65;
     opacity: 0;
   }
+
   30% {
     opacity: 1;
   }
+
   100% {
     stroke-dashoffset: 0;
     opacity: 1;
@@ -503,15 +507,19 @@
   0% {
     transform: scale(0.85);
   }
+
   45% {
     transform: scale(1.12);
   }
+
   70% {
     transform: scale(0.96);
   }
+
   85% {
     transform: scale(1.03);
   }
+
   100% {
     transform: scale(1);
   }
@@ -523,6 +531,7 @@
     transform: scale(0.85);
     opacity: 0.85;
   }
+
   100% {
     transform: scale(1.55);
     opacity: 0;
@@ -534,6 +543,7 @@
     transform: scale(0.85);
     opacity: 0.6;
   }
+
   100% {
     transform: scale(1.95);
     opacity: 0;
@@ -545,6 +555,7 @@
     transform: scale(0.85);
     opacity: 0.35;
   }
+
   100% {
     transform: scale(2.35);
     opacity: 0;
@@ -553,10 +564,13 @@
 
 /* Soft Emerald Aura Pulse */
 @keyframes successAuraPulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.5;
     transform: scale(1);
   }
+
   50% {
     opacity: 0.85;
     transform: scale(1.08);
@@ -569,13 +583,16 @@
     transform: translate(0, 0) scale(0) rotate(0deg);
     opacity: 0;
   }
+
   20% {
     opacity: 1;
     transform: translate(calc(var(--tx, 30px) * 0.4), calc(var(--ty, -30px) * 0.4)) scale(1.2) rotate(90deg);
   }
+
   75% {
     opacity: 0.9;
   }
+
   100% {
     transform: translate(var(--tx, 30px), var(--ty, -30px)) scale(var(--s, 1)) rotate(calc(var(--r, 180deg)));
     opacity: 0;
@@ -588,6 +605,7 @@
     opacity: 0;
     transform: translateY(16px) scale(0.98);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -599,6 +617,7 @@
   0% {
     background-position: -200% 0;
   }
+
   100% {
     background-position: 200% 0;
   }
@@ -666,12 +685,16 @@
 
 /* Delivery Stepper & Courier Vehicle Animations */
 @keyframes deliveryTruckMove {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0px) rotate(0deg);
   }
+
   25% {
     transform: translateY(-2px) rotate(-1.5deg);
   }
+
   75% {
     transform: translateY(1px) rotate(1deg);
   }
@@ -681,6 +704,7 @@
   0% {
     background-position: 0 0;
   }
+
   100% {
     background-position: 28px 0;
   }
@@ -691,6 +715,7 @@
     transform: scale(0.9);
     opacity: 0.9;
   }
+
   100% {
     transform: scale(2.4);
     opacity: 0;
@@ -698,18 +723,24 @@
 }
 
 @keyframes deliveryPackageFloat {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0) scale(1);
   }
+
   50% {
     transform: translateY(-3px) scale(1.04);
   }
 }
 
 @keyframes deliveryGlowPulse {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 0 0 rgba(236, 47, 115, 0.45);
   }
+
   50% {
     box-shadow: 0 0 0 10px rgba(236, 47, 115, 0);
   }
@@ -739,19 +770,25 @@
 
 /* Authentic Google Maps Red Pin Animations */
 @keyframes googlePinHoverBob {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-3px);
   }
 }
 
 @keyframes googlePinShadowPulse {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
     opacity: 0.6;
   }
+
   50% {
     transform: scale(0.85);
     opacity: 0.38;
@@ -775,8 +812,36 @@
   animation: googlePinShadowPulse 2.6s ease-in-out infinite;
 }
 
+/* Skeleton Loading Shimmer System - Slightly Reduced Soft Dark Grey */
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+  background-color: #6b7280 !important;
+}
+
+.skeleton-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.32),
+    transparent
+  );
+  animation: skeleton-shimmer 1.5s infinite;
+}
+
+@keyframes skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 /* Accessibility: Respect Reduced Motion Preferences */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {

@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Hero } from '../components/home/Hero';
 import { CategorySection } from '../components/home/CategorySection';
 import { AffiliateSection } from '../components/home/AffiliateSection';
 import { FeaturedProducts } from '../components/home/FeaturedProducts';
 import { ReviewsSection } from '../components/home/ReviewsSection';
+import { sessionTracker } from '../utils/sessionTracker';
 import type { Product, CartItem } from '../types';
 
 interface HomeProps {
@@ -29,6 +30,17 @@ export const Home: React.FC<HomeProps> = ({
   onWishlistToggle,
   onSelectProduct,
 }) => {
+  // Skeleton only shows on first open & page refresh; subsequent visits in same session render immediately
+  const [isLoading, setIsLoading] = useState(() => sessionTracker.isFirstVisit('home'));
+
+  useEffect(() => {
+    if (!isLoading) return;
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 450);
+    return () => clearTimeout(timer);
+  }, [isLoading]);
+
   return (
     <main className="w-full overflow-x-hidden animate-in fade-in duration-300">
       {/* 1. Hero Showcase Banner */}
@@ -39,6 +51,7 @@ export const Home: React.FC<HomeProps> = ({
       {/* 2. Shop by Surprise (Categories & 4-Item Guarantees Bar) */}
       <div className="transition-all duration-300">
         <CategorySection
+          isLoading={isLoading}
           selectedCategory={selectedCategory}
           onSelectCategory={onSelectCategory}
           onViewAllCategories={onViewAllCategories}
@@ -48,6 +61,7 @@ export const Home: React.FC<HomeProps> = ({
       {/* 3. Best Sellers / Featured Products */}
       <div className="transition-all duration-300">
         <FeaturedProducts
+          isLoading={isLoading}
           cart={cart}
           searchQuery={searchQuery}
           selectedCategory={selectedCategory}
@@ -61,12 +75,12 @@ export const Home: React.FC<HomeProps> = ({
 
       {/* 4. Affiliate Program (Earn More with I Love Surprises & Commission Structure) */}
       <div className="transition-all duration-300">
-        <AffiliateSection />
+        <AffiliateSection isLoading={isLoading} />
       </div>
 
       {/* 5. Customer Reviews & Social Proof Numbers Strip */}
       <div className="transition-all duration-300">
-        <ReviewsSection />
+        <ReviewsSection isLoading={isLoading} />
       </div>
     </main>
   );

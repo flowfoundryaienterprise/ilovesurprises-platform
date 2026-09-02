@@ -534,7 +534,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
 
         {/* 1. REAL APP MOBILE HEADER & STEP TRACKER */}
         <div className="mb-4 sm:mb-8">
-          
+
           {/* Top Bar for Mobile & Desktop */}
           <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-[#ebdbe6]">
             {/* Left: Back button + Step Title */}
@@ -589,30 +589,27 @@ export const Checkout: React.FC<CheckoutProps> = ({
             <div className="sm:hidden grid grid-cols-3 gap-1.5">
               <div
                 onClick={() => setCurrentStep('shipping')}
-                className={`h-1.5 rounded-full transition-all cursor-pointer ${
-                  currentStep === 'shipping'
+                className={`h-1.5 rounded-full transition-all cursor-pointer ${currentStep === 'shipping'
                     ? 'bg-[#ec2f73] shadow-[0_0_8px_rgba(236,47,115,0.6)]'
                     : 'bg-emerald-500'
-                }`}
+                  }`}
               />
               <div
                 onClick={() => {
                   if (validateShippingForm()) setCurrentStep('delivery');
                 }}
-                className={`h-1.5 rounded-full transition-all cursor-pointer ${
-                  currentStep === 'delivery'
+                className={`h-1.5 rounded-full transition-all cursor-pointer ${currentStep === 'delivery'
                     ? 'bg-[#ec2f73] shadow-[0_0_8px_rgba(236,47,115,0.6)]'
                     : currentStep === 'payment'
-                    ? 'bg-emerald-500'
-                    : 'bg-[#ebdbe6]'
-                }`}
+                      ? 'bg-emerald-500'
+                      : 'bg-[#ebdbe6]'
+                  }`}
               />
               <div
-                className={`h-1.5 rounded-full transition-all ${
-                  currentStep === 'payment'
+                className={`h-1.5 rounded-full transition-all ${currentStep === 'payment'
                     ? 'bg-[#ec2f73] shadow-[0_0_8px_rgba(236,47,115,0.6)]'
                     : 'bg-[#ebdbe6]'
-                }`}
+                  }`}
               />
             </div>
 
@@ -629,8 +626,8 @@ export const Checkout: React.FC<CheckoutProps> = ({
                       currentStep === 'shipping'
                         ? '0%'
                         : currentStep === 'delivery'
-                        ? '50%'
-                        : '100%',
+                          ? '50%'
+                          : '100%',
                   }}
                 />
 
@@ -641,11 +638,10 @@ export const Checkout: React.FC<CheckoutProps> = ({
                   className="relative z-10 flex flex-col items-center cursor-pointer group"
                 >
                   <div
-                    className={`w-9 h-9 rounded-full flex items-center justify-center font-black text-xs transition-all shadow-xs ${
-                      currentStep === 'shipping'
+                    className={`w-9 h-9 rounded-full flex items-center justify-center font-black text-xs transition-all shadow-xs ${currentStep === 'shipping'
                         ? 'bg-[#ec2f73] text-white ring-4 ring-[#ec2f73]/20 scale-105'
                         : 'bg-emerald-600 text-white'
-                    }`}
+                      }`}
                   >
                     {currentStep !== 'shipping' ? <Check className="w-4 h-4 stroke-[3]" /> : '1'}
                   </div>
@@ -663,13 +659,12 @@ export const Checkout: React.FC<CheckoutProps> = ({
                   className="relative z-10 flex flex-col items-center cursor-pointer group"
                 >
                   <div
-                    className={`w-9 h-9 rounded-full flex items-center justify-center font-black text-xs transition-all shadow-xs ${
-                      currentStep === 'delivery'
+                    className={`w-9 h-9 rounded-full flex items-center justify-center font-black text-xs transition-all shadow-xs ${currentStep === 'delivery'
                         ? 'bg-[#ec2f73] text-white ring-4 ring-[#ec2f73]/20 scale-105'
                         : currentStep === 'payment'
-                        ? 'bg-emerald-600 text-white'
-                        : 'bg-white border-2 border-[#eedbe6] text-[#8a858f]'
-                    }`}
+                          ? 'bg-emerald-600 text-white'
+                          : 'bg-white border-2 border-[#eedbe6] text-[#8a858f]'
+                      }`}
                   >
                     {currentStep === 'payment' ? <Check className="w-4 h-4 stroke-[3]" /> : '2'}
                   </div>
@@ -681,11 +676,10 @@ export const Checkout: React.FC<CheckoutProps> = ({
                 {/* Step 3 Indicator */}
                 <div className="relative z-10 flex flex-col items-center">
                   <div
-                    className={`w-9 h-9 rounded-full flex items-center justify-center font-black text-xs transition-all shadow-xs ${
-                      currentStep === 'payment'
+                    className={`w-9 h-9 rounded-full flex items-center justify-center font-black text-xs transition-all shadow-xs ${currentStep === 'payment'
                         ? 'bg-[#ec2f73] text-white ring-4 ring-[#ec2f73]/20 scale-105'
                         : 'bg-white border-2 border-[#eedbe6] text-[#8a858f]'
-                    }`}
+                      }`}
                   >
                     3
                   </div>
@@ -866,11 +860,10 @@ export const Checkout: React.FC<CheckoutProps> = ({
                     <button
                       type="button"
                       onClick={() => setIsAddingNewAddress(false)}
-                      className={`flex-1 min-h-[38px] py-1.5 px-3 rounded-[12px] text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                        !isAddingNewAddress
+                      className={`flex-1 min-h-[38px] py-1.5 px-3 rounded-[12px] text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer ${!isAddingNewAddress
                           ? 'bg-white text-[#ec2f73] shadow-xs border border-[#f2dbe8]'
                           : 'text-[#716d77] hover:text-[#141219]'
-                      }`}
+                        }`}
                     >
                       <MapPin className="w-3.5 h-3.5" />
                       <span>Saved Addresses ({savedAddresses.length})</span>
@@ -878,11 +871,10 @@ export const Checkout: React.FC<CheckoutProps> = ({
                     <button
                       type="button"
                       onClick={handleAddNewAddress}
-                      className={`flex-1 min-h-[38px] py-1.5 px-3 rounded-[12px] text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                        isAddingNewAddress
+                      className={`flex-1 min-h-[38px] py-1.5 px-3 rounded-[12px] text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer ${isAddingNewAddress
                           ? 'bg-white text-[#ec2f73] shadow-xs border border-[#f2dbe8]'
                           : 'text-[#716d77] hover:text-[#141219]'
-                      }`}
+                        }`}
                     >
                       <Plus className="w-3.5 h-3.5" />
                       <span>Add New Address</span>
@@ -946,11 +938,10 @@ export const Checkout: React.FC<CheckoutProps> = ({
                           <div
                             key={addr.id}
                             onClick={() => handleSelectSavedAddress(addr)}
-                            className={`group relative p-4 sm:p-5 rounded-[18px] sm:rounded-[20px] border-2 text-left transition-all duration-200 cursor-pointer flex flex-col justify-between active:scale-[0.99] ${
-                              isSelected
+                            className={`group relative p-4 sm:p-5 rounded-[18px] sm:rounded-[20px] border-2 text-left transition-all duration-200 cursor-pointer flex flex-col justify-between active:scale-[0.99] ${isSelected
                                 ? 'bg-gradient-to-br from-[#fffbfd] via-white to-[#fff8fb] border-[#ec2f73] shadow-[0_10px_28px_rgba(236,47,115,0.12)] ring-3 ring-[#ec2f73]/10'
                                 : 'bg-white border-[#f0e4ec] hover:border-[#ec2f73]/60 hover:shadow-xs'
-                            }`}
+                              }`}
                           >
                             <div>
                               {/* Header: Custom Radio + Type Badge + Default Tag */}
@@ -958,11 +949,10 @@ export const Checkout: React.FC<CheckoutProps> = ({
                                 <div className="flex items-center gap-2">
                                   {/* Custom Radio Button */}
                                   <div
-                                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                                      isSelected
+                                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${isSelected
                                         ? 'border-[#ec2f73] bg-[#ec2f73] shadow-xs'
                                         : 'border-[#d4c8d1] bg-white group-hover:border-[#ec2f73]'
-                                    }`}
+                                      }`}
                                   >
                                     {isSelected && <Check className="w-3 h-3 text-white stroke-[3.5]" />}
                                   </div>
@@ -1036,11 +1026,10 @@ export const Checkout: React.FC<CheckoutProps> = ({
                                   setCurrentStep('delivery');
                                   window.scrollTo({ top: 0, behavior: 'smooth' });
                                 }}
-                                className={`hidden lg:flex h-[32px] px-3.5 rounded-[10px] text-xs font-black transition-all items-center gap-1 cursor-pointer active:scale-95 ${
-                                  isSelected
+                                className={`hidden lg:flex h-[32px] px-3.5 rounded-[10px] text-xs font-black transition-all items-center gap-1 cursor-pointer active:scale-95 ${isSelected
                                     ? 'bg-gradient-to-r from-[#ec2f73] to-[#d92467] text-white shadow-2xs'
                                     : 'text-[#ec2f73] bg-[#fff0f5] hover:bg-[#ffe5ee]'
-                                }`}
+                                  }`}
                               >
                                 <span>Deliver Here</span>
                                 <ArrowRight className="w-3.5 h-3.5" />
@@ -1175,9 +1164,8 @@ export const Checkout: React.FC<CheckoutProps> = ({
                             value={shippingForm.fullName}
                             onChange={(e) => setShippingForm({ ...shippingForm, fullName: e.target.value })}
                             placeholder="Recipient full name"
-                            className={`w-full min-h-[46px] px-3.5 rounded-[14px] bg-[#fffafb] border text-base sm:text-sm text-[#141219] outline-none transition-all ${
-                              shippingErrors.fullName ? 'border-red-500 bg-red-50/20' : 'border-[#e8dfe5] focus:border-[#ec2f73]'
-                            }`}
+                            className={`w-full min-h-[46px] px-3.5 rounded-[14px] bg-[#fffafb] border text-base sm:text-sm text-[#141219] outline-none transition-all ${shippingErrors.fullName ? 'border-red-500 bg-red-50/20' : 'border-[#e8dfe5] focus:border-[#ec2f73]'
+                              }`}
                           />
                           {shippingErrors.fullName && (
                             <p className="text-[11px] text-red-600 mt-1 font-semibold">{shippingErrors.fullName}</p>
@@ -1196,9 +1184,8 @@ export const Checkout: React.FC<CheckoutProps> = ({
                             value={shippingForm.email}
                             onChange={(e) => setShippingForm({ ...shippingForm, email: e.target.value })}
                             placeholder="Tracking updates email"
-                            className={`w-full min-h-[46px] px-3.5 rounded-[14px] bg-[#fffafb] border text-base sm:text-sm text-[#141219] outline-none transition-all ${
-                              shippingErrors.email ? 'border-red-500 bg-red-50/20' : 'border-[#e8dfe5] focus:border-[#ec2f73]'
-                            }`}
+                            className={`w-full min-h-[46px] px-3.5 rounded-[14px] bg-[#fffafb] border text-base sm:text-sm text-[#141219] outline-none transition-all ${shippingErrors.email ? 'border-red-500 bg-red-50/20' : 'border-[#e8dfe5] focus:border-[#ec2f73]'
+                              }`}
                           />
                           {shippingErrors.email && (
                             <p className="text-[11px] text-red-600 mt-1 font-semibold">{shippingErrors.email}</p>
@@ -1220,9 +1207,8 @@ export const Checkout: React.FC<CheckoutProps> = ({
                             value={shippingForm.phone}
                             onChange={(e) => setShippingForm({ ...shippingForm, phone: e.target.value })}
                             placeholder="(555) 000-0000"
-                            className={`w-full min-h-[46px] px-3.5 rounded-[14px] bg-[#fffafb] border text-base sm:text-sm text-[#141219] outline-none transition-all ${
-                              shippingErrors.phone ? 'border-red-500 bg-red-50/20' : 'border-[#e8dfe5] focus:border-[#ec2f73]'
-                            }`}
+                            className={`w-full min-h-[46px] px-3.5 rounded-[14px] bg-[#fffafb] border text-base sm:text-sm text-[#141219] outline-none transition-all ${shippingErrors.phone ? 'border-red-500 bg-red-50/20' : 'border-[#e8dfe5] focus:border-[#ec2f73]'
+                              }`}
                           />
                           {shippingErrors.phone && (
                             <p className="text-[11px] text-red-600 mt-1 font-semibold">{shippingErrors.phone}</p>
@@ -1250,9 +1236,8 @@ export const Checkout: React.FC<CheckoutProps> = ({
                             value={shippingForm.addressLine1}
                             onChange={(e) => setShippingForm({ ...shippingForm, addressLine1: e.target.value })}
                             placeholder="House / Flat No., Street, Building"
-                            className={`w-full min-h-[46px] px-3.5 rounded-[14px] bg-[#fffafb] border text-base sm:text-sm text-[#141219] outline-none transition-all ${
-                              shippingErrors.addressLine1 ? 'border-red-500 bg-red-50/20' : 'border-[#e8dfe5] focus:border-[#ec2f73]'
-                            }`}
+                            className={`w-full min-h-[46px] px-3.5 rounded-[14px] bg-[#fffafb] border text-base sm:text-sm text-[#141219] outline-none transition-all ${shippingErrors.addressLine1 ? 'border-red-500 bg-red-50/20' : 'border-[#e8dfe5] focus:border-[#ec2f73]'
+                              }`}
                           />
                           {shippingErrors.addressLine1 && (
                             <p className="text-[11px] text-red-600 mt-1 font-semibold">{shippingErrors.addressLine1}</p>
@@ -1332,9 +1317,8 @@ export const Checkout: React.FC<CheckoutProps> = ({
                               value={shippingForm.city}
                               onChange={(e) => setShippingForm({ ...shippingForm, city: e.target.value })}
                               placeholder="City name"
-                              className={`w-full min-h-[46px] px-3.5 rounded-[14px] bg-[#fffafb] border text-base sm:text-sm text-[#141219] outline-none transition-all ${
-                                shippingErrors.city ? 'border-red-500 bg-red-50/20' : 'border-[#e8dfe5] focus:border-[#ec2f73]'
-                              }`}
+                              className={`w-full min-h-[46px] px-3.5 rounded-[14px] bg-[#fffafb] border text-base sm:text-sm text-[#141219] outline-none transition-all ${shippingErrors.city ? 'border-red-500 bg-red-50/20' : 'border-[#e8dfe5] focus:border-[#ec2f73]'
+                                }`}
                             />
                             {shippingErrors.city && (
                               <p className="text-[11px] text-red-600 mt-1 font-semibold">{shippingErrors.city}</p>
@@ -1358,9 +1342,8 @@ export const Checkout: React.FC<CheckoutProps> = ({
                             value={shippingForm.zipCode}
                             onChange={(e) => setShippingForm({ ...shippingForm, zipCode: e.target.value })}
                             placeholder="ZIP / Postal Code"
-                            className={`w-full min-h-[46px] px-3.5 rounded-[14px] bg-[#fffafb] border text-base sm:text-sm text-[#141219] outline-none transition-all ${
-                              shippingErrors.zipCode ? 'border-red-500 bg-red-50/20' : 'border-[#e8dfe5] focus:border-[#ec2f73]'
-                            }`}
+                            className={`w-full min-h-[46px] px-3.5 rounded-[14px] bg-[#fffafb] border text-base sm:text-sm text-[#141219] outline-none transition-all ${shippingErrors.zipCode ? 'border-red-500 bg-red-50/20' : 'border-[#e8dfe5] focus:border-[#ec2f73]'
+                              }`}
                           />
                           {shippingErrors.zipCode && (
                             <p className="text-[11px] text-red-600 mt-1 font-semibold">{shippingErrors.zipCode}</p>
@@ -1459,17 +1442,15 @@ export const Checkout: React.FC<CheckoutProps> = ({
                       <div
                         key={opt.id}
                         onClick={() => setSelectedDeliveryId(opt.id)}
-                        className={`p-4 rounded-[16px] border-2 transition-all cursor-pointer flex items-center justify-between active:scale-[0.99] ${
-                          isSelected
+                        className={`p-4 rounded-[16px] border-2 transition-all cursor-pointer flex items-center justify-between active:scale-[0.99] ${isSelected
                             ? 'bg-[#fff7fa] border-[#ec2f73] shadow-xs'
                             : 'bg-white border-[#eee2eb] hover:border-[#f5cad7]'
-                        }`}
+                          }`}
                       >
                         <div className="flex items-start gap-3 min-w-0 flex-1">
                           <div
-                            className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 shrink-0 transition-colors ${
-                              isSelected ? 'border-[#ec2f73] bg-[#ec2f73]' : 'border-[#d0c6cd]'
-                            }`}
+                            className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 shrink-0 transition-colors ${isSelected ? 'border-[#ec2f73] bg-[#ec2f73]' : 'border-[#d0c6cd]'
+                              }`}
                           >
                             {isSelected && <div className="w-2 h-2 rounded-full bg-white" />}
                           </div>
@@ -1571,11 +1552,10 @@ export const Checkout: React.FC<CheckoutProps> = ({
                   <button
                     type="button"
                     onClick={() => setPaymentMethod('card')}
-                    className={`p-2.5 rounded-[12px] border-2 text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1 active:scale-95 ${
-                      paymentMethod === 'card'
+                    className={`p-2.5 rounded-[12px] border-2 text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1 active:scale-95 ${paymentMethod === 'card'
                         ? 'bg-[#fff0f5] border-[#ec2f73] text-[#ec2f73] shadow-xs'
                         : 'bg-white border-[#e8dfe5] text-[#55505a]'
-                    }`}
+                      }`}
                   >
                     <CreditCard className="w-4 h-4" />
                     <span className="text-xs font-black">Card</span>
@@ -1585,11 +1565,10 @@ export const Checkout: React.FC<CheckoutProps> = ({
                   <button
                     type="button"
                     onClick={() => setPaymentMethod('cod')}
-                    className={`p-2.5 rounded-[12px] border-2 text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1 active:scale-95 ${
-                      paymentMethod === 'cod'
+                    className={`p-2.5 rounded-[12px] border-2 text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1 active:scale-95 ${paymentMethod === 'cod'
                         ? 'bg-[#fff8f2] border-amber-600 text-amber-900 shadow-xs'
                         : 'bg-white border-[#e8dfe5] text-[#55505a]'
-                    }`}
+                      }`}
                   >
                     <Banknote className="w-4 h-4 text-amber-600" />
                     <span className="text-xs font-black">Cash on Delivery</span>
@@ -1599,11 +1578,10 @@ export const Checkout: React.FC<CheckoutProps> = ({
                   <button
                     type="button"
                     onClick={() => setPaymentMethod('apple_pay')}
-                    className={`p-2.5 rounded-[12px] border-2 text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1 active:scale-95 ${
-                      paymentMethod === 'apple_pay'
+                    className={`p-2.5 rounded-[12px] border-2 text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1 active:scale-95 ${paymentMethod === 'apple_pay'
                         ? 'bg-[#141219] border-[#141219] text-white shadow-xs'
                         : 'bg-white border-[#e8dfe5] text-[#141219]'
-                    }`}
+                      }`}
                   >
                     <span className="text-xs font-black tracking-tight">Pay</span>
                     <span className="text-[9px] font-bold">1-Click</span>
@@ -1613,11 +1591,10 @@ export const Checkout: React.FC<CheckoutProps> = ({
                   <button
                     type="button"
                     onClick={() => setPaymentMethod('google_pay')}
-                    className={`p-2.5 rounded-[12px] border-2 text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1 active:scale-95 ${
-                      paymentMethod === 'google_pay'
+                    className={`p-2.5 rounded-[12px] border-2 text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1 active:scale-95 ${paymentMethod === 'google_pay'
                         ? 'bg-[#fff8f2] border-amber-600 text-amber-900 shadow-xs'
                         : 'bg-white border-[#e8dfe5] text-[#55505a]'
-                    }`}
+                      }`}
                   >
                     <span className="text-xs font-black">G Pay</span>
                     <span className="text-[9px] font-bold text-amber-700">Google</span>
@@ -1627,11 +1604,10 @@ export const Checkout: React.FC<CheckoutProps> = ({
                   <button
                     type="button"
                     onClick={() => setPaymentMethod('paypal')}
-                    className={`p-2.5 rounded-[12px] border-2 text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1 active:scale-95 col-span-2 sm:col-span-1 ${
-                      paymentMethod === 'paypal'
+                    className={`p-2.5 rounded-[12px] border-2 text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1 active:scale-95 col-span-2 sm:col-span-1 ${paymentMethod === 'paypal'
                         ? 'bg-[#f0f7ff] border-blue-600 text-blue-900 shadow-xs'
                         : 'bg-white border-[#e8dfe5] text-[#55505a]'
-                    }`}
+                      }`}
                   >
                     <span className="text-xs font-black text-blue-700">PayPal</span>
                     <span className="text-[9px] font-bold">Express</span>
@@ -1659,9 +1635,8 @@ export const Checkout: React.FC<CheckoutProps> = ({
                           placeholder="4242 4242 4242 4242"
                           value={cardNumber}
                           onChange={handleCardNumberChange}
-                          className={`w-full min-h-[46px] pl-10 pr-3.5 rounded-[13px] bg-white border text-base sm:text-sm text-[#141219] font-mono outline-none ${
-                            paymentErrors.cardNumber ? 'border-red-500' : 'border-[#e8dfe5] focus:border-[#ec2f73]'
-                          }`}
+                          className={`w-full min-h-[46px] pl-10 pr-3.5 rounded-[13px] bg-white border text-base sm:text-sm text-[#141219] font-mono outline-none ${paymentErrors.cardNumber ? 'border-red-500' : 'border-[#e8dfe5] focus:border-[#ec2f73]'
+                            }`}
                         />
                         <CreditCard className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8a858f]" />
                       </div>
@@ -1683,9 +1658,8 @@ export const Checkout: React.FC<CheckoutProps> = ({
                           placeholder="MM/YY"
                           value={cardExpiry}
                           onChange={handleExpiryChange}
-                          className={`w-full min-h-[46px] px-3.5 rounded-[13px] bg-white border text-base sm:text-sm text-[#141219] font-mono outline-none ${
-                            paymentErrors.cardExpiry ? 'border-red-500' : 'border-[#e8dfe5] focus:border-[#ec2f73]'
-                          }`}
+                          className={`w-full min-h-[46px] px-3.5 rounded-[13px] bg-white border text-base sm:text-sm text-[#141219] font-mono outline-none ${paymentErrors.cardExpiry ? 'border-red-500' : 'border-[#e8dfe5] focus:border-[#ec2f73]'
+                            }`}
                         />
                         {paymentErrors.cardExpiry && (
                           <p className="text-[11px] text-red-600 mt-1 font-semibold">{paymentErrors.cardExpiry}</p>
@@ -1705,9 +1679,8 @@ export const Checkout: React.FC<CheckoutProps> = ({
                             placeholder="•••"
                             value={cardCvv}
                             onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, ''))}
-                            className={`w-full min-h-[46px] pl-3.5 pr-8 rounded-[13px] bg-white border text-base sm:text-sm text-[#141219] font-mono outline-none ${
-                              paymentErrors.cardCvv ? 'border-red-500' : 'border-[#e8dfe5] focus:border-[#ec2f73]'
-                            }`}
+                            className={`w-full min-h-[46px] pl-3.5 pr-8 rounded-[13px] bg-white border text-base sm:text-sm text-[#141219] font-mono outline-none ${paymentErrors.cardCvv ? 'border-red-500' : 'border-[#e8dfe5] focus:border-[#ec2f73]'
+                              }`}
                           />
                           <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#8a858f]" />
                         </div>
@@ -1729,9 +1702,8 @@ export const Checkout: React.FC<CheckoutProps> = ({
                         value={cardName}
                         onChange={(e) => setCardName(e.target.value)}
                         placeholder="Name on credit card"
-                        className={`w-full min-h-[46px] px-3.5 rounded-[13px] bg-white border text-base sm:text-sm text-[#141219] outline-none ${
-                          paymentErrors.cardName ? 'border-red-500' : 'border-[#e8dfe5] focus:border-[#ec2f73]'
-                        }`}
+                        className={`w-full min-h-[46px] px-3.5 rounded-[13px] bg-white border text-base sm:text-sm text-[#141219] outline-none ${paymentErrors.cardName ? 'border-red-500' : 'border-[#e8dfe5] focus:border-[#ec2f73]'
+                          }`}
                       />
                       {paymentErrors.cardName && (
                         <p className="text-[11px] text-red-600 mt-1 font-semibold">{paymentErrors.cardName}</p>
@@ -1832,11 +1804,10 @@ export const Checkout: React.FC<CheckoutProps> = ({
                     type="button"
                     disabled={isSubmitting}
                     onClick={handlePlaceOrder}
-                    className={`h-[44px] px-7 rounded-[12px] font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(236,47,115,0.3)] active:scale-98 transition-all cursor-pointer ${
-                      isSubmitting
+                    className={`h-[44px] px-7 rounded-[12px] font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(236,47,115,0.3)] active:scale-98 transition-all cursor-pointer ${isSubmitting
                         ? 'bg-[#d92467] text-white opacity-80 cursor-wait'
                         : 'bg-gradient-to-r from-[#ec2f73] via-[#ff3b81] to-[#d92467] hover:from-[#d92467] text-white'
-                    }`}
+                      }`}
                   >
                     {isSubmitting ? (
                       <>
@@ -2078,11 +2049,10 @@ export const Checkout: React.FC<CheckoutProps> = ({
                 type="button"
                 disabled={isSubmitting}
                 onClick={handlePlaceOrder}
-                className={`w-full h-[46px] px-4 rounded-[14px] font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-[0_4px_16px_rgba(236,47,115,0.35)] active:scale-95 transition-all cursor-pointer whitespace-nowrap ${
-                  isSubmitting
+                className={`w-full h-[46px] px-4 rounded-[14px] font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-[0_4px_16px_rgba(236,47,115,0.35)] active:scale-95 transition-all cursor-pointer whitespace-nowrap ${isSubmitting
                     ? 'bg-[#d92467] text-white opacity-80 cursor-wait'
                     : 'bg-gradient-to-r from-[#ec2f73] via-[#ff3b81] to-[#d92467] text-white'
-                }`}
+                  }`}
               >
                 {isSubmitting ? (
                   <>

@@ -12,7 +12,7 @@ export const reviewsData: Review[] = [
     verified: true,
     productName: 'Sparkling Rose Gold Jewelry Candle',
     revealedSurprise: 'Sterling Silver Teardrop Ring ($250 value)',
-    avatar: '/assets/ilovesurprises/reviews/WhatsApp_Image_2026-08-19_at_3.42.29_PM.jpg'
+    avatar: '/assets/ilovesurprises/Profile/profile%20image.webp'
   },
   {
     id: 'rev-02',
@@ -25,7 +25,7 @@ export const reviewsData: Review[] = [
     verified: true,
     productName: 'Classic Vintage Cola Cash Candle',
     revealedSurprise: 'Real $50 Cash Bill Reveal',
-    avatar: '/assets/ilovesurprises/reviews/WhatsApp_Image_2026-08-19_at_3.42.29_PM_1.jpg'
+    avatar: '/assets/ilovesurprises/Profile/profile%20image.webp'
   },
   {
     id: 'rev-03',
@@ -38,7 +38,7 @@ export const reviewsData: Review[] = [
     verified: true,
     productName: 'Luxury Vanilla Cash & Jewelry Candle',
     revealedSurprise: '14K Gold CZ Stud Earrings ($550 value)',
-    avatar: '/assets/ilovesurprises/reviews/WhatsApp_Image_2026-08-19_at_6.15.11_PM.jpg'
+    avatar: '/assets/ilovesurprises/Profile/profile%20image.webp'
   },
   {
     id: 'rev-04',
@@ -51,7 +51,7 @@ export const reviewsData: Review[] = [
     verified: true,
     productName: 'Dr Pepper Cash Soda Pop Candle',
     revealedSurprise: 'Real $100 Cash Bill Reveal',
-    avatar: '/assets/ilovesurprises/reviews/WhatsApp_Image_2026-08-19_at_6.15.11_PM_1.jpg'
+    avatar: '/assets/ilovesurprises/Profile/profile%20image.webp'
   }
 ];
 

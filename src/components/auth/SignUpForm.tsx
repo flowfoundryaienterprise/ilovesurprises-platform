@@ -132,22 +132,20 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
         <button
           type="button"
           onClick={() => setRole('customer')}
-          className={`py-1.5 rounded-[10px] text-xs font-black transition-all cursor-pointer ${
-            role === 'customer'
+          className={`py-1.5 rounded-[10px] text-xs font-black transition-all cursor-pointer ${role === 'customer'
               ? 'bg-white text-[#ec2f73] shadow-xs'
               : 'text-[#716d77] hover:text-[#141219]'
-          }`}
+            }`}
         >
           Shopper VIP
         </button>
         <button
           type="button"
           onClick={() => setRole('representative')}
-          className={`py-1.5 rounded-[10px] text-xs font-black transition-all cursor-pointer ${
-            role === 'representative'
+          className={`py-1.5 rounded-[10px] text-xs font-black transition-all cursor-pointer ${role === 'representative'
               ? 'bg-white text-[#ec2f73] shadow-xs'
               : 'text-[#716d77] hover:text-[#141219]'
-          }`}
+            }`}
         >
           20% Rep Affiliate
         </button>
@@ -176,11 +174,10 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
                 setName(e.target.value);
                 if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
               }}
-              className={`w-full h-[40px] sm:h-[42px] pl-10 pr-3 rounded-[12px] bg-[#fffafb] border text-xs sm:text-sm font-medium text-[#141219] placeholder:text-[#9c95a0] transition-all outline-none disabled:opacity-50 ${
-                errors.name
+              className={`w-full h-[40px] sm:h-[42px] pl-10 pr-3 rounded-[12px] bg-[#fffafb] border text-xs sm:text-sm font-medium text-[#141219] placeholder:text-[#9c95a0] transition-all outline-none disabled:opacity-50 ${errors.name
                   ? 'border-red-400 focus:border-red-500 focus:bg-white focus:ring-2 focus:ring-red-100'
                   : 'border-[#ebdce5] hover:border-[#f1b8cb] focus:border-[#ec2f73] focus:bg-white focus:ring-2 focus:ring-[#ec2f73]/10'
-              }`}
+                }`}
             />
           </div>
           {errors.name && (
@@ -213,11 +210,10 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
                 setEmail(e.target.value);
                 if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
               }}
-              className={`w-full h-[40px] sm:h-[42px] pl-10 pr-3 rounded-[12px] bg-[#fffafb] border text-xs sm:text-sm font-medium text-[#141219] placeholder:text-[#9c95a0] transition-all outline-none disabled:opacity-50 ${
-                errors.email
+              className={`w-full h-[40px] sm:h-[42px] pl-10 pr-3 rounded-[12px] bg-[#fffafb] border text-xs sm:text-sm font-medium text-[#141219] placeholder:text-[#9c95a0] transition-all outline-none disabled:opacity-50 ${errors.email
                   ? 'border-red-400 focus:border-red-500 focus:bg-white focus:ring-2 focus:ring-red-100'
                   : 'border-[#ebdce5] hover:border-[#f1b8cb] focus:border-[#ec2f73] focus:bg-white focus:ring-2 focus:ring-[#ec2f73]/10'
-              }`}
+                }`}
             />
           </div>
           {errors.email && (
@@ -250,11 +246,10 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
                 setMobile(e.target.value);
                 if (errors.mobile) setErrors((prev) => ({ ...prev, mobile: undefined }));
               }}
-              className={`w-full h-[40px] sm:h-[42px] pl-10 pr-3 rounded-[12px] bg-[#fffafb] border text-xs sm:text-sm font-medium text-[#141219] placeholder:text-[#9c95a0] transition-all outline-none disabled:opacity-50 ${
-                errors.mobile
+              className={`w-full h-[40px] sm:h-[42px] pl-10 pr-3 rounded-[12px] bg-[#fffafb] border text-xs sm:text-sm font-medium text-[#141219] placeholder:text-[#9c95a0] transition-all outline-none disabled:opacity-50 ${errors.mobile
                   ? 'border-red-400 focus:border-red-500 focus:bg-white focus:ring-2 focus:ring-red-100'
                   : 'border-[#ebdce5] hover:border-[#f1b8cb] focus:border-[#ec2f73] focus:bg-white focus:ring-2 focus:ring-[#ec2f73]/10'
-              }`}
+                }`}
             />
           </div>
           {errors.mobile && (

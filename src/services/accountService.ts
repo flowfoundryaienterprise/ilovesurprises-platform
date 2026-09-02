@@ -1,7 +1,8 @@
-import type { SavedAddress, UserProfile } from '../types';
+import type { SavedAddress, UserProfile, UserSettings } from '../types';
 
 const ADDRESSES_STORAGE_KEY = 'ilovesurprises_addresses_v1';
 const USER_STORAGE_KEY = 'ilovesurprises_user_v1';
+const SETTINGS_STORAGE_KEY = 'ilovesurprises_settings_v1';
 
 const MAX_SAVED_ADDRESSES = 3;
 
@@ -252,7 +253,7 @@ export const accountService = {
       const stored = localStorage.getItem(USER_STORAGE_KEY);
       if (!stored) return null;
       const parsed: UserProfile = JSON.parse(stored);
-      if (!parsed.avatar || parsed.avatar.includes('/reviews/')) {
+      if (!parsed.avatar || parsed.avatar.includes('/reviews/') || parsed.avatar.includes('unsplash.com') || parsed.avatar.startsWith('http')) {
         parsed.avatar = '/assets/ilovesurprises/Profile/profile%20image.webp';
       }
       return parsed;
@@ -275,5 +276,51 @@ export const accountService = {
     } catch (err) {
       console.error('Failed to update stored user', err);
     }
+  },
+
+  /**
+   * Retrieves user settings
+   */
+  getUserSettings(): UserSettings {
+    if (typeof window === 'undefined') {
+      return this.getDefaultSettings();
+    }
+    try {
+      const stored = localStorage.getItem(SETTINGS_STORAGE_KEY);
+      if (stored) return JSON.parse(stored);
+      return this.getDefaultSettings();
+    } catch {
+      return this.getDefaultSettings();
+    }
+  },
+
+  getDefaultSettings(): UserSettings {
+    return {
+      emailNotifications: true,
+      smsNotifications: true,
+      orderStatusUpdates: true,
+      surpriseDropAlerts: true,
+      marketingEmails: false,
+      twoFactorEnabled: false,
+      currency: 'USD ($)',
+      language: 'English (US)',
+    };
+  },
+
+  /**
+   * Updates user settings
+   */
+  updateUserSettings(settings: Partial<UserSettings>): UserSettings {
+    const current = this.getUserSettings();
+    const updated = { ...current, ...settings };
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(updated));
+        window.dispatchEvent(new CustomEvent('ilovesurprises_settings_updated'));
+      } catch (err) {
+        console.error('Failed to update user settings', err);
+      }
+    }
+    return updated;
   },
 };

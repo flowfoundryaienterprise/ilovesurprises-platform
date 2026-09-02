@@ -70,3 +70,4 @@ export interface UserProfile {
 }
 
 export * from './order';
+export * from './affiliate';

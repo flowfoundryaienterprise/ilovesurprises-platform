@@ -1,12 +1,15 @@
 import React from 'react';
 import { Sparkles, RefreshCw } from 'lucide-react';
 import { ProductCard } from './ProductCard';
+import { ProductCardSkeleton } from '../ui/ProductCardSkeleton';
 import type { Product, CartItem } from '../../types';
 
 interface ProductGridProps {
   products: Product[];
   cart?: CartItem[];
   wishlistIds?: string[];
+  isLoading?: boolean;
+  skeletonCount?: number;
   onAddToCart: (product: Product) => void;
   onUpdateQuantity: (productId: string, delta: number) => void;
   onWishlistToggle: (product: Product) => void;
@@ -16,10 +19,13 @@ interface ProductGridProps {
   isFullWidth?: boolean;
 }
 
+// Default skeleton count is 11 (Existing 8 count + 3 additional skeleton cards)
 export const ProductGrid: React.FC<ProductGridProps> = ({
   products,
   cart = [],
   wishlistIds = [],
+  isLoading = false,
+  skeletonCount = 11,
   onAddToCart,
   onUpdateQuantity,
   onWishlistToggle,
@@ -28,6 +34,24 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   onResetFilters,
   isFullWidth = false,
 }) => {
+  const gridClasses = isFullWidth
+    ? 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'
+    : 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4';
+
+  if (isLoading) {
+    return (
+      <div
+        className={`grid gap-3.5 sm:gap-4 lg:gap-5 w-full transition-all duration-300 ${gridClasses}`}
+        role="status"
+        aria-label="Loading products"
+      >
+        {Array.from({ length: skeletonCount }).map((_, index) => (
+          <ProductCardSkeleton key={index} />
+        ))}
+      </div>
+    );
+  }
+
   if (products.length === 0) {
     return (
       <div className="w-full py-16 px-4 text-center rounded-[24px] bg-[#fffafc] border border-[#f1dbe8] my-6">
@@ -55,13 +79,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   }
 
   return (
-    <div
-      className={`grid gap-3.5 sm:gap-4 lg:gap-5 w-full transition-all duration-300 ${
-        isFullWidth
-          ? 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'
-          : 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4'
-      }`}
-    >
+    <div className={`grid gap-3.5 sm:gap-4 lg:gap-5 w-full transition-all duration-300 ${gridClasses}`}>
       {products.map((product) => {
         const cartItem = cart.find((item) => item.product.id === product.id);
         const isWishlisted = wishlistIds.includes(product.id);

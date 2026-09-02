@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Sparkles,
   ArrowRight,
@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 import { categoriesData } from '../data/categories';
 import { productsData } from '../data/products';
+import { Skeleton } from '../components/ui/Skeleton';
+import { sessionTracker } from '../utils/sessionTracker';
 
 interface CategoriesProps {
   onSelectCategory: (categoryName: string) => void;
@@ -28,6 +30,15 @@ export const Categories: React.FC<CategoriesProps> = ({
   onBackToHome,
 }) => {
   const [activeFilter, setActiveFilter] = useState<RevealFilter>('all');
+  const [isLoading, setIsLoading] = useState(() => sessionTracker.isFirstVisit('categories'));
+
+  useEffect(() => {
+    if (!isLoading) return;
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 450);
+    return () => clearTimeout(timer);
+  }, [isLoading]);
 
   const filteredCategories = categoriesData.filter((cat) => {
     if (activeFilter === 'jewelry') return cat.name.includes('Jewelry') || cat.name === 'Wax Melts';
@@ -158,8 +169,27 @@ export const Categories: React.FC<CategoriesProps> = ({
       </div>
 
       {/* 4. Responsive Categories Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-6 mb-8 sm:mb-14">
-        {filteredCategories.map((category) => {
+      {isLoading ? (
+        <div
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-6 mb-8 sm:mb-14"
+          role="status"
+          aria-label="Loading collections"
+        >
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div
+              key={index}
+              className="rounded-[22px] sm:rounded-[28px] bg-white border border-[#eee7ed] p-4 sm:p-6 flex flex-col justify-between shadow-2xs"
+            >
+              <div className="w-full aspect-4/3 sm:aspect-16/10 rounded-[18px] sm:rounded-[22px] bg-gray-700 skeleton-shimmer mb-3 sm:mb-4" />
+              <Skeleton className="h-5 w-3/4 rounded-md mb-2" />
+              <Skeleton className="h-3.5 w-full rounded-md mb-1.5" />
+              <Skeleton className="h-3.5 w-2/3 rounded-md" />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-6 mb-8 sm:mb-14">
+          {filteredCategories.map((category) => {
           const categoryProducts = productsData.filter((p) => p.category === category.name);
           const productCount = categoryProducts.length;
           const isCash = category.name.includes('Cash');
@@ -269,6 +299,7 @@ export const Categories: React.FC<CategoriesProps> = ({
           );
         })}
       </div>
+      )}
 
       {/* 5. "How It Works" 3-Step Unboxing Experience Strip (Light Luxury Theme) */}
       <div className="rounded-[20px] sm:rounded-[28px] bg-[radial-gradient(circle_at_85%_15%,rgba(255,203,222,0.35),transparent_40%),linear-gradient(135deg,#fffafb_0%,#fff5f8_50%,#fbf6ff_100%)] p-4 sm:p-8 lg:p-10 mb-8 sm:mb-12 shadow-[0_12px_36px_rgba(50,31,63,0.04)] border border-[#ebdce5] relative overflow-hidden">

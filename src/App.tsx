@@ -11,6 +11,9 @@ import { ProductDetails } from './pages/ProductDetails';
 import { Checkout } from './pages/Checkout';
 import { OrderConfirmation } from './pages/OrderConfirmation';
 import { Account, type AccountTab } from './pages/Account';
+import { AffiliateDashboard } from './pages/AffiliateDashboard';
+import { About } from './pages/About';
+import { Contact } from './pages/Contact';
 import type { Product, CartItem, UserProfile, Order } from './types';
 import { productsData } from './data/products';
 import { accountService } from './services/accountService';
@@ -22,7 +25,10 @@ export type AppView =
   | 'product-details'
   | 'checkout'
   | 'order-confirmation'
-  | 'account';
+  | 'account'
+  | 'affiliate'
+  | 'about'
+  | 'contact';
 
 export function App() {
   const [currentView, setCurrentView] = useState<AppView>(() => {
@@ -34,6 +40,9 @@ export function App() {
     if (path === '/checkout') return 'checkout';
     if (path.startsWith('/order-confirmation/')) return 'order-confirmation';
     if (path === '/account') return 'account';
+    if (path === '/affiliate') return 'affiliate';
+    if (path === '/about') return 'about';
+    if (path === '/contact') return 'contact';
     return 'home';
   });
 
@@ -156,6 +165,15 @@ export function App() {
         } else if (path === '/account') {
           setCurrentView('account');
           window.scrollTo({ top: scrollPositions.current['account'] || 0, behavior: 'smooth' });
+        } else if (path === '/affiliate') {
+          setCurrentView('affiliate');
+          window.scrollTo({ top: scrollPositions.current['affiliate'] || 0, behavior: 'smooth' });
+        } else if (path === '/about') {
+          setCurrentView('about');
+          window.scrollTo({ top: scrollPositions.current['about'] || 0, behavior: 'smooth' });
+        } else if (path === '/contact') {
+          setCurrentView('contact');
+          window.scrollTo({ top: scrollPositions.current['contact'] || 0, behavior: 'smooth' });
         } else if (path.startsWith('/product/')) {
           const slug = path.replace('/product/', '');
           const matched = productsData.find((p) => p.slug === slug || p.id === slug);
@@ -354,11 +372,50 @@ export function App() {
     }
   };
 
-  const handleNavigate = (route: 'home' | 'shop' | 'categories') => {
+  const handleNavigateToAffiliate = (direction: 'forward' | 'backward' = 'forward') => {
+    scrollPositions.current[currentView] = window.scrollY;
+    setNavDirection(direction);
+    setCurrentView('affiliate');
+    const targetScroll = direction === 'backward' ? scrollPositions.current['affiliate'] || 0 : 0;
+    window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+    if (window.history.pushState) {
+      window.history.pushState({ view: 'affiliate' }, '', '/affiliate');
+    }
+  };
+
+  const handleNavigateToAbout = (direction: 'forward' | 'backward' = 'forward') => {
+    scrollPositions.current[currentView] = window.scrollY;
+    setNavDirection(direction);
+    setCurrentView('about');
+    const targetScroll = direction === 'backward' ? scrollPositions.current['about'] || 0 : 0;
+    window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+    if (window.history.pushState) {
+      window.history.pushState({ view: 'about' }, '', '/about');
+    }
+  };
+
+  const handleNavigateToContact = (direction: 'forward' | 'backward' = 'forward') => {
+    scrollPositions.current[currentView] = window.scrollY;
+    setNavDirection(direction);
+    setCurrentView('contact');
+    const targetScroll = direction === 'backward' ? scrollPositions.current['contact'] || 0 : 0;
+    window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+    if (window.history.pushState) {
+      window.history.pushState({ view: 'contact' }, '', '/contact');
+    }
+  };
+
+  const handleNavigate = (route: 'home' | 'shop' | 'categories' | 'affiliate' | 'about' | 'contact') => {
     if (route === 'shop') {
       handleNavigateToShop(undefined, 'forward');
     } else if (route === 'categories') {
       handleNavigateToCategories('forward');
+    } else if (route === 'affiliate') {
+      handleNavigateToAffiliate('forward');
+    } else if (route === 'about') {
+      handleNavigateToAbout('forward');
+    } else if (route === 'contact') {
+      handleNavigateToContact('forward');
     } else {
       handleNavigateToHome('forward');
     }
@@ -385,10 +442,11 @@ export function App() {
         }}
         onNavigate={handleNavigate}
         onNavigateToAccount={handleNavigateToAccount}
+        onNavigateToAffiliate={handleNavigateToAffiliate}
         onSelectProduct={handleSelectProduct}
       />
 
-      {/* Main Dynamic View: Home | Shop | Categories | Product Details | Checkout | Order Confirmation | Account */}
+      {/* Main Dynamic View: Home | Shop | Categories | Product Details | Checkout | Order Confirmation | Account | Affiliate */}
       <main className="flex-1 w-full overflow-hidden">
         {currentView === 'home' && (
           <div key="page-home" className={transitionClass}>
@@ -484,13 +542,40 @@ export function App() {
               onAddToCart={handleAddToCart}
               onWishlistToggle={handleWishlistToggle}
               onTabChange={(tab) => setAccountActiveTab(tab)}
+              onNavigateToAffiliate={handleNavigateToAffiliate}
             />
+          </div>
+        )}
+
+        {currentView === 'affiliate' && (
+          <div key="page-affiliate" className={transitionClass}>
+            <AffiliateDashboard
+              user={user}
+              onNavigateToHome={() => handleNavigateToHome('backward')}
+              onNavigateToAccount={() => handleNavigateToAccount('profile')}
+              onShowToast={showToast}
+            />
+          </div>
+        )}
+
+        {currentView === 'about' && (
+          <div key="page-about" className={transitionClass}>
+            <About
+              onNavigateToShop={() => handleNavigateToShop(undefined, 'forward')}
+              onNavigateToAffiliate={() => handleNavigateToAffiliate('forward')}
+            />
+          </div>
+        )}
+
+        {currentView === 'contact' && (
+          <div key="page-contact" className={transitionClass}>
+            <Contact />
           </div>
         )}
       </main>
 
       {/* Footer */}
-      <Footer />
+      <Footer onNavigate={handleNavigate} />
 
       {/* Sign In & Login / Create Account Modal */}
       <AuthModal

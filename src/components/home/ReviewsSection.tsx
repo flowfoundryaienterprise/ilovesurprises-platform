@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
 import { Star, CheckCircle, Sparkles, Gem, DollarSign, PackageCheck, ShieldCheck, Award } from 'lucide-react';
 import { reviewsData } from '../../data/reviews';
+import { Skeleton } from '../ui/Skeleton';
 
-export const ReviewsSection: React.FC = () => {
+interface ReviewsSectionProps {
+  isLoading?: boolean;
+}
+
+export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ isLoading = false }) => {
   const [activeFilter, setActiveFilter] = useState<'all' | 'cash' | 'jewelry'>('all');
 
   const filteredReviews = reviewsData.filter((rev) => {
@@ -125,8 +130,39 @@ export const ReviewsSection: React.FC = () => {
         </div>
 
         {/* Dynamic Responsive Reviews Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5 sm:gap-4 mb-6">
-          {filteredReviews.map((review) => {
+        {isLoading ? (
+          <div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5 sm:gap-4 mb-6"
+            role="status"
+            aria-label="Loading customer reviews"
+          >
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div
+                key={index}
+                className="p-4 rounded-[20px] bg-white border border-[#eedbe6] shadow-2xs flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-10 h-10 rounded-full bg-gray-700 skeleton-shimmer shrink-0" />
+                      <div className="space-y-1">
+                        <Skeleton className="h-3.5 w-24 rounded-md" />
+                        <Skeleton className="h-2.5 w-16 rounded-md" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-4 w-16 rounded-full" />
+                  </div>
+                  <Skeleton className="h-4 w-4/5 rounded-md mb-2" />
+                  <Skeleton className="h-3 w-full rounded-md mb-1.5" />
+                  <Skeleton className="h-3 w-3/4 rounded-md mb-3" />
+                </div>
+                <Skeleton className="h-7 w-full rounded-[10px]" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5 sm:gap-4 mb-6">
+            {filteredReviews.map((review) => {
             const isCash = review.revealedSurprise?.toLowerCase().includes('cash') || review.revealedSurprise?.includes('$50') || review.revealedSurprise?.includes('$100');
             const isJewelry = review.revealedSurprise?.toLowerCase().includes('ring') || review.revealedSurprise?.toLowerCase().includes('necklace') || review.revealedSurprise?.toLowerCase().includes('earring');
 
@@ -140,18 +176,12 @@ export const ReviewsSection: React.FC = () => {
                   {/* Top Customer Info Row with Real Unboxer Avatar */}
                   <div className="flex items-center justify-between gap-2 mb-3">
                     <div className="flex items-center gap-2.5 min-w-0">
-                      {review.avatar ? (
-                        <img
-                          src={review.avatar}
-                          alt={review.author}
-                          className="w-10 h-10 rounded-full object-cover border border-[#f5cad7] bg-[#fff0f5] shrink-0"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#ec2f73] to-[#ff4b8b] text-white font-black text-xs flex items-center justify-center shrink-0 shadow-xs">
-                          {review.author.charAt(0)}
-                        </div>
-                      )}
+                      <img
+                        src={review.avatar || '/assets/ilovesurprises/Profile/profile%20image.webp'}
+                        alt={review.author}
+                        className="w-10 h-10 rounded-full object-cover border border-[#f5cad7] bg-[#fff0f5] shrink-0"
+                        loading="lazy"
+                      />
                       
                       <div className="min-w-0">
                         <div className="flex items-center gap-1">
@@ -243,6 +273,7 @@ export const ReviewsSection: React.FC = () => {
             );
           })}
         </div>
+        )}
 
         {/* Bottom Social Proof & Trust Strip */}
         <div className="pt-4 border-t border-[#f0e2ec] grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 text-center">

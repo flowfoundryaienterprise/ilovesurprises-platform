@@ -119,8 +119,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                 if (errors.identifier) setErrors((prev) => ({ ...prev, identifier: undefined }));
               }}
               className={`w-full h-[42px] sm:h-[44px] pl-10 pr-3 rounded-[13px] bg-[#fffafb] border text-xs sm:text-sm font-medium text-[#141219] placeholder:text-[#9c95a0] transition-all outline-none disabled:opacity-50 ${errors.identifier
-                  ? 'border-red-400 focus:border-red-500 focus:bg-white focus:ring-2 focus:ring-red-100'
-                  : 'border-[#ebdce5] hover:border-[#f1b8cb] focus:border-[#ec2f73] focus:bg-white focus:ring-2 focus:ring-[#ec2f73]/10'
+                ? 'border-red-400 focus:border-red-500 focus:bg-white focus:ring-2 focus:ring-red-100'
+                : 'border-[#ebdce5] hover:border-[#f1b8cb] focus:border-[#ec2f73] focus:bg-white focus:ring-2 focus:ring-[#ec2f73]/10'
                 }`}
               aria-invalid={!!errors.identifier}
               aria-describedby={errors.identifier ? 'login-identifier-error' : undefined}

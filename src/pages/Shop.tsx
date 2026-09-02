@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   DesktopFilterMegaPanel,
   ActiveFilterChips,
@@ -12,6 +12,7 @@ import {
 } from '../components/products/filterConstants';
 import { ProductGrid } from '../components/products/ProductGrid';
 import { productsData } from '../data/products';
+import { sessionTracker } from '../utils/sessionTracker';
 import type { Product, CartItem } from '../types';
 import {
   SlidersHorizontal,
@@ -139,6 +140,17 @@ export const Shop: React.FC<ShopProps> = ({
   const [draftFilters, setDraftFilters] = useState<FilterState>(appliedFilters);
   const [prevCategory, setPrevCategory] = useState(initialCategory);
 
+  // Skeleton only shows on first open & page refresh; subsequent visits in same session render immediately
+  const [isProductsLoading, setIsProductsLoading] = useState(() => sessionTracker.isFirstVisit('shop'));
+
+  useEffect(() => {
+    if (!isProductsLoading) return;
+    const timer = setTimeout(() => {
+      setIsProductsLoading(false);
+    }, 450);
+    return () => clearTimeout(timer);
+  }, [isProductsLoading]);
+
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [isMobileSortOpen, setIsMobileSortOpen] = useState(false);
   const [isDesktopFilterOpen, setIsDesktopFilterOpen] = useState(false);
@@ -236,26 +248,25 @@ export const Shop: React.FC<ShopProps> = ({
     SORT_OPTIONS.find((s) => s.id === appliedFilters.sortBy)?.label || 'Featured Reveals';
 
   return (
-    <div className="max-w-[1460px] mx-auto px-3 sm:px-6 py-4 sm:py-8 animate-in fade-in duration-300">
-      
+    <div className="max-w-[1460px] mx-auto px-2.5 sm:px-6 pt-1 sm:pt-6 pb-4 sm:pb-8 animate-in fade-in duration-300">
+
       {/* Mobile Sticky / Top Filter & Sort Bar */}
-      <div className="lg:hidden sticky top-[57px] z-30 bg-white/95 backdrop-blur-md py-2.5 px-1 -mx-1 mb-4 border-b border-[#f2e6ee] flex items-center justify-between gap-2">
+      <div className="lg:hidden sticky top-[54px] z-30 bg-white/95 backdrop-blur-md py-1.5 px-0 mb-2 border-b border-[#f2e6ee] flex items-center justify-between gap-2">
         <button
           type="button"
           onClick={() => {
             setDraftFilters(appliedFilters);
             setIsMobileFilterOpen(true);
           }}
-          className={`flex-1 h-[42px] rounded-[13px] border flex items-center justify-center gap-2 text-xs font-black transition-all cursor-pointer ${
-            activeFiltersCount > 0
-              ? 'bg-[#fff0f5] border-[#ec2f73] text-[#ec2f73] shadow-2xs'
-              : 'bg-white border-[#ebdce5] text-[#141219]'
-          }`}
+          className={`flex-1 h-[38px] sm:h-[42px] rounded-[11px] sm:rounded-[13px] border flex items-center justify-center gap-2 text-xs font-black transition-all cursor-pointer ${activeFiltersCount > 0
+            ? 'bg-[#fff0f5] border-[#ec2f73] text-[#ec2f73] shadow-2xs'
+            : 'bg-white border-[#ebdce5] text-[#141219]'
+            }`}
         >
-          <SlidersHorizontal className="w-4 h-4" />
+          <SlidersHorizontal className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           <span>Filters</span>
           {activeFiltersCount > 0 && (
-            <span className="w-5 h-5 rounded-full bg-[#ec2f73] text-white text-[10px] flex items-center justify-center font-black">
+            <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#ec2f73] text-white text-[9px] sm:text-[10px] flex items-center justify-center font-black">
               {activeFiltersCount}
             </span>
           )}
@@ -264,26 +275,25 @@ export const Shop: React.FC<ShopProps> = ({
         <button
           type="button"
           onClick={() => setIsMobileSortOpen(true)}
-          className="flex-1 h-[42px] rounded-[13px] bg-white border border-[#ebdce5] text-[#141219] flex items-center justify-center gap-1.5 text-xs font-black cursor-pointer"
+          className="flex-1 h-[38px] sm:h-[42px] rounded-[11px] sm:rounded-[13px] bg-white border border-[#ebdce5] text-[#141219] flex items-center justify-center gap-1.5 text-xs font-black cursor-pointer"
         >
-          <ArrowUpDown className="w-4 h-4 text-[#716d77]" />
+          <ArrowUpDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#716d77]" />
           <span className="truncate max-w-[120px]">{currentSortLabel}</span>
         </button>
       </div>
 
       {/* Main Top Control Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3.5 border-b border-[#f2edf1]">
-        
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2.5 sm:mb-4 pb-2.5 sm:pb-3.5 border-b border-[#f2edf1]">
+
         {/* Left: Desktop Filters Toggle Button + Count */}
         <div className="flex items-center gap-3 flex-wrap">
           <button
             type="button"
             onClick={handleToggleDesktopFilter}
-            className={`hidden lg:flex items-center gap-2 h-[38px] px-3.5 rounded-[12px] border font-black text-xs transition-all duration-200 cursor-pointer shadow-2xs ${
-              isDesktopFilterOpen || activeFiltersCount > 0
-                ? 'bg-[#fff0f5] border-[#ec2f73] text-[#ec2f73] shadow-xs'
-                : 'bg-white border-[#ebdce5] text-[#141219] hover:border-[#ec2f73] hover:text-[#ec2f73]'
-            }`}
+            className={`hidden lg:flex items-center gap-2 h-[38px] px-3.5 rounded-[12px] border font-black text-xs transition-all duration-200 cursor-pointer shadow-2xs ${isDesktopFilterOpen || activeFiltersCount > 0
+              ? 'bg-[#fff0f5] border-[#ec2f73] text-[#ec2f73] shadow-xs'
+              : 'bg-white border-[#ebdce5] text-[#141219] hover:border-[#ec2f73] hover:text-[#ec2f73]'
+              }`}
             aria-expanded={isDesktopFilterOpen}
           >
             <SlidersHorizontal className="w-4 h-4" />
@@ -318,9 +328,8 @@ export const Shop: React.FC<ShopProps> = ({
             >
               <span>{currentSortLabel}</span>
               <ChevronDown
-                className={`w-3.5 h-3.5 text-[#716d77] transition-transform ${
-                  isDesktopSortOpen ? 'rotate-180 text-[#ec2f73]' : ''
-                }`}
+                className={`w-3.5 h-3.5 text-[#716d77] transition-transform ${isDesktopSortOpen ? 'rotate-180 text-[#ec2f73]' : ''
+                  }`}
               />
             </button>
 
@@ -337,11 +346,10 @@ export const Shop: React.FC<ShopProps> = ({
                         handleSortChange(opt.id);
                         setIsDesktopSortOpen(false);
                       }}
-                      className={`w-full p-2.5 rounded-[10px] text-left text-xs font-bold transition-all cursor-pointer flex items-center justify-between ${
-                        isSelected
-                          ? 'bg-[#fff0f5] text-[#ec2f73] font-black'
-                          : 'hover:bg-[#fff9fb] text-[#141219]'
-                      }`}
+                      className={`w-full p-2.5 rounded-[10px] text-left text-xs font-bold transition-all cursor-pointer flex items-center justify-between ${isSelected
+                        ? 'bg-[#fff0f5] text-[#ec2f73] font-black'
+                        : 'hover:bg-[#fff9fb] text-[#141219]'
+                        }`}
                     >
                       <span>{opt.label}</span>
                       {isSelected && <span className="text-xs font-black text-[#ec2f73]">✓</span>}
@@ -358,11 +366,10 @@ export const Shop: React.FC<ShopProps> = ({
       {/* Desktop Filter Mega Panel (Expands smoothly beneath top toolbar) */}
       {(isDesktopFilterOpen || isDesktopClosing) && (
         <div
-          className={`hidden lg:block ${
-            isDesktopClosing
-              ? 'animate-panel-collapse pointer-events-none'
-              : 'animate-panel-expand'
-          }`}
+          className={`hidden lg:block ${isDesktopClosing
+            ? 'animate-panel-collapse pointer-events-none'
+            : 'animate-panel-expand'
+            }`}
         >
           <DesktopFilterMegaPanel
             filters={draftFilters}
@@ -386,6 +393,7 @@ export const Shop: React.FC<ShopProps> = ({
       {/* Product Grid Area (Full width with stable layout) */}
       <div id="shop-product-grid" className="w-full">
         <ProductGrid
+          isLoading={isProductsLoading}
           products={filteredProducts}
           cart={cart}
           wishlistIds={wishlistIds}
