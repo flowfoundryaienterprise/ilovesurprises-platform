@@ -9,7 +9,7 @@ interface ReferralTeamListProps {
 
 const LEVEL_OPTIONS: AffiliateSelectOption[] = [
   { value: 'all', label: 'All Levels (1 to 5)' },
-  { value: '1', label: 'Level 1 (Direct)', badge: '5%', badgeColor: 'bg-pink-50 text-pink-700' },
+  { value: '1', label: 'Level 1 (Direct)', badge: '5%', badgeColor: 'bg-red-50 text-red-700' },
   { value: '2', label: 'Level 2 Downlines', badge: '4%', badgeColor: 'bg-purple-50 text-purple-700' },
   { value: '3', label: 'Level 3 Downlines', badge: '3%', badgeColor: 'bg-blue-50 text-blue-700' },
   { value: '4', label: 'Level 4 Downlines', badge: '2%', badgeColor: 'bg-amber-50 text-amber-700' },
@@ -62,7 +62,7 @@ export const ReferralTeamList: React.FC<ReferralTeamListProps> = ({ members }) =
       case 'Silver Representative':
         return 'bg-stone-100 text-stone-900 border-stone-300';
       default:
-        return 'bg-pink-100 text-pink-900 border-pink-200';
+        return 'bg-red-100 text-red-900 border-red-200';
     }
   };
 
@@ -71,7 +71,7 @@ export const ReferralTeamList: React.FC<ReferralTeamListProps> = ({ members }) =
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#f5eaf1]">
         <div>
-          <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-black uppercase tracking-wider text-[#ec2f73]">
+          <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-black uppercase tracking-wider text-[#D30915]">
             <Users className="w-3.5 h-3.5" />
             <span>Downline Team Roster</span>
           </div>
@@ -90,7 +90,7 @@ export const ReferralTeamList: React.FC<ReferralTeamListProps> = ({ members }) =
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search representative by name, handle, or rank..."
-            className="w-full h-[40px] sm:h-[42px] pl-9 pr-8 rounded-[13px] bg-white border border-[#eedbe6] focus:border-[#ec2f73] focus:ring-2 focus:ring-[#ec2f73]/10 text-xs text-[#141219] outline-none shadow-2xs transition-all"
+            className="w-full h-[40px] sm:h-[42px] pl-9 pr-8 rounded-[13px] bg-white border border-[#eedbe6] focus:border-[#D30915] focus:ring-2 focus:ring-[#D30915]/10 text-xs text-[#141219] outline-none shadow-2xs transition-all"
           />
           {search && (
             <button
@@ -144,7 +144,7 @@ export const ReferralTeamList: React.FC<ReferralTeamListProps> = ({ members }) =
                     <img
                       src={member.avatar || DEFAULT_PROFILE_AVATAR}
                       alt={member.name}
-                      className="w-9 h-9 rounded-full object-cover border border-[#f5cad7] shrink-0"
+                      className="w-9 h-9 rounded-full object-cover border border-[#fecdd3] shrink-0"
                     />
                     <div>
                       <strong className="font-bold text-xs text-[#141219] block leading-tight">
@@ -221,7 +221,7 @@ export const ReferralTeamList: React.FC<ReferralTeamListProps> = ({ members }) =
                         <img
                           src={member.avatar || DEFAULT_PROFILE_AVATAR}
                           alt={member.name}
-                          className="w-8 h-8 rounded-full object-cover border border-[#f5cad7]"
+                          className="w-8 h-8 rounded-full object-cover border border-[#fecdd3]"
                         />
                         <div>
                           <strong className="font-bold text-[#141219] block leading-tight">

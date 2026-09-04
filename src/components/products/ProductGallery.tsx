@@ -129,7 +129,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
               e.stopPropagation();
               setIsLightboxOpen(true);
             }}
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 hover:bg-white text-[#141219] hover:text-[#ec2f73] flex items-center justify-center transition-all cursor-pointer shadow-xs border border-[#ebdce5] hover:scale-110 active:scale-95"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 hover:bg-white text-[#141219] hover:text-[#D30915] flex items-center justify-center transition-all cursor-pointer shadow-xs border border-[#ebdce5] hover:scale-110 active:scale-95"
             aria-label="Open fullscreen gallery modal"
             title="Expand Fullscreen"
           >
@@ -139,15 +139,15 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
 
         {/* Bottom Hover/Touch Zoom Pill Hint */}
         <div className="absolute bottom-3.5 left-1/2 -translate-x-1/2 px-3.5 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-[#ebdce5] text-[10px] sm:text-[11px] font-bold text-[#55505a] shadow-xs flex items-center gap-1.5 pointer-events-none opacity-85 group-hover:opacity-100 transition-opacity">
-          <ZoomIn className="w-3.5 h-3.5 text-[#ec2f73]" />
+          <ZoomIn className="w-3.5 h-3.5 text-[#D30915]" />
           <span>Tap or hover to zoom details</span>
         </div>
       </div>
 
       {/* Surprise Value Feature Callout (if available) */}
       {surpriseValue && (
-        <div className="bg-[#fff8fb] rounded-[16px] p-3 border border-[#f5cad7] flex items-center gap-2.5 shadow-2xs w-full max-w-full overflow-hidden">
-          <div className="w-7 h-7 rounded-full bg-[#ec2f73] text-white flex items-center justify-center shrink-0 shadow-2xs">
+        <div className="bg-[#fff8fb] rounded-[16px] p-3 border border-[#fecdd3] flex items-center gap-2.5 shadow-2xs w-full max-w-full overflow-hidden">
+          <div className="w-7 h-7 rounded-full bg-[#D30915] text-white flex items-center justify-center shrink-0 shadow-2xs">
             <Sparkles className="w-4 h-4 animate-pulse" />
           </div>
           <div className="min-w-0 flex-1">
@@ -173,7 +173,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                 onClick={() => setCurrentIndex(idx)}
                 className={`w-16 h-16 sm:w-20 sm:h-20 rounded-[14px] overflow-hidden border p-1 bg-white transition-all duration-200 cursor-pointer snap-start shrink-0 ${
                   isSelected
-                    ? 'border-[#ec2f73] ring-2 ring-[#ec2f73]/30 shadow-xs'
+                    ? 'border-[#D30915] ring-2 ring-[#D30915]/30 shadow-xs'
                     : 'border-[#ebdce5] hover:border-[#f1b8cb] opacity-75 hover:opacity-100'
                 }`}
               >
@@ -248,7 +248,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsLightboxOpen(false)}
-                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#ec2f73] hover:bg-[#d92467] text-white flex items-center justify-center transition-all cursor-pointer shadow-md ml-1 active:scale-90 shrink-0"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#D30915] hover:bg-[#B60711] text-white flex items-center justify-center transition-all cursor-pointer shadow-md ml-1 active:scale-90 shrink-0"
                   aria-label="Close Lightbox"
                   title="Close"
                 >
@@ -314,7 +314,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                       setLightboxScale(1);
                     }}
                     className={`w-14 h-14 rounded-[12px] overflow-hidden border-2 bg-white/10 p-1 transition-all cursor-pointer ${currentIndex === idx
-                      ? 'border-[#ec2f73] ring-2 ring-[#ec2f73]/50 scale-110'
+                      ? 'border-[#D30915] ring-2 ring-[#D30915]/50 scale-110'
                       : 'border-white/30 opacity-60 hover:opacity-100'
                       }`}
                   >

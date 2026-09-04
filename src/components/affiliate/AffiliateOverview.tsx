@@ -18,7 +18,7 @@ import type { AffiliateStats } from '../../types';
 interface AffiliateOverviewProps {
   stats: AffiliateStats;
   onOpenWithdraw: () => void;
-  onNavigateTab: (tab: 'overview' | 'tree' | 'ledger' | 'team' | 'marketing') => void;
+  onNavigateTab: (tab: any) => void;
 }
 
 export const AffiliateOverview: React.FC<AffiliateOverviewProps> = ({
@@ -85,7 +85,7 @@ export const AffiliateOverview: React.FC<AffiliateOverviewProps> = ({
       {/* 1. Top KPI Metrics Grid (2x2 on mobile, 4-col on desktop) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
         {/* Total Lifetime Earnings */}
-        <div className="bg-white rounded-[18px] sm:rounded-[24px] p-3.5 sm:p-5 lg:p-6 border border-[#eedbe6] shadow-[0_4px_20px_rgba(50,31,63,0.03)] flex flex-col justify-between group hover:border-[#ec2f73]/40 transition-all relative overflow-hidden">
+        <div className="bg-white rounded-[18px] sm:rounded-[24px] p-3.5 sm:p-5 lg:p-6 border border-[#eedbe6] shadow-[0_4px_20px_rgba(50,31,63,0.03)] flex flex-col justify-between group hover:border-[#D30915]/40 transition-all relative overflow-hidden">
           <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
 
           <div className="flex items-center justify-between mb-2 sm:mb-3 relative z-10">
@@ -112,15 +112,15 @@ export const AffiliateOverview: React.FC<AffiliateOverviewProps> = ({
         </div>
 
         {/* Available Balance & Withdraw Button */}
-        <div className="bg-gradient-to-br from-[#fff6fa] via-[#fff0f5] to-[#ffeef4] rounded-[18px] sm:rounded-[24px] p-3.5 sm:p-5 lg:p-6 border-2 border-[#f5cad7] shadow-[0_8px_24px_rgba(236,47,115,0.08)] flex flex-col justify-between group relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-[#ec2f73]/10 rounded-full blur-2xl pointer-events-none" />
+        <div className="bg-gradient-to-br from-[#fff6fa] via-[#fff1f2] to-[#ffeef4] rounded-[18px] sm:rounded-[24px] p-3.5 sm:p-5 lg:p-6 border-2 border-[#fecdd3] shadow-[0_8px_24px_rgba(211, 9, 21,0.08)] flex flex-col justify-between group relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-[#D30915]/10 rounded-full blur-2xl pointer-events-none" />
 
           <div className="flex items-center justify-between mb-2 relative z-10">
-            <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-[#ec2f73] flex items-center gap-1">
+            <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-[#D30915] flex items-center gap-1">
               <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
               <span>Available</span>
             </span>
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[12px] bg-[#ec2f73] text-white flex items-center justify-center shadow-xs shrink-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[12px] bg-[#D30915] text-white flex items-center justify-center shadow-xs shrink-0">
               <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
@@ -133,7 +133,7 @@ export const AffiliateOverview: React.FC<AffiliateOverviewProps> = ({
             <button
               type="button"
               onClick={onOpenWithdraw}
-              className="mt-1.5 sm:mt-2.5 w-full h-[32px] sm:h-[38px] rounded-[10px] sm:rounded-[12px] bg-[#ec2f73] hover:bg-[#d92467] text-white font-black text-[10px] sm:text-xs uppercase tracking-wider shadow-[0_4px_14px_rgba(236,47,115,0.25)] transition-all flex items-center justify-center gap-1 cursor-pointer active:scale-97"
+              className="mt-1.5 sm:mt-2.5 w-full h-[32px] sm:h-[38px] rounded-[10px] sm:rounded-[12px] bg-[#D30915] hover:bg-[#B60711] text-white font-black text-[10px] sm:text-xs uppercase tracking-wider shadow-[0_4px_14px_rgba(211, 9, 21,0.25)] transition-all flex items-center justify-center gap-1 cursor-pointer active:scale-97"
             >
               <CreditCard className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
               <span>Withdraw</span>
@@ -142,7 +142,7 @@ export const AffiliateOverview: React.FC<AffiliateOverviewProps> = ({
         </div>
 
         {/* Total & Active Referrals */}
-        <div className="bg-white rounded-[18px] sm:rounded-[24px] p-3.5 sm:p-5 lg:p-6 border border-[#eedbe6] shadow-[0_4px_20px_rgba(50,31,63,0.03)] flex flex-col justify-between group hover:border-[#ec2f73]/40 transition-all relative overflow-hidden">
+        <div className="bg-white rounded-[18px] sm:rounded-[24px] p-3.5 sm:p-5 lg:p-6 border border-[#eedbe6] shadow-[0_4px_20px_rgba(50,31,63,0.03)] flex flex-col justify-between group hover:border-[#D30915]/40 transition-all relative overflow-hidden">
           <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/5 rounded-full blur-2xl pointer-events-none" />
 
           <div className="flex items-center justify-between mb-2 sm:mb-3 relative z-10">
@@ -168,7 +168,7 @@ export const AffiliateOverview: React.FC<AffiliateOverviewProps> = ({
         </div>
 
         {/* Conversion Rate & Current Rank */}
-        <div className="bg-white rounded-[18px] sm:rounded-[24px] p-3.5 sm:p-5 lg:p-6 border border-[#eedbe6] shadow-[0_4px_20px_rgba(50,31,63,0.03)] flex flex-col justify-between group hover:border-[#ec2f73]/40 transition-all relative overflow-hidden">
+        <div className="bg-white rounded-[18px] sm:rounded-[24px] p-3.5 sm:p-5 lg:p-6 border border-[#eedbe6] shadow-[0_4px_20px_rgba(50,31,63,0.03)] flex flex-col justify-between group hover:border-[#D30915]/40 transition-all relative overflow-hidden">
           <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl pointer-events-none" />
 
           <div className="flex items-center justify-between mb-2 sm:mb-3 relative z-10">
@@ -198,7 +198,7 @@ export const AffiliateOverview: React.FC<AffiliateOverviewProps> = ({
       <div className="bg-white rounded-[20px] sm:rounded-[24px] p-4 sm:p-6 lg:p-7 border border-[#eedbe6] shadow-[0_8px_24px_rgba(50,31,63,0.04)] space-y-4 sm:space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#f5eaf1]">
           <div>
-            <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-black uppercase tracking-wider text-[#ec2f73]">
+            <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-black uppercase tracking-wider text-[#D30915]">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Official Representative Plan Structure</span>
             </div>
@@ -211,7 +211,7 @@ export const AffiliateOverview: React.FC<AffiliateOverviewProps> = ({
             <button
               type="button"
               onClick={() => onNavigateTab('tree')}
-              className="h-[34px] sm:h-[36px] px-3.5 sm:px-4 rounded-[12px] bg-[#fff0f5] hover:bg-[#ec2f73] text-[#ec2f73] hover:text-white border border-[#f5cad7] text-xs font-black transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer w-full sm:w-auto"
+              className="h-[34px] sm:h-[36px] px-3.5 sm:px-4 rounded-[12px] bg-[#fff1f2] hover:bg-[#D30915] text-[#D30915] hover:text-white border border-[#fecdd3] text-xs font-black transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer w-full sm:w-auto"
             >
               <Layers className="w-3.5 h-3.5" />
               <span>Inspect 5-Level Tree</span>
@@ -223,17 +223,17 @@ export const AffiliateOverview: React.FC<AffiliateOverviewProps> = ({
         {/* 6 Step Commission Tiles (2-col on mobile, 3-col on tablet, 6-col on desktop) */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 text-center">
           {/* Personal */}
-          <div className="p-2.5 sm:p-3.5 rounded-[14px] sm:rounded-[18px] bg-gradient-to-b from-[#fff0f5] to-[#ffeef4] border-2 border-[#ec2f73] shadow-xs flex flex-col justify-between">
-            <span className="text-[9px] sm:text-[10px] uppercase font-black text-[#ec2f73] block">
+          <div className="p-2.5 sm:p-3.5 rounded-[14px] sm:rounded-[18px] bg-gradient-to-b from-[#fff1f2] to-[#ffeef4] border-2 border-[#D30915] shadow-xs flex flex-col justify-between">
+            <span className="text-[9px] sm:text-[10px] uppercase font-black text-[#D30915] block">
               Personal Sales
             </span>
-            <strong className="text-xl sm:text-2xl font-black text-[#ec2f73] block my-0.5 sm:my-1">20%</strong>
+            <strong className="text-xl sm:text-2xl font-black text-[#D30915] block my-0.5 sm:my-1">20%</strong>
             <span className="text-[9px] text-[#716d77] font-medium">Direct Customer Orders</span>
           </div>
 
           {/* Level 1 */}
-          <div className="p-2.5 sm:p-3.5 rounded-[14px] sm:rounded-[18px] bg-[#fffafc] border border-[#eedbe6] hover:border-[#ec2f73]/40 transition-colors flex flex-col justify-between">
-            <span className="text-[9px] sm:text-[10px] uppercase font-bold text-pink-700 block">
+          <div className="p-2.5 sm:p-3.5 rounded-[14px] sm:rounded-[18px] bg-[#fffafc] border border-[#eedbe6] hover:border-[#D30915]/40 transition-colors flex flex-col justify-between">
+            <span className="text-[9px] sm:text-[10px] uppercase font-bold text-red-700 block">
               Level 1
             </span>
             <strong className="text-lg sm:text-xl font-black text-[#141219] block my-0.5 sm:my-1">5%</strong>
@@ -278,9 +278,9 @@ export const AffiliateOverview: React.FC<AffiliateOverviewProps> = ({
         </div>
 
         {/* Max Payout Callout */}
-        <div className="p-3 sm:p-3.5 rounded-[14px] sm:rounded-[16px] bg-gradient-to-r from-[#fff0f5] via-[#fff7fa] to-[#fbf4ff] border border-[#f5cad7] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-bold text-[#ec2f73]">
+        <div className="p-3 sm:p-3.5 rounded-[14px] sm:rounded-[16px] bg-gradient-to-r from-[#fff1f2] via-[#fff7fa] to-[#fbf4ff] border border-[#fecdd3] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-bold text-[#D30915]">
           <div className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-[#ec2f73] shrink-0" />
+            <ShieldCheck className="w-4 h-4 text-[#D30915] shrink-0" />
             <span className="text-[11px] sm:text-xs">Maximum total multi-tier payout: <strong className="text-[#141219]">35%</strong> (20% Personal + 15% Overrides)</span>
           </div>
           <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 self-start sm:self-auto shrink-0">
@@ -290,10 +290,10 @@ export const AffiliateOverview: React.FC<AffiliateOverviewProps> = ({
       </div>
 
       {/* 3. Interactive Rep Income Potential Simulator (Interactive WOW Feature) */}
-      <div className="bg-gradient-to-br from-white via-[#fffcfd] to-[#fff5f9] rounded-[20px] sm:rounded-[24px] p-4 sm:p-7 lg:p-8 border border-[#f5cad7] shadow-[0_8px_30px_rgba(236,47,115,0.06)] space-y-4 sm:space-y-6">
+      <div className="bg-gradient-to-br from-white via-[#fffcfd] to-[#fff5f9] rounded-[20px] sm:rounded-[24px] p-4 sm:p-7 lg:p-8 border border-[#fecdd3] shadow-[0_8px_30px_rgba(211, 9, 21,0.06)] space-y-4 sm:space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 sm:pb-4 border-b border-[#f5eaf1]">
           <div>
-            <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-black uppercase tracking-wider text-[#ec2f73]">
+            <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-black uppercase tracking-wider text-[#D30915]">
               <Calculator className="w-3.5 h-3.5" />
               <span>Interactive Growth Simulator</span>
             </div>
@@ -305,9 +305,9 @@ export const AffiliateOverview: React.FC<AffiliateOverviewProps> = ({
             </p>
           </div>
 
-          <div className="p-2.5 sm:p-3 rounded-[12px] sm:rounded-[14px] bg-[#fff0f5] border border-[#f5cad7] text-left sm:text-right">
+          <div className="p-2.5 sm:p-3 rounded-[12px] sm:rounded-[14px] bg-[#fff1f2] border border-[#fecdd3] text-left sm:text-right">
             <span className="text-[9px] sm:text-[10px] uppercase font-bold text-[#716d77] block">Simulated Monthly Total</span>
-            <strong className="text-xl sm:text-2xl font-black text-[#ec2f73]">
+            <strong className="text-xl sm:text-2xl font-black text-[#D30915]">
               ${simulation.grandTotal.toFixed(2)}/mo
             </strong>
           </div>
@@ -319,10 +319,10 @@ export const AffiliateOverview: React.FC<AffiliateOverviewProps> = ({
           <div className="p-3.5 sm:p-4 rounded-[16px] sm:rounded-[18px] bg-white border border-[#eedbe6] space-y-2 shadow-2xs">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-[#141219] flex items-center gap-1">
-                <Flame className="w-3.5 h-3.5 text-[#ec2f73]" />
+                <Flame className="w-3.5 h-3.5 text-[#D30915]" />
                 <span>Your Direct Sales</span>
               </span>
-              <span className="text-xs font-black text-[#ec2f73] bg-[#fff0f5] px-2.5 py-0.5 rounded-full border border-[#f5cad7]">
+              <span className="text-xs font-black text-[#D30915] bg-[#fff1f2] px-2.5 py-0.5 rounded-full border border-[#fecdd3]">
                 {personalCandlesSold} Candles
               </span>
             </div>
@@ -332,7 +332,7 @@ export const AffiliateOverview: React.FC<AffiliateOverviewProps> = ({
               max="100"
               value={personalCandlesSold}
               onChange={(e) => setPersonalCandlesSold(parseInt(e.target.value))}
-              className="w-full accent-[#ec2f73] cursor-pointer touch-none"
+              className="w-full accent-[#D30915] cursor-pointer touch-none"
             />
             <div className="flex items-center justify-between text-[10px] text-[#8a858f]">
               <span>1 Candle</span>
@@ -398,7 +398,7 @@ export const AffiliateOverview: React.FC<AffiliateOverviewProps> = ({
         <div className="p-3 sm:p-4 rounded-[16px] sm:rounded-[18px] bg-white border border-[#eedbe6] grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 text-center">
           <div>
             <span className="text-[9px] sm:text-[10px] uppercase font-bold text-[#716d77] block">Personal 20% Profit</span>
-            <strong className="text-xs sm:text-base font-black text-[#ec2f73]">
+            <strong className="text-xs sm:text-base font-black text-[#D30915]">
               +${simulation.personalEarned.toFixed(2)}
             </strong>
           </div>

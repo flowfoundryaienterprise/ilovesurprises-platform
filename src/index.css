@@ -5,9 +5,12 @@
   :root {
     --ink: #141219;
     --muted: #716d77;
-    --pink: #ec2f73;
-    --pink-dark: #d92467;
-    --pink-soft: #fff3f7;
+    --pink: #D30915;
+    --pink-dark: #B60711;
+    --pink-soft: #fff5f5;
+    --red: #D30915;
+    --red-dark: #B60711;
+    --red-soft: #fff1f2;
     --plum: #54217f;
     --plum-2: #6e2ca0;
     --line: #eee7ed;
@@ -76,10 +79,48 @@
   letter-spacing: -0.035em;
 }
 
+.hero-portal-headline {
+  font-family: "Outfit", "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: -0.035em;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.font-instagram-script {
+  font-family: "Grand Hotel", "Pacifico", "Dancing Script", cursive, sans-serif;
+  font-feature-settings: "kern" 1, "liga" 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.font-oleo {
+  font-family: "Oleo Script", cursive, sans-serif;
+  font-feature-settings: "kern" 1, "liga" 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.font-noto-serif {
+  font-family: "Noto Serif", Georgia, serif;
+  font-feature-settings: "kern" 1, "liga" 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
 .font-luxury-editorial {
   font-family: "Playfair Display", "Instrument Serif", "Iowan Old Style", "Baskerville", Georgia, serif;
   letter-spacing: -0.01em;
   font-style: italic;
+}
+
+.font-hero-serif {
+  font-family: "Playfair Display", "Times New Roman", Georgia, serif;
+  font-feature-settings: "kern" 1, "liga" 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* ========================================================================= */
@@ -377,22 +418,22 @@
 
 /* Tactile Button Animations & Hover Polish */
 .btn-primary-glow {
-  background: linear-gradient(135deg, #ec2f73 0%, #d92467 100%);
+  background: linear-gradient(135deg, #D30915 0%, #B60711 100%);
   color: #ffffff;
-  box-shadow: 0 6px 20px rgba(236, 47, 115, 0.28);
+  box-shadow: 0 6px 20px rgba(211, 9, 21, 0.28);
   transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1), filter 0.18s ease;
   will-change: transform;
 }
 
 .btn-primary-glow:hover {
   transform: translateY(-2px) translateZ(0);
-  box-shadow: 0 12px 30px rgba(236, 47, 115, 0.42);
+  box-shadow: 0 12px 30px rgba(211, 9, 21, 0.42);
   filter: brightness(1.04);
 }
 
 .btn-primary-glow:active {
   transform: translateY(0px) scale(0.96) translateZ(0);
-  box-shadow: 0 4px 14px rgba(236, 47, 115, 0.25);
+  box-shadow: 0 4px 14px rgba(211, 9, 21, 0.25);
 }
 
 .btn-secondary-glow {
@@ -406,9 +447,9 @@
 
 .btn-secondary-glow:hover {
   transform: translateY(-2px) translateZ(0);
-  border-color: #ec2f73;
-  color: #ec2f73;
-  box-shadow: 0 8px 24px rgba(236, 47, 115, 0.14);
+  border-color: #D30915;
+  color: #D30915;
+  box-shadow: 0 8px 24px rgba(211, 9, 21, 0.14);
 }
 
 .btn-secondary-glow:active {
@@ -459,7 +500,7 @@
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #ec2f73;
+  background: #D30915;
 }
 
 /* ========================================================================= */
@@ -738,11 +779,11 @@
 
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(236, 47, 115, 0.45);
+    box-shadow: 0 0 0 0 rgba(211, 9, 21, 0.45);
   }
 
   50% {
-    box-shadow: 0 0 0 10px rgba(236, 47, 115, 0);
+    box-shadow: 0 0 0 10px rgba(211, 9, 21, 0);
   }
 }
 
@@ -751,7 +792,7 @@
 }
 
 .anim-delivery-road {
-  background-image: repeating-linear-gradient(90deg, #ec2f73 0, #ec2f73 8px, transparent 8px, transparent 16px);
+  background-image: repeating-linear-gradient(90deg, #D30915 0, #D30915 8px, transparent 8px, transparent 16px);
   background-size: 28px 2px;
   animation: deliveryRoadDash 0.8s linear infinite;
 }
@@ -824,12 +865,10 @@
   position: absolute;
   inset: 0;
   transform: translateX(-100%);
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.32),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.32),
+      transparent);
   animation: skeleton-shimmer 1.5s infinite;
 }
 
@@ -873,4 +912,29 @@
     opacity: 1 !important;
     transform: none !important;
   }
+}
+
+/* User Requested Font Families */
+.font-righteous {
+  font-family: 'Righteous', cursive, sans-serif !important;
+}
+
+.font-patua {
+  font-family: 'Patua One', serif, cursive !important;
+}
+
+.font-berkshire {
+  font-family: 'Berkshire Swash', cursive, serif !important;
+}
+
+.font-oleo {
+  font-family: 'Oleo Script', cursive !important;
+}
+
+.font-noto {
+  font-family: 'Noto Serif', serif !important;
+}
+
+.font-playfair {
+  font-family: 'Playfair Display', serif !important;
 }

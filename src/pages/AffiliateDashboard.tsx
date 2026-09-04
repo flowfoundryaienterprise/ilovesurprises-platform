@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   Sparkles,
-  Layers,
   DollarSign,
   Users,
   CreditCard,
@@ -25,9 +24,21 @@ import { ReferralTeamList } from '../components/affiliate/ReferralTeamList';
 import { GenealogyTree } from '../components/affiliate/GenealogyTree';
 import { WithdrawModal } from '../components/affiliate/WithdrawModal';
 import { MarketingKitSection } from '../components/affiliate/MarketingKitSection';
+import { SalesRosterTable } from '../components/affiliate/SalesRosterTable';
+import { TrafficAnalyticsCard } from '../components/affiliate/TrafficAnalyticsCard';
+import { PayoutsManagerCard } from '../components/affiliate/PayoutsManagerCard';
+import { RepresentativeAccountTab } from '../components/affiliate/RepresentativeAccountTab';
 import { AffiliateCustomSelect, type AffiliateSelectOption } from '../components/affiliate/AffiliateCustomSelect';
 
-export type AffiliateTab = 'overview' | 'tree' | 'ledger' | 'team' | 'marketing';
+export type AffiliateTab =
+  | 'overview'
+  | 'sales'
+  | 'commissions'
+  | 'traffic'
+  | 'team'
+  | 'account'
+  | 'payouts'
+  | 'marketing';
 
 interface AffiliateDashboardProps {
   user?: UserProfile | null;
@@ -101,35 +112,54 @@ export const AffiliateDashboard: React.FC<AffiliateDashboardProps> = ({
   const tabOptions: AffiliateSelectOption[] = [
     {
       value: 'overview',
-      label: 'Dashboard Overview',
+      label: 'Overview',
       icon: <TrendingUp className="w-3.5 h-3.5" />,
     },
     {
-      value: 'tree',
-      label: '5-Level Genealogy Tree',
-      badge: '5 Tiers',
-      badgeColor: 'bg-purple-50 text-purple-700',
-      icon: <Layers className="w-3.5 h-3.5" />,
+      value: 'sales',
+      label: 'Sales Orders',
+      badge: `${commissions.length}`,
+      badgeColor: 'bg-emerald-50 text-emerald-800',
+      icon: <CreditCard className="w-3.5 h-3.5" />,
     },
     {
-      value: 'ledger',
-      label: 'Commissions History',
-      badge: `${commissions.length}`,
-      badgeColor: 'bg-[#fff0f5] text-[#ec2f73]',
+      value: 'commissions',
+      label: 'Commissions',
+      badge: '20% + 5-Tier',
+      badgeColor: 'bg-[#fff1f2] text-[#D30915]',
       icon: <DollarSign className="w-3.5 h-3.5" />,
     },
     {
+      value: 'traffic',
+      label: 'Traffic & Visits',
+      icon: <TrendingUp className="w-3.5 h-3.5" />,
+    },
+    {
       value: 'team',
-      label: 'Downline Team List',
+      label: 'Team & Downline',
       badge: `${stats.totalReferrals}`,
-      badgeColor: 'bg-blue-50 text-blue-700',
+      badgeColor: 'bg-purple-50 text-purple-700',
       icon: <Users className="w-3.5 h-3.5" />,
     },
     {
-      value: 'marketing',
-      label: 'Rep Toolkit & Media',
-      badge: 'New',
+      value: 'account',
+      label: 'Account & Membership',
+      badge: '$19.99/mo',
       badgeColor: 'bg-amber-100 text-amber-900',
+      icon: <Award className="w-3.5 h-3.5" />,
+    },
+    {
+      value: 'payouts',
+      label: 'Payouts',
+      badge: `$${stats.availableBalance.toFixed(0)}`,
+      badgeColor: 'bg-emerald-50 text-emerald-700',
+      icon: <CreditCard className="w-3.5 h-3.5" />,
+    },
+    {
+      value: 'marketing',
+      label: 'Toolkit & Media',
+      badge: 'New',
+      badgeColor: 'bg-stone-100 text-stone-800',
       icon: <Briefcase className="w-3.5 h-3.5" />,
     },
   ];
@@ -139,9 +169,9 @@ export const AffiliateDashboard: React.FC<AffiliateDashboardProps> = ({
       <div className="max-w-[1460px] mx-auto px-2.5 sm:px-4 lg:px-6 space-y-4 sm:space-y-6">
 
         {/* 1. Header Banner & Rank Card */}
-        <div className="bg-gradient-to-r from-[#fff0f5] via-[#fff7fa] to-[#fbf4ff] rounded-[20px] sm:rounded-[28px] p-4 sm:p-6 lg:p-8 border border-[#eedbe6] shadow-[0_8px_30px_rgba(236,47,115,0.05)] relative overflow-hidden">
+        <div className="bg-gradient-to-r from-[#fff1f2] via-[#fff7fa] to-[#fbf4ff] rounded-[20px] sm:rounded-[28px] p-4 sm:p-6 lg:p-8 border border-[#eedbe6] shadow-[0_8px_30px_rgba(211, 9, 21,0.05)] relative overflow-hidden">
           {/* Soft Glow */}
-          <div className="absolute top-0 right-0 w-80 h-80 bg-[#ec2f73]/8 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-0 right-0 w-80 h-80 bg-[#D30915]/8 rounded-full blur-3xl pointer-events-none" />
 
           <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6">
             <div className="space-y-2">
@@ -150,15 +180,15 @@ export const AffiliateDashboard: React.FC<AffiliateDashboardProps> = ({
                   <button
                     type="button"
                     onClick={onNavigateToHome}
-                    className="h-7 px-2.5 rounded-full bg-white border border-[#eedbe6] hover:border-[#ec2f73] text-[#55505a] hover:text-[#ec2f73] text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
+                    className="h-7 px-2.5 rounded-full bg-white border border-[#eedbe6] hover:border-[#D30915] text-[#55505a] hover:text-[#D30915] text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
                   >
                     <ArrowLeft className="w-3.5 h-3.5" />
                     <span>Back to Shop</span>
                   </button>
                 )}
 
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-[#f5cad7] text-[#ec2f73] text-[10px] sm:text-xs font-black uppercase tracking-wider shadow-2xs">
-                  <Sparkles className="w-3 h-3 text-[#ec2f73]" />
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-[#fecdd3] text-[#D30915] text-[10px] sm:text-xs font-black uppercase tracking-wider shadow-2xs">
+                  <Sparkles className="w-3 h-3 text-[#D30915]" />
                   <span>Representative & Partner Hub</span>
                 </span>
 
@@ -183,7 +213,7 @@ export const AffiliateDashboard: React.FC<AffiliateDashboardProps> = ({
                 <button
                   type="button"
                   onClick={handleQuickCopyLink}
-                  className="h-[40px] px-3.5 sm:px-4 rounded-[12px] bg-white hover:bg-[#fff0f5] text-[#141219] hover:text-[#ec2f73] border border-[#eedbe6] hover:border-[#f5cad7] font-black text-xs uppercase tracking-wider shadow-2xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="h-[40px] px-3.5 sm:px-4 rounded-[12px] bg-white hover:bg-[#fff1f2] text-[#141219] hover:text-[#D30915] border border-[#eedbe6] hover:border-[#fecdd3] font-black text-xs uppercase tracking-wider shadow-2xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   {quickCopied ? (
                     <>
@@ -192,7 +222,7 @@ export const AffiliateDashboard: React.FC<AffiliateDashboardProps> = ({
                     </>
                   ) : (
                     <>
-                      <Copy className="w-3.5 h-3.5 text-[#ec2f73]" />
+                      <Copy className="w-3.5 h-3.5 text-[#D30915]" />
                       <span>Copy Link</span>
                     </>
                   )}
@@ -201,7 +231,7 @@ export const AffiliateDashboard: React.FC<AffiliateDashboardProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsWithdrawOpen(true)}
-                  className="h-[40px] px-4 sm:px-5 rounded-[12px] bg-[#ec2f73] hover:bg-[#d92467] text-white font-black text-xs uppercase tracking-wider shadow-[0_4px_16px_rgba(236,47,115,0.28)] active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="h-[40px] px-4 sm:px-5 rounded-[12px] bg-[#D30915] hover:bg-[#B60711] text-white font-black text-xs uppercase tracking-wider shadow-[0_4px_16px_rgba(211, 9, 21,0.28)] active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <CreditCard className="w-3.5 h-3.5" />
                   <span>Withdraw (${stats.availableBalance.toFixed(2)})</span>
@@ -212,7 +242,7 @@ export const AffiliateDashboard: React.FC<AffiliateDashboardProps> = ({
               <div className="bg-white/90 backdrop-blur-xs p-2.5 sm:p-3 rounded-[14px] border border-[#eedbe6] shadow-2xs w-full sm:w-72">
                 <div className="flex items-center justify-between text-xs font-bold text-[#141219] mb-1">
                   <span className="flex items-center gap-1 text-[11px]">
-                    <Flame className="w-3.5 h-3.5 text-[#ec2f73]" />
+                    <Flame className="w-3.5 h-3.5 text-[#D30915]" />
                     <span>Next Rank: {stats.currentRank}</span>
                   </span>
                   <span className="text-purple-700 font-mono text-[11px]">{progressPercent}%</span>
@@ -220,14 +250,14 @@ export const AffiliateDashboard: React.FC<AffiliateDashboardProps> = ({
 
                 <div className="w-full h-2 bg-stone-100 rounded-full overflow-hidden mb-1">
                   <div
-                    className="h-full bg-gradient-to-r from-[#ec2f73] to-purple-600 rounded-full transition-all duration-500"
+                    className="h-full bg-gradient-to-r from-[#D30915] to-purple-600 rounded-full transition-all duration-500"
                     style={{ width: `${progressPercent}%` }}
                   />
                 </div>
 
                 <div className="flex items-center justify-between text-[10px] sm:text-[11px] font-bold text-[#716d77]">
                   <span>${stats.totalEarnings.toFixed(0)} Earned</span>
-                  <span className="text-[#ec2f73]">Goal: ${nextRankTarget.toLocaleString()}</span>
+                  <span className="text-[#D30915]">Goal: ${nextRankTarget.toLocaleString()}</span>
                 </div>
               </div>
             </div>
@@ -237,7 +267,7 @@ export const AffiliateDashboard: React.FC<AffiliateDashboardProps> = ({
         {/* 2. Mobile Quick Dropdown Selector (< sm) */}
         <div className="block sm:hidden">
           <label className="flex items-center gap-1 text-[11px] font-black uppercase text-[#716d77] mb-1.5">
-            <Navigation className="w-3 h-3 text-[#ec2f73]" />
+            <Navigation className="w-3 h-3 text-[#D30915]" />
             <span>Select Dashboard View</span>
           </label>
           <AffiliateCustomSelect
@@ -253,98 +283,140 @@ export const AffiliateDashboard: React.FC<AffiliateDashboardProps> = ({
           <button
             type="button"
             onClick={() => handleTabChange('overview')}
-            className={`px-3.5 sm:px-5 py-2 sm:py-3 rounded-[13px] sm:rounded-[15px] font-black text-xs sm:text-sm transition-all whitespace-nowrap flex items-center gap-1.5 sm:gap-2 cursor-pointer shrink-0 snap-start min-h-[40px] sm:min-h-[44px] ${
+            className={`px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-[13px] font-black text-xs sm:text-sm transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0 snap-start ${
               activeTab === 'overview'
-                ? 'bg-[#ec2f73] text-white shadow-[0_4px_14px_rgba(236,47,115,0.25)]'
-                : 'hover:bg-[#fff0f5] text-[#55505a] hover:text-[#ec2f73]'
+                ? 'bg-[#D30915] text-white shadow-[0_4px_14px_rgba(211, 9, 21,0.25)]'
+                : 'hover:bg-[#fff1f2] text-[#55505a] hover:text-[#D30915]'
             }`}
           >
             <TrendingUp className="w-4 h-4 shrink-0" />
-            <span>Dashboard Overview</span>
+            <span>Overview</span>
           </button>
 
-          {/* Tab: 5-Level Tree */}
+          {/* Tab: Sales */}
           <button
             type="button"
-            onClick={() => handleTabChange('tree')}
-            className={`px-3.5 sm:px-5 py-2 sm:py-3 rounded-[13px] sm:rounded-[15px] font-black text-xs sm:text-sm transition-all whitespace-nowrap flex items-center gap-1.5 sm:gap-2 cursor-pointer shrink-0 snap-start min-h-[40px] sm:min-h-[44px] ${
-              activeTab === 'tree'
-                ? 'bg-[#ec2f73] text-white shadow-[0_4px_14px_rgba(236,47,115,0.25)]'
-                : 'hover:bg-[#fff0f5] text-[#55505a] hover:text-[#ec2f73]'
+            onClick={() => handleTabChange('sales')}
+            className={`px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-[13px] font-black text-xs sm:text-sm transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0 snap-start ${
+              activeTab === 'sales'
+                ? 'bg-[#D30915] text-white shadow-[0_4px_14px_rgba(211, 9, 21,0.25)]'
+                : 'hover:bg-[#fff1f2] text-[#55505a] hover:text-[#D30915]'
             }`}
           >
-            <Layers className="w-4 h-4 shrink-0" />
-            <span>5-Level Genealogy Tree</span>
-            <span
-              className={`text-[9px] sm:text-[10px] px-2 py-0.5 rounded-full font-black ${
-                activeTab === 'tree' ? 'bg-white text-[#ec2f73]' : 'bg-[#fff0f5] text-[#ec2f73]'
-              }`}
-            >
-              5 Tiers
-            </span>
+            <CreditCard className="w-4 h-4 shrink-0" />
+            <span>Sales</span>
           </button>
 
-          {/* Tab: Commissions Ledger */}
+          {/* Tab: Commissions */}
           <button
             type="button"
-            onClick={() => handleTabChange('ledger')}
-            className={`px-3.5 sm:px-5 py-2 sm:py-3 rounded-[13px] sm:rounded-[15px] font-black text-xs sm:text-sm transition-all whitespace-nowrap flex items-center gap-1.5 sm:gap-2 cursor-pointer shrink-0 snap-start min-h-[40px] sm:min-h-[44px] ${
-              activeTab === 'ledger'
-                ? 'bg-[#ec2f73] text-white shadow-[0_4px_14px_rgba(236,47,115,0.25)]'
-                : 'hover:bg-[#fff0f5] text-[#55505a] hover:text-[#ec2f73]'
+            onClick={() => handleTabChange('commissions')}
+            className={`px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-[13px] font-black text-xs sm:text-sm transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0 snap-start ${
+              activeTab === 'commissions'
+                ? 'bg-[#D30915] text-white shadow-[0_4px_14px_rgba(211, 9, 21,0.25)]'
+                : 'hover:bg-[#fff1f2] text-[#55505a] hover:text-[#D30915]'
             }`}
           >
             <DollarSign className="w-4 h-4 shrink-0" />
-            <span>Commissions History</span>
+            <span>Commissions</span>
             <span
-              className={`text-[9px] sm:text-[10px] px-2 py-0.5 rounded-full font-black ${
-                activeTab === 'ledger' ? 'bg-white text-[#ec2f73]' : 'bg-[#fff0f5] text-[#ec2f73]'
+              className={`text-[9px] sm:text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                activeTab === 'commissions' ? 'bg-white text-[#D30915]' : 'bg-[#fff1f2] text-[#D30915]'
               }`}
             >
-              {commissions.length}
+              20%
             </span>
           </button>
 
-          {/* Tab: Team Roster */}
+          {/* Tab: Traffic */}
+          <button
+            type="button"
+            onClick={() => handleTabChange('traffic')}
+            className={`px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-[13px] font-black text-xs sm:text-sm transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0 snap-start ${
+              activeTab === 'traffic'
+                ? 'bg-[#D30915] text-white shadow-[0_4px_14px_rgba(211, 9, 21,0.25)]'
+                : 'hover:bg-[#fff1f2] text-[#55505a] hover:text-[#D30915]'
+            }`}
+          >
+            <TrendingUp className="w-4 h-4 shrink-0" />
+            <span>Traffic</span>
+          </button>
+
+          {/* Tab: Team */}
           <button
             type="button"
             onClick={() => handleTabChange('team')}
-            className={`px-3.5 sm:px-5 py-2 sm:py-3 rounded-[13px] sm:rounded-[15px] font-black text-xs sm:text-sm transition-all whitespace-nowrap flex items-center gap-1.5 sm:gap-2 cursor-pointer shrink-0 snap-start min-h-[40px] sm:min-h-[44px] ${
+            className={`px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-[13px] font-black text-xs sm:text-sm transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0 snap-start ${
               activeTab === 'team'
-                ? 'bg-[#ec2f73] text-white shadow-[0_4px_14px_rgba(236,47,115,0.25)]'
-                : 'hover:bg-[#fff0f5] text-[#55505a] hover:text-[#ec2f73]'
+                ? 'bg-[#D30915] text-white shadow-[0_4px_14px_rgba(211, 9, 21,0.25)]'
+                : 'hover:bg-[#fff1f2] text-[#55505a] hover:text-[#D30915]'
             }`}
           >
             <Users className="w-4 h-4 shrink-0" />
-            <span>Downline Team List</span>
+            <span>Team</span>
             <span
-              className={`text-[9px] sm:text-[10px] px-2 py-0.5 rounded-full font-black ${
-                activeTab === 'team' ? 'bg-white text-[#ec2f73]' : 'bg-[#fff0f5] text-[#ec2f73]'
+              className={`text-[9px] sm:text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                activeTab === 'team' ? 'bg-white text-[#D30915]' : 'bg-purple-50 text-purple-700'
               }`}
             >
               {stats.totalReferrals}
             </span>
           </button>
 
-          {/* Tab: Marketing Toolkit */}
+          {/* Tab: Account & Membership */}
+          <button
+            type="button"
+            onClick={() => handleTabChange('account')}
+            className={`px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-[13px] font-black text-xs sm:text-sm transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0 snap-start ${
+              activeTab === 'account'
+                ? 'bg-[#D30915] text-white shadow-[0_4px_14px_rgba(211, 9, 21,0.25)]'
+                : 'hover:bg-[#fff1f2] text-[#55505a] hover:text-[#D30915]'
+            }`}
+          >
+            <Award className="w-4 h-4 shrink-0" />
+            <span>Account</span>
+            <span
+              className={`text-[9px] sm:text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                activeTab === 'account' ? 'bg-white text-[#D30915]' : 'bg-emerald-50 text-emerald-700'
+              }`}
+            >
+              $19.99
+            </span>
+          </button>
+
+          {/* Tab: Payouts */}
+          <button
+            type="button"
+            onClick={() => handleTabChange('payouts')}
+            className={`px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-[13px] font-black text-xs sm:text-sm transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0 snap-start ${
+              activeTab === 'payouts'
+                ? 'bg-[#D30915] text-white shadow-[0_4px_14px_rgba(211, 9, 21,0.25)]'
+                : 'hover:bg-[#fff1f2] text-[#55505a] hover:text-[#D30915]'
+            }`}
+          >
+            <CreditCard className="w-4 h-4 shrink-0" />
+            <span>Payouts</span>
+            <span
+              className={`text-[9px] sm:text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                activeTab === 'payouts' ? 'bg-white text-[#D30915]' : 'bg-emerald-50 text-emerald-700'
+              }`}
+            >
+              ${stats.availableBalance.toFixed(0)}
+            </span>
+          </button>
+
+          {/* Tab: Marketing */}
           <button
             type="button"
             onClick={() => handleTabChange('marketing')}
-            className={`px-3.5 sm:px-5 py-2 sm:py-3 rounded-[13px] sm:rounded-[15px] font-black text-xs sm:text-sm transition-all whitespace-nowrap flex items-center gap-1.5 sm:gap-2 cursor-pointer shrink-0 snap-start min-h-[40px] sm:min-h-[44px] ${
+            className={`px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-[13px] font-black text-xs sm:text-sm transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0 snap-start ${
               activeTab === 'marketing'
-                ? 'bg-[#ec2f73] text-white shadow-[0_4px_14px_rgba(236,47,115,0.25)]'
-                : 'hover:bg-[#fff0f5] text-[#55505a] hover:text-[#ec2f73]'
+                ? 'bg-[#D30915] text-white shadow-[0_4px_14px_rgba(211, 9, 21,0.25)]'
+                : 'hover:bg-[#fff1f2] text-[#55505a] hover:text-[#D30915]'
             }`}
           >
             <Briefcase className="w-4 h-4 shrink-0" />
-            <span>Rep Toolkit & Media</span>
-            <span
-              className={`text-[9px] sm:text-[10px] px-2 py-0.5 rounded-full font-black ${
-                activeTab === 'marketing' ? 'bg-white text-[#ec2f73]' : 'bg-amber-100 text-amber-900'
-              }`}
-            >
-              New
-            </span>
+            <span>Toolkit</span>
           </button>
         </div>
 
@@ -371,19 +443,42 @@ export const AffiliateDashboard: React.FC<AffiliateDashboardProps> = ({
             </>
           )}
 
-          {activeTab === 'tree' && (
-            <GenealogyTree
-              treeData={treeData}
+          {activeTab === 'sales' && (
+            <SalesRosterTable commissions={commissions} />
+          )}
+
+          {activeTab === 'commissions' && (
+            <CommissionHistoryTable commissions={commissions} />
+          )}
+
+          {activeTab === 'traffic' && (
+            <TrafficAnalyticsCard stats={stats} />
+          )}
+
+          {activeTab === 'team' && (
+            <div className="space-y-5">
+              <GenealogyTree
+                treeData={treeData}
+                onShowToast={onShowToast}
+              />
+              <ReferralTeamList members={flatMembers} />
+            </div>
+          )}
+
+          {activeTab === 'account' && (
+            <RepresentativeAccountTab
+              user={_user}
+              stats={stats}
               onShowToast={onShowToast}
             />
           )}
 
-          {activeTab === 'ledger' && (
-            <CommissionHistoryTable commissions={commissions} />
-          )}
-
-          {activeTab === 'team' && (
-            <ReferralTeamList members={flatMembers} />
+          {activeTab === 'payouts' && (
+            <PayoutsManagerCard
+              stats={stats}
+              payouts={payouts}
+              onOpenWithdraw={() => setIsWithdrawOpen(true)}
+            />
           )}
 
           {activeTab === 'marketing' && (

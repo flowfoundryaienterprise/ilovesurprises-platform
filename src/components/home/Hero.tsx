@@ -1,138 +1,215 @@
 import React from 'react';
+import { Gem, Gift, Store, Users, ChevronRight, Star } from 'lucide-react';
 
-export const Hero: React.FC = () => {
+interface HeroProps {
+  onShopSurprises?: () => void;
+  onBecomeConsultant?: () => void;
+}
+
+export const Hero: React.FC<HeroProps> = ({
+  onShopSurprises,
+  onBecomeConsultant,
+}) => {
+  const handleShopClick = (e: React.MouseEvent) => {
+    if (onShopSurprises) {
+      e.preventDefault();
+      onShopSurprises();
+    } else {
+      const el = document.getElementById('featured') || document.getElementById('categories');
+      if (el) {
+        e.preventDefault();
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
+  const handleConsultantClick = (e: React.MouseEvent) => {
+    if (onBecomeConsultant) {
+      e.preventDefault();
+      onBecomeConsultant();
+    } else {
+      const el = document.getElementById('affiliate');
+      if (el) {
+        e.preventDefault();
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
+  const benefitItems = [
+    {
+      id: 'hidden-jewelry',
+      title: 'Hidden Jewelry Reveals',
+      subtitle: 'Real jewelry in every product',
+      icon: Gem,
+      targetId: 'categories',
+    },
+    {
+      id: 'viral-unboxing',
+      title: 'Viral Unboxing Fun',
+      subtitle: 'Share, surprise, repeat',
+      icon: Gift,
+      targetId: 'featured',
+    },
+    {
+      id: 'start-store',
+      title: 'Start Your Store',
+      subtitle: 'Your business. Your way.',
+      icon: Store,
+      targetId: 'affiliate',
+    },
+    {
+      id: 'earn-5-levels',
+      title: 'Earn From 5 Levels',
+      subtitle: 'Build your team. Grow together.',
+      icon: Users,
+      targetId: 'affiliate',
+    },
+  ];
+
+  const handleBenefitClick = (targetId: string) => {
+    const el = document.getElementById(targetId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
-    <section id="hero" className="max-w-[1460px] mx-auto px-3 sm:px-6 pt-3 sm:pt-5 pb-3">
-      {/* Exact Reference Screenshot Main Hero Showcase Banner */}
-      <div className="relative rounded-[28px] overflow-hidden border border-[#f1e2e9] bg-[radial-gradient(circle_at_70%_30%,rgba(255,203,222,0.45),transparent_28%),linear-gradient(120deg,#fffafb_0%,#fff4f8_52%,#fcf8ff_100%)] shadow-[0_16px_40px_rgba(50,31,63,0.06)]">
+    <section id="hero" className="max-w-[1460px] mx-auto px-3 sm:px-6 pt-1 sm:pt-2.5 pb-2.5">
+      {/* Outer Banner Card matching the client reference layout */}
+      <div className="relative rounded-[24px] sm:rounded-[30px] lg:rounded-[34px] overflow-hidden border border-[#eedde6] shadow-[0_18px_48px_rgba(50,31,63,0.08)] bg-[#fcf9f8] transition-all">
 
-        <div className="grid grid-cols-12 items-center min-h-[520px] lg:min-h-[575px]">
+        {/* TOP HERO AREA: FULL COVER PANORAMIC LIFESTYLE BANNER */}
+        <div className="relative min-h-[350px] sm:min-h-[380px] md:min-h-[410px] lg:min-h-[440px] xl:min-h-[460px] flex items-center overflow-hidden">
 
-          {/* Left Column: Hero Copy, CTAs, and Badges (Centered on Mobile, Left on Desktop) */}
-          <div className="col-span-12 lg:col-span-6 flex flex-col justify-center items-center lg:items-start text-center lg:text-left px-5 sm:px-10 lg:pl-14 lg:pr-6 py-8 sm:py-12 z-10">
+          {/* Full Cover Panoramic Master Banner - Natural 0% Extra Brightness on Left Side */}
+          <img
+            src="/assets/ilovesurprises/hero/hero-image-main.jpeg"
+            alt="I Love Surprises Fall In Love With The Surprise Luxury Lifestyle Composition"
+            className="absolute inset-0 w-full h-full object-cover object-[82%_center] sm:object-[78%_center] md:object-[74%_center] lg:object-center select-none transform-gpu backface-hidden [transform:translateZ(0)]"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+          />
 
-            {/* Top Eyebrow Tag with Subtle Sparkle */}
-            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#ec2f73]/10 border border-[#f5cad7] text-[#ec2f73] text-[10px] sm:text-[11px] font-black uppercase tracking-[0.16em] mb-3 sm:mb-4 self-center lg:self-start shadow-2xs">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#ec2f73] animate-ping" />
-              <span>Every product</span>
-            </div>
+          {/* High-Luminosity Reveal Layer - Masked so Left Side has 0% extra brightness, Center/Right illuminated */}
+          <img
+            src="/assets/ilovesurprises/hero/hero-image-main.jpeg"
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 w-full h-full object-cover object-[82%_center] sm:object-[78%_center] md:object-[74%_center] lg:object-center select-none brightness-[1.24] contrast-[1.04] saturate-[1.05] transform-gpu backface-hidden [transform:translateZ(0)] pointer-events-none [mask-image:linear-gradient(to_right,transparent_0%,transparent_32%,black_58%,black_100%)] [-webkit-mask-image:linear-gradient(to_right,transparent_0%,transparent_32%,black_58%,black_100%)]"
+            loading="eager"
+            decoding="async"
+          />
 
-            {/* Main Headline */}
-            <h1 className="text-[36px] sm:text-[48px] lg:text-[62px] leading-[1.02] font-black text-[#141219] tracking-[-0.04em] m-0 mb-4 text-center lg:text-left font-display max-w-[560px]">
-              Every Product{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ec2f73] via-[#ff3b83] to-[#d92467] drop-shadow-[0_2px_14px_rgba(236,47,115,0.22)] font-black tracking-[-0.04em] inline-block">
-                Has a Surprise
-              </span>
-            </h1>
+          {/* Protective Left Gradient - Zero disturbance behind heading & subtitle with seamless fade to right */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-gradient-to-r from-[#fcf9f8]/98 via-[#fcf9f8]/90 via-36% sm:via-[#fcf9f8]/78 sm:via-46% md:via-[#fcf9f8]/55 md:via-52% to-transparent pointer-events-none"
+          />
 
-            {/* Subtext */}
-            <p className="text-[14px] sm:text-[16px] text-[#55505a] leading-[1.65] max-w-[520px] m-0 mb-6 font-medium text-center lg:text-left mx-auto lg:mx-0">
-              Discover premium candles, wax melts, bath treats and gifts with jewelry, cash and more waiting inside.
-            </p>
+          {/* Additional soft gradient from top on mobile to ensure crisp headline readability */}
+          <div
+            aria-hidden="true"
+            className="block sm:hidden absolute inset-0 bg-gradient-to-b from-[#fcf9f8]/95 via-[#fcf9f8]/80 to-transparent pointer-events-none"
+          />
 
-            {/* Action Buttons */}
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mb-7 w-full sm:w-auto">
-              <a
-                href="#best-sellers"
-                className="inline-flex items-center justify-center min-h-[48px] px-7 rounded-[13px] bg-gradient-to-r from-[#ec2f73] to-[#d92467] hover:from-[#d92467] hover:to-[#c21a57] text-white font-black text-xs sm:text-[13px] uppercase tracking-wider shadow-[0_10px_26px_rgba(236,47,115,0.28)] hover:shadow-[0_14px_32px_rgba(236,47,115,0.40)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 cursor-pointer"
-              >
-                Shop Surprises
-              </a>
+          {/* Content Container (Left Side Typography & CTAs) */}
+          <div className="relative z-10 w-full px-5 sm:px-8 lg:pl-14 lg:pr-6 py-5 sm:py-6 lg:py-8 text-left">
+            <div className="max-w-[580px] lg:max-w-[620px]">
 
-              <a
-                href="#affiliate"
-                className="inline-flex items-center justify-center min-h-[48px] px-6 rounded-[13px] bg-white hover:bg-[#fff9fb] border border-[#e8dfe5] hover:border-[#ec2f73] text-[#141219] hover:text-[#ec2f73] font-black text-xs sm:text-[13px] uppercase tracking-wider shadow-2xs hover:shadow-[0_6px_18px_rgba(50,31,63,0.06)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 cursor-pointer"
-              >
-                Learn More
-              </a>
-            </div>
 
-            {/* 3 High-Impact Feature Badges (Exact Same Size & Same Line Heights) */}
-            <div className="grid grid-cols-3 gap-1.5 sm:gap-3 w-full max-w-[480px] sm:max-w-[560px] mx-auto lg:mx-0 items-stretch">
-              {/* Badge 1: Real Jewelry */}
-              <div className="group p-2 sm:p-3.5 rounded-[12px] sm:rounded-[15px] bg-white/80 hover:bg-white border border-[#ebdce5] hover:border-[#ec2f73] shadow-[0_4px_16px_rgba(50,31,63,0.03)] hover:shadow-[0_10px_24px_rgba(236,47,115,0.12)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-center items-center sm:items-start h-full min-h-[58px] sm:min-h-[68px]">
-                <strong className="block text-[10px] sm:text-xs font-black text-[#ec2f73] mb-0.5 leading-tight whitespace-nowrap group-hover:translate-x-0.5 transition-transform">
-                  ◇ Real Jewelry
-                </strong>
-                <span className="text-[8px] sm:text-[11px] text-[#716d77] block leading-[1.2] font-medium text-center sm:text-left min-h-[20px] sm:min-h-[26px] flex items-center justify-center sm:justify-start">
-                  In selected surprise products
+              {/* Main Headline - Oleo Script Typography */}
+              <h1 className="m-0 select-none font-oleo" style={{ fontFamily: "'Oleo Script', cursive, serif" }}>
+                <span
+                  style={{ fontFamily: "'Oleo Script', cursive, serif" }}
+                  className="block font-oleo text-[32px] sm:text-[38px] md:text-[44px] lg:text-[50px] xl:text-[54px] text-[#141219] leading-[1.08] tracking-normal"
+                >
+                  Fall In Love With
                 </span>
+                <span
+                  style={{ fontFamily: "'Oleo Script', cursive, serif" }}
+                  className="block font-oleo text-[40px] sm:text-[48px] md:text-[54px] lg:text-[60px] xl:text-[68px] text-[#D30915] mt-0.5 leading-[1.04] tracking-normal drop-shadow-[0_4px_16px_rgba(211,9,21,0.22)]"
+                >
+                  The Surprise
+                </span>
+              </h1>
+
+              {/* Short Supporting Text - Bold, rich contrast */}
+              <p className="mt-2 sm:mt-2.5 text-[14px] sm:text-[15px] lg:text-[16px] leading-[1.55] text-[#241e2b] font-bold max-w-[500px] m-0">
+                Hidden treasures. Joyful reveals. Real diamond &amp; gold jewelry tucked inside luxury soy candles and bath rituals.
+              </p>
+
+              {/* Social Proof Stars - Slightly increased */}
+              <div className="mt-2.5 sm:mt-3 flex items-center gap-2 text-xs sm:text-[13px] font-bold text-[#554f5a]">
+                <div className="flex items-center text-amber-400 gap-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-amber-400 text-amber-400" />
+                  ))}
+                </div>
+                <span className="text-[#141219] font-black">4.9/5</span>
+                <span className="text-[#c8bec7]">•</span>
+                <span>25,000+ Verified Reveals</span>
               </div>
 
-              {/* Badge 2: Cash Prizes */}
-              <div className="group p-2 sm:p-3.5 rounded-[12px] sm:rounded-[15px] bg-white/80 hover:bg-white border border-[#ebdce5] hover:border-emerald-500 shadow-[0_4px_16px_rgba(50,31,63,0.03)] hover:shadow-[0_10px_24px_rgba(16,185,129,0.12)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-center items-center sm:items-start h-full min-h-[58px] sm:min-h-[68px]">
-                <strong className="block text-[10px] sm:text-xs font-black text-emerald-700 mb-0.5 leading-tight whitespace-nowrap group-hover:translate-x-0.5 transition-transform">
-                  ▣ Cash Prizes
-                </strong>
-                <span className="text-[8px] sm:text-[11px] text-[#716d77] block leading-[1.2] font-medium text-center sm:text-left min-h-[20px] sm:min-h-[26px] flex items-center justify-center sm:justify-start">
-                  Surprise reveals inside
-                </span>
+              {/* Action CTA Buttons - Slightly increased, strictly on the same line */}
+              <div className="mt-3.5 sm:mt-4.5 flex flex-nowrap items-center gap-2.5 sm:gap-3.5 overflow-x-auto sm:overflow-visible no-scrollbar pb-0.5 sm:pb-0">
+                {/* Primary CTA */}
+                <a
+                  href="#featured"
+                  onClick={handleShopClick}
+                  className="group whitespace-nowrap shrink-0 inline-flex items-center justify-center gap-1.5 sm:gap-2 px-4.5 sm:px-6 py-2.5 sm:py-3.5 rounded-[13px] bg-gradient-to-r from-[#D30915] to-[#eb111e] hover:from-[#b60711] hover:to-[#D30915] text-white font-bold text-[11.5px] sm:text-[13.5px] uppercase tracking-wider shadow-[0_6px_22px_rgba(211,9,21,0.32)] hover:shadow-[0_10px_26px_rgba(211,9,21,0.44)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer"
+                >
+                  <span>Shop Surprises</span>
+                  <ChevronRight className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[2.5] group-hover:translate-x-0.5 transition-transform" />
+                </a>
+
+                {/* Secondary CTA */}
+                <a
+                  href="#affiliate"
+                  onClick={handleConsultantClick}
+                  className="group whitespace-nowrap shrink-0 inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-5 py-2.5 sm:py-3.5 rounded-[13px] bg-white/95 hover:bg-white border border-[#d6cbd3] hover:border-[#D30915] text-[#141219] hover:text-[#D30915] font-bold text-[11.5px] sm:text-[13.5px] uppercase tracking-wider shadow-2xs hover:shadow-[0_6px_18px_rgba(50,31,63,0.08)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer"
+                >
+                  <span>Become a <span className="hidden min-[440px]:inline">Surprise </span>Consultant</span>
+                  <ChevronRight className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[2.5] group-hover:translate-x-0.5 transition-transform" />
+                </a>
               </div>
 
-              {/* Badge 3: Made in USA */}
-              <div className="group p-2 sm:p-3.5 rounded-[12px] sm:rounded-[15px] bg-white/80 hover:bg-white border border-[#ebdce5] hover:border-[#54217f] shadow-[0_4px_16px_rgba(50,31,63,0.03)] hover:shadow-[0_10px_24px_rgba(84,33,127,0.12)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-center items-center sm:items-start h-full min-h-[58px] sm:min-h-[68px]">
-                <strong className="block text-[10px] sm:text-xs font-black text-[#54217f] mb-0.5 leading-tight whitespace-nowrap group-hover:translate-x-0.5 transition-transform">
-                  □ Made in USA
-                </strong>
-                <span className="text-[8px] sm:text-[11px] text-[#716d77] block leading-[1.2] font-medium text-center sm:text-left min-h-[20px] sm:min-h-[26px] flex items-center justify-center sm:justify-start">
-                  Premium quality products
-                </span>
-              </div>
             </div>
-
           </div>
 
-          {/* Right Column: Centered on Mobile, Exact Reference Hero Art with Main Product & 3 Mini PNGs */}
-          <div className="col-span-12 lg:col-span-6 relative w-full h-[360px] sm:h-[460px] lg:h-[575px] overflow-hidden">
+        </div>
 
-            {/* Radial White/Pink Backdrop Glow Aura */}
-            <div
-              className="absolute w-[300px] sm:w-[420px] lg:w-[470px] h-[300px] sm:h-[420px] lg:h-[470px] left-1/2 -translate-x-1/2 lg:left-auto lg:translate-x-0 lg:right-[8%] top-[6%] sm:top-[8%] rounded-full pointer-events-none animate-aura-glow"
-              style={{
-                background:
-                  'radial-gradient(circle, #ffffff 0%, #ffffff 32%, #ffe6ef 70%, rgba(255, 255, 255, 0) 72%)',
-              }}
-            />
+        {/* BENEFIT STRIP DIRECTLY BELOW HERO */}
+        <div className="border-t border-[#f0e3ea] bg-white/98 backdrop-blur-xs px-3 sm:px-8 py-2.5 sm:py-3 transition-all">
+          <div className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-6 lg:gap-4 lg:divide-x lg:divide-[#f0e2ea] items-center">
+            {benefitItems.map((item) => {
+              const IconComponent = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => handleBenefitClick(item.targetId)}
+                  className="group flex items-center gap-3 sm:gap-3.5 py-1.5 px-2 sm:px-3 text-left rounded-xl transition-all duration-200 hover:bg-[#fff7f9] cursor-pointer"
+                >
+                  {/* Thin Outline Icon matching Reference */}
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#faf4f7] border border-[#f0e3ec] group-hover:border-[#D30915]/30 group-hover:bg-[#fff1f3] text-[#141219] group-hover:text-[#D30915] flex items-center justify-center shrink-0 transition-all duration-200">
+                    <IconComponent className="w-5 h-5 stroke-[1.6]" />
+                  </div>
 
-            {/* Soft Ambient Ground Floor Shadow under Main Candle */}
-            <div className="absolute left-1/2 -translate-x-1/2 lg:left-auto lg:translate-x-0 lg:right-[14%] top-[82%] sm:top-[84%] w-[52%] lg:w-[56%] h-[26px] bg-gradient-to-r from-transparent via-[#2d1223]/22 to-transparent rounded-full blur-[14px] pointer-events-none z-0" />
-
-            {/* Main Product: BetterThanSex Cash Candle with Dollars */}
-            <img
-              src="/assets/ilovesurprises/hero/hero-main-product.png"
-              alt="Premium Cash Candle"
-              className="absolute left-1/2 -translate-x-1/2 lg:left-auto lg:translate-x-0 lg:right-[11%] top-[7%] w-[58%] sm:w-[54%] lg:w-[62%] max-h-[480px] lg:max-h-[525px] object-contain drop-shadow-[0_14px_18px_rgba(35,14,30,0.16)] drop-shadow-[0_30px_42px_rgba(58,25,52,0.24)] drop-shadow-[0_50px_70px_rgba(236,47,115,0.18)] z-10 transition-all duration-500 hover:scale-105 hover:drop-shadow-[0_38px_54px_rgba(236,47,115,0.32)] animate-hero-float"
-            />
-
-            {/* Mini Products Ground Contact Shadows */}
-            <div className="absolute bottom-[2%] left-[6%] sm:left-[8%] lg:left-[6%] w-[24%] h-[14px] bg-gradient-to-r from-transparent via-[#2d1223]/26 to-transparent rounded-full blur-[8px] pointer-events-none z-10" />
-            <div className="absolute bottom-[2%] left-[38%] sm:left-[38%] lg:left-[32%] -translate-x-1/2 lg:translate-x-0 w-[24%] h-[14px] bg-gradient-to-r from-transparent via-[#2d1223]/26 to-transparent rounded-full blur-[8px] pointer-events-none z-10" />
-            <div className="absolute bottom-[2%] right-[6%] sm:right-[8%] lg:right-[3%] w-[24%] h-[14px] bg-gradient-to-r from-transparent via-[#2d1223]/26 to-transparent rounded-full blur-[8px] pointer-events-none z-10" />
-
-            {/* Mini Product 1: Cash Bath Bomb */}
-            <img
-              src="/assets/ilovesurprises/hero/hero-mini-1.png"
-              alt="Cash Bath Bomb with Surprise"
-              className="absolute bottom-[4%] left-[5%] sm:left-[7%] lg:left-[5%] w-[25%] sm:w-[23%] lg:w-[26%] aspect-square object-contain drop-shadow-[0_8px_12px_rgba(35,14,30,0.14)] drop-shadow-[0_20px_30px_rgba(58,25,52,0.22)] drop-shadow-[0_32px_46px_rgba(236,47,115,0.16)] z-20 hover:scale-110 transition-all duration-300 hover:drop-shadow-[0_26px_38px_rgba(236,47,115,0.32)] animate-mini-float-1"
-            />
-
-            {/* Mini Product 2: Birthday Cake Cash Slime */}
-            <img
-              src="/assets/ilovesurprises/hero/hero-mini-2.png"
-              alt="Birthday Cake Slime"
-              className="absolute bottom-[4%] left-[37%] sm:left-[37%] lg:left-[31%] -translate-x-1/2 lg:translate-x-0 w-[24%] sm:w-[22%] lg:w-[25%] aspect-square object-contain drop-shadow-[0_8px_12px_rgba(35,14,30,0.14)] drop-shadow-[0_20px_30px_rgba(58,25,52,0.22)] drop-shadow-[0_32px_46px_rgba(236,47,115,0.16)] z-20 hover:scale-110 transition-all duration-300 hover:drop-shadow-[0_26px_38px_rgba(236,47,115,0.32)] animate-mini-float-2"
-            />
-
-            {/* Mini Product 3: Rainbow Gummy Bear Melts */}
-            <img
-              src="/assets/ilovesurprises/hero/hero-mini-3.png"
-              alt="Gummy Bear Jewelry Melts"
-              className="absolute bottom-[4%] right-[5%] sm:right-[7%] lg:right-[2%] w-[25%] sm:w-[23%] lg:w-[26%] aspect-square object-contain drop-shadow-[0_8px_12px_rgba(35,14,30,0.14)] drop-shadow-[0_20px_30px_rgba(58,25,52,0.22)] drop-shadow-[0_32px_46px_rgba(236,47,115,0.16)] z-20 hover:scale-110 transition-all duration-300 hover:drop-shadow-[0_26px_38px_rgba(236,47,115,0.32)] animate-mini-float-3"
-            />
-
+                  {/* Title & Supporting Text */}
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-[13px] sm:text-[14px] font-bold text-[#141219] group-hover:text-[#D30915] leading-snug tracking-tight truncate m-0 transition-colors">
+                      {item.title}
+                    </h2>
+                    <p className="text-[11px] sm:text-[12px] text-[#716d77] leading-tight mt-0.5 truncate font-medium m-0">
+                      {item.subtitle}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
           </div>
-
         </div>
 
       </div>

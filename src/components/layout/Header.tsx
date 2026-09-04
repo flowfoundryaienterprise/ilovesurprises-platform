@@ -9,12 +9,12 @@ import {
   Sparkles,
   X,
   Star,
-  Check,
   Truck,
   LogOut,
   PackageCheck,
   Heart,
   Users,
+  Store,
   Menu,
   Home as HomeIcon,
   LayoutGrid,
@@ -25,23 +25,38 @@ import {
   Mail,
   Mic,
   Volume2,
+  Gift,
+  ShieldCheck,
 } from 'lucide-react';
 import type { UserProfile, Product } from '../../types';
 import { productsData } from '../../data/products';
+import { categoriesData } from '../../data/categories';
+
+const categoryMeta: Record<string, { badge: string; color: string; bg: string; border: string; fromPrice: string }> = {
+  'cat-jewelry-candles': { badge: '★ Best Seller', color: 'text-[#D30915]', bg: 'bg-[#fff0f3]', border: 'border-[#fecdd3]', fromPrice: '$28.99' },
+  'cat-cash-candles': { badge: '💵 Cash Inside', color: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-200', fromPrice: '$29.99' },
+  'cat-wax-melts': { badge: '✨ Hidden Gem', color: 'text-purple-700', bg: 'bg-purple-50', border: 'border-purple-200', fromPrice: '$14.99' },
+  'cat-bath-body': { badge: '🌸 Spa Ritual', color: 'text-pink-700', bg: 'bg-pink-50', border: 'border-pink-200', fromPrice: '$16.99' },
+  'cat-soaps': { badge: '🌿 Organic', color: 'text-amber-700', bg: 'bg-amber-50', border: 'border-amber-200', fromPrice: '$9.99' },
+  'cat-slimes': { badge: '🎉 Surprise Toy', color: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-200', fromPrice: '$12.99' },
+};
 
 export interface HeaderProps {
   cartCount?: number;
   cartSubtotal?: number;
   user?: UserProfile | null;
-  activeView?: 'home' | 'shop' | 'categories' | 'product-details' | 'checkout' | 'order-confirmation' | 'account' | 'affiliate' | 'about' | 'contact';
+  activeView?: 'home' | 'shop' | 'categories' | 'product-details' | 'checkout' | 'order-confirmation' | 'account' | 'affiliate' | 'about' | 'contact' | 'rewards' | 'admin';
   onOpenCart?: () => void;
   onOpenAuth?: (mode?: 'login' | 'signup' | 'forgot') => void;
   onLogout?: () => void;
   onSearch?: (query: string) => void;
-  onNavigate?: (route: 'home' | 'shop' | 'categories' | 'affiliate' | 'about' | 'contact') => void;
+  onNavigate?: (route: 'home' | 'shop' | 'categories' | 'affiliate' | 'about' | 'contact' | 'rewards' | 'admin') => void;
   onNavigateToAccount?: (tab?: 'profile' | 'orders' | 'addresses' | 'wishlist' | 'settings' | 'affiliate') => void;
   onNavigateToAffiliate?: () => void;
+  onOpenSubscription?: () => void;
+  onNavigateToAdmin?: () => void;
   onSelectProduct?: (product: Product) => void;
+  onSelectCategory?: (category: string) => void;
 }
 
 export interface NavItem {
@@ -56,6 +71,7 @@ const NAV_LINKS: NavItem[] = [
   { id: 'home', label: 'Home', href: '/', targetSectionId: 'hero', icon: HomeIcon },
   { id: 'shop', label: 'Shop', href: '/shop', targetSectionId: 'featured', icon: ShoppingBag },
   { id: 'categories', label: 'Categories', href: '/categories', targetSectionId: 'categories', icon: LayoutGrid },
+  { id: 'rewards', label: 'VIP Rewards', href: '/rewards', targetSectionId: 'rewards', icon: Star },
   { id: 'affiliate', label: 'Affiliate', href: '/affiliate', targetSectionId: 'affiliate', icon: Users },
   { id: 'about', label: 'About', href: '/about', targetSectionId: 'about', icon: Info },
   { id: 'contact', label: 'Contact', href: '/contact', targetSectionId: 'contact', icon: Headphones },
@@ -81,7 +97,7 @@ const POPULAR_TAGS = [
 
 export const Header: React.FC<HeaderProps> = ({
   cartCount = 0,
-  cartSubtotal: _cartSubtotal = 0,
+  cartSubtotal = 0,
   user = null,
   activeView,
   onOpenCart,
@@ -91,22 +107,64 @@ export const Header: React.FC<HeaderProps> = ({
   onNavigate,
   onNavigateToAccount,
   onNavigateToAffiliate,
+  onOpenSubscription,
+  onNavigateToAdmin,
   onSelectProduct,
+  onSelectCategory,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
-  const [currentLoc, setCurrentLoc] = useState(availableLocations[0]);
-  const [isLocationOpen, setIsLocationOpen] = useState(false);
-  const [customZip, setCustomZip] = useState('');
+  const [isShopDropdownOpen, setIsShopDropdownOpen] = useState(false);
+  const [currentLoc] = useState(availableLocations[0]);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeNavId, setActiveNavId] = useState<string>('home');
   const [isListening, setIsListening] = useState(false);
   const [voiceFeedback, setVoiceFeedback] = useState<string | null>(null);
 
-  const locationMenuRef = useRef<HTMLDivElement>(null);
+  // Track if current visitor or logged-in user is an active subscribed consultant
+  const [isConsultantSubscribed, setIsConsultantSubscribed] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return (
+      user?.role === 'representative' ||
+      localStorage.getItem('ils_consultant_subscribed') === 'true'
+    );
+  });
+
+  useEffect(() => {
+    const checkStatus = () => {
+      const isSub = (
+        user?.role === 'representative' ||
+        localStorage.getItem('ils_consultant_subscribed') === 'true'
+      );
+      setIsConsultantSubscribed(isSub);
+    };
+    checkStatus();
+    window.addEventListener('ils_consultant_subscribed', checkStatus);
+    window.addEventListener('ilovesurprises_user_updated', checkStatus);
+    window.addEventListener('storage', checkStatus);
+    return () => {
+      window.removeEventListener('ils_consultant_subscribed', checkStatus);
+      window.removeEventListener('ilovesurprises_user_updated', checkStatus);
+      window.removeEventListener('storage', checkStatus);
+    };
+  }, [user]);
+
+  // Keyboard shortcut: Ctrl+K or Cmd+K opens search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsSearchOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const shopDropdownRef = useRef<HTMLDivElement>(null);
   const searchPopupRef = useRef<HTMLDivElement>(null);
   const searchButtonRef = useRef<HTMLButtonElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -178,11 +236,11 @@ export const Header: React.FC<HeaderProps> = ({
   // Close menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (locationMenuRef.current && !locationMenuRef.current.contains(e.target as Node)) {
-        setIsLocationOpen(false);
-      }
       if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
         setIsUserMenuOpen(false);
+      }
+      if (shopDropdownRef.current && !shopDropdownRef.current.contains(e.target as Node)) {
+        setIsShopDropdownOpen(false);
       }
       if (
         searchPopupRef.current &&
@@ -204,7 +262,6 @@ export const Header: React.FC<HeaderProps> = ({
         setIsSearchOpen(false);
         closeVoiceModal();
         closeMobileMenu();
-        setIsLocationOpen(false);
         setIsUserMenuOpen(false);
       }
       // Quick search shortcut (/)
@@ -262,9 +319,9 @@ export const Header: React.FC<HeaderProps> = ({
             top: Math.max(0, elementTop - navOffset),
             behavior: 'smooth',
           });
-          productEl.classList.add('ring-4', 'ring-[#ec2f73]', 'scale-[1.02]', 'transition-all');
+          productEl.classList.add('ring-4', 'ring-[#D30915]', 'scale-[1.02]', 'transition-all');
           setTimeout(() => {
-            productEl.classList.remove('ring-4', 'ring-[#ec2f73]', 'scale-[1.02]');
+            productEl.classList.remove('ring-4', 'ring-[#D30915]', 'scale-[1.02]');
           }, 2400);
           return;
         }
@@ -280,24 +337,6 @@ export const Header: React.FC<HeaderProps> = ({
         });
       }
     }, 120);
-  };
-
-  const handleApplyZip = (e: React.FormEvent) => {
-    e.preventDefault();
-    const cleanZip = customZip.trim();
-    if (cleanZip.length === 5 && /^\d+$/.test(cleanZip)) {
-      const matchCity =
-        availableLocations.find((l) => l.zip === cleanZip) || {
-          name: 'US Address',
-          zip: cleanZip,
-          state: 'USA',
-          eta: '2-3 Days',
-          tag: 'Express Delivery',
-        };
-      setCurrentLoc(matchCity);
-      setCustomZip('');
-      setIsLocationOpen(false);
-    }
   };
 
   // Execute Search action
@@ -437,6 +476,9 @@ export const Header: React.FC<HeaderProps> = ({
         onNavigate?.('affiliate');
       }
       return;
+    } else if (item.id === 'rewards') {
+      onNavigate?.('rewards');
+      return;
     } else if (item.id === 'about') {
       onNavigate?.('about');
       return;
@@ -479,10 +521,10 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="max-w-[1460px] mx-auto flex items-center justify-between">
           <div className="flex items-center gap-1.5 sm:gap-2 text-[#141219] truncate">
             <span className="flex h-1.5 w-1.5 sm:h-2 sm:w-2 relative shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ec2f73] opacity-75" />
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-[#ec2f73]" />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#D30915] opacity-75" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-[#D30915]" />
             </span>
-            <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#ec2f73] shrink-0" />
+            <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#D30915] shrink-0" />
             <span className="truncate">
               Fast Express Dispatch • Guaranteed Real Cash ($2-$2,500) or Jewelry in 100% of Orders
             </span>
@@ -491,8 +533,8 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="hidden sm:flex items-center gap-4 text-[#716d77] shrink-0 ml-2">
             <button
               type="button"
-              onClick={() => onOpenAuth?.('login')}
-              className="flex items-center gap-1 hover:text-[#ec2f73] transition-colors cursor-pointer"
+              onClick={() => onNavigate?.('rewards')}
+              className="flex items-center gap-1 hover:text-[#D30915] transition-colors cursor-pointer"
             >
               <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
               <span>Surprise Club Rewards</span>
@@ -502,26 +544,52 @@ export const Header: React.FC<HeaderProps> = ({
             <span className="text-[#eee7ed]">|</span>
             <a
               href="/affiliate"
-              onClick={(e) =>
-                handleNavClick(e, {
-                  id: 'affiliate',
-                  label: 'Affiliate',
-                  href: '/affiliate',
-                  targetSectionId: 'affiliate',
-                  icon: Users,
-                })
-              }
-              className="text-[#ec2f73] hover:underline font-black cursor-pointer"
+              onClick={(e) => {
+                e.preventDefault();
+                if (isConsultantSubscribed) {
+                  if (onNavigateToAffiliate) {
+                    onNavigateToAffiliate();
+                  } else {
+                    handleNavClick(e, {
+                      id: 'affiliate',
+                      label: 'Affiliate',
+                      href: '/affiliate',
+                      targetSectionId: 'affiliate',
+                      icon: Users,
+                    });
+                  }
+                } else if (onOpenSubscription) {
+                  onOpenSubscription();
+                } else if (onNavigateToAffiliate) {
+                  onNavigateToAffiliate();
+                } else {
+                  handleNavClick(e, {
+                    id: 'affiliate',
+                    label: 'Affiliate',
+                    href: '/affiliate',
+                    targetSectionId: 'affiliate',
+                    icon: Users,
+                  });
+                }
+              }}
+              className="text-[#D30915] hover:underline font-black cursor-pointer inline-flex items-center gap-1"
             >
-              Earn 20% Reps
+              {isConsultantSubscribed ? (
+                <>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>My Storefront</span>
+                </>
+              ) : (
+                <span>Earn 20% Reps</span>
+              )}
             </a>
           </div>
         </div>
       </div>
 
       {/* 2. Main Brand & Navigation Header Bar */}
-      <div className="relative max-w-[1460px] mx-auto px-2.5 sm:px-6 py-2 sm:py-2.5">
-        <div className="flex items-center justify-between gap-2 sm:gap-4 lg:gap-6">
+      <div className="relative w-full max-w-[1460px] mx-auto px-2.5 sm:px-4 lg:px-6 py-2 sm:py-2.5">
+        <div className="relative flex items-center justify-between gap-2 xl:gap-3 2xl:gap-6">
 
           {/* Left Block: Brand Logo + Desktop Delivery Location */}
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
@@ -541,230 +609,354 @@ export const Header: React.FC<HeaderProps> = ({
               aria-label="ILoveSurprises Home"
             >
               <img
-                src="/assets/ilovesurprises/logo/i love surprises logo.jpeg"
+                src="/assets/ilovesurprises/logo/New logo.jpeg"
                 alt="I Love Surprises Logo"
-                className="h-9 sm:h-11 md:h-12 w-auto max-w-[130px] sm:max-w-[165px] md:max-w-[240px] object-contain transition-transform duration-300 group-hover:scale-102"
+                className="h-[44px] sm:h-[50px] md:h-[58px] lg:h-[64px] w-auto max-w-[180px] sm:max-w-[220px] md:max-w-[260px] lg:max-w-[290px] object-contain transition-transform duration-300 group-hover:scale-102"
                 loading="eager"
               />
             </a>
+          </div>
 
-            {/* Quick Delivery Pill (Visible on md and desktop >= 768px) */}
-            <div ref={locationMenuRef} className="relative hidden md:block ml-1.5 lg:ml-2.5">
+          {/* Center Block: Reference Primary Horizontal Navigation Menu matching Client Reference UI */}
+          <nav
+            className="hidden xl:flex items-center justify-center gap-0.5 2xl:gap-1.5 px-1 py-1 rounded-[16px] z-20 xl:absolute xl:left-1/2 xl:-translate-x-1/2"
+            aria-label="Main Navigation"
+          >
+            {/* Home */}
+            <a
+              href="/"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate?.('home');
+              }}
+              className={`px-2 xl:px-2.5 py-1.5 rounded-[12px] text-[12.5px] xl:text-[13px] font-bold transition-colors cursor-pointer select-none whitespace-nowrap ${activeView === 'home'
+                ? 'text-[#D30915]'
+                : 'text-[#141219] hover:text-[#D30915]'
+                }`}
+            >
+              Home
+            </a>
+
+            {/* 1. Shop ∨ Dropdown Trigger */}
+            <div
+              ref={shopDropdownRef}
+              className="relative"
+              onMouseEnter={() => setIsShopDropdownOpen(true)}
+              onMouseLeave={() => setIsShopDropdownOpen(false)}
+            >
               <button
                 type="button"
-                onClick={() => setIsLocationOpen(!isLocationOpen)}
-                className="group flex items-center gap-2 px-3 py-1.5 rounded-[15px] bg-gradient-to-r from-[#fff3f7] via-[#fff8fb] to-[#fff3f7] hover:from-[#ffeaf2] hover:to-[#fff0f5] text-[#141219] border border-[#f5cad7] hover:border-[#ec2f73] shadow-2xs hover:shadow-[0_6px_20px_rgba(236,47,115,0.14)] active:scale-97 transition-all duration-200 cursor-pointer select-none text-left"
-                aria-haspopup="true"
-                aria-expanded={isLocationOpen}
-                aria-label={`Delivery location: ${currentLoc.name}, ${currentLoc.zip}. Click to change.`}
+                onClick={() => {
+                  onNavigate?.('shop');
+                  setIsShopDropdownOpen(false);
+                }}
+                className={`group flex items-center gap-1 px-2 xl:px-2.5 py-1.5 rounded-[12px] text-[12.5px] xl:text-[13px] font-bold transition-colors cursor-pointer select-none whitespace-nowrap ${activeView === 'shop' || isShopDropdownOpen
+                  ? 'text-[#D30915]'
+                  : 'text-[#141219] hover:text-[#D30915]'
+                  }`}
               >
-                <div className="w-6 h-6 rounded-full bg-[#ec2f73] text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-108 transition-transform duration-200">
-                  <Truck className="w-3.5 h-3.5" />
-                </div>
-
-                <div className="leading-tight">
-                  <div className="text-[9px] font-black text-[#ec2f73] uppercase tracking-wider flex items-center gap-1">
-                    <span>Deliver to</span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  </div>
-                  <div className="text-[11px] sm:text-xs font-black text-[#141219] flex items-center gap-1">
-                    <span className="truncate max-w-[105px]">
-                      {currentLoc.name}, {currentLoc.zip}
-                    </span>
-                    <ChevronDown
-                      className={`w-3 h-3 text-[#716d77] group-hover:text-[#ec2f73] transition-transform duration-200 ${isLocationOpen ? 'rotate-180 text-[#ec2f73]' : ''
-                        }`}
-                    />
-                  </div>
-                </div>
+                <span>Shop</span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isShopDropdownOpen ? 'rotate-180 text-[#D30915]' : 'text-[#716d77] group-hover:text-[#D30915]'}`} />
               </button>
 
-              {/* Enhanced Location Selector Dropdown Modal */}
-              {isLocationOpen && (
-                <div className="absolute top-full left-0 mt-2.5 w-80 p-4 bg-white/98 backdrop-blur-xl rounded-[24px] border border-[#f0dae7] shadow-[0_20px_50px_rgba(50,31,63,0.18)] z-50 animate-in fade-in zoom-in-95 duration-200">
+              {/* Luxury Mega Dropdown for Shop */}
+              {isShopDropdownOpen && (
+                <div className="absolute -left-12 lg:-left-20 top-full pt-2 w-[720px] xl:w-[760px] z-50 animate-in fade-in slide-in-from-top-2 duration-200 text-left">
+                  {/* Pointer Beak */}
+                  <div className="absolute top-0.5 left-16 w-3.5 h-3.5 bg-white border-t border-l border-[#f0dae7] rotate-45 z-20" />
 
-                  {/* Modal Header */}
-                  <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#f4edf2]">
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-[10px] bg-[#fff0f5] text-[#ec2f73] flex items-center justify-center border border-[#f5cad7]">
-                        <MapPin className="w-4 h-4" />
+                  {/* Dropdown Card */}
+                  <div className="relative p-5 bg-white/98 backdrop-blur-2xl rounded-[26px] border border-[#f0dae7] shadow-[0_24px_65px_rgba(50,20,35,0.15),0_4px_12px_rgba(211,9,21,0.04)] overflow-hidden">
+                    {/* Header Row inside Dropdown */}
+                    <div className="flex items-center justify-between pb-3 mb-3.5 border-b border-[#f4edf2]">
+                      <div className="flex items-center gap-2">
+                        <span className="flex h-2 w-2 relative">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#D30915] opacity-75" />
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-[#D30915]" />
+                        </span>
+                        <span className="text-[11px] font-black uppercase tracking-[0.14em] text-[#D30915]">
+                          Surprise Collections & Reveals
+                        </span>
                       </div>
-                      <div>
-                        <h4 className="text-xs font-black text-[#141219] m-0">Choose Delivery Location</h4>
-                        <p className="text-[10px] text-[#716d77] m-0">Instant dispatch rates & ETA</p>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setIsLocationOpen(false)}
-                      className="p-1 rounded-full text-[#8a858f] hover:text-[#141219] hover:bg-[#fbf4f7] transition-colors cursor-pointer"
-                      aria-label="Close location selector"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-
-                  {/* Direct ZIP Code Input Form */}
-                  <form onSubmit={handleApplyZip} className="mb-3">
-                    <div className="flex items-center gap-1.5">
-                      <input
-                        type="text"
-                        maxLength={5}
-                        pattern="[0-9]*"
-                        placeholder="Enter 5-digit US ZIP..."
-                        value={customZip}
-                        onChange={(e) => setCustomZip(e.target.value.replace(/\D/g, ''))}
-                        className="flex-1 min-w-0 h-[36px] px-3 rounded-[11px] bg-[#fff9fb] border border-[#ecdbe6] focus:border-[#ec2f73] focus:bg-white text-xs font-bold text-[#141219] placeholder:text-[#8a858f] outline-none transition-all"
-                      />
                       <button
-                        type="submit"
-                        disabled={customZip.trim().length !== 5}
-                        className="h-[36px] px-3.5 rounded-[11px] bg-[#ec2f73] hover:bg-[#d92467] disabled:opacity-45 disabled:cursor-not-allowed text-white text-xs font-black uppercase tracking-wider shadow-2xs active:scale-95 transition-all cursor-pointer shrink-0"
+                        type="button"
+                        onClick={() => {
+                          setIsShopDropdownOpen(false);
+                          onNavigate?.('shop');
+                        }}
+                        className="group/all text-xs font-bold text-[#716d77] hover:text-[#D30915] flex items-center gap-1.5 transition-colors cursor-pointer"
                       >
-                        Apply
+                        <span>View All 80+ Products</span>
+                        <ArrowRight className="w-3.5 h-3.5 group-hover/all:translate-x-0.5 transition-transform" />
                       </button>
                     </div>
-                  </form>
 
-                  {/* Quick Select Popular Metros */}
-                  <div className="space-y-1.5 max-h-[220px] overflow-y-auto pr-0.5">
-                    <span className="block text-[10px] font-black uppercase tracking-wider text-[#8a858f] px-1 mb-1">
-                      Popular Express Hubs
-                    </span>
+                    {/* Content: Balanced Left Grid + Right Editorial Card */}
+                    <div className="grid grid-cols-12 gap-4">
+                      {/* Left Section (7 cols): Neat 2-Column Grid of 6 Categories */}
+                      <div className="col-span-7 flex flex-col justify-between">
+                        <div className="grid grid-cols-2 gap-2">
+                          {categoriesData.map((cat) => {
+                            const meta = categoryMeta[cat.id];
+                            return (
+                              <button
+                                key={cat.id}
+                                type="button"
+                                onClick={() => {
+                                  setIsShopDropdownOpen(false);
+                                  if (onSelectCategory) {
+                                    onSelectCategory(cat.name);
+                                  } else {
+                                    onNavigate?.('shop');
+                                  }
+                                }}
+                                className="group/cat flex items-center gap-2.5 p-2 rounded-[14px] hover:bg-[#fff5f8] border border-transparent hover:border-[#fecdd3] hover:shadow-2xs transition-all cursor-pointer text-left"
+                              >
+                                {/* Category Thumbnail */}
+                                <div className="w-10 h-10 rounded-[11px] bg-[#fffafb] border border-[#f3e1eb] group-hover/cat:border-[#D30915]/30 group-hover/cat:scale-105 p-1 flex items-center justify-center shrink-0 overflow-hidden shadow-2xs transition-all">
+                                  <img
+                                    src={cat.image}
+                                    alt={cat.name}
+                                    className="w-full h-full object-contain rounded-[7px]"
+                                    loading="lazy"
+                                  />
+                                </div>
 
-                    {availableLocations.map((loc) => {
-                      const isSelected = currentLoc.zip === loc.zip;
-                      return (
-                        <button
-                          key={loc.zip}
-                          type="button"
+                                {/* Category Info */}
+                                <div className="min-w-0 flex-1">
+                                  <strong className="block text-[12.5px] font-bold text-[#141219] group-hover/cat:text-[#D30915] leading-tight tracking-tight transition-colors truncate">
+                                    {cat.name}
+                                  </strong>
+                                  <span className="block text-[10.5px] text-[#716d77] group-hover/cat:text-[#454249] leading-tight font-medium truncate mt-0.5">
+                                    {cat.tagline}
+                                  </span>
+                                  <span className="inline-block text-[10px] font-bold text-[#D30915] mt-0.5">
+                                    From {meta?.fromPrice || '$19.99'}
+                                  </span>
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* Quick Trending Searches Bar */}
+                        <div className="pt-2.5 mt-2 border-t border-[#f7edf3] flex items-center gap-1.5 text-[10.5px] text-[#716d77]">
+                          <span className="font-bold text-[#D30915] shrink-0">🔥 Trending:</span>
+                          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+                            {['Diamond Rings', 'Soda Pop Cash', 'Figurine Melts', 'Gift Sets'].map((tag) => (
+                              <button
+                                key={tag}
+                                type="button"
+                                onClick={() => {
+                                  setIsShopDropdownOpen(false);
+                                  onSearch?.(tag);
+                                }}
+                                className="px-2 py-0.5 rounded-full bg-[#faf5f8] hover:bg-[#fff0f3] hover:text-[#D30915] border border-[#f0e2eb] text-[9.5px] font-medium transition-colors cursor-pointer whitespace-nowrap"
+                              >
+                                {tag}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Right Section (5 cols): Single High-End Editorial Featured Card */}
+                      <div className="col-span-5 flex flex-col">
+                        <div
                           onClick={() => {
-                            setCurrentLoc(loc);
-                            setIsLocationOpen(false);
+                            setIsShopDropdownOpen(false);
+                            if (onSelectCategory) {
+                              onSelectCategory('Surprise Boxes');
+                            } else {
+                              onNavigate?.('shop');
+                            }
                           }}
-                          className={`w-full p-2.5 rounded-[13px] flex items-center justify-between text-left transition-all duration-150 cursor-pointer ${isSelected
-                            ? 'bg-[#fff0f5] border border-[#f5cad7] text-[#ec2f73] shadow-2xs'
-                            : 'hover:bg-[#fff9fb] text-[#141219] border border-[#f5e8ef] hover:border-[#f5dce6]'
-                            }`}
+                          className="h-full rounded-[20px] bg-gradient-to-br from-[#fff7f9] via-[#ffedf2] to-[#fde5eb] border border-[#fcd5df] p-3.5 flex flex-col justify-between shadow-2xs hover:shadow-md transition-all cursor-pointer group/spotlight relative overflow-hidden"
                         >
-                          <div className="flex items-center gap-2.5">
-                            <MapPin
-                              className={`w-3.5 h-3.5 shrink-0 ${isSelected ? 'text-[#ec2f73]' : 'text-[#817c85]'
-                                }`}
-                            />
-                            <div>
-                              <strong className="block text-xs font-black">
-                                {loc.name}, {loc.state} ({loc.zip})
-                              </strong>
-                              <span className="text-[10px] text-[#716d77] block font-medium">
-                                ETA: <span className="text-[#ec2f73] font-bold">{loc.eta}</span> • {loc.tag}
+                          <div>
+                            {/* Top Badge & Callout */}
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#D30915] text-white text-[9px] font-black uppercase tracking-wider shadow-2xs">
+                                <Sparkles className="w-2.5 h-2.5" />
+                                ★ Top Reveal
+                              </span>
+                              <span className="text-[9.5px] font-black text-[#D30915] bg-white/90 border border-[#fbdde4] px-2 py-0.5 rounded-full">
+                                Win Up to $7,500
                               </span>
                             </div>
-                          </div>
-                          {isSelected && (
-                            <div className="w-5 h-5 rounded-full bg-[#ec2f73] text-white flex items-center justify-center shrink-0">
-                              <Check className="w-3 h-3 stroke-[3]" />
+
+                            {/* Product Image */}
+                            <div className="w-full h-[110px] rounded-[13px] overflow-hidden mb-2.5 shadow-2xs border border-white/80 bg-white">
+                              <img
+                                src="/assets/ilovesurprises/hero/hero-lifestyle-reveal.jpg"
+                                alt="Mystery Box Spotlight"
+                                className="w-full h-full object-cover group-hover/spotlight:scale-105 transition-transform duration-500"
+                              />
                             </div>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
 
-                  {/* Free Shipping Footer Note */}
-                  <div className="mt-3 pt-2.5 border-t border-[#f4edf2] flex items-center justify-between text-[10px] font-bold text-[#716d77]">
-                    <span>🚚 Free Shipping on orders $50+</span>
-                    <span className="text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
-                      Live Rate
-                    </span>
-                  </div>
+                            <strong className="block text-[13px] font-black text-[#141219] leading-tight mb-1 group-hover/spotlight:text-[#D30915] transition-colors">
+                              Mystery Jewelry Box
+                            </strong>
+                            <p className="text-[10.5px] text-[#716d77] leading-snug m-0 font-medium line-clamp-2">
+                              Guaranteed genuine diamond or gold jewelry revealed inside every box.
+                            </p>
+                          </div>
 
+                          <div className="mt-3 pt-2.5 border-t border-[#f7d3dd] flex items-center justify-between">
+                            <div>
+                              <span className="block text-[8.5px] font-bold uppercase text-[#9e97a2] tracking-wider leading-none">Starts At</span>
+                              <span className="text-[13px] font-black text-[#D30915] leading-none">$39.99</span>
+                            </div>
+                            <span className="text-[10px] font-bold text-white bg-[#D30915] group-hover/spotlight:bg-[#b60711] group-hover/spotlight:scale-102 px-3 py-1.5 rounded-full shadow-2xs transition-all flex items-center gap-1">
+                              <span>Shop Now</span>
+                              <ArrowRight className="w-3 h-3 group-hover/spotlight:translate-x-0.5 transition-transform" />
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bottom Strip: 4 Key Guarantees */}
+                    <div className="mt-3.5 pt-2.5 border-t border-[#f4edf2] flex items-center justify-between text-[10.5px] font-bold text-[#635f6a] bg-[#faf5f8] -mx-5 -mb-5 px-5 py-2.5">
+                      <span className="flex items-center gap-1.5">
+                        <span className="text-[#D30915]">💎</span>
+                        <span>Real Jewelry Inside</span>
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <Truck className="w-3.5 h-3.5 text-[#D30915]" />
+                        <span>Free Shipping $75+</span>
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <Gift className="w-3.5 h-3.5 text-[#D30915]" />
+                        <span>Gift-Ready Box</span>
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <ShieldCheck className="w-3.5 h-3.5 text-[#D30915]" />
+                        <span>100% Guaranteed</span>
+                      </span>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
-          </div>
 
-          {/* Center Block: Desktop Primary Horizontal Navigation Menu (Centered in Desktop Mode) */}
-          <nav
-            className="hidden lg:flex items-center justify-center gap-0.5 xl:gap-1.5 bg-white/90 backdrop-blur-md px-2 xl:px-3 py-1 rounded-[16px] border border-[#f2e7ee] shadow-2xs lg:absolute lg:left-1/2 lg:top-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 z-10"
-            aria-label="Main Navigation"
-          >
-            {NAV_LINKS.map((item) => {
-              const isActive = (activeView && activeView === item.id) || (!activeView && activeNavId === item.id);
-              return (
-                <a
-                  key={item.id}
-                  href={item.href}
-                  onClick={(e) => handleNavClick(e, item)}
-                  className={`group relative flex items-center px-3 xl:px-3.5 py-1.5 rounded-[12px] text-[13px] xl:text-[14px] font-extrabold transition-all duration-200 select-none whitespace-nowrap ${isActive
-                    ? 'text-[#ec2f73] bg-[#fff0f5] border border-[#f5cad7] shadow-2xs'
-                    : 'text-[#36323d] hover:text-[#ec2f73] hover:bg-[#fff5f8] border border-transparent'
-                    }`}
-                  aria-current={isActive ? 'page' : undefined}
-                >
-                  <span>{item.label}</span>
-                </a>
-              );
-            })}
+            {/* 2. Candles */}
+            <button
+              type="button"
+              onClick={() => {
+                if (onSelectCategory) {
+                  onSelectCategory('Jewelry Candles');
+                } else {
+                  onNavigate?.('shop');
+                }
+              }}
+              className="px-2 xl:px-2.5 py-1.5 rounded-[12px] text-[12.5px] xl:text-[13px] font-bold text-[#141219] hover:text-[#D30915] transition-colors cursor-pointer select-none whitespace-nowrap"
+            >
+              Candles
+            </button>
+
+            {/* 3. Surprise Boxes (placed near Candles) */}
+            <button
+              type="button"
+              onClick={() => {
+                if (onSelectCategory) {
+                  onSelectCategory('Surprise Boxes');
+                } else {
+                  onNavigate?.('shop');
+                }
+              }}
+              className="px-2 xl:px-2.5 py-1.5 rounded-[12px] text-[12.5px] xl:text-[13px] font-bold text-[#141219] hover:text-[#D30915] transition-colors cursor-pointer select-none whitespace-nowrap"
+            >
+              Surprise Boxes
+            </button>
+
+            {/* 4. Mystery Jewelry */}
+            <button
+              type="button"
+              onClick={() => {
+                if (onSelectCategory) {
+                  onSelectCategory('Cash Jewelry');
+                } else {
+                  onNavigate?.('shop');
+                }
+              }}
+              className="px-2 xl:px-2.5 py-1.5 rounded-[12px] text-[12.5px] xl:text-[13px] font-bold text-[#141219] hover:text-[#D30915] transition-colors cursor-pointer select-none whitespace-nowrap"
+            >
+              Mystery Jewelry
+            </button>
+
+            {/* 5. Rewards */}
+            <button
+              type="button"
+              onClick={() => {
+                onNavigate?.('rewards');
+              }}
+              className={`px-2 xl:px-2.5 py-1.5 rounded-[12px] text-[12.5px] xl:text-[13px] font-bold transition-colors cursor-pointer select-none whitespace-nowrap ${activeView === 'rewards'
+                ? 'text-[#D30915] font-black'
+                : 'text-[#141219] hover:text-[#D30915]'
+                }`}
+            >
+              Rewards
+            </button>
           </nav>
 
-          {/* Right Header Actions: Search Icon Button, Account, Cart & Mobile Hamburger Button */}
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          {/* Right Header Actions: Search, Login, Join for $20/mo Button, Cart & Hamburger */}
+          <div className="relative z-30 flex items-center gap-1.5 sm:gap-2 shrink-0">
 
-            {/* Search Icon Trigger Button (DEFAULT: ONLY THE SEARCH ICON IS VISIBLE) */}
+            {/* Search Icon Trigger Button - High Contrast & Guaranteed Visibility */}
             <button
               ref={searchButtonRef}
               type="button"
               onClick={() => setIsSearchOpen((prev) => !prev)}
-              className={`flex items-center justify-center w-[36px] sm:w-[38px] h-[36px] sm:h-[38px] rounded-[11px] sm:rounded-[13px] border transition-all duration-200 cursor-pointer shadow-2xs ${isSearchOpen
-                ? 'bg-[#fff0f5] border-[#ec2f73] text-[#ec2f73] ring-2 ring-[#ec2f73]/15'
-                : 'bg-[#fffafb] border-[#f0e4ec] text-[#141219] hover:text-[#ec2f73] hover:border-[#ec2f73]'
+              className={`flex items-center justify-center w-[36px] sm:w-[38px] h-[36px] sm:h-[38px] rounded-full border transition-all duration-200 cursor-pointer shadow-xs ${isSearchOpen
+                ? 'bg-[#fff1f2] border-[#D30915] text-[#D30915] ring-2 ring-[#D30915]/20'
+                : 'bg-white border-[#e8dfe5] text-[#141219] hover:text-[#D30915] hover:border-[#D30915] hover:bg-[#fff9fb]'
                 }`}
               title={isSearchOpen ? 'Close search' : 'Search catalog'}
               aria-label={isSearchOpen ? 'Close search' : 'Open search'}
               aria-expanded={isSearchOpen}
             >
               {isSearchOpen ? (
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4 stroke-[2.5]" />
               ) : (
-                <Search className="w-4 h-4" />
+                <Search className="w-4 h-4 sm:w-[17px] sm:h-[17px] stroke-[2.5]" />
               )}
             </button>
 
-            {/* When NOT logged in: Single Login Button */}
+            {/* When NOT logged in: Login Button matching Reference */}
             {!user ? (
               <button
                 type="button"
                 onClick={() => onOpenAuth?.('login')}
-                className="hidden sm:flex items-center gap-1.5 h-[38px] px-4 rounded-[13px] bg-[#fff0f5] border border-[#f5cad7] hover:border-[#ec2f73] hover:bg-[#ec2f73] hover:text-white text-xs font-black text-[#ec2f73] transition-all shadow-2xs cursor-pointer select-none"
+                className="hidden sm:flex items-center gap-1.5 h-[36px] sm:h-[38px] px-2.5 sm:px-3 rounded-full hover:bg-[#fff1f2] text-xs sm:text-[13px] font-bold text-[#141219] hover:text-[#D30915] transition-colors cursor-pointer select-none shrink-0"
               >
-                <User className="w-3.5 h-3.5" />
+                <User className="w-3.5 h-3.5 text-[#141219]" />
                 <span>Login</span>
               </button>
             ) : (
               /* When LOGGED IN: User Profile Pill */
-              <div ref={userMenuRef} className="relative">
+              <div ref={userMenuRef} className="relative shrink-0">
                 <button
                   type="button"
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center gap-1.5 h-[38px] p-1 sm:p-1.5 pr-2 rounded-[13px] sm:rounded-[14px] bg-[#fffafc] border border-[#f5cad7] hover:border-[#ec2f73] shadow-2xs transition-all cursor-pointer text-left"
+                  className="flex items-center gap-1.5 h-[36px] sm:h-[38px] p-1 sm:p-1.5 pr-2 rounded-[13px] sm:rounded-[14px] bg-[#fffafc] border border-[#fecdd3] hover:border-[#D30915] shadow-2xs transition-all cursor-pointer text-left"
                   aria-haspopup="true"
                   aria-expanded={isUserMenuOpen}
                 >
                   <img
                     src={user.avatar || '/assets/ilovesurprises/Profile/profile%20image.webp'}
                     alt={user.name}
-                    className="w-6 h-6 rounded-full object-cover border border-[#ec2f73]"
+                    className="w-6 h-6 rounded-full object-cover border border-[#D30915]"
                   />
 
-                  <div className="leading-tight hidden sm:block">
+                  <div className="leading-tight hidden 2xl:block">
                     <span className="block text-xs font-black text-[#141219] truncate max-w-[85px]">
                       {user.name.split(' ')[0]}
                     </span>
                   </div>
 
                   <ChevronDown
-                    className={`w-3 h-3 text-[#716d77] transition-transform ${isUserMenuOpen ? 'rotate-180 text-[#ec2f73]' : ''
+                    className={`w-3 h-3 text-[#716d77] transition-transform ${isUserMenuOpen ? 'rotate-180 text-[#D30915]' : ''
                       }`}
                   />
                 </button>
@@ -777,7 +969,7 @@ export const Header: React.FC<HeaderProps> = ({
                         {user.name}
                       </strong>
                       <span className="text-[10px] text-[#716d77] block truncate">{user.email}</span>
-                      <span className="inline-block mt-1 text-[9px] font-black uppercase text-[#ec2f73] bg-white px-2 py-0.5 rounded-full border border-[#f5cad7]">
+                      <span className="inline-block mt-1 text-[9px] font-black uppercase text-[#D30915] bg-white px-2 py-0.5 rounded-full border border-[#fecdd3]">
                         {user.role === 'representative' ? '★ Active Representative' : '💎 VIP Member'}
                       </span>
                     </div>
@@ -796,9 +988,9 @@ export const Header: React.FC<HeaderProps> = ({
                               icon: Users,
                             });
                           }}
-                          className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff0f5] hover:text-[#ec2f73] transition-colors"
+                          className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff1f2] hover:text-[#D30915] transition-colors"
                         >
-                          <Users className="w-3.5 h-3.5 text-[#ec2f73]" />
+                          <Users className="w-3.5 h-3.5 text-[#D30915]" />
                           <span>Rep Portal Dashboard</span>
                         </a>
                       )}
@@ -814,9 +1006,9 @@ export const Header: React.FC<HeaderProps> = ({
                             onNavigate?.('home');
                           }
                         }}
-                        className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff0f5] hover:text-[#ec2f73] transition-colors"
+                        className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff1f2] hover:text-[#D30915] transition-colors"
                       >
-                        <User className="w-3.5 h-3.5 text-[#ec2f73]" />
+                        <User className="w-3.5 h-3.5 text-[#D30915]" />
                         <span>My Account & Profile</span>
                       </a>
 
@@ -831,7 +1023,7 @@ export const Header: React.FC<HeaderProps> = ({
                             onNavigate?.('home');
                           }
                         }}
-                        className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff0f5] hover:text-[#ec2f73] transition-colors"
+                        className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff1f2] hover:text-[#D30915] transition-colors"
                       >
                         <PackageCheck className="w-3.5 h-3.5 text-emerald-600" />
                         <span>My Surprise Orders</span>
@@ -848,7 +1040,7 @@ export const Header: React.FC<HeaderProps> = ({
                             onNavigate?.('home');
                           }
                         }}
-                        className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff0f5] hover:text-[#ec2f73] transition-colors"
+                        className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff1f2] hover:text-[#D30915] transition-colors"
                       >
                         <MapPin className="w-3.5 h-3.5 text-purple-600" />
                         <span>Saved Addresses</span>
@@ -865,9 +1057,9 @@ export const Header: React.FC<HeaderProps> = ({
                             onNavigate?.('home');
                           }
                         }}
-                        className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff0f5] hover:text-[#ec2f73] transition-colors"
+                        className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff1f2] hover:text-[#D30915] transition-colors"
                       >
-                        <Heart className="w-3.5 h-3.5 text-[#ec2f73]" />
+                        <Heart className="w-3.5 h-3.5 text-[#D30915]" />
                         <span>My Wishlist</span>
                       </a>
 
@@ -882,10 +1074,27 @@ export const Header: React.FC<HeaderProps> = ({
                             onNavigate?.('home');
                           }
                         }}
-                        className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff0f5] hover:text-[#ec2f73] transition-colors"
+                        className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff1f2] hover:text-[#D30915] transition-colors"
                       >
                         <User className="w-3.5 h-3.5 text-stone-500" />
                         <span>Account Settings</span>
+                      </a>
+
+                      <a
+                        href="/admin"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setIsUserMenuOpen(false);
+                          if (onNavigateToAdmin) {
+                            onNavigateToAdmin();
+                          } else {
+                            onNavigate?.('admin');
+                          }
+                        }}
+                        className="flex items-center gap-2 p-2 rounded-[10px] bg-[#fffbfd] hover:bg-[#fff1f2] text-[#D30915] font-black transition-colors"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-[#D30915]" />
+                        <span>Admin Suite Portal</span>
                       </a>
 
                       <div className="pt-1.5 border-t border-[#f4edf2]">
@@ -907,29 +1116,70 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             )}
 
-            {/* Shopping Cart Button */}
+            {/* Join for $19.99/mo CTA Button OR My Storefront when Subscribed */}
+            {isConsultantSubscribed ? (
+              <button
+                type="button"
+                onClick={() => {
+                  if (onNavigateToAffiliate) {
+                    onNavigateToAffiliate();
+                  } else {
+                    onNavigate?.('affiliate');
+                  }
+                }}
+                className="hidden sm:inline-flex items-center gap-1.5 h-[36px] sm:h-[38px] px-3 sm:px-3.5 rounded-full bg-[#059669] hover:bg-[#047857] text-white text-xs sm:text-[13px] font-bold shadow-2xs hover:shadow-[0_4px_16px_rgba(5,150,105,0.25)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all cursor-pointer whitespace-nowrap select-none shrink-0"
+                title="Go to My Consultant Storefront Portal"
+              >
+                <Store className="w-3.5 h-3.5" />
+                <span>My Storefront</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  if (onOpenSubscription) {
+                    onOpenSubscription();
+                  } else if (onNavigateToAffiliate) {
+                    onNavigateToAffiliate();
+                  } else {
+                    onNavigate?.('affiliate');
+                  }
+                }}
+                className="hidden sm:inline-flex items-center gap-1.5 h-[36px] sm:h-[38px] px-3 sm:px-3.5 rounded-full bg-[#D30915] hover:bg-[#b60711] text-white text-xs sm:text-[13px] font-bold shadow-2xs hover:shadow-[0_6px_20px_rgba(211,9,21,0.28)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all cursor-pointer whitespace-nowrap select-none shrink-0"
+                title="Join for $19.99/month"
+              >
+                <span>Join for $19.99/mo</span>
+                <Users className="w-3.5 h-3.5" />
+              </button>
+            )}
+
+            {/* Shopping Cart Button right near Join for $20/month button */}
             <button
               type="button"
               onClick={onOpenCart}
-              className="relative flex items-center justify-center w-[36px] sm:w-[42px] h-[36px] sm:h-[38px] rounded-[11px] sm:rounded-[13px] bg-gradient-to-r from-[#ec2f73] to-[#d92467] hover:from-[#d92467] hover:to-[#c21a57] text-white shadow-[0_4px_14px_rgba(236,47,115,0.25)] active:scale-95 transition-all cursor-pointer border border-[#f386ad]"
+              className="flex items-center justify-center gap-1.5 sm:gap-2 h-[36px] sm:h-[38px] px-3 sm:px-3.5 rounded-full bg-[#fffafc] hover:bg-[#fff0f3] text-[#141219] hover:text-[#D30915] border border-[#fecdd3] hover:border-[#D30915] shadow-2xs hover:shadow-[0_4px_16px_rgba(211,9,21,0.15)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all cursor-pointer select-none shrink-0"
               aria-label={`Shopping cart with ${cartCount} items`}
             >
-              <ShoppingBag className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
-              {cartCount > 0 && (
-                <span
-                  key={cartCount}
-                  className="badge-pulse absolute -top-1.5 -right-1.5 min-w-[17px] h-[17px] px-1 rounded-full bg-white text-[#ec2f73] text-[9px] font-black flex items-center justify-center shadow-xs border border-[#f5cad7]"
-                >
-                  {cartCount}
-                </span>
-              )}
+              <ShoppingBag className="w-4 h-4 sm:w-[17px] sm:h-[17px] text-[#D30915] shrink-0" />
+              <span className="text-xs sm:text-[13px] font-extrabold tracking-tight">
+                Cart
+              </span>
+              <span
+                key={cartCount}
+                className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-black transition-colors shrink-0 ${cartCount > 0
+                  ? 'bg-[#D30915] text-white shadow-xs'
+                  : 'bg-[#f5e8ef] text-[#716d77]'
+                  }`}
+              >
+                {cartCount}
+              </span>
             </button>
 
             {/* Mobile 3-Lines Hamburger Menu Button */}
             <button
               type="button"
               onClick={openMobileMenu}
-              className="lg:hidden w-[36px] h-[36px] rounded-[11px] bg-[#fffafb] border border-[#f0e4ec] text-[#141219] hover:text-[#ec2f73] hover:border-[#ec2f73] active:scale-95 transition-all cursor-pointer focus:outline-none flex items-center justify-center shadow-2xs"
+              className="xl:hidden w-[36px] h-[36px] rounded-[11px] bg-[#fffafb] border border-[#f0e4ec] text-[#141219] hover:text-[#D30915] hover:border-[#D30915] active:scale-95 transition-all cursor-pointer focus:outline-none flex items-center justify-center shadow-2xs shrink-0"
               aria-label="Open navigation menu"
               aria-expanded={isMobileMenuOpen}
             >
@@ -943,7 +1193,7 @@ export const Header: React.FC<HeaderProps> = ({
         {isSearchOpen && (
           <div
             ref={searchPopupRef}
-            className="absolute top-full right-2 sm:right-6 lg:right-auto lg:left-1/2 lg:-translate-x-1/2 mt-1.5 w-[calc(100vw-20px)] sm:w-[500px] md:w-[580px] max-w-[620px] bg-white/98 backdrop-blur-xl rounded-[20px] border-2 border-[#f5cad7] shadow-[0_16px_40px_rgba(50,31,63,0.18)] p-3 sm:p-4 z-50 animate-in fade-in zoom-in-95 duration-200 ease-out isolate"
+            className="absolute top-full right-2 sm:right-6 lg:right-auto lg:left-1/2 lg:-translate-x-1/2 mt-1.5 w-[calc(100vw-20px)] sm:w-[500px] md:w-[580px] max-w-[620px] bg-white/98 backdrop-blur-xl rounded-[20px] border-2 border-[#fecdd3] shadow-[0_16px_40px_rgba(50,31,63,0.18)] p-3 sm:p-4 z-50 animate-in fade-in zoom-in-95 duration-200 ease-out isolate"
             role="search"
             aria-label="Site Search"
           >
@@ -953,9 +1203,9 @@ export const Header: React.FC<HeaderProps> = ({
                 e.preventDefault();
                 executeSearch();
               }}
-              className="relative flex items-center w-full h-[44px] rounded-[14px] bg-[#fff9fb] border border-[#eedbe6] focus-within:border-[#ec2f73] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#ec2f73]/15 transition-all px-3 shadow-2xs"
+              className="relative flex items-center w-full h-[44px] rounded-[14px] bg-[#fff9fb] border border-[#eedbe6] focus-within:border-[#D30915] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#D30915]/15 transition-all px-3 shadow-2xs"
             >
-              <Search className="w-4 h-4 text-[#ec2f73] shrink-0 mr-2" />
+              <Search className="w-4 h-4 text-[#D30915] shrink-0 mr-2" />
               <input
                 ref={searchInputRef}
                 type="search"
@@ -971,7 +1221,7 @@ export const Header: React.FC<HeaderProps> = ({
                 type="button"
                 onClick={startVoiceSearch}
                 title="Search by voice"
-                className="p-1 rounded-full text-[#8a858f] hover:text-[#ec2f73] hover:bg-[#fff0f5] transition-colors shrink-0 ml-1 cursor-pointer"
+                className="p-1 rounded-full text-[#8a858f] hover:text-[#D30915] hover:bg-[#fff1f2] transition-colors shrink-0 ml-1 cursor-pointer"
                 aria-label="Voice search"
               >
                 <Mic className="w-3.5 h-3.5" />
@@ -990,7 +1240,7 @@ export const Header: React.FC<HeaderProps> = ({
 
               <button
                 type="submit"
-                className="ml-2 px-3.5 py-1.5 rounded-[10px] bg-[#ec2f73] hover:bg-[#d92467] text-white text-xs font-black uppercase tracking-wider transition-all cursor-pointer shrink-0 shadow-2xs active:scale-95"
+                className="ml-2 px-3.5 py-1.5 rounded-[10px] bg-[#D30915] hover:bg-[#B60711] text-white text-xs font-black uppercase tracking-wider transition-all cursor-pointer shrink-0 shadow-2xs active:scale-95"
               >
                 Search
               </button>
@@ -999,7 +1249,7 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Quick Trending Searches */}
             <div className="mt-2.5 pt-2.5 border-t border-[#f4edf2]">
               <div className="flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-[#8a858f] mb-1.5">
-                <Sparkles className="w-3 h-3 text-[#ec2f73]" />
+                <Sparkles className="w-3 h-3 text-[#D30915]" />
                 <span>Popular Searches:</span>
               </div>
               <div className="flex flex-wrap gap-1.5">
@@ -1008,7 +1258,7 @@ export const Header: React.FC<HeaderProps> = ({
                     key={tag}
                     type="button"
                     onClick={() => handleSelectTag(tag)}
-                    className="px-2.5 py-1 rounded-[8px] bg-[#fff0f5] hover:bg-[#ec2f73] text-[#ec2f73] hover:text-white border border-[#f5cad7] text-[11px] font-bold transition-all cursor-pointer shadow-2xs"
+                    className="px-2.5 py-1 rounded-[8px] bg-[#fff1f2] hover:bg-[#D30915] text-[#D30915] hover:text-white border border-[#fecdd3] text-[11px] font-bold transition-all cursor-pointer shadow-2xs"
                   >
                     {tag}
                   </button>
@@ -1021,7 +1271,7 @@ export const Header: React.FC<HeaderProps> = ({
               <div className="mt-2.5 pt-2.5 border-t border-[#f4edf2] max-h-[220px] overflow-y-auto space-y-1.5 pr-1">
                 <div className="text-[10px] font-black uppercase tracking-wider text-[#8a858f] mb-1 flex items-center justify-between">
                   <span>Matching Products</span>
-                  <span className="text-[#ec2f73] font-bold">{matchingProducts.length} items</span>
+                  <span className="text-[#D30915] font-bold">{matchingProducts.length} items</span>
                 </div>
                 {matchingProducts.slice(0, 4).map((p) => (
                   <div
@@ -1035,7 +1285,7 @@ export const Header: React.FC<HeaderProps> = ({
                         handleSelectProduct(p);
                       }
                     }}
-                    className="p-1.5 sm:p-2 rounded-[10px] hover:bg-[#fff0f5] flex items-center justify-between transition-colors cursor-pointer group"
+                    className="p-1.5 sm:p-2 rounded-[10px] hover:bg-[#fff1f2] flex items-center justify-between transition-colors cursor-pointer group"
                   >
                     <div className="flex items-center gap-2 min-w-0">
                       <img
@@ -1044,7 +1294,7 @@ export const Header: React.FC<HeaderProps> = ({
                         className="w-9 h-9 rounded-[8px] object-cover shrink-0 border border-[#eee0e8]"
                       />
                       <div className="min-w-0">
-                        <p className="text-xs font-bold text-[#141219] group-hover:text-[#ec2f73] truncate m-0">
+                        <p className="text-xs font-bold text-[#141219] group-hover:text-[#D30915] truncate m-0">
                           {p.name}
                         </p>
                         <p className="text-[10px] text-[#716d77] m-0">
@@ -1052,7 +1302,7 @@ export const Header: React.FC<HeaderProps> = ({
                         </p>
                       </div>
                     </div>
-                    <ArrowRight className="w-3.5 h-3.5 text-[#ec2f73] opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                    <ArrowRight className="w-3.5 h-3.5 text-[#D30915] opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
                   </div>
                 ))}
               </div>
@@ -1064,7 +1314,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={() => setIsSearchOpen(false)}
-                className="text-[#ec2f73] font-bold hover:underline cursor-pointer"
+                className="text-[#D30915] font-bold hover:underline cursor-pointer"
               >
                 Close Search
               </button>
@@ -1092,7 +1342,7 @@ export const Header: React.FC<HeaderProps> = ({
           >
             {/* Drawer Top Header */}
             <div>
-              <div className="p-4 border-b border-[#f4edf2] flex items-center justify-between bg-gradient-to-r from-[#fff3f7] to-[#ffffff]">
+              <div className="p-4 border-b border-[#f4edf2] flex items-center justify-between bg-gradient-to-r from-[#fff5f5] to-[#ffffff]">
                 <a
                   href="/"
                   onClick={(e) =>
@@ -1108,16 +1358,16 @@ export const Header: React.FC<HeaderProps> = ({
                   aria-label="Home"
                 >
                   <img
-                    src="/assets/ilovesurprises/logo/i love surprises logo.jpeg"
+                    src="/assets/ilovesurprises/logo/New logo.jpeg"
                     alt="I Love Surprises Logo"
-                    className="h-9 w-auto object-contain"
+                    className="h-[41px] w-auto max-w-[195px] object-contain"
                   />
                 </a>
 
                 <button
                   type="button"
                   onClick={() => closeMobileMenu()}
-                  className="w-9 h-9 rounded-full bg-white border border-[#ecdbe6] hover:bg-[#fff0f5] hover:text-[#ec2f73] text-[#716d77] flex items-center justify-center transition-colors cursor-pointer"
+                  className="w-9 h-9 rounded-full bg-white border border-[#ecdbe6] hover:bg-[#fff1f2] hover:text-[#D30915] text-[#716d77] flex items-center justify-center transition-colors cursor-pointer"
                   aria-label="Close navigation menu"
                 >
                   <X className="w-4 h-4 stroke-[2.5]" />
@@ -1126,7 +1376,7 @@ export const Header: React.FC<HeaderProps> = ({
 
               {/* Drawer Search Trigger */}
               <div className="p-3 bg-[#fffafc] border-b border-[#f5e8ef]">
-                <div className="w-full h-[40px] rounded-[13px] bg-white border border-[#ecdbe6] hover:border-[#ec2f73] flex items-center px-3 shadow-2xs">
+                <div className="w-full h-[40px] rounded-[13px] bg-white border border-[#ecdbe6] hover:border-[#D30915] flex items-center px-3 shadow-2xs">
                   <button
                     type="button"
                     onClick={() => {
@@ -1135,7 +1385,7 @@ export const Header: React.FC<HeaderProps> = ({
                     }}
                     className="flex items-center flex-1 min-w-0 text-left cursor-pointer"
                   >
-                    <Search className="w-4 h-4 text-[#ec2f73] shrink-0 mr-2" />
+                    <Search className="w-4 h-4 text-[#D30915] shrink-0 mr-2" />
                     <span className="w-full text-xs text-[#817c85] font-medium truncate">
                       {searchQuery || 'Search all surprise products...'}
                     </span>
@@ -1146,11 +1396,38 @@ export const Header: React.FC<HeaderProps> = ({
                       closeMobileMenu();
                       startVoiceSearch();
                     }}
-                    className="p-1 text-[#8a858f] hover:text-[#ec2f73] cursor-pointer"
+                    className="p-1 text-[#8a858f] hover:text-[#D30915] cursor-pointer"
                   >
                     <Mic className="w-3.5 h-3.5" />
                   </button>
                 </div>
+              </div>
+
+              {/* Drawer Cart Quick Link */}
+              <div className="px-3 pt-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    closeMobileMenu();
+                    onOpenCart?.();
+                  }}
+                  className="w-full min-h-[44px] px-3.5 py-2.5 rounded-[14px] bg-gradient-to-r from-[#D30915] to-[#B60711] hover:from-[#B60711] hover:to-[#96050e] text-white flex items-center justify-between font-bold text-sm shadow-md active:scale-98 transition-all cursor-pointer"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <ShoppingBag className="w-4 h-4" />
+                    <span>Shopping Cart</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="bg-white text-[#D30915] text-xs font-black px-2 py-0.5 rounded-full shadow-xs">
+                      {cartCount} {cartCount === 1 ? 'item' : 'items'}
+                    </span>
+                    {cartSubtotal > 0 && (
+                      <span className="text-white/90 text-xs font-bold">
+                        ${cartSubtotal.toFixed(2)}
+                      </span>
+                    )}
+                  </div>
+                </button>
               </div>
 
               {/* Drawer Navigation Links */}
@@ -1169,7 +1446,7 @@ export const Header: React.FC<HeaderProps> = ({
                         href={item.href}
                         onClick={(e) => handleNavClick(e, item)}
                         className={`w-full min-h-[48px] px-3.5 py-2.5 rounded-[14px] flex items-center justify-between text-left font-bold text-sm transition-all duration-200 cursor-pointer ${isActive
-                          ? 'bg-[#fff0f5] text-[#ec2f73] border border-[#f5cad7] shadow-2xs font-black'
+                          ? 'bg-[#fff1f2] text-[#D30915] border border-[#fecdd3] shadow-2xs font-black'
                           : 'hover:bg-[#fff9fb] text-[#141219] border border-transparent'
                           }`}
                         aria-current={isActive ? 'page' : undefined}
@@ -1177,8 +1454,8 @@ export const Header: React.FC<HeaderProps> = ({
                         <div className="flex items-center gap-3">
                           <div
                             className={`w-8 h-8 rounded-[10px] flex items-center justify-center transition-colors ${isActive
-                              ? 'bg-[#ec2f73] text-white shadow-xs'
-                              : 'bg-[#fff0f5] text-[#ec2f73]'
+                              ? 'bg-[#D30915] text-white shadow-xs'
+                              : 'bg-[#fff1f2] text-[#D30915]'
                               }`}
                           >
                             <IconComponent className="w-4 h-4" />
@@ -1187,7 +1464,7 @@ export const Header: React.FC<HeaderProps> = ({
                         </div>
 
                         <ArrowRight
-                          className={`w-3.5 h-3.5 transition-transform ${isActive ? 'text-[#ec2f73] translate-x-0.5' : 'text-[#beb8c2]'
+                          className={`w-3.5 h-3.5 transition-transform ${isActive ? 'text-[#D30915] translate-x-0.5' : 'text-[#beb8c2]'
                             }`}
                         />
                       </a>
@@ -1200,7 +1477,7 @@ export const Header: React.FC<HeaderProps> = ({
               <div className="p-3 border-t border-[#f4edf2]">
                 <div className="p-2.5 rounded-[14px] bg-[#fff8fb] border border-[#f5e4ec]">
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-[#ec2f73] flex items-center gap-1">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-[#D30915] flex items-center gap-1">
                       <Truck className="w-3 h-3" />
                       <span>Express Shipping Hub</span>
                     </span>
@@ -1216,7 +1493,7 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
 
             {/* Drawer Footer: Account Actions & Support */}
-            <div className="p-4 border-t border-[#f4edf2] bg-gradient-to-b from-[#fffafc] to-[#fff3f7] space-y-3">
+            <div className="p-4 border-t border-[#f4edf2] bg-gradient-to-b from-[#fffafc] to-[#fff5f5] space-y-3">
               {/* Account Status */}
               {!user ? (
                 <button
@@ -1225,19 +1502,19 @@ export const Header: React.FC<HeaderProps> = ({
                     closeMobileMenu();
                     onOpenAuth?.('login');
                   }}
-                  className="w-full h-[42px] px-3.5 rounded-[12px] bg-[#fff0f5] border border-[#f5cad7] hover:border-[#ec2f73] hover:bg-[#ec2f73] hover:text-white text-[#ec2f73] text-xs font-black shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-2 select-none"
+                  className="w-full h-[42px] px-3.5 rounded-[12px] bg-[#fff1f2] border border-[#fecdd3] hover:border-[#D30915] hover:bg-[#D30915] hover:text-white text-[#D30915] text-xs font-black shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-2 select-none"
                 >
                   <User className="w-4 h-4" />
                   <span>Login</span>
                 </button>
               ) : (
-                <div className="p-2.5 bg-white rounded-[14px] border border-[#f5cad7] shadow-2xs space-y-2">
+                <div className="p-2.5 bg-white rounded-[14px] border border-[#fecdd3] shadow-2xs space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5 min-w-0">
                       <img
                         src={user.avatar || '/assets/ilovesurprises/Profile/profile%20image.webp'}
                         alt={user.name}
-                        className="w-8 h-8 rounded-full object-cover border border-[#ec2f73] shrink-0"
+                        className="w-8 h-8 rounded-full object-cover border border-[#D30915] shrink-0"
                       />
                       <div className="min-w-0">
                         <strong className="block text-xs font-black text-[#141219] truncate">
@@ -1246,7 +1523,7 @@ export const Header: React.FC<HeaderProps> = ({
                         <span className="text-[10px] text-[#716d77] block truncate">{user.email}</span>
                       </div>
                     </div>
-                    <span className="text-[9px] font-black uppercase text-[#ec2f73] bg-[#fff0f5] px-2 py-0.5 rounded-full border border-[#f5cad7] shrink-0">
+                    <span className="text-[9px] font-black uppercase text-[#D30915] bg-[#fff1f2] px-2 py-0.5 rounded-full border border-[#fecdd3] shrink-0">
                       {user.role === 'representative' ? '20% Rep' : 'VIP'}
                     </span>
                   </div>
@@ -1262,9 +1539,9 @@ export const Header: React.FC<HeaderProps> = ({
                           onNavigate?.('home');
                         }
                       }}
-                      className="p-1.5 rounded-[8px] bg-[#fffafc] hover:bg-[#fff0f5] hover:text-[#ec2f73] flex items-center gap-1.5 cursor-pointer text-left"
+                      className="p-1.5 rounded-[8px] bg-[#fffafc] hover:bg-[#fff1f2] hover:text-[#D30915] flex items-center gap-1.5 cursor-pointer text-left"
                     >
-                      <User className="w-3 h-3 text-[#ec2f73]" />
+                      <User className="w-3 h-3 text-[#D30915]" />
                       <span>Account</span>
                     </button>
 
@@ -1278,7 +1555,7 @@ export const Header: React.FC<HeaderProps> = ({
                           onNavigate?.('home');
                         }
                       }}
-                      className="p-1.5 rounded-[8px] bg-[#fffafc] hover:bg-[#fff0f5] hover:text-[#ec2f73] flex items-center gap-1.5 cursor-pointer text-left"
+                      className="p-1.5 rounded-[8px] bg-[#fffafc] hover:bg-[#fff1f2] hover:text-[#D30915] flex items-center gap-1.5 cursor-pointer text-left"
                     >
                       <PackageCheck className="w-3 h-3 text-emerald-600" />
                       <span>Orders</span>
@@ -1294,7 +1571,7 @@ export const Header: React.FC<HeaderProps> = ({
                           onNavigate?.('home');
                         }
                       }}
-                      className="p-1.5 rounded-[8px] bg-[#fffafc] hover:bg-[#fff0f5] hover:text-[#ec2f73] flex items-center gap-1.5 cursor-pointer text-left"
+                      className="p-1.5 rounded-[8px] bg-[#fffafc] hover:bg-[#fff1f2] hover:text-[#D30915] flex items-center gap-1.5 cursor-pointer text-left"
                     >
                       <MapPin className="w-3 h-3 text-purple-600" />
                       <span>Addresses</span>
@@ -1310,12 +1587,28 @@ export const Header: React.FC<HeaderProps> = ({
                           onNavigate?.('home');
                         }
                       }}
-                      className="p-1.5 rounded-[8px] bg-[#fffafc] hover:bg-[#fff0f5] hover:text-[#ec2f73] flex items-center gap-1.5 cursor-pointer text-left"
+                      className="p-1.5 rounded-[8px] bg-[#fffafc] hover:bg-[#fff1f2] hover:text-[#D30915] flex items-center gap-1.5 cursor-pointer text-left"
                     >
-                      <Heart className="w-3 h-3 text-[#ec2f73]" />
+                      <Heart className="w-3 h-3 text-[#D30915]" />
                       <span>Wishlist</span>
                     </button>
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      closeMobileMenu();
+                      if (onNavigateToAdmin) {
+                        onNavigateToAdmin();
+                      } else {
+                        onNavigate?.('admin');
+                      }
+                    }}
+                    className="w-full h-[32px] rounded-[10px] bg-[#fff1f2] text-[#D30915] hover:bg-[#ffe5ef] text-xs font-black transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Admin Suite Portal</span>
+                  </button>
 
                   <button
                     type="button"
@@ -1335,16 +1628,16 @@ export const Header: React.FC<HeaderProps> = ({
               <div className="pt-2 border-t border-[#f2e6ee] flex items-center justify-between text-[10px] font-bold text-[#716d77]">
                 <a
                   href="tel:18007877747"
-                  className="flex items-center gap-1 hover:text-[#ec2f73] transition-colors"
+                  className="flex items-center gap-1 hover:text-[#D30915] transition-colors"
                 >
                   <Phone className="w-3 h-3 text-emerald-600" />
                   <span>1-800-SURPRISE</span>
                 </a>
                 <a
                   href="mailto:support@ilovesurprises.com"
-                  className="flex items-center gap-1 hover:text-[#ec2f73] transition-colors"
+                  className="flex items-center gap-1 hover:text-[#D30915] transition-colors"
                 >
-                  <Mail className="w-3 h-3 text-[#ec2f73]" />
+                  <Mail className="w-3 h-3 text-[#D30915]" />
                   <span>Email Help</span>
                 </a>
               </div>
@@ -1364,7 +1657,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={closeVoiceModal}
-              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#fff5f8] hover:bg-[#ec2f73] text-[#716d77] hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-xs border border-[#f5cad7]"
+              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#fff5f8] hover:bg-[#D30915] text-[#716d77] hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-xs border border-[#fecdd3]"
               aria-label="Close voice search"
             >
               <X className="w-4 h-4 stroke-[2.5]" />
@@ -1372,7 +1665,7 @@ export const Header: React.FC<HeaderProps> = ({
 
             {/* Voice Status Heading */}
             <div className="mb-6">
-              <span className="inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider text-[#ec2f73] bg-[#fff0f5] px-3 py-1 rounded-full border border-[#f5cad7] mb-2">
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider text-[#D30915] bg-[#fff1f2] px-3 py-1 rounded-full border border-[#fecdd3] mb-2">
                 <Volume2 className="w-3.5 h-3.5" />
                 <span>Voice Search</span>
               </span>
@@ -1388,13 +1681,13 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="relative my-4 flex items-center justify-center w-40 h-40">
               {/* Outer Ripple Wave 1 */}
               <div
-                className={`absolute w-36 h-36 rounded-full bg-[#ec2f73]/15 transition-all duration-1000 ${isListening ? 'animate-ping' : 'scale-90 opacity-20'
+                className={`absolute w-36 h-36 rounded-full bg-[#D30915]/15 transition-all duration-1000 ${isListening ? 'animate-ping' : 'scale-90 opacity-20'
                   }`}
               />
 
               {/* Middle Ripple Wave 2 */}
               <div
-                className={`absolute w-28 h-28 rounded-full bg-[#ec2f73]/25 transition-all duration-700 ${isListening ? 'animate-pulse' : 'scale-90 opacity-40'
+                className={`absolute w-28 h-28 rounded-full bg-[#D30915]/25 transition-all duration-700 ${isListening ? 'animate-pulse' : 'scale-90 opacity-40'
                   }`}
               />
 
@@ -1402,9 +1695,9 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={startVoiceSearch}
-                className={`relative z-10 w-20 h-20 rounded-full flex items-center justify-center text-white shadow-[0_10px_30px_rgba(236,47,115,0.45)] transition-transform duration-200 cursor-pointer active:scale-95 ${isListening
-                  ? 'bg-gradient-to-tr from-[#ec2f73] via-[#ff4081] to-[#ff2a6d] scale-105'
-                  : 'bg-gradient-to-tr from-[#716d77] to-[#36323d] hover:bg-[#ec2f73]'
+                className={`relative z-10 w-20 h-20 rounded-full flex items-center justify-center text-white shadow-[0_10px_30px_rgba(211, 9, 21,0.45)] transition-transform duration-200 cursor-pointer active:scale-95 ${isListening
+                  ? 'bg-gradient-to-tr from-[#D30915] via-[#ff4081] to-[#ff2a6d] scale-105'
+                  : 'bg-gradient-to-tr from-[#716d77] to-[#36323d] hover:bg-[#D30915]'
                   }`}
                 title={isListening ? 'Listening... Tap to stop' : 'Tap to start speaking'}
                 aria-label="Toggle voice search"
@@ -1416,11 +1709,11 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Sound Equalizer Waveform Bars */}
             {isListening && (
               <div className="flex items-center gap-1.5 h-6 mb-4">
-                <span className="w-1 bg-[#ec2f73] rounded-full animate-[pulse_0.6s_ease-in-out_infinite] h-3" />
-                <span className="w-1 bg-[#ec2f73] rounded-full animate-[pulse_0.4s_ease-in-out_infinite_0.1s] h-6" />
-                <span className="w-1 bg-[#ec2f73] rounded-full animate-[pulse_0.7s_ease-in-out_infinite_0.2s] h-4" />
-                <span className="w-1 bg-[#ec2f73] rounded-full animate-[pulse_0.5s_ease-in-out_infinite_0.15s] h-5" />
-                <span className="w-1 bg-[#ec2f73] rounded-full animate-[pulse_0.6s_ease-in-out_infinite_0.3s] h-3" />
+                <span className="w-1 bg-[#D30915] rounded-full animate-[pulse_0.6s_ease-in-out_infinite] h-3" />
+                <span className="w-1 bg-[#D30915] rounded-full animate-[pulse_0.4s_ease-in-out_infinite_0.1s] h-6" />
+                <span className="w-1 bg-[#D30915] rounded-full animate-[pulse_0.7s_ease-in-out_infinite_0.2s] h-4" />
+                <span className="w-1 bg-[#D30915] rounded-full animate-[pulse_0.5s_ease-in-out_infinite_0.15s] h-5" />
+                <span className="w-1 bg-[#D30915] rounded-full animate-[pulse_0.6s_ease-in-out_infinite_0.3s] h-3" />
               </div>
             )}
 
@@ -1428,7 +1721,7 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="w-full bg-[#fff9fb] border border-[#f5d8e4] rounded-[18px] p-3.5 min-h-[56px] flex items-center justify-center">
               <p className="text-sm font-bold text-[#141219] break-words">
                 {voiceFeedback ? (
-                  <span className="text-[#ec2f73] font-black">&ldquo;{voiceFeedback}&rdquo;</span>
+                  <span className="text-[#D30915] font-black">&ldquo;{voiceFeedback}&rdquo;</span>
                 ) : (
                   <span className="text-[#8a858f] text-xs">Speak now... e.g. &ldquo;Classic Cola Cash Candle&rdquo;</span>
                 )}
@@ -1449,7 +1742,7 @@ export const Header: React.FC<HeaderProps> = ({
                       setVoiceFeedback(phrase);
                       executeSearch(phrase);
                     }}
-                    className="px-2.5 py-1 rounded-[10px] bg-white hover:bg-[#ec2f73] text-[#ec2f73] hover:text-white border border-[#f5cad7] text-xs font-bold transition-all shadow-2xs cursor-pointer"
+                    className="px-2.5 py-1 rounded-[10px] bg-white hover:bg-[#D30915] text-[#D30915] hover:text-white border border-[#fecdd3] text-xs font-bold transition-all shadow-2xs cursor-pointer"
                   >
                     &ldquo;{phrase}&rdquo;
                   </button>

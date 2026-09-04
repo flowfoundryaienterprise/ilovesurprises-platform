@@ -123,11 +123,11 @@ export const Account: React.FC<AccountProps> = ({
       <div className="min-h-[75vh] bg-[#fcf9fb] py-16 flex items-center justify-center">
         <div className="max-w-md w-full mx-auto px-4 text-center animate-in fade-in zoom-in-95 duration-200">
           <div className="bg-white rounded-[28px] p-8 border border-[#eedbe6] shadow-[0_16px_40px_rgba(50,31,63,0.06)]">
-            <div className="w-16 h-16 rounded-full bg-[#fff0f5] border-2 border-[#f5cad7] text-[#ec2f73] flex items-center justify-center mx-auto mb-4 shadow-xs">
+            <div className="w-16 h-16 rounded-full bg-[#fff1f2] border-2 border-[#fecdd3] text-[#D30915] flex items-center justify-center mx-auto mb-4 shadow-xs">
               <User className="w-8 h-8" />
             </div>
 
-            <span className="inline-block text-[11px] font-black uppercase tracking-wider text-[#ec2f73] bg-[#fff0f5] px-3 py-1 rounded-full border border-[#f5cad7] mb-2">
+            <span className="inline-block text-[11px] font-black uppercase tracking-wider text-[#D30915] bg-[#fff1f2] px-3 py-1 rounded-full border border-[#fecdd3] mb-2">
               VIP Customer Portal
             </span>
 
@@ -143,7 +143,7 @@ export const Account: React.FC<AccountProps> = ({
               <button
                 type="button"
                 onClick={() => onOpenAuth('login')}
-                className="w-full h-[46px] rounded-[14px] bg-[#ec2f73] hover:bg-[#d92467] text-white font-black text-xs uppercase tracking-wider shadow-[0_8px_20px_rgba(236,47,115,0.28)] active:scale-97 transition-all cursor-pointer flex items-center justify-center gap-2"
+                className="w-full h-[46px] rounded-[14px] bg-[#D30915] hover:bg-[#B60711] text-white font-black text-xs uppercase tracking-wider shadow-[0_8px_20px_rgba(211, 9, 21,0.28)] active:scale-97 transition-all cursor-pointer flex items-center justify-center gap-2"
               >
                 <Lock className="w-3.5 h-3.5" />
                 <span>Sign In to Continue</span>
@@ -152,7 +152,7 @@ export const Account: React.FC<AccountProps> = ({
               <button
                 type="button"
                 onClick={() => onOpenAuth('signup')}
-                className="w-full h-[44px] rounded-[14px] bg-white border border-[#e8dfe5] hover:border-[#ec2f73] hover:text-[#ec2f73] font-black text-xs uppercase tracking-wider text-[#141219] transition-all cursor-pointer"
+                className="w-full h-[44px] rounded-[14px] bg-white border border-[#e8dfe5] hover:border-[#D30915] hover:text-[#D30915] font-black text-xs uppercase tracking-wider text-[#141219] transition-all cursor-pointer"
               >
                 Create New VIP Account
               </button>

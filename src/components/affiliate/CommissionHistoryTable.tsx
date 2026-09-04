@@ -16,8 +16,8 @@ interface CommissionHistoryTableProps {
 
 const LEVEL_OPTIONS: AffiliateSelectOption[] = [
   { value: 'all', label: 'All Levels (1-5 + Personal)' },
-  { value: 'personal', label: 'Personal Direct', badge: '20%', badgeColor: 'bg-[#fff0f5] text-[#ec2f73]' },
-  { value: '1', label: 'Level 1 Direct', badge: '5%', badgeColor: 'bg-pink-50 text-pink-700' },
+  { value: 'personal', label: 'Personal Direct', badge: '20%', badgeColor: 'bg-[#fff1f2] text-[#D30915]' },
+  { value: '1', label: 'Level 1 Direct', badge: '5%', badgeColor: 'bg-red-50 text-red-700' },
   { value: '2', label: 'Level 2 Sponsor', badge: '4%', badgeColor: 'bg-purple-50 text-purple-700' },
   { value: '3', label: 'Level 3 Sponsor', badge: '3%', badgeColor: 'bg-blue-50 text-blue-700' },
   { value: '4', label: 'Level 4 Sponsor', badge: '2%', badgeColor: 'bg-amber-50 text-amber-700' },
@@ -121,7 +121,7 @@ export const CommissionHistoryTable: React.FC<CommissionHistoryTableProps> = ({
   const getTierPill = (level: CommissionTierLevel) => {
     if (level === 'personal') {
       return (
-        <span className="text-[9px] sm:text-[10px] font-black uppercase text-[#ec2f73] bg-[#fff0f5] px-2 py-0.5 rounded-md border border-[#f5cad7]">
+        <span className="text-[9px] sm:text-[10px] font-black uppercase text-[#D30915] bg-[#fff1f2] px-2 py-0.5 rounded-md border border-[#fecdd3]">
           Personal 20%
         </span>
       );
@@ -138,7 +138,7 @@ export const CommissionHistoryTable: React.FC<CommissionHistoryTableProps> = ({
       {/* Header & Export Toolbar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#f5eaf1]">
         <div>
-          <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-black uppercase tracking-wider text-[#ec2f73]">
+          <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-black uppercase tracking-wider text-[#D30915]">
             <DollarSign className="w-3.5 h-3.5" />
             <span>Commissions Ledger</span>
           </div>
@@ -154,7 +154,7 @@ export const CommissionHistoryTable: React.FC<CommissionHistoryTableProps> = ({
           type="button"
           onClick={handleExportCSV}
           disabled={filteredCommissions.length === 0}
-          className="h-[36px] sm:h-[38px] px-3.5 sm:px-4 rounded-[12px] bg-white border border-[#eedbe6] hover:border-[#ec2f73] text-[#55505a] hover:text-[#ec2f73] text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-2xs self-start sm:self-auto cursor-pointer disabled:opacity-50 w-full sm:w-auto"
+          className="h-[36px] sm:h-[38px] px-3.5 sm:px-4 rounded-[12px] bg-white border border-[#eedbe6] hover:border-[#D30915] text-[#55505a] hover:text-[#D30915] text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-2xs self-start sm:self-auto cursor-pointer disabled:opacity-50 w-full sm:w-auto"
         >
           <Download className="w-3.5 h-3.5" />
           <span>Export CSV</span>
@@ -171,7 +171,7 @@ export const CommissionHistoryTable: React.FC<CommissionHistoryTableProps> = ({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search order ID, customer name, or scent..."
-            className="w-full h-[40px] sm:h-[42px] pl-9 pr-8 rounded-[13px] bg-white border border-[#eedbe6] focus:border-[#ec2f73] focus:ring-2 focus:ring-[#ec2f73]/10 text-xs text-[#141219] outline-none shadow-2xs transition-all"
+            className="w-full h-[40px] sm:h-[42px] pl-9 pr-8 rounded-[13px] bg-white border border-[#eedbe6] focus:border-[#D30915] focus:ring-2 focus:ring-[#D30915]/10 text-xs text-[#141219] outline-none shadow-2xs transition-all"
           />
           {search && (
             <button

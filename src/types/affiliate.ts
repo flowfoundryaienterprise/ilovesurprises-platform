@@ -40,7 +40,6 @@ export interface ReferralMember {
   id: string;
   name: string;
   email: string;
-  mobile?: string;
   avatar?: string;
   repUsername: string;
   level: 1 | 2 | 3 | 4 | 5;

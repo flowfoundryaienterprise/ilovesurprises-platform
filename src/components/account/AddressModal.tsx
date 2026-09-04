@@ -199,7 +199,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
       <div className="relative w-full max-w-lg max-h-[88vh] bg-white rounded-[26px] p-5 sm:p-7 border border-[#eedbe6] shadow-2xl animate-modal-pop my-auto overflow-y-auto">
         <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-[#f4edf2]">
           <div>
-            <span className="text-[10px] font-black uppercase tracking-wider text-[#ec2f73] block">
+            <span className="text-[10px] font-black uppercase tracking-wider text-[#D30915] block">
               Shipping Destination
             </span>
             <h3 className="text-base sm:text-lg font-black text-[#141219] m-0 font-display">
@@ -209,7 +209,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-stone-100 hover:bg-[#fff0f5] text-[#716d77] hover:text-[#ec2f73] flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-stone-100 hover:bg-[#fff1f2] text-[#716d77] hover:text-[#D30915] flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -217,14 +217,14 @@ export const AddressModal: React.FC<AddressModalProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-3.5">
           {/* Map Pinpoint Helper */}
-          <div className="flex items-center justify-between p-2.5 rounded-[14px] bg-[#fffafc] border border-[#f5cad7]">
+          <div className="flex items-center justify-between p-2.5 rounded-[14px] bg-[#fffafc] border border-[#fecdd3]">
             <span className="text-[11px] font-bold text-[#716d77]">
               Want to auto-fill your delivery coordinates?
             </span>
             <button
               type="button"
               onClick={() => setIsMapOpen(true)}
-              className="h-[30px] px-2.5 rounded-[8px] bg-white hover:bg-[#fff0f5] text-[#ec2f73] border border-[#f5cad7] text-[11px] font-black transition-all flex items-center gap-1 cursor-pointer"
+              className="h-[30px] px-2.5 rounded-[8px] bg-white hover:bg-[#fff1f2] text-[#D30915] border border-[#fecdd3] text-[11px] font-black transition-all flex items-center gap-1 cursor-pointer"
             >
               <MapPin className="w-3 h-3" />
               <span>Choose on Map</span>
@@ -248,7 +248,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
 
             <div>
               <label className="block text-xs font-bold text-[#141219] mb-1">
-                Recipient Full Name <span className="text-[#ec2f73]">*</span>
+                Recipient Full Name <span className="text-[#D30915]">*</span>
               </label>
               <input
                 type="text"
@@ -267,7 +267,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
           {/* Phone */}
           <div>
             <label className="block text-xs font-bold text-[#141219] mb-1">
-              Recipient Mobile Phone <span className="text-[#ec2f73]">*</span>
+              Recipient Mobile Phone <span className="text-[#D30915]">*</span>
             </label>
             <input
               type="tel"
@@ -286,7 +286,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
           {/* Street Address */}
           <div>
             <label className="block text-xs font-bold text-[#141219] mb-1">
-              Street Address <span className="text-[#ec2f73]">*</span>
+              Street Address <span className="text-[#D30915]">*</span>
             </label>
             <input
               type="text"
@@ -358,7 +358,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
             ) : (
               <div>
                 <label className="block text-xs font-bold text-[#141219] mb-1">
-                  City / Town <span className="text-[#ec2f73]">*</span>
+                  City / Town <span className="text-[#D30915]">*</span>
                 </label>
                 <input
                   type="text"
@@ -375,7 +375,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-bold text-[#141219] mb-1">
-                ZIP / Postal Code <span className="text-[#ec2f73]">*</span>
+                ZIP / Postal Code <span className="text-[#D30915]">*</span>
               </label>
               <input
                 type="text"
@@ -410,7 +410,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
               type="checkbox"
               checked={form.isDefault}
               onChange={(e) => setForm({ ...form, isDefault: e.target.checked })}
-              className="w-4 h-4 rounded text-[#ec2f73] accent-[#ec2f73]"
+              className="w-4 h-4 rounded text-[#D30915] accent-[#D30915]"
             />
             <span className="text-xs text-[#55505a] font-bold">
               Set as primary / default shipping address
@@ -428,7 +428,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
             </button>
             <button
               type="submit"
-              className="h-[38px] px-6 rounded-[11px] bg-[#ec2f73] hover:bg-[#d92467] text-white font-black text-xs uppercase shadow-xs cursor-pointer"
+              className="h-[38px] px-6 rounded-[11px] bg-[#D30915] hover:bg-[#B60711] text-white font-black text-xs uppercase shadow-xs cursor-pointer"
             >
               Save Address
             </button>

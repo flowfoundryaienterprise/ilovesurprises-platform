@@ -106,9 +106,9 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
       {/* Centered Logo & Header */}
       <div className="text-center mb-4">
         <img
-          src="/assets/ilovesurprises/logo/i love surprises logo.jpeg"
+          src="/assets/ilovesurprises/logo/New logo.jpeg"
           alt="I Love Surprises Logo"
-          className="h-10 sm:h-12 w-auto max-w-[180px] sm:max-w-[210px] mx-auto object-contain mb-2"
+          className="h-[49px] sm:h-[57px] w-auto max-w-[225px] sm:max-w-[265px] mx-auto object-contain mb-2.5"
           loading="eager"
         />
         <h2 className="text-xl sm:text-2xl font-black text-[#141219] tracking-tight m-0 font-display">
@@ -128,12 +128,12 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
       )}
 
       {/* Account Type Toggle */}
-      <div className="grid grid-cols-2 p-1 rounded-[13px] bg-[#fff0f5] border border-[#f5cad7] mb-3.5">
+      <div className="grid grid-cols-2 p-1 rounded-[13px] bg-[#fff1f2] border border-[#fecdd3] mb-3.5">
         <button
           type="button"
           onClick={() => setRole('customer')}
           className={`py-1.5 rounded-[10px] text-xs font-black transition-all cursor-pointer ${role === 'customer'
-              ? 'bg-white text-[#ec2f73] shadow-xs'
+              ? 'bg-white text-[#D30915] shadow-xs'
               : 'text-[#716d77] hover:text-[#141219]'
             }`}
         >
@@ -143,7 +143,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
           type="button"
           onClick={() => setRole('representative')}
           className={`py-1.5 rounded-[10px] text-xs font-black transition-all cursor-pointer ${role === 'representative'
-              ? 'bg-white text-[#ec2f73] shadow-xs'
+              ? 'bg-white text-[#D30915] shadow-xs'
               : 'text-[#716d77] hover:text-[#141219]'
             }`}
         >
@@ -156,7 +156,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
         {/* Full Name */}
         <div>
           <label htmlFor="signup-name" className="block text-[11px] sm:text-xs font-bold text-[#141219] mb-1">
-            Full Name <span className="text-[#ec2f73]">*</span>
+            Full Name <span className="text-[#D30915]">*</span>
           </label>
           <div className="relative">
             <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8a858f] pointer-events-none">
@@ -176,7 +176,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
               }}
               className={`w-full h-[40px] sm:h-[42px] pl-10 pr-3 rounded-[12px] bg-[#fffafb] border text-xs sm:text-sm font-medium text-[#141219] placeholder:text-[#9c95a0] transition-all outline-none disabled:opacity-50 ${errors.name
                   ? 'border-red-400 focus:border-red-500 focus:bg-white focus:ring-2 focus:ring-red-100'
-                  : 'border-[#ebdce5] hover:border-[#f1b8cb] focus:border-[#ec2f73] focus:bg-white focus:ring-2 focus:ring-[#ec2f73]/10'
+                  : 'border-[#ebdce5] hover:border-[#f1b8cb] focus:border-[#D30915] focus:bg-white focus:ring-2 focus:ring-[#D30915]/10'
                 }`}
             />
           </div>
@@ -191,7 +191,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
         {/* Email Address */}
         <div>
           <label htmlFor="signup-email" className="block text-[11px] sm:text-xs font-bold text-[#141219] mb-1">
-            Email Address <span className="text-[#ec2f73]">*</span>
+            Email Address <span className="text-[#D30915]">*</span>
           </label>
           <div className="relative">
             <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8a858f] pointer-events-none">
@@ -212,7 +212,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
               }}
               className={`w-full h-[40px] sm:h-[42px] pl-10 pr-3 rounded-[12px] bg-[#fffafb] border text-xs sm:text-sm font-medium text-[#141219] placeholder:text-[#9c95a0] transition-all outline-none disabled:opacity-50 ${errors.email
                   ? 'border-red-400 focus:border-red-500 focus:bg-white focus:ring-2 focus:ring-red-100'
-                  : 'border-[#ebdce5] hover:border-[#f1b8cb] focus:border-[#ec2f73] focus:bg-white focus:ring-2 focus:ring-[#ec2f73]/10'
+                  : 'border-[#ebdce5] hover:border-[#f1b8cb] focus:border-[#D30915] focus:bg-white focus:ring-2 focus:ring-[#D30915]/10'
                 }`}
             />
           </div>
@@ -227,7 +227,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
         {/* Mobile Number */}
         <div>
           <label htmlFor="signup-mobile" className="block text-[11px] sm:text-xs font-bold text-[#141219] mb-1">
-            Mobile Number <span className="text-[#ec2f73]">*</span>
+            Mobile Number <span className="text-[#D30915]">*</span>
           </label>
           <div className="relative">
             <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8a858f] pointer-events-none">
@@ -248,7 +248,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
               }}
               className={`w-full h-[40px] sm:h-[42px] pl-10 pr-3 rounded-[12px] bg-[#fffafb] border text-xs sm:text-sm font-medium text-[#141219] placeholder:text-[#9c95a0] transition-all outline-none disabled:opacity-50 ${errors.mobile
                   ? 'border-red-400 focus:border-red-500 focus:bg-white focus:ring-2 focus:ring-red-100'
-                  : 'border-[#ebdce5] hover:border-[#f1b8cb] focus:border-[#ec2f73] focus:bg-white focus:ring-2 focus:ring-[#ec2f73]/10'
+                  : 'border-[#ebdce5] hover:border-[#f1b8cb] focus:border-[#D30915] focus:bg-white focus:ring-2 focus:ring-[#D30915]/10'
                 }`}
             />
           </div>
@@ -266,7 +266,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
             <label htmlFor="signup-rep" className="block text-[11px] sm:text-xs font-bold text-[#141219] mb-1">
               Vanity URL Handle
             </label>
-            <div className="flex items-center rounded-[12px] bg-[#fffafb] border border-[#ebdce5] focus-within:border-[#ec2f73] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#ec2f73]/10 overflow-hidden">
+            <div className="flex items-center rounded-[12px] bg-[#fffafb] border border-[#ebdce5] focus-within:border-[#D30915] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#D30915]/10 overflow-hidden">
               <span className="px-2.5 py-2 text-[10px] font-mono text-[#716d77] bg-stone-100 border-r border-[#ebdce5] select-none">
                 ilovesurprises.com/rep/
               </span>
@@ -276,7 +276,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
                 placeholder="yourname"
                 value={repUsername}
                 onChange={(e) => setRepUsername(e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ''))}
-                className="w-full h-[38px] px-2.5 bg-transparent text-xs font-bold text-[#ec2f73] outline-none font-mono"
+                className="w-full h-[38px] px-2.5 bg-transparent text-xs font-bold text-[#D30915] outline-none font-mono"
               />
             </div>
           </div>
@@ -339,7 +339,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full h-[44px] sm:h-[46px] rounded-[14px] bg-gradient-to-r from-[#ec2f73] to-[#d92467] hover:from-[#d92467] hover:to-[#c21a57] text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-[0_8px_22px_rgba(236,47,115,0.28)] hover:shadow-[0_12px_28px_rgba(236,47,115,0.38)] active:scale-97 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 mt-3.5"
+          className="w-full h-[44px] sm:h-[46px] rounded-[14px] bg-gradient-to-r from-[#D30915] to-[#B60711] hover:from-[#B60711] hover:to-[#c21a57] text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-[0_8px_22px_rgba(211, 9, 21,0.28)] hover:shadow-[0_12px_28px_rgba(211, 9, 21,0.38)] active:scale-97 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 mt-3.5"
         >
           {isLoading ? (
             <div className="flex items-center gap-2">
@@ -362,7 +362,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
           <button
             type="button"
             onClick={onSwitchToLogin}
-            className="text-xs font-black text-[#ec2f73] hover:underline focus:outline-none cursor-pointer ml-1"
+            className="text-xs font-black text-[#D30915] hover:underline focus:outline-none cursor-pointer ml-1"
           >
             Login
           </button>

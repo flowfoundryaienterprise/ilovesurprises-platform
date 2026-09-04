@@ -21,16 +21,16 @@ interface OrderSuccessAnimationProps {
 // Celebration particles around the success badge (12 luxury metallic dots, diamonds & rings)
 const PARTICLES = [
   { id: 1, tx: '-54px', ty: '-52px', s: '1.2', r: '240deg', color: '#f59e0b', icon: '●' },
-  { id: 2, tx: '56px', ty: '-50px', s: '1.3', r: '180deg', color: '#ec2f73', icon: '◆' },
+  { id: 2, tx: '56px', ty: '-50px', s: '1.3', r: '180deg', color: '#D30915', icon: '◆' },
   { id: 3, tx: '-64px', ty: '0px', s: '1.0', r: '120deg', color: '#10b981', icon: '●' },
   { id: 4, tx: '66px', ty: '12px', s: '1.1', r: '300deg', color: '#f59e0b', icon: '◆' },
-  { id: 5, tx: '-44px', ty: '56px', s: '1.2', r: '210deg', color: '#ec2f73', icon: '◆' },
+  { id: 5, tx: '-44px', ty: '56px', s: '1.2', r: '210deg', color: '#D30915', icon: '◆' },
   { id: 6, tx: '48px', ty: '54px', s: '1.3', r: '150deg', color: '#10b981', icon: '●' },
-  { id: 7, tx: '0px', ty: '-68px', s: '1.1', r: '360deg', color: '#ec2f73', icon: '●' },
+  { id: 7, tx: '0px', ty: '-68px', s: '1.1', r: '360deg', color: '#D30915', icon: '●' },
   { id: 8, tx: '0px', ty: '68px', s: '1.2', r: '180deg', color: '#f59e0b', icon: '◆' },
   { id: 9, tx: '-32px', ty: '-62px', s: '0.9', r: '90deg', color: '#10b981', icon: '●' },
   { id: 10, tx: '36px', ty: '-60px', s: '0.9', r: '270deg', color: '#f59e0b', icon: '◆' },
-  { id: 11, tx: '-60px', ty: '34px', s: '1.0', r: '45deg', color: '#ec2f73', icon: '●' },
+  { id: 11, tx: '-60px', ty: '34px', s: '1.0', r: '45deg', color: '#D30915', icon: '●' },
   { id: 12, tx: '62px', ty: '36px', s: '1.0', r: '315deg', color: '#10b981', icon: '◆' },
 ];
 
@@ -78,7 +78,7 @@ export const OrderSuccessAnimation: React.FC<OrderSuccessAnimationProps> = ({
       <div className="relative bg-white rounded-[32px] p-6 sm:p-12 border border-[#eedbe6] shadow-[0_16px_50px_rgba(50,31,63,0.06)] overflow-hidden">
         
         {/* Ambient background glow & confetti flares */}
-        <div className="absolute -top-32 -left-32 w-64 h-64 rounded-full bg-[#ec2f73]/8 blur-3xl pointer-events-none" />
+        <div className="absolute -top-32 -left-32 w-64 h-64 rounded-full bg-[#D30915]/8 blur-3xl pointer-events-none" />
         <div className="absolute -bottom-32 -right-32 w-64 h-64 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-emerald-400/5 blur-3xl pointer-events-none anim-aura-pulse" />
 
@@ -172,7 +172,7 @@ export const OrderSuccessAnimation: React.FC<OrderSuccessAnimationProps> = ({
             Order Placed Successfully!
           </h1>
 
-          <p className="text-sm sm:text-base text-[#ec2f73] font-bold m-0 flex items-center justify-center gap-1.5">
+          <p className="text-sm sm:text-base text-[#D30915] font-bold m-0 flex items-center justify-center gap-1.5">
             <span>Your surprise is on its way!</span>
             <span className="text-lg">🎁</span>
           </p>
@@ -187,15 +187,15 @@ export const OrderSuccessAnimation: React.FC<OrderSuccessAnimationProps> = ({
         <div className="anim-stagger-2 mt-7 space-y-4">
           
           {/* Order Reference Pill with 1-Click Copy */}
-          <div className="inline-flex items-center gap-2 p-1.5 pl-4 pr-2 rounded-[16px] bg-[#fffafc] border border-[#f5cad7] shadow-2xs">
+          <div className="inline-flex items-center gap-2 p-1.5 pl-4 pr-2 rounded-[16px] bg-[#fffafc] border border-[#fecdd3] shadow-2xs">
             <span className="text-xs font-bold text-[#716d77]">Order Reference:</span>
-            <span className="text-xs sm:text-sm font-mono font-black text-[#ec2f73] tracking-wide">
+            <span className="text-xs sm:text-sm font-mono font-black text-[#D30915] tracking-wide">
               {order.id}
             </span>
             <button
               type="button"
               onClick={handleCopyOrderId}
-              className="p-1.5 rounded-[10px] bg-white border border-[#ecdbe6] hover:bg-[#fff0f5] text-[#716d77] hover:text-[#ec2f73] transition-colors cursor-pointer active:scale-95"
+              className="p-1.5 rounded-[10px] bg-white border border-[#ecdbe6] hover:bg-[#fff1f2] text-[#716d77] hover:text-[#D30915] transition-colors cursor-pointer active:scale-95"
               title="Copy Order ID"
               aria-label="Copy Order Reference ID"
             >
@@ -207,7 +207,7 @@ export const OrderSuccessAnimation: React.FC<OrderSuccessAnimationProps> = ({
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 p-4 sm:p-5 rounded-[22px] bg-[#fffbfd] border border-[#eedbe6] text-left">
             
             {/* Total Paid */}
-            <div className="p-3 rounded-[16px] bg-white border border-[#f4e6ee] shadow-2xs transition-all hover:border-[#ec2f73]/40">
+            <div className="p-3 rounded-[16px] bg-white border border-[#f4e6ee] shadow-2xs transition-all hover:border-[#D30915]/40">
               <span className="text-[10px] font-black uppercase text-[#716d77] block mb-0.5">
                 {isCod ? 'Amount Due' : 'Total Paid'}
               </span>
@@ -220,11 +220,11 @@ export const OrderSuccessAnimation: React.FC<OrderSuccessAnimationProps> = ({
             </div>
 
             {/* Surprise Items */}
-            <div className="p-3 rounded-[16px] bg-white border border-[#f4e6ee] shadow-2xs transition-all hover:border-[#ec2f73]/40">
+            <div className="p-3 rounded-[16px] bg-white border border-[#f4e6ee] shadow-2xs transition-all hover:border-[#D30915]/40">
               <span className="text-[10px] font-black uppercase text-[#716d77] block mb-0.5">
                 Surprise Box
               </span>
-              <span className="text-base sm:text-lg font-black text-[#ec2f73] tracking-tight">
+              <span className="text-base sm:text-lg font-black text-[#D30915] tracking-tight">
                 {order.items.reduce((sum, item) => sum + item.quantity, 0)} Item{order.items.length > 1 ? 's' : ''}
               </span>
               <span className="block text-[10px] font-bold text-stone-600 truncate mt-0.5">
@@ -233,7 +233,7 @@ export const OrderSuccessAnimation: React.FC<OrderSuccessAnimationProps> = ({
             </div>
 
             {/* Delivery Method */}
-            <div className="p-3 rounded-[16px] bg-white border border-[#f4e6ee] shadow-2xs transition-all hover:border-[#ec2f73]/40">
+            <div className="p-3 rounded-[16px] bg-white border border-[#f4e6ee] shadow-2xs transition-all hover:border-[#D30915]/40">
               <span className="text-[10px] font-black uppercase text-[#716d77] block mb-0.5">
                 Delivery Speed
               </span>
@@ -246,7 +246,7 @@ export const OrderSuccessAnimation: React.FC<OrderSuccessAnimationProps> = ({
             </div>
 
             {/* Estimated Arrival */}
-            <div className="p-3 rounded-[16px] bg-white border border-[#f4e6ee] shadow-2xs transition-all hover:border-[#ec2f73]/40">
+            <div className="p-3 rounded-[16px] bg-white border border-[#f4e6ee] shadow-2xs transition-all hover:border-[#D30915]/40">
               <span className="text-[10px] font-black uppercase text-[#716d77] block mb-0.5">
                 Est. Arrival
               </span>
@@ -288,7 +288,7 @@ export const OrderSuccessAnimation: React.FC<OrderSuccessAnimationProps> = ({
             <button
               type="button"
               onClick={onNavigateToShop}
-              className="group h-[38px] sm:h-[40px] px-4 sm:px-5 rounded-[13px] sm:rounded-full bg-gradient-to-r from-[#ec2f73] via-[#e5286e] to-[#d81f62] hover:brightness-105 active:scale-95 text-white font-bold text-xs tracking-wide flex items-center justify-center gap-1.5 shadow-[0_4px_16px_rgba(236,47,115,0.35)] hover:shadow-[0_6px_22px_rgba(236,47,115,0.48)] transition-all cursor-pointer"
+              className="group h-[38px] sm:h-[40px] px-4 sm:px-5 rounded-[13px] sm:rounded-full bg-gradient-to-r from-[#D30915] via-[#e5286e] to-[#d81f62] hover:brightness-105 active:scale-95 text-white font-bold text-xs tracking-wide flex items-center justify-center gap-1.5 shadow-[0_4px_16px_rgba(211, 9, 21,0.35)] hover:shadow-[0_6px_22px_rgba(211, 9, 21,0.48)] transition-all cursor-pointer"
               title="Browse more surprise collections"
             >
               <ShoppingBag className="w-3.5 h-3.5 group-hover:scale-110 transition-transform duration-200" />
@@ -300,10 +300,10 @@ export const OrderSuccessAnimation: React.FC<OrderSuccessAnimationProps> = ({
             <button
               type="button"
               onClick={handlePrint}
-              className="group h-[38px] sm:h-[40px] px-3.5 sm:px-4 rounded-[13px] sm:rounded-full bg-white border border-[#e2d5df] hover:border-[#ec2f73]/50 hover:bg-[#fff0f5] text-[#1e1926] hover:text-[#ec2f73] active:scale-95 font-bold text-xs flex items-center justify-center gap-1.5 shadow-2xs hover:shadow-xs transition-all cursor-pointer"
+              className="group h-[38px] sm:h-[40px] px-3.5 sm:px-4 rounded-[13px] sm:rounded-full bg-white border border-[#e2d5df] hover:border-[#D30915]/50 hover:bg-[#fff1f2] text-[#1e1926] hover:text-[#D30915] active:scale-95 font-bold text-xs flex items-center justify-center gap-1.5 shadow-2xs hover:shadow-xs transition-all cursor-pointer"
               title="Print official order receipt PDF"
             >
-              <Printer className="w-3.5 h-3.5 text-[#5e5866] group-hover:text-[#ec2f73] group-hover:scale-110 transition-all duration-200" />
+              <Printer className="w-3.5 h-3.5 text-[#5e5866] group-hover:text-[#D30915] group-hover:scale-110 transition-all duration-200" />
               <span>Print Receipt</span>
             </button>
 
@@ -311,7 +311,7 @@ export const OrderSuccessAnimation: React.FC<OrderSuccessAnimationProps> = ({
             <button
               type="button"
               onClick={handleReplay}
-              className="group h-[38px] sm:h-[40px] px-3.5 sm:px-4 rounded-[13px] sm:rounded-full bg-[#fff0f5] border border-[#f5cad7] hover:border-[#ec2f73] hover:bg-[#fde2ec] text-[#b8235b] hover:text-[#9e1648] active:scale-95 font-bold text-xs flex items-center justify-center gap-1.5 shadow-2xs hover:shadow-xs transition-all cursor-pointer"
+              className="group h-[38px] sm:h-[40px] px-3.5 sm:px-4 rounded-[13px] sm:rounded-full bg-[#fff1f2] border border-[#fecdd3] hover:border-[#D30915] hover:bg-[#fde2ec] text-[#b8235b] hover:text-[#9e1648] active:scale-95 font-bold text-xs flex items-center justify-center gap-1.5 shadow-2xs hover:shadow-xs transition-all cursor-pointer"
               title="Replay Celebration Animation"
             >
               <RotateCw className="w-3.5 h-3.5 group-hover:rotate-180 transition-transform duration-500 ease-out" />

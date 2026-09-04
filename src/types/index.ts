@@ -64,10 +64,11 @@ export interface UserProfile {
   name: string;
   email: string;
   mobile?: string;
-  role: 'customer' | 'representative';
+  role: 'customer' | 'representative' | 'admin';
   repUsername?: string;
   avatar?: string;
 }
 
 export * from './order';
 export * from './affiliate';
+export * from './admin';

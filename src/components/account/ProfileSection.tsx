@@ -104,7 +104,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
               <h2 className="text-lg sm:text-xl font-black text-[#141219] m-0 font-display">
                 Personal Profile & Account
               </h2>
-              <span className="text-[10px] font-black uppercase tracking-wider text-[#ec2f73] bg-[#fff0f5] px-2.5 py-0.5 rounded-full border border-[#f5cad7]">
+              <span className="text-[10px] font-black uppercase tracking-wider text-[#D30915] bg-[#fff1f2] px-2.5 py-0.5 rounded-full border border-[#fecdd3]">
                 {user.role === 'representative' ? '★ 20% Rep' : '💎 VIP Member'}
               </span>
             </div>
@@ -117,7 +117,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
             <button
               type="button"
               onClick={() => setIsEditing(true)}
-              className="h-[38px] px-4 rounded-[12px] bg-[#fff0f5] hover:bg-[#ec2f73] text-[#ec2f73] hover:text-white border border-[#f5cad7] text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs self-start sm:self-auto"
+              className="h-[38px] px-4 rounded-[12px] bg-[#fff1f2] hover:bg-[#D30915] text-[#D30915] hover:text-white border border-[#fecdd3] text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs self-start sm:self-auto"
             >
               <Edit2 className="w-3.5 h-3.5" />
               <span>Edit Profile</span>
@@ -137,12 +137,12 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
                   <img
                     src={selectedAvatar}
                     alt={name}
-                    className="w-16 h-16 rounded-full object-cover border-2 border-[#ec2f73] shadow-xs"
+                    className="w-16 h-16 rounded-full object-cover border-2 border-[#D30915] shadow-xs"
                   />
                   <button
                     type="button"
                     onClick={() => setShowAvatarPicker(!showAvatarPicker)}
-                    className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#ec2f73] text-white flex items-center justify-center text-xs shadow-xs hover:scale-110 transition-transform cursor-pointer border border-white"
+                    className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#D30915] text-white flex items-center justify-center text-xs shadow-xs hover:scale-110 transition-transform cursor-pointer border border-white"
                     title="Change Avatar"
                   >
                     <Camera className="w-3 h-3" />
@@ -150,14 +150,14 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
                 </div>
 
                 {showAvatarPicker && (
-                  <div className="flex items-center gap-2 p-2 rounded-[14px] bg-[#fff8fb] border border-[#f5cad7]">
+                  <div className="flex items-center gap-2 p-2 rounded-[14px] bg-[#fff8fb] border border-[#fecdd3]">
                     {AVATAR_PRESETS.map((preset, idx) => (
                       <button
                         key={idx}
                         type="button"
                         onClick={() => setSelectedAvatar(preset)}
                         className={`w-10 h-10 rounded-full overflow-hidden border-2 transition-transform hover:scale-105 cursor-pointer ${
-                          selectedAvatar === preset ? 'border-[#ec2f73] ring-2 ring-[#ec2f73]/20' : 'border-white opacity-70 hover:opacity-100'
+                          selectedAvatar === preset ? 'border-[#D30915] ring-2 ring-[#D30915]/20' : 'border-white opacity-70 hover:opacity-100'
                         }`}
                       >
                         <img src={preset} alt="Preset" className="w-full h-full object-cover" />
@@ -171,7 +171,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
             {/* Name Input */}
             <div>
               <label className="block text-xs font-bold text-[#141219] mb-1">
-                Full Name <span className="text-[#ec2f73]">*</span>
+                Full Name <span className="text-[#D30915]">*</span>
               </label>
               <div className="relative">
                 <User className="w-4 h-4 text-[#8a858f] absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -183,7 +183,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
                     setName(e.target.value);
                     if (errors.name) setErrors((prev) => ({ ...prev, name: '' }));
                   }}
-                  className="w-full h-[44px] pl-10 pr-3.5 rounded-[13px] bg-[#fffafb] border border-[#e8dfe5] focus:border-[#ec2f73] text-xs sm:text-sm text-[#141219] outline-none font-medium"
+                  className="w-full h-[44px] pl-10 pr-3.5 rounded-[13px] bg-[#fffafb] border border-[#e8dfe5] focus:border-[#D30915] text-xs sm:text-sm text-[#141219] outline-none font-medium"
                 />
               </div>
               {errors.name && <p className="text-[11px] text-red-600 mt-1">{errors.name}</p>}
@@ -193,7 +193,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-[#141219] mb-1">
-                  Email Address <span className="text-[#ec2f73]">*</span>
+                  Email Address <span className="text-[#D30915]">*</span>
                 </label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-[#8a858f] absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -205,7 +205,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
                       setEmail(e.target.value);
                       if (errors.email) setErrors((prev) => ({ ...prev, email: '' }));
                     }}
-                    className="w-full h-[44px] pl-10 pr-3.5 rounded-[13px] bg-[#fffafb] border border-[#e8dfe5] focus:border-[#ec2f73] text-xs sm:text-sm text-[#141219] outline-none font-medium"
+                    className="w-full h-[44px] pl-10 pr-3.5 rounded-[13px] bg-[#fffafb] border border-[#e8dfe5] focus:border-[#D30915] text-xs sm:text-sm text-[#141219] outline-none font-medium"
                   />
                 </div>
                 {errors.email && <p className="text-[11px] text-red-600 mt-1">{errors.email}</p>}
@@ -225,7 +225,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
                       if (errors.mobile) setErrors((prev) => ({ ...prev, mobile: '' }));
                     }}
                     placeholder="(555) 000-0000"
-                    className="w-full h-[44px] pl-10 pr-3.5 rounded-[13px] bg-[#fffafb] border border-[#e8dfe5] focus:border-[#ec2f73] text-xs sm:text-sm text-[#141219] outline-none font-medium"
+                    className="w-full h-[44px] pl-10 pr-3.5 rounded-[13px] bg-[#fffafb] border border-[#e8dfe5] focus:border-[#D30915] text-xs sm:text-sm text-[#141219] outline-none font-medium"
                   />
                 </div>
                 {errors.mobile && <p className="text-[11px] text-red-600 mt-1">{errors.mobile}</p>}
@@ -250,7 +250,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
               </button>
               <button
                 type="submit"
-                className="h-[40px] px-6 rounded-[12px] bg-[#ec2f73] hover:bg-[#d92467] text-white font-black text-xs uppercase tracking-wider shadow-xs cursor-pointer flex items-center gap-1.5"
+                className="h-[40px] px-6 rounded-[12px] bg-[#D30915] hover:bg-[#B60711] text-white font-black text-xs uppercase tracking-wider shadow-xs cursor-pointer flex items-center gap-1.5"
               >
                 <Check className="w-3.5 h-3.5 stroke-[3]" />
                 <span>Save Changes</span>
@@ -261,7 +261,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="p-4 rounded-[18px] bg-[#fffafc] border border-[#eedbe6] flex items-center gap-3">
-                <div className="w-10 h-10 rounded-[12px] bg-[#fff0f5] text-[#ec2f73] flex items-center justify-center shrink-0 border border-[#f5cad7]">
+                <div className="w-10 h-10 rounded-[12px] bg-[#fff1f2] text-[#D30915] flex items-center justify-center shrink-0 border border-[#fecdd3]">
                   <User className="w-5 h-5" />
                 </div>
                 <div className="min-w-0 flex-1">
@@ -282,7 +282,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
                   <span className="text-[10px] font-black uppercase text-[#716d77] block">
                     Account Status & Role
                   </span>
-                  <strong className="text-sm font-black text-[#ec2f73] capitalize">
+                  <strong className="text-sm font-black text-[#D30915] capitalize">
                     {user.role === 'representative' ? 'Official 20% Rep Partner' : 'VIP Loyalty Member'}
                   </strong>
                 </div>
@@ -318,9 +318,9 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
             </div>
 
             {/* VIP Member Perks Ribbon */}
-            <div className="p-4 rounded-[18px] bg-gradient-to-r from-[#fff0f5] via-[#fff8fb] to-[#fbf5ff] border border-[#f5cad7] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+            <div className="p-4 rounded-[18px] bg-gradient-to-r from-[#fff1f2] via-[#fff8fb] to-[#fbf5ff] border border-[#fecdd3] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#ec2f73] text-white flex items-center justify-center shrink-0 shadow-xs">
+                <div className="w-10 h-10 rounded-full bg-[#D30915] text-white flex items-center justify-center shrink-0 shadow-xs">
                   <Star className="w-5 h-5 fill-white" />
                 </div>
                 <div>
@@ -334,7 +334,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
               </div>
 
               <div className="flex items-center gap-2 shrink-0">
-                <span className="text-xs font-black text-emerald-700 bg-white px-3 py-1 rounded-full border border-[#f5cad7]">
+                <span className="text-xs font-black text-emerald-700 bg-white px-3 py-1 rounded-full border border-[#fecdd3]">
                   Level 1 VIP
                 </span>
               </div>
@@ -360,7 +360,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
                 type="button"
                 onClick={handleResetPassword}
                 disabled={isResetSent}
-                className="h-[34px] px-4 rounded-[10px] bg-[#fff0f5] hover:bg-[#ec2f73] text-[#ec2f73] hover:text-white border border-[#f5cad7] text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 self-start sm:self-auto"
+                className="h-[34px] px-4 rounded-[10px] bg-[#fff1f2] hover:bg-[#D30915] text-[#D30915] hover:text-white border border-[#fecdd3] text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 self-start sm:self-auto"
               >
                 {isResetSent ? (
                   <>

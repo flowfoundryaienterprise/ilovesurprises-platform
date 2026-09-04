@@ -259,14 +259,14 @@ export const Shop: React.FC<ShopProps> = ({
             setIsMobileFilterOpen(true);
           }}
           className={`flex-1 h-[38px] sm:h-[42px] rounded-[11px] sm:rounded-[13px] border flex items-center justify-center gap-2 text-xs font-black transition-all cursor-pointer ${activeFiltersCount > 0
-            ? 'bg-[#fff0f5] border-[#ec2f73] text-[#ec2f73] shadow-2xs'
+            ? 'bg-[#fff1f2] border-[#D30915] text-[#D30915] shadow-2xs'
             : 'bg-white border-[#ebdce5] text-[#141219]'
             }`}
         >
           <SlidersHorizontal className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           <span>Filters</span>
           {activeFiltersCount > 0 && (
-            <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#ec2f73] text-white text-[9px] sm:text-[10px] flex items-center justify-center font-black">
+            <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#D30915] text-white text-[9px] sm:text-[10px] flex items-center justify-center font-black">
               {activeFiltersCount}
             </span>
           )}
@@ -291,15 +291,15 @@ export const Shop: React.FC<ShopProps> = ({
             type="button"
             onClick={handleToggleDesktopFilter}
             className={`hidden lg:flex items-center gap-2 h-[38px] px-3.5 rounded-[12px] border font-black text-xs transition-all duration-200 cursor-pointer shadow-2xs ${isDesktopFilterOpen || activeFiltersCount > 0
-              ? 'bg-[#fff0f5] border-[#ec2f73] text-[#ec2f73] shadow-xs'
-              : 'bg-white border-[#ebdce5] text-[#141219] hover:border-[#ec2f73] hover:text-[#ec2f73]'
+              ? 'bg-[#fff1f2] border-[#D30915] text-[#D30915] shadow-xs'
+              : 'bg-white border-[#ebdce5] text-[#141219] hover:border-[#D30915] hover:text-[#D30915]'
               }`}
             aria-expanded={isDesktopFilterOpen}
           >
             <SlidersHorizontal className="w-4 h-4" />
             <span>{isDesktopFilterOpen ? 'Hide Filters' : 'Filters'}</span>
             {activeFiltersCount > 0 && (
-              <span className="w-5 h-5 rounded-full bg-[#ec2f73] text-white text-[10px] flex items-center justify-center font-black">
+              <span className="w-5 h-5 rounded-full bg-[#D30915] text-white text-[10px] flex items-center justify-center font-black">
                 {activeFiltersCount}
               </span>
             )}
@@ -323,12 +323,12 @@ export const Shop: React.FC<ShopProps> = ({
             <button
               type="button"
               onClick={() => setIsDesktopSortOpen(!isDesktopSortOpen)}
-              className="flex items-center gap-2 h-[38px] px-3.5 rounded-[12px] bg-white border border-[#ebdce5] hover:border-[#ec2f73] text-xs font-black text-[#141219] shadow-2xs transition-all cursor-pointer"
+              className="flex items-center gap-2 h-[38px] px-3.5 rounded-[12px] bg-white border border-[#ebdce5] hover:border-[#D30915] text-xs font-black text-[#141219] shadow-2xs transition-all cursor-pointer"
               aria-expanded={isDesktopSortOpen}
             >
               <span>{currentSortLabel}</span>
               <ChevronDown
-                className={`w-3.5 h-3.5 text-[#716d77] transition-transform ${isDesktopSortOpen ? 'rotate-180 text-[#ec2f73]' : ''
+                className={`w-3.5 h-3.5 text-[#716d77] transition-transform ${isDesktopSortOpen ? 'rotate-180 text-[#D30915]' : ''
                   }`}
               />
             </button>
@@ -347,12 +347,12 @@ export const Shop: React.FC<ShopProps> = ({
                         setIsDesktopSortOpen(false);
                       }}
                       className={`w-full p-2.5 rounded-[10px] text-left text-xs font-bold transition-all cursor-pointer flex items-center justify-between ${isSelected
-                        ? 'bg-[#fff0f5] text-[#ec2f73] font-black'
+                        ? 'bg-[#fff1f2] text-[#D30915] font-black'
                         : 'hover:bg-[#fff9fb] text-[#141219]'
                         }`}
                     >
                       <span>{opt.label}</span>
-                      {isSelected && <span className="text-xs font-black text-[#ec2f73]">✓</span>}
+                      {isSelected && <span className="text-xs font-black text-[#D30915]">✓</span>}
                     </button>
                   );
                 })}

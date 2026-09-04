@@ -59,12 +59,12 @@ export const AffiliateCustomSelect: React.FC<AffiliateCustomSelectProps> = ({
         onClick={() => setIsOpen(!isOpen)}
         className={`w-full h-[40px] sm:h-[42px] px-3.5 rounded-[13px] bg-white border transition-all flex items-center justify-between gap-2 text-left cursor-pointer shadow-2xs ${
           isOpen
-            ? 'border-[#ec2f73] ring-2 ring-[#ec2f73]/15'
-            : 'border-[#eedbe6] hover:border-[#ec2f73]/50'
+            ? 'border-[#D30915] ring-2 ring-[#D30915]/15'
+            : 'border-[#eedbe6] hover:border-[#D30915]/50'
         }`}
       >
         <div className="flex items-center gap-2 min-w-0 flex-1">
-          {icon && <span className="text-[#ec2f73] shrink-0">{icon}</span>}
+          {icon && <span className="text-[#D30915] shrink-0">{icon}</span>}
           {selectedOption ? (
             <div className="flex items-center gap-1.5 min-w-0">
               <span className="text-xs font-bold text-[#141219] truncate">
@@ -73,7 +73,7 @@ export const AffiliateCustomSelect: React.FC<AffiliateCustomSelectProps> = ({
               {selectedOption.badge && (
                 <span
                   className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full shrink-0 ${
-                    selectedOption.badgeColor || 'bg-[#fff0f5] text-[#ec2f73]'
+                    selectedOption.badgeColor || 'bg-[#fff1f2] text-[#D30915]'
                   }`}
                 >
                   {selectedOption.badge}
@@ -89,14 +89,14 @@ export const AffiliateCustomSelect: React.FC<AffiliateCustomSelectProps> = ({
 
         <ChevronDown
           className={`w-4 h-4 text-[#8a858f] transition-transform duration-200 shrink-0 ${
-            isOpen ? 'rotate-180 text-[#ec2f73]' : ''
+            isOpen ? 'rotate-180 text-[#D30915]' : ''
           }`}
         />
       </button>
 
       {/* Dropdown Menu Popover */}
       {isOpen && (
-        <div className="absolute top-[calc(100%+6px)] left-0 right-0 z-50 bg-white rounded-[18px] border-2 border-[#f5cad7] shadow-[0_12px_32px_rgba(236,47,115,0.15)] p-1.5 space-y-1 animate-in fade-in zoom-in-95 duration-150 max-h-[260px] overflow-y-auto scrollbar-thin">
+        <div className="absolute top-[calc(100%+6px)] left-0 right-0 z-50 bg-white rounded-[18px] border-2 border-[#fecdd3] shadow-[0_12px_32px_rgba(211, 9, 21,0.15)] p-1.5 space-y-1 animate-in fade-in zoom-in-95 duration-150 max-h-[260px] overflow-y-auto scrollbar-thin">
           {options.map((opt) => {
             const isSelected = opt.value === value;
             return (
@@ -106,7 +106,7 @@ export const AffiliateCustomSelect: React.FC<AffiliateCustomSelectProps> = ({
                 onClick={() => handleSelect(opt.value)}
                 className={`w-full px-3 py-2 rounded-[11px] text-xs font-bold transition-all flex items-center justify-between gap-2 cursor-pointer text-left ${
                   isSelected
-                    ? 'bg-[#fff0f5] text-[#ec2f73] font-black'
+                    ? 'bg-[#fff1f2] text-[#D30915] font-black'
                     : 'text-[#55505a] hover:bg-[#fff8fb] hover:text-[#141219]'
                 }`}
               >
@@ -119,13 +119,13 @@ export const AffiliateCustomSelect: React.FC<AffiliateCustomSelectProps> = ({
                   {opt.badge && (
                     <span
                       className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full ${
-                        opt.badgeColor || (isSelected ? 'bg-white text-[#ec2f73]' : 'bg-stone-100 text-[#716d77]')
+                        opt.badgeColor || (isSelected ? 'bg-white text-[#D30915]' : 'bg-stone-100 text-[#716d77]')
                       }`}
                     >
                       {opt.badge}
                     </span>
                   )}
-                  {isSelected && <Check className="w-3.5 h-3.5 text-[#ec2f73] stroke-[3]" />}
+                  {isSelected && <Check className="w-3.5 h-3.5 text-[#D30915] stroke-[3]" />}
                 </div>
               </button>
             );

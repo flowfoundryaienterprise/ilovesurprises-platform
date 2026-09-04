@@ -94,14 +94,14 @@ export const AccountSidebar: React.FC<AccountSidebarProps> = ({
       {/* 1. VIP Profile Summary Card */}
       <div className="bg-white rounded-[24px] p-5 sm:p-6 border border-[#eedbe6] shadow-[0_8px_24px_rgba(50,31,63,0.04)] relative overflow-hidden">
         {/* Soft Pink Ambient Glow */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-[#ec2f73]/5 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-32 h-32 bg-[#D30915]/5 rounded-full blur-2xl pointer-events-none" />
 
         <div className="flex items-center gap-3.5 relative z-10">
           <div className="relative shrink-0">
             <img
               src={user.avatar || '/assets/ilovesurprises/Profile/profile%20image.webp'}
               alt={user.name}
-              className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover border-2 border-[#ec2f73] shadow-xs"
+              className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover border-2 border-[#D30915] shadow-xs"
             />
             <span className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] border-2 border-white shadow-2xs">
               ✓
@@ -117,10 +117,10 @@ export const AccountSidebar: React.FC<AccountSidebarProps> = ({
             <p className="text-[11px] text-[#716d77] m-0 truncate mt-0.5 font-medium">
               {user.email}
             </p>
-            <div className="mt-1.5 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#fff0f5] border border-[#f5cad7] text-[#ec2f73] text-[9px] font-black uppercase tracking-wider">
+            <div className="mt-1.5 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#fff1f2] border border-[#fecdd3] text-[#D30915] text-[9px] font-black uppercase tracking-wider">
               {isRep ? (
                 <>
-                  <Star className="w-2.5 h-2.5 fill-[#ec2f73]" />
+                  <Star className="w-2.5 h-2.5 fill-[#D30915]" />
                   <span>20% Rep Partner</span>
                 </>
               ) : (
@@ -136,7 +136,7 @@ export const AccountSidebar: React.FC<AccountSidebarProps> = ({
         {/* Cashback Balance Badge */}
         <div className="mt-4 pt-3.5 border-t border-[#f7eff4] flex items-center justify-between text-xs">
           <div className="flex items-center gap-1.5 text-[#716d77] font-semibold text-[11px]">
-            <Sparkles className="w-3.5 h-3.5 text-[#ec2f73]" />
+            <Sparkles className="w-3.5 h-3.5 text-[#D30915]" />
             <span>Surprise VIP Rewards</span>
           </div>
           <strong className="text-xs font-black text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
@@ -167,10 +167,10 @@ export const AccountSidebar: React.FC<AccountSidebarProps> = ({
               }}
               className={`w-full p-3 rounded-[16px] text-left transition-all duration-200 flex items-center justify-between gap-3 cursor-pointer group ${
                 isActive
-                  ? 'bg-gradient-to-r from-[#ec2f73] to-[#d92467] text-white shadow-[0_6px_18px_rgba(236,47,115,0.28)]'
+                  ? 'bg-gradient-to-r from-[#D30915] to-[#B60711] text-white shadow-[0_6px_18px_rgba(211, 9, 21,0.28)]'
                   : item.highlight
-                  ? 'bg-[#fff8fb] hover:bg-[#fff0f5] text-[#141219] border border-[#f5cad7]/70'
-                  : 'hover:bg-[#fff0f5] text-[#3d3844] hover:text-[#ec2f73]'
+                  ? 'bg-[#fff8fb] hover:bg-[#fff1f2] text-[#141219] border border-[#fecdd3]/70'
+                  : 'hover:bg-[#fff1f2] text-[#3d3844] hover:text-[#D30915]'
               }`}
             >
               <div className="flex items-center gap-3 min-w-0">
@@ -179,8 +179,8 @@ export const AccountSidebar: React.FC<AccountSidebarProps> = ({
                     isActive
                       ? 'bg-white/20 text-white'
                       : item.highlight
-                      ? 'bg-[#fff0f5] text-[#ec2f73] border border-[#f5cad7]'
-                      : 'bg-[#fff8fb] text-[#716d77] group-hover:text-[#ec2f73] group-hover:bg-[#fff0f5]'
+                      ? 'bg-[#fff1f2] text-[#D30915] border border-[#fecdd3]'
+                      : 'bg-[#fff8fb] text-[#716d77] group-hover:text-[#D30915] group-hover:bg-[#fff1f2]'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -189,7 +189,7 @@ export const AccountSidebar: React.FC<AccountSidebarProps> = ({
                 <div className="min-w-0">
                   <span
                     className={`block text-xs font-black truncate leading-tight ${
-                      isActive ? 'text-white' : 'text-[#141219] group-hover:text-[#ec2f73]'
+                      isActive ? 'text-white' : 'text-[#141219] group-hover:text-[#D30915]'
                     }`}
                   >
                     {item.label}
@@ -209,10 +209,10 @@ export const AccountSidebar: React.FC<AccountSidebarProps> = ({
                   <span
                     className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
                       isActive
-                        ? 'bg-white text-[#ec2f73]'
+                        ? 'bg-white text-[#D30915]'
                         : item.highlight
-                        ? 'bg-[#ec2f73] text-white'
-                        : 'bg-[#fff0f5] text-[#ec2f73] border border-[#f5cad7]'
+                        ? 'bg-[#D30915] text-white'
+                        : 'bg-[#fff1f2] text-[#D30915] border border-[#fecdd3]'
                     }`}
                   >
                     {item.badge}
@@ -220,7 +220,7 @@ export const AccountSidebar: React.FC<AccountSidebarProps> = ({
                 )}
                 <ChevronRight
                   className={`w-3.5 h-3.5 transition-transform ${
-                    isActive ? 'text-white' : 'text-[#b5afb8] group-hover:text-[#ec2f73] group-hover:translate-x-0.5'
+                    isActive ? 'text-white' : 'text-[#b5afb8] group-hover:text-[#D30915] group-hover:translate-x-0.5'
                   }`}
                 />
               </div>
@@ -261,8 +261,8 @@ export const AccountSidebar: React.FC<AccountSidebarProps> = ({
               }}
               className={`px-3.5 py-2.5 rounded-[14px] text-xs font-black transition-all whitespace-nowrap flex items-center gap-2 shrink-0 cursor-pointer ${
                 isActive
-                  ? 'bg-[#ec2f73] text-white shadow-[0_4px_14px_rgba(236,47,115,0.28)]'
-                  : 'bg-[#fffafc] hover:bg-[#fff0f5] text-[#55505a] border border-[#f5e4ec]'
+                  ? 'bg-[#D30915] text-white shadow-[0_4px_14px_rgba(211, 9, 21,0.28)]'
+                  : 'bg-[#fffafc] hover:bg-[#fff1f2] text-[#55505a] border border-[#f5e4ec]'
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -270,7 +270,7 @@ export const AccountSidebar: React.FC<AccountSidebarProps> = ({
               {item.badge !== undefined && (
                 <span
                   className={`text-[9px] px-1.5 py-0.2 rounded-full font-black ${
-                    isActive ? 'bg-white text-[#ec2f73]' : 'bg-[#fff0f5] text-[#ec2f73]'
+                    isActive ? 'bg-white text-[#D30915]' : 'bg-[#fff1f2] text-[#D30915]'
                   }`}
                 >
                   {item.badge}

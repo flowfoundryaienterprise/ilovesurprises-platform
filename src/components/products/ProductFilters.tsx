@@ -94,7 +94,7 @@ export const DesktopFilterMegaPanel: React.FC<FilterComponentProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between pb-3.5 mb-5 border-b border-[#f2e8ef]">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-[#fff0f5] text-[#ec2f73] flex items-center justify-center border border-[#f5cad7]">
+          <div className="w-8 h-8 rounded-full bg-[#fff1f2] text-[#D30915] flex items-center justify-center border border-[#fecdd3]">
             <SlidersHorizontal className="w-4 h-4" />
           </div>
           <div>
@@ -112,7 +112,7 @@ export const DesktopFilterMegaPanel: React.FC<FilterComponentProps> = ({
             <button
               type="button"
               onClick={onResetFilters}
-              className="text-xs font-black text-[#ec2f73] hover:underline flex items-center gap-1 cursor-pointer px-2.5 py-1 rounded-[8px] hover:bg-[#fff0f5]"
+              className="text-xs font-black text-[#D30915] hover:underline flex items-center gap-1 cursor-pointer px-2.5 py-1 rounded-[8px] hover:bg-[#fff1f2]"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Reset Filters</span>
@@ -122,7 +122,7 @@ export const DesktopFilterMegaPanel: React.FC<FilterComponentProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="w-8 h-8 rounded-full bg-[#fffafc] border border-[#ebdce5] text-[#716d77] hover:text-[#141219] hover:border-[#ec2f73] flex items-center justify-center transition-colors cursor-pointer shadow-2xs"
+              className="w-8 h-8 rounded-full bg-[#fffafc] border border-[#ebdce5] text-[#716d77] hover:text-[#141219] hover:border-[#D30915] flex items-center justify-center transition-colors cursor-pointer shadow-2xs"
               aria-label="Close Filters"
             >
               <X className="w-4 h-4" />
@@ -140,7 +140,7 @@ export const DesktopFilterMegaPanel: React.FC<FilterComponentProps> = ({
             <span className="text-xs font-black uppercase tracking-wider text-[#141219]">
               Categories
             </span>
-            <span className="text-[10px] text-[#ec2f73] font-bold">
+            <span className="text-[10px] text-[#D30915] font-bold">
               {categoriesData.length} Collections
             </span>
           </div>
@@ -154,8 +154,8 @@ export const DesktopFilterMegaPanel: React.FC<FilterComponentProps> = ({
                   key={cat.id}
                   className={`flex items-center justify-between text-xs py-1 px-2 rounded-[8px] cursor-pointer transition-all ${
                     isSelected
-                      ? 'bg-[#fff0f5] text-[#ec2f73] font-black border border-[#f5cad7]'
-                      : 'text-[#36323d] hover:bg-white hover:text-[#ec2f73] font-bold'
+                      ? 'bg-[#fff1f2] text-[#D30915] font-black border border-[#fecdd3]'
+                      : 'text-[#36323d] hover:bg-white hover:text-[#D30915] font-bold'
                   }`}
                 >
                   <div className="flex items-center gap-2 min-w-0">
@@ -163,7 +163,7 @@ export const DesktopFilterMegaPanel: React.FC<FilterComponentProps> = ({
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => handleCategoryToggle(cat.name)}
-                      className="w-3.5 h-3.5 rounded border-[#d1c4cd] text-[#ec2f73] focus:ring-[#ec2f73] cursor-pointer accent-[#ec2f73]"
+                      className="w-3.5 h-3.5 rounded border-[#d1c4cd] text-[#D30915] focus:ring-[#D30915] cursor-pointer accent-[#D30915]"
                     />
                     <span className="truncate">{cat.name}</span>
                   </div>
@@ -210,8 +210,8 @@ export const DesktopFilterMegaPanel: React.FC<FilterComponentProps> = ({
                   }}
                   className={`w-full flex items-center justify-between text-xs py-1 px-2 rounded-[8px] transition-all text-left cursor-pointer ${
                     isSelected
-                      ? 'bg-[#fff0f5] text-[#ec2f73] font-black border border-[#f5cad7]'
-                      : 'text-[#36323d] hover:bg-white hover:text-[#ec2f73] font-bold'
+                      ? 'bg-[#fff1f2] text-[#D30915] font-black border border-[#fecdd3]'
+                      : 'text-[#36323d] hover:bg-white hover:text-[#D30915] font-bold'
                   }`}
                 >
                   <span>{preset.label}</span>
@@ -232,7 +232,7 @@ export const DesktopFilterMegaPanel: React.FC<FilterComponentProps> = ({
                   placeholder="Min"
                   value={customMin}
                   onChange={(e) => setCustomMin(e.target.value)}
-                  className="w-full h-7 pl-4 pr-1 rounded-[8px] bg-white border border-[#ebdce5] text-xs font-bold text-[#141219] focus:border-[#ec2f73] outline-none"
+                  className="w-full h-7 pl-4 pr-1 rounded-[8px] bg-white border border-[#ebdce5] text-xs font-bold text-[#141219] focus:border-[#D30915] outline-none"
                 />
               </div>
               <span className="text-xs text-[#8a858f] font-bold">–</span>
@@ -244,12 +244,12 @@ export const DesktopFilterMegaPanel: React.FC<FilterComponentProps> = ({
                   placeholder="Max"
                   value={customMax}
                   onChange={(e) => setCustomMax(e.target.value)}
-                  className="w-full h-7 pl-4 pr-1 rounded-[8px] bg-white border border-[#ebdce5] text-xs font-bold text-[#141219] focus:border-[#ec2f73] outline-none"
+                  className="w-full h-7 pl-4 pr-1 rounded-[8px] bg-white border border-[#ebdce5] text-xs font-bold text-[#141219] focus:border-[#D30915] outline-none"
                 />
               </div>
               <button
                 type="submit"
-                className="h-7 px-2 rounded-[8px] bg-[#ec2f73] hover:bg-[#d92467] text-white text-[11px] font-black uppercase shadow-2xs active:scale-95 transition-all cursor-pointer shrink-0"
+                className="h-7 px-2 rounded-[8px] bg-[#D30915] hover:bg-[#B60711] text-white text-[11px] font-black uppercase shadow-2xs active:scale-95 transition-all cursor-pointer shrink-0"
               >
                 Go
               </button>
@@ -288,8 +288,8 @@ export const DesktopFilterMegaPanel: React.FC<FilterComponentProps> = ({
                   }
                   className={`w-full flex items-center justify-between text-xs py-1 px-2 rounded-[8px] transition-all text-left cursor-pointer ${
                     isSelected
-                      ? 'bg-[#fff0f5] text-[#ec2f73] font-black border border-[#f5cad7]'
-                      : 'hover:bg-white text-[#36323d] hover:text-[#ec2f73]'
+                      ? 'bg-[#fff1f2] text-[#D30915] font-black border border-[#fecdd3]'
+                      : 'hover:bg-white text-[#36323d] hover:text-[#D30915]'
                   }`}
                 >
                   <div className="flex items-center gap-1.5">
@@ -315,7 +315,7 @@ export const DesktopFilterMegaPanel: React.FC<FilterComponentProps> = ({
 
           <div className="pt-2 mt-auto border-t border-[#f4edf2] space-y-1 shrink-0">
             {[
-              { id: 'jewelry', label: 'Fine Jewelry Inside', icon: Gem, color: 'text-[#ec2f73]' },
+              { id: 'jewelry', label: 'Fine Jewelry Inside', icon: Gem, color: 'text-[#D30915]' },
               { id: 'cash', label: 'Real Cash Bills Inside', icon: DollarSign, color: 'text-emerald-700' },
               { id: 'mystery', label: 'Mystery Jackpot Item', icon: Sparkles, color: 'text-purple-600' },
             ].map((item) => {
@@ -328,8 +328,8 @@ export const DesktopFilterMegaPanel: React.FC<FilterComponentProps> = ({
                   key={item.id}
                   className={`flex items-center justify-between text-xs py-1 px-2 rounded-[8px] cursor-pointer transition-all ${
                     isSelected
-                      ? 'bg-[#fff0f5] text-[#ec2f73] font-black border border-[#f5cad7]'
-                      : 'text-[#36323d] hover:bg-white hover:text-[#ec2f73] font-bold'
+                      ? 'bg-[#fff1f2] text-[#D30915] font-black border border-[#fecdd3]'
+                      : 'text-[#36323d] hover:bg-white hover:text-[#D30915] font-bold'
                   }`}
                 >
                   <div className="flex items-center gap-2 min-w-0">
@@ -337,7 +337,7 @@ export const DesktopFilterMegaPanel: React.FC<FilterComponentProps> = ({
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => handleSurpriseTypeToggle(item.id)}
-                      className="w-3.5 h-3.5 rounded border-[#d1c4cd] text-[#ec2f73] focus:ring-[#ec2f73] cursor-pointer accent-[#ec2f73]"
+                      className="w-3.5 h-3.5 rounded border-[#d1c4cd] text-[#D30915] focus:ring-[#D30915] cursor-pointer accent-[#D30915]"
                     />
                     <Icon className={`w-3.5 h-3.5 ${item.color}`} />
                     <span className="truncate">{item.label}</span>
@@ -379,8 +379,8 @@ export const DesktopFilterMegaPanel: React.FC<FilterComponentProps> = ({
                   }
                   className={`w-full flex items-center justify-between text-xs py-1 px-2 rounded-[8px] transition-all text-left cursor-pointer ${
                     isSelected
-                      ? 'bg-[#fff0f5] text-[#ec2f73] font-black border border-[#f5cad7]'
-                      : 'hover:bg-white text-[#36323d] hover:text-[#ec2f73] font-bold'
+                      ? 'bg-[#fff1f2] text-[#D30915] font-black border border-[#fecdd3]'
+                      : 'hover:bg-white text-[#36323d] hover:text-[#D30915] font-bold'
                   }`}
                 >
                   <span>{disc.label}</span>
@@ -393,15 +393,15 @@ export const DesktopFilterMegaPanel: React.FC<FilterComponentProps> = ({
           <div className="pt-2 mt-auto border-t border-[#f4edf2] space-y-1 shrink-0">
             <label className={`flex items-center justify-between text-xs py-1 px-2 rounded-[8px] cursor-pointer transition-all ${
               filters.bestSellersOnly
-                ? 'bg-[#fff0f5] text-[#ec2f73] font-black border border-[#f5cad7]'
-                : 'text-[#36323d] hover:bg-white hover:text-[#ec2f73] font-bold'
+                ? 'bg-[#fff1f2] text-[#D30915] font-black border border-[#fecdd3]'
+                : 'text-[#36323d] hover:bg-white hover:text-[#D30915] font-bold'
             }`}>
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
                   checked={filters.bestSellersOnly}
                   onChange={(e) => onFilterChange({ ...filters, bestSellersOnly: e.target.checked })}
-                  className="w-3.5 h-3.5 rounded border-[#d1c4cd] text-[#ec2f73] focus:ring-[#ec2f73] cursor-pointer accent-[#ec2f73]"
+                  className="w-3.5 h-3.5 rounded border-[#d1c4cd] text-[#D30915] focus:ring-[#D30915] cursor-pointer accent-[#D30915]"
                 />
                 <span>🔥 Best Sellers</span>
               </div>
@@ -412,15 +412,15 @@ export const DesktopFilterMegaPanel: React.FC<FilterComponentProps> = ({
 
             <label className={`flex items-center justify-between text-xs py-1 px-2 rounded-[8px] cursor-pointer transition-all ${
               filters.newArrivalsOnly
-                ? 'bg-[#fff0f5] text-[#ec2f73] font-black border border-[#f5cad7]'
-                : 'text-[#36323d] hover:bg-white hover:text-[#ec2f73] font-bold'
+                ? 'bg-[#fff1f2] text-[#D30915] font-black border border-[#fecdd3]'
+                : 'text-[#36323d] hover:bg-white hover:text-[#D30915] font-bold'
             }`}>
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
                   checked={filters.newArrivalsOnly}
                   onChange={(e) => onFilterChange({ ...filters, newArrivalsOnly: e.target.checked })}
-                  className="w-3.5 h-3.5 rounded border-[#d1c4cd] text-[#ec2f73] focus:ring-[#ec2f73] cursor-pointer accent-[#ec2f73]"
+                  className="w-3.5 h-3.5 rounded border-[#d1c4cd] text-[#D30915] focus:ring-[#D30915] cursor-pointer accent-[#D30915]"
                 />
                 <span>✨ New Arrivals</span>
               </div>
@@ -431,15 +431,15 @@ export const DesktopFilterMegaPanel: React.FC<FilterComponentProps> = ({
 
             <label className={`flex items-center justify-between text-xs py-1 px-2 rounded-[8px] cursor-pointer transition-all ${
               filters.inStockOnly
-                ? 'bg-[#fff0f5] text-[#ec2f73] font-black border border-[#f5cad7]'
-                : 'text-[#36323d] hover:bg-white hover:text-[#ec2f73] font-bold'
+                ? 'bg-[#fff1f2] text-[#D30915] font-black border border-[#fecdd3]'
+                : 'text-[#36323d] hover:bg-white hover:text-[#D30915] font-bold'
             }`}>
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
                   checked={filters.inStockOnly}
                   onChange={(e) => onFilterChange({ ...filters, inStockOnly: e.target.checked })}
-                  className="w-3.5 h-3.5 rounded border-[#d1c4cd] text-[#ec2f73] focus:ring-[#ec2f73] cursor-pointer accent-[#ec2f73]"
+                  className="w-3.5 h-3.5 rounded border-[#d1c4cd] text-[#D30915] focus:ring-[#D30915] cursor-pointer accent-[#D30915]"
                 />
                 <span className="flex items-center gap-1">
                   <PackageCheck className="w-3 h-3 text-emerald-600" />
@@ -458,7 +458,7 @@ export const DesktopFilterMegaPanel: React.FC<FilterComponentProps> = ({
       {/* Bottom Action Strip */}
       <div className="mt-6 pt-4 border-t border-[#f2e8ef] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#fffafc] -mx-5 -mb-5 p-4 rounded-b-[24px]">
         <div className="flex items-center gap-2 text-xs font-bold text-[#716d77]">
-          <Sparkles className="w-4 h-4 text-[#ec2f73]" />
+          <Sparkles className="w-4 h-4 text-[#D30915]" />
           <span>
             Matching <strong className="text-[#141219] font-black">{totalResultsCount}</strong> reveals based on your criteria
           </span>
@@ -469,7 +469,7 @@ export const DesktopFilterMegaPanel: React.FC<FilterComponentProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 h-[40px] rounded-[12px] bg-white border border-[#ebdce5] text-[#141219] text-xs font-black hover:border-[#ec2f73] active:scale-95 transition-all cursor-pointer"
+              className="px-4 h-[40px] rounded-[12px] bg-white border border-[#ebdce5] text-[#141219] text-xs font-black hover:border-[#D30915] active:scale-95 transition-all cursor-pointer"
             >
               Cancel
             </button>
@@ -478,7 +478,7 @@ export const DesktopFilterMegaPanel: React.FC<FilterComponentProps> = ({
           <button
             type="button"
             onClick={onApplyFilters}
-            className="px-6 h-[40px] rounded-[12px] bg-gradient-to-r from-[#ec2f73] to-[#d92467] hover:from-[#d92467] hover:to-[#c21a57] text-white text-xs font-black uppercase tracking-wider shadow-[0_6px_20px_rgba(236,47,115,0.28)] active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+            className="px-6 h-[40px] rounded-[12px] bg-gradient-to-r from-[#D30915] to-[#B60711] hover:from-[#B60711] hover:to-[#c21a57] text-white text-xs font-black uppercase tracking-wider shadow-[0_6px_20px_rgba(211, 9, 21,0.28)] active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1.5"
           >
             <Search className="w-3.5 h-3.5" />
             <span>Search by Filter</span>
@@ -608,13 +608,13 @@ export const ActiveFilterChips: React.FC<ActiveFilterChipsProps> = ({
       {chips.map((chip) => (
         <span
           key={chip.id}
-          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#fff0f5] text-[#ec2f73] border border-[#f5cad7] text-xs font-black shadow-2xs animate-in fade-in zoom-in-95 duration-150"
+          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#fff1f2] text-[#D30915] border border-[#fecdd3] text-xs font-black shadow-2xs animate-in fade-in zoom-in-95 duration-150"
         >
           <span>{chip.label}</span>
           <button
             type="button"
             onClick={chip.onRemove}
-            className="w-4 h-4 rounded-full hover:bg-[#ec2f73] hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+            className="w-4 h-4 rounded-full hover:bg-[#D30915] hover:text-white flex items-center justify-center transition-colors cursor-pointer"
             aria-label={`Remove filter ${chip.label}`}
           >
             <X className="w-3 h-3" />
@@ -625,7 +625,7 @@ export const ActiveFilterChips: React.FC<ActiveFilterChipsProps> = ({
       <button
         type="button"
         onClick={onResetFilters}
-        className="text-xs font-black text-[#716d77] hover:text-[#ec2f73] hover:underline ml-1 cursor-pointer"
+        className="text-xs font-black text-[#716d77] hover:text-[#D30915] hover:underline ml-1 cursor-pointer"
       >
         Clear All
       </button>
@@ -697,9 +697,9 @@ export const MobileFilterModal: React.FC<MobileFilterModalProps> = ({
         }`}
       >
         {/* Header */}
-        <div className="p-4 border-b border-[#f2edf1] flex items-center justify-between bg-gradient-to-r from-[#fff3f7] to-[#ffffff] shrink-0">
+        <div className="p-4 border-b border-[#f2edf1] flex items-center justify-between bg-gradient-to-r from-[#fff5f5] to-[#ffffff] shrink-0">
           <div className="flex items-center gap-2">
-            <SlidersHorizontal className="w-4 h-4 text-[#ec2f73]" />
+            <SlidersHorizontal className="w-4 h-4 text-[#D30915]" />
             <h3 className="text-sm font-black text-[#141219] uppercase tracking-wider m-0">
               Filter Surprises
             </h3>
@@ -709,7 +709,7 @@ export const MobileFilterModal: React.FC<MobileFilterModalProps> = ({
             <button
               type="button"
               onClick={onResetFilters}
-              className="text-xs font-black text-[#ec2f73] hover:underline cursor-pointer px-2 py-1"
+              className="text-xs font-black text-[#D30915] hover:underline cursor-pointer px-2 py-1"
             >
               Reset All
             </button>
@@ -746,7 +746,7 @@ export const MobileFilterModal: React.FC<MobileFilterModalProps> = ({
                     }}
                     className={`p-2.5 rounded-[12px] text-xs font-bold flex items-center justify-between text-left transition-all ${
                       isSelected
-                        ? 'bg-[#ec2f73] text-white shadow-2xs font-black'
+                        ? 'bg-[#D30915] text-white shadow-2xs font-black'
                         : 'bg-[#fffafc] border border-[#f0e4ec] text-[#141219]'
                     }`}
                   >
@@ -782,7 +782,7 @@ export const MobileFilterModal: React.FC<MobileFilterModalProps> = ({
                     }}
                     className={`p-2.5 rounded-[12px] text-xs font-bold transition-all text-center ${
                       isSelected
-                        ? 'bg-[#ec2f73] text-white shadow-2xs font-black'
+                        ? 'bg-[#D30915] text-white shadow-2xs font-black'
                         : 'bg-[#fffafc] border border-[#f0e4ec] text-[#141219]'
                     }`}
                   >
@@ -813,7 +813,7 @@ export const MobileFilterModal: React.FC<MobileFilterModalProps> = ({
                     }
                     className={`p-2.5 rounded-[12px] text-xs font-black flex items-center justify-center gap-1 transition-all ${
                       isSelected
-                        ? 'bg-[#ec2f73] text-white shadow-2xs'
+                        ? 'bg-[#D30915] text-white shadow-2xs'
                         : 'bg-[#fffafc] border border-[#f0e4ec] text-[#141219]'
                     }`}
                   >
@@ -849,7 +849,7 @@ export const MobileFilterModal: React.FC<MobileFilterModalProps> = ({
                     }}
                     className={`p-2.5 rounded-[12px] text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
                       isSelected
-                        ? 'bg-[#ec2f73] text-white shadow-2xs font-black'
+                        ? 'bg-[#D30915] text-white shadow-2xs font-black'
                         : 'bg-[#fffafc] border border-[#f0e4ec] text-[#141219]'
                     }`}
                   >
@@ -881,7 +881,7 @@ export const MobileFilterModal: React.FC<MobileFilterModalProps> = ({
                     }
                     className={`p-2 rounded-[12px] text-xs font-black transition-all ${
                       isSelected
-                        ? 'bg-[#ec2f73] text-white shadow-2xs'
+                        ? 'bg-[#D30915] text-white shadow-2xs'
                         : 'bg-[#fffafc] border border-[#f0e4ec] text-[#141219]'
                     }`}
                   >
@@ -900,7 +900,7 @@ export const MobileFilterModal: React.FC<MobileFilterModalProps> = ({
                 type="checkbox"
                 checked={filters.bestSellersOnly}
                 onChange={(e) => onFilterChange({ ...filters, bestSellersOnly: e.target.checked })}
-                className="w-4 h-4 rounded accent-[#ec2f73]"
+                className="w-4 h-4 rounded accent-[#D30915]"
               />
             </label>
 
@@ -910,7 +910,7 @@ export const MobileFilterModal: React.FC<MobileFilterModalProps> = ({
                 type="checkbox"
                 checked={filters.newArrivalsOnly}
                 onChange={(e) => onFilterChange({ ...filters, newArrivalsOnly: e.target.checked })}
-                className="w-4 h-4 rounded accent-[#ec2f73]"
+                className="w-4 h-4 rounded accent-[#D30915]"
               />
             </label>
 
@@ -920,7 +920,7 @@ export const MobileFilterModal: React.FC<MobileFilterModalProps> = ({
                 type="checkbox"
                 checked={filters.inStockOnly}
                 onChange={(e) => onFilterChange({ ...filters, inStockOnly: e.target.checked })}
-                className="w-4 h-4 rounded accent-[#ec2f73]"
+                className="w-4 h-4 rounded accent-[#D30915]"
               />
             </label>
           </div>
@@ -931,7 +931,7 @@ export const MobileFilterModal: React.FC<MobileFilterModalProps> = ({
           <button
             type="button"
             onClick={onResetFilters}
-            className="flex-1 h-[44px] rounded-[13px] bg-[#fff0f5] text-[#ec2f73] text-xs font-black uppercase tracking-wider border border-[#f5cad7] hover:bg-[#ffe5ef] active:scale-95 transition-all cursor-pointer"
+            className="flex-1 h-[44px] rounded-[13px] bg-[#fff1f2] text-[#D30915] text-xs font-black uppercase tracking-wider border border-[#fecdd3] hover:bg-[#ffe5ef] active:scale-95 transition-all cursor-pointer"
           >
             Clear All
           </button>
@@ -941,7 +941,7 @@ export const MobileFilterModal: React.FC<MobileFilterModalProps> = ({
               onApplyFilters?.();
               handleClose();
             }}
-            className="flex-2 h-[44px] rounded-[13px] bg-gradient-to-r from-[#ec2f73] to-[#d92467] text-white text-xs font-black uppercase tracking-wider shadow-[0_6px_20px_rgba(236,47,115,0.28)] active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1"
+            className="flex-2 h-[44px] rounded-[13px] bg-gradient-to-r from-[#D30915] to-[#B60711] text-white text-xs font-black uppercase tracking-wider shadow-[0_6px_20px_rgba(211, 9, 21,0.28)] active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1"
           >
             <span>Show Results</span>
             <span>({totalResultsCount})</span>
@@ -1008,9 +1008,9 @@ export const MobileSortModal: React.FC<MobileSortModalProps> = ({
           isClosing ? 'animate-sheet-out' : 'animate-sheet-in'
         }`}
       >
-        <div className="p-4 border-b border-[#f2edf1] flex items-center justify-between bg-gradient-to-r from-[#fff3f7] to-[#ffffff]">
+        <div className="p-4 border-b border-[#f2edf1] flex items-center justify-between bg-gradient-to-r from-[#fff5f5] to-[#ffffff]">
           <div className="flex items-center gap-2">
-            <ArrowUpDown className="w-4 h-4 text-[#ec2f73]" />
+            <ArrowUpDown className="w-4 h-4 text-[#D30915]" />
             <h3 className="text-sm font-black text-[#141219] uppercase tracking-wider m-0">
               Sort By
             </h3>
@@ -1037,13 +1037,13 @@ export const MobileSortModal: React.FC<MobileSortModalProps> = ({
                 }}
                 className={`w-full p-3 rounded-[14px] flex items-center justify-between text-left text-xs font-bold transition-all cursor-pointer ${
                   isSelected
-                    ? 'bg-[#fff0f5] text-[#ec2f73] border border-[#f5cad7] font-black shadow-2xs'
+                    ? 'bg-[#fff1f2] text-[#D30915] border border-[#fecdd3] font-black shadow-2xs'
                     : 'hover:bg-[#fff9fb] text-[#141219]'
                 }`}
               >
                 <span>{opt.label}</span>
                 {isSelected && (
-                  <div className="w-5 h-5 rounded-full bg-[#ec2f73] text-white flex items-center justify-center">
+                  <div className="w-5 h-5 rounded-full bg-[#D30915] text-white flex items-center justify-center">
                     <Check className="w-3 h-3 stroke-[3]" />
                   </div>
                 )}

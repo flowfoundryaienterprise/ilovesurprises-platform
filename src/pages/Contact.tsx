@@ -145,13 +145,13 @@ export const Contact: React.FC = () => {
       <div className="max-w-[1360px] mx-auto px-2.5 sm:px-4 lg:px-6 space-y-6 sm:space-y-12 lg:space-y-16">
 
         {/* 1. Hero Section */}
-        <div className="bg-gradient-to-br from-[#fff0f5] via-[#fff8fb] to-[#fbf4ff] rounded-[20px] sm:rounded-[32px] p-4 sm:p-10 lg:p-14 border-2 border-[#f5cad7] shadow-[0_12px_40px_rgba(236,47,115,0.08)] relative overflow-hidden text-center">
-          <div className="absolute -top-12 -left-12 w-64 sm:w-72 h-64 sm:h-72 bg-[#ec2f73]/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="bg-gradient-to-br from-[#fff1f2] via-[#fff8fb] to-[#fbf4ff] rounded-[20px] sm:rounded-[32px] p-4 sm:p-10 lg:p-14 border-2 border-[#fecdd3] shadow-[0_12px_40px_rgba(211, 9, 21,0.08)] relative overflow-hidden text-center">
+          <div className="absolute -top-12 -left-12 w-64 sm:w-72 h-64 sm:h-72 bg-[#D30915]/10 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-12 -right-12 w-64 sm:w-80 h-64 sm:h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
 
           <div className="relative z-10 max-w-2xl mx-auto space-y-2 sm:space-y-3">
-            <div className="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-1 rounded-full bg-white text-[#ec2f73] border border-[#f5cad7] text-[10px] sm:text-xs font-black uppercase tracking-wider shadow-2xs">
-              <Sparkles className="w-3.5 h-3.5 text-[#ec2f73] shrink-0" />
+            <div className="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-1 rounded-full bg-white text-[#D30915] border border-[#fecdd3] text-[10px] sm:text-xs font-black uppercase tracking-wider shadow-2xs">
+              <Sparkles className="w-3.5 h-3.5 text-[#D30915] shrink-0" />
               <span>Customer Care & Help Center</span>
             </div>
 
@@ -168,12 +168,12 @@ export const Contact: React.FC = () => {
         {/* 2. Direct Contact Channels Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-6">
           {/* Email Support Card */}
-          <div className="bg-white rounded-[18px] sm:rounded-[24px] p-4 sm:p-6 border-2 border-[#f5cad7] shadow-[0_6px_20px_rgba(50,31,63,0.03)] flex flex-col justify-between hover:border-[#ec2f73] transition-all group space-y-3">
+          <div className="bg-white rounded-[18px] sm:rounded-[24px] p-4 sm:p-6 border-2 border-[#fecdd3] shadow-[0_6px_20px_rgba(50,31,63,0.03)] flex flex-col justify-between hover:border-[#D30915] transition-all group space-y-3">
             <div>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-[12px] sm:rounded-[14px] bg-[#fff0f5] text-[#ec2f73] border border-[#f5cad7] flex items-center justify-center mb-3 group-hover:scale-105 transition-transform shadow-xs">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-[12px] sm:rounded-[14px] bg-[#fff1f2] text-[#D30915] border border-[#fecdd3] flex items-center justify-center mb-3 group-hover:scale-105 transition-transform shadow-xs">
                 <Mail className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
-              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#ec2f73] block">
+              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#D30915] block">
                 Email Customer Care
               </span>
               <h3 className="text-sm sm:text-base font-black text-[#141219] m-0 mb-1 font-display">
@@ -190,7 +190,7 @@ export const Contact: React.FC = () => {
               </span>
               <a
                 href="mailto:support@ilovesurprises.com"
-                className="text-[#ec2f73] hover:underline font-black"
+                className="text-[#D30915] hover:underline font-black"
               >
                 Send Email →
               </a>
@@ -198,7 +198,7 @@ export const Contact: React.FC = () => {
           </div>
 
           {/* Phone Support Card */}
-          <div className="bg-white rounded-[18px] sm:rounded-[24px] p-4 sm:p-6 border-2 border-[#f5cad7] shadow-[0_6px_20px_rgba(50,31,63,0.03)] flex flex-col justify-between hover:border-[#ec2f73] transition-all group space-y-3">
+          <div className="bg-white rounded-[18px] sm:rounded-[24px] p-4 sm:p-6 border-2 border-[#fecdd3] shadow-[0_6px_20px_rgba(50,31,63,0.03)] flex flex-col justify-between hover:border-[#D30915] transition-all group space-y-3">
             <div>
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-[12px] sm:rounded-[14px] bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform shadow-xs">
                 <Phone className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -216,12 +216,12 @@ export const Contact: React.FC = () => {
 
             <div className="pt-3 border-t border-[#f7eff4] flex items-center justify-between text-xs font-bold">
               <span className="text-[#55505a] text-[10px] flex items-center gap-1">
-                <Clock className="w-3 h-3 text-[#ec2f73] shrink-0" />
+                <Clock className="w-3 h-3 text-[#D30915] shrink-0" />
                 <span>Mon–Fri 8am–6pm EST</span>
               </span>
               <a
                 href="tel:18007877747"
-                className="text-[#ec2f73] hover:underline font-black"
+                className="text-[#D30915] hover:underline font-black"
               >
                 Call Now →
               </a>
@@ -229,7 +229,7 @@ export const Contact: React.FC = () => {
           </div>
 
           {/* Order Tracking & Rep Hub */}
-          <div className="bg-white rounded-[18px] sm:rounded-[24px] p-4 sm:p-6 border-2 border-[#f5cad7] shadow-[0_6px_20px_rgba(50,31,63,0.03)] flex flex-col justify-between hover:border-[#ec2f73] transition-all group space-y-3">
+          <div className="bg-white rounded-[18px] sm:rounded-[24px] p-4 sm:p-6 border-2 border-[#fecdd3] shadow-[0_6px_20px_rgba(50,31,63,0.03)] flex flex-col justify-between hover:border-[#D30915] transition-all group space-y-3">
             <div>
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-[12px] sm:rounded-[14px] bg-purple-50 text-purple-600 border border-purple-200 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform shadow-xs">
                 <Package className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -249,7 +249,7 @@ export const Contact: React.FC = () => {
               <span className="text-purple-800 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200 text-[10px]">
                 24/7 Access
               </span>
-              <span className="text-[#ec2f73] font-black">
+              <span className="text-[#D30915] font-black">
                 Account Portal →
               </span>
             </div>
@@ -259,7 +259,7 @@ export const Contact: React.FC = () => {
         {/* 3. Interactive Contact Form & Trust Highlights */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-start">
           {/* Left Column: Form */}
-          <div className="lg:col-span-7 bg-white rounded-[20px] sm:rounded-[30px] p-4 sm:p-8 lg:p-9 border-2 border-[#f5cad7] shadow-[0_10px_30px_rgba(236,47,115,0.06)]">
+          <div className="lg:col-span-7 bg-white rounded-[20px] sm:rounded-[30px] p-4 sm:p-8 lg:p-9 border-2 border-[#fecdd3] shadow-[0_10px_30px_rgba(211, 9, 21,0.06)]">
             {isSubmitted ? (
               /* Success Confirmation Banner */
               <div className="py-6 sm:py-8 text-center space-y-3 sm:space-y-4 animate-in fade-in zoom-in-95">
@@ -276,14 +276,14 @@ export const Contact: React.FC = () => {
                 </h3>
 
                 <p className="text-xs sm:text-sm text-[#716d77] max-w-md mx-auto leading-relaxed m-0">
-                  Your inquiry regarding <strong className="text-[#141219] font-bold">"{formData.topic}"</strong> has been logged with ticket reference <code className="text-[#ec2f73] font-mono font-bold bg-[#fff0f5] px-2 py-0.5 rounded border border-[#f5cad7]">{ticketId}</code>. Our customer care team will respond to <strong className="text-[#141219]">{formData.email}</strong> within 24 hours.
+                  Your inquiry regarding <strong className="text-[#141219] font-bold">"{formData.topic}"</strong> has been logged with ticket reference <code className="text-[#D30915] font-mono font-bold bg-[#fff1f2] px-2 py-0.5 rounded border border-[#fecdd3]">{ticketId}</code>. Our customer care team will respond to <strong className="text-[#141219]">{formData.email}</strong> within 24 hours.
                 </p>
 
                 <div className="pt-3 sm:pt-4">
                   <button
                     type="button"
                     onClick={handleResetForm}
-                    className="h-[40px] sm:h-[42px] px-6 rounded-[12px] bg-[#ec2f73] hover:bg-[#d92467] text-white font-black text-xs uppercase tracking-wider shadow-xs cursor-pointer inline-flex items-center justify-center gap-2 transition-all w-full sm:w-auto"
+                    className="h-[40px] sm:h-[42px] px-6 rounded-[12px] bg-[#D30915] hover:bg-[#B60711] text-white font-black text-xs uppercase tracking-wider shadow-xs cursor-pointer inline-flex items-center justify-center gap-2 transition-all w-full sm:w-auto"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
                     <span>Send Another Inquiry</span>
@@ -306,7 +306,7 @@ export const Contact: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-xs font-bold text-[#141219] mb-1">
-                      Full Name <span className="text-[#ec2f73]">*</span>
+                      Full Name <span className="text-[#D30915]">*</span>
                     </label>
                     <input
                       type="text"
@@ -316,7 +316,7 @@ export const Contact: React.FC = () => {
                         if (errors.fullName) setErrors({ ...errors, fullName: undefined });
                       }}
                       placeholder="e.g. Sarah Jenkins"
-                      className={`w-full h-[40px] sm:h-[42px] px-3 sm:px-3.5 rounded-[12px] bg-[#fffafb] border text-xs text-[#141219] outline-none transition-all ${errors.fullName ? 'border-red-400 bg-red-50/40' : 'border-[#e8dfe5] focus:border-[#ec2f73]'
+                      className={`w-full h-[40px] sm:h-[42px] px-3 sm:px-3.5 rounded-[12px] bg-[#fffafb] border text-xs text-[#141219] outline-none transition-all ${errors.fullName ? 'border-red-400 bg-red-50/40' : 'border-[#e8dfe5] focus:border-[#D30915]'
                         }`}
                     />
                     {errors.fullName && (
@@ -329,7 +329,7 @@ export const Contact: React.FC = () => {
 
                   <div>
                     <label className="block text-xs font-bold text-[#141219] mb-1">
-                      Email Address <span className="text-[#ec2f73]">*</span>
+                      Email Address <span className="text-[#D30915]">*</span>
                     </label>
                     <input
                       type="email"
@@ -339,7 +339,7 @@ export const Contact: React.FC = () => {
                         if (errors.email) setErrors({ ...errors, email: undefined });
                       }}
                       placeholder="e.g. sarah@example.com"
-                      className={`w-full h-[40px] sm:h-[42px] px-3 sm:px-3.5 rounded-[12px] bg-[#fffafb] border text-xs text-[#141219] outline-none transition-all ${errors.email ? 'border-red-400 bg-red-50/40' : 'border-[#e8dfe5] focus:border-[#ec2f73]'
+                      className={`w-full h-[40px] sm:h-[42px] px-3 sm:px-3.5 rounded-[12px] bg-[#fffafb] border text-xs text-[#141219] outline-none transition-all ${errors.email ? 'border-red-400 bg-red-50/40' : 'border-[#e8dfe5] focus:border-[#D30915]'
                         }`}
                     />
                     {errors.email && (
@@ -355,12 +355,12 @@ export const Contact: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-xs font-bold text-[#141219] mb-1">
-                      Inquiry Topic <span className="text-[#ec2f73]">*</span>
+                      Inquiry Topic <span className="text-[#D30915]">*</span>
                     </label>
                     <select
                       value={formData.topic}
                       onChange={(e) => setFormData({ ...formData, topic: e.target.value })}
-                      className="w-full h-[40px] sm:h-[42px] px-3 sm:px-3.5 rounded-[12px] bg-[#fffafb] border border-[#e8dfe5] focus:border-[#ec2f73] text-xs font-medium text-[#141219] outline-none cursor-pointer"
+                      className="w-full h-[40px] sm:h-[42px] px-3 sm:px-3.5 rounded-[12px] bg-[#fffafb] border border-[#e8dfe5] focus:border-[#D30915] text-xs font-medium text-[#141219] outline-none cursor-pointer"
                     >
                       <option value="Order Status & Express Tracking">Order Status & Express Tracking</option>
                       <option value="Prize Reveal & Jewelry Appraisal">Prize Reveal & Jewelry Appraisal</option>
@@ -380,7 +380,7 @@ export const Contact: React.FC = () => {
                       value={formData.orderNumber}
                       onChange={(e) => setFormData({ ...formData, orderNumber: e.target.value })}
                       placeholder="e.g. ILS-78219"
-                      className="w-full h-[40px] sm:h-[42px] px-3 sm:px-3.5 rounded-[12px] bg-[#fffafb] border border-[#e8dfe5] focus:border-[#ec2f73] text-xs text-[#141219] font-mono outline-none"
+                      className="w-full h-[40px] sm:h-[42px] px-3 sm:px-3.5 rounded-[12px] bg-[#fffafb] border border-[#e8dfe5] focus:border-[#D30915] text-xs text-[#141219] font-mono outline-none"
                     />
                   </div>
                 </div>
@@ -388,7 +388,7 @@ export const Contact: React.FC = () => {
                 {/* Message TextArea */}
                 <div>
                   <label className="block text-xs font-bold text-[#141219] mb-1">
-                    Your Message / Details <span className="text-[#ec2f73]">*</span>
+                    Your Message / Details <span className="text-[#D30915]">*</span>
                   </label>
                   <textarea
                     rows={4}
@@ -398,7 +398,7 @@ export const Contact: React.FC = () => {
                       if (errors.message) setErrors({ ...errors, message: undefined });
                     }}
                     placeholder="Describe how we can assist you today with your order or inquiry..."
-                    className={`w-full p-3 sm:p-3.5 rounded-[12px] sm:rounded-[14px] bg-[#fffafb] border text-xs text-[#141219] outline-none resize-none transition-all ${errors.message ? 'border-red-400 bg-red-50/40' : 'border-[#e8dfe5] focus:border-[#ec2f73]'
+                    className={`w-full p-3 sm:p-3.5 rounded-[12px] sm:rounded-[14px] bg-[#fffafb] border text-xs text-[#141219] outline-none resize-none transition-all ${errors.message ? 'border-red-400 bg-red-50/40' : 'border-[#e8dfe5] focus:border-[#D30915]'
                       }`}
                   />
                   {errors.message && (
@@ -414,7 +414,7 @@ export const Contact: React.FC = () => {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full min-h-[44px] sm:min-h-[46px] rounded-[12px] sm:rounded-[14px] bg-[#ec2f73] hover:bg-[#d92467] text-white font-black text-xs uppercase tracking-wider shadow-[0_6px_20px_rgba(236,47,115,0.28)] active:scale-97 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                    className="w-full min-h-[44px] sm:min-h-[46px] rounded-[12px] sm:rounded-[14px] bg-[#D30915] hover:bg-[#B60711] text-white font-black text-xs uppercase tracking-wider shadow-[0_6px_20px_rgba(211, 9, 21,0.28)] active:scale-97 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                   >
                     {isSubmitting ? (
                       <span className="flex items-center gap-2">
@@ -435,9 +435,9 @@ export const Contact: React.FC = () => {
 
           {/* Right Column: Trust Card & FAQ Fast Track */}
           <div className="lg:col-span-5 space-y-4 sm:space-y-5">
-            <div className="bg-gradient-to-br from-[#fff0f5] to-[#ffeef4] rounded-[20px] sm:rounded-[28px] p-4 sm:p-7 border-2 border-[#f5cad7] shadow-[0_8px_24px_rgba(236,47,115,0.06)] space-y-3 sm:space-y-4">
+            <div className="bg-gradient-to-br from-[#fff1f2] to-[#ffeef4] rounded-[20px] sm:rounded-[28px] p-4 sm:p-7 border-2 border-[#fecdd3] shadow-[0_8px_24px_rgba(211, 9, 21,0.06)] space-y-3 sm:space-y-4">
               <div className="flex items-center gap-2.5">
-                <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-[#ec2f73] shrink-0" />
+                <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-[#D30915] shrink-0" />
                 <h3 className="text-sm sm:text-base font-black text-[#141219] m-0 font-display">
                   Our Unboxing Customer Promise
                 </h3>
@@ -447,7 +447,7 @@ export const Contact: React.FC = () => {
                 At I Love Surprises, we believe in 100% transparency. Every cash prize is authentic legal tender and every jewelry reveal is genuine solid precious metal with certified appraisal verification.
               </p>
 
-              <div className="space-y-2 sm:space-y-2.5 pt-2 border-t border-[#f5cad7] text-xs font-bold text-[#141219]">
+              <div className="space-y-2 sm:space-y-2.5 pt-2 border-t border-[#fecdd3] text-xs font-bold text-[#141219]">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>Free shipping on all US orders $50+</span>
@@ -475,7 +475,7 @@ export const Contact: React.FC = () => {
         {/* 4. Interactive FAQ Accordion Section */}
         <div className="bg-white rounded-[20px] sm:rounded-[32px] p-4 sm:p-8 lg:p-12 border-2 border-[#eedbe6] shadow-[0_8px_30px_rgba(50,31,63,0.04)] space-y-4 sm:space-y-6">
           <div className="text-center max-w-xl mx-auto space-y-1 sm:space-y-1.5">
-            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#ec2f73] bg-[#fff0f5] px-3 py-1 rounded-full border border-[#f5cad7]">
+            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#D30915] bg-[#fff1f2] px-3 py-1 rounded-full border border-[#fecdd3]">
               Help & Answers
             </span>
             <h2 className="text-xl sm:text-3xl font-black text-[#141219] font-display m-0">
@@ -493,8 +493,8 @@ export const Contact: React.FC = () => {
                 <div
                   key={faq.question}
                   className={`rounded-[14px] sm:rounded-[18px] border-2 transition-all ${isOpen
-                      ? 'bg-[#fffafc] border-[#f5cad7] shadow-xs'
-                      : 'bg-white border-[#f0e2ec] hover:border-[#f5cad7]'
+                      ? 'bg-[#fffafc] border-[#fecdd3] shadow-xs'
+                      : 'bg-white border-[#f0e2ec] hover:border-[#fecdd3]'
                     }`}
                 >
                   <button
@@ -503,7 +503,7 @@ export const Contact: React.FC = () => {
                     className="w-full p-3.5 sm:p-5 flex items-center justify-between text-left font-bold text-xs sm:text-sm text-[#141219] cursor-pointer"
                   >
                     <span className="pr-2">{faq.question}</span>
-                    <span className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#fff0f5] text-[#ec2f73] flex items-center justify-center shrink-0 ml-2">
+                    <span className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#fff1f2] text-[#D30915] flex items-center justify-center shrink-0 ml-2">
                       {isOpen ? <ChevronUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
                     </span>
                   </button>

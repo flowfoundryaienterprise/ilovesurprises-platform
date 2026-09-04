@@ -16,16 +16,16 @@ interface OrderSuccessPopupModalProps {
 // 12 luxury celebration particles with 3D physics coordinates
 const PARTICLES = [
   { id: 1, tx: '-58px', ty: '-54px', s: '1.2', r: '240deg', color: '#f59e0b', icon: '●' },
-  { id: 2, tx: '60px', ty: '-52px', s: '1.3', r: '180deg', color: '#ec2f73', icon: '◆' },
+  { id: 2, tx: '60px', ty: '-52px', s: '1.3', r: '180deg', color: '#D30915', icon: '◆' },
   { id: 3, tx: '-68px', ty: '0px', s: '1.0', r: '120deg', color: '#10b981', icon: '●' },
   { id: 4, tx: '70px', ty: '12px', s: '1.1', r: '300deg', color: '#f59e0b', icon: '◆' },
-  { id: 5, tx: '-48px', ty: '58px', s: '1.2', r: '210deg', color: '#ec2f73', icon: '◆' },
+  { id: 5, tx: '-48px', ty: '58px', s: '1.2', r: '210deg', color: '#D30915', icon: '◆' },
   { id: 6, tx: '52px', ty: '56px', s: '1.3', r: '150deg', color: '#10b981', icon: '●' },
-  { id: 7, tx: '0px', ty: '-72px', s: '1.1', r: '360deg', color: '#ec2f73', icon: '●' },
+  { id: 7, tx: '0px', ty: '-72px', s: '1.1', r: '360deg', color: '#D30915', icon: '●' },
   { id: 8, tx: '0px', ty: '72px', s: '1.2', r: '180deg', color: '#f59e0b', icon: '◆' },
   { id: 9, tx: '-36px', ty: '-66px', s: '0.9', r: '90deg', color: '#10b981', icon: '●' },
   { id: 10, tx: '40px', ty: '-64px', s: '0.9', r: '270deg', color: '#f59e0b', icon: '◆' },
-  { id: 11, tx: '-64px', ty: '38px', s: '1.0', r: '45deg', color: '#ec2f73', icon: '●' },
+  { id: 11, tx: '-64px', ty: '38px', s: '1.0', r: '45deg', color: '#D30915', icon: '●' },
   { id: 12, tx: '66px', ty: '38px', s: '1.0', r: '315deg', color: '#10b981', icon: '◆' },
 ];
 
@@ -77,7 +77,7 @@ export const OrderSuccessPopupModal: React.FC<OrderSuccessPopupModalProps> = ({
       <div className="relative w-full max-w-[540px] bg-white rounded-[32px] sm:rounded-[36px] p-6 sm:p-9 border border-[#f3dbe8] shadow-[0_24px_70px_rgba(20,18,25,0.4)] overflow-hidden text-center animate-in zoom-in-95 duration-300">
         
         {/* Ambient Glows */}
-        <div className="absolute -top-24 -left-24 w-52 h-52 rounded-full bg-[#ec2f73]/12 blur-3xl pointer-events-none" />
+        <div className="absolute -top-24 -left-24 w-52 h-52 rounded-full bg-[#D30915]/12 blur-3xl pointer-events-none" />
         <div className="absolute -bottom-24 -right-24 w-52 h-52 rounded-full bg-emerald-500/15 blur-3xl pointer-events-none" />
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full bg-amber-400/8 blur-3xl pointer-events-none" />
 
@@ -174,14 +174,14 @@ export const OrderSuccessPopupModal: React.FC<OrderSuccessPopupModalProps> = ({
             Order Placed Successfully!
           </h2>
 
-          <p className="text-xs sm:text-sm text-[#ec2f73] font-bold m-0 flex items-center justify-center gap-1.5">
+          <p className="text-xs sm:text-sm text-[#D30915] font-bold m-0 flex items-center justify-center gap-1.5">
             <span>Your surprise is being prepared with love!</span>
             <span>🎁</span>
           </p>
         </div>
 
         {/* 3. ORDER REFERENCE & RECEIPT PREVIEW CARD */}
-        <div className="anim-stagger-2 mt-5 p-4 rounded-[20px] bg-[#fffafc] border border-[#f5cad7] text-left space-y-3">
+        <div className="anim-stagger-2 mt-5 p-4 rounded-[20px] bg-[#fffafc] border border-[#fecdd3] text-left space-y-3">
           
           {/* Top Bar: Reference ID & Amount */}
           <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-[#f4e6ee]">
@@ -190,13 +190,13 @@ export const OrderSuccessPopupModal: React.FC<OrderSuccessPopupModalProps> = ({
                 Order Reference
               </span>
               <div className="flex items-center gap-1.5">
-                <span className="text-xs sm:text-sm font-mono font-black text-[#ec2f73]">
+                <span className="text-xs sm:text-sm font-mono font-black text-[#D30915]">
                   {order.id}
                 </span>
                 <button
                   type="button"
                   onClick={handleCopyOrderId}
-                  className="p-1 rounded-[6px] bg-white border border-[#ecdbe6] hover:bg-[#fff0f5] text-[#716d77] hover:text-[#ec2f73] cursor-pointer"
+                  className="p-1 rounded-[6px] bg-white border border-[#ecdbe6] hover:bg-[#fff1f2] text-[#716d77] hover:text-[#D30915] cursor-pointer"
                   title="Copy Order ID"
                 >
                   {copied ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
@@ -249,7 +249,7 @@ export const OrderSuccessPopupModal: React.FC<OrderSuccessPopupModalProps> = ({
           <button
             type="button"
             onClick={onProceedToConfirmation}
-            className="w-full h-[48px] rounded-[16px] bg-gradient-to-r from-[#ec2f73] to-[#d92467] hover:from-[#d92467] hover:to-[#c21a57] text-white font-black text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_8px_24px_rgba(236,47,115,0.32)] active:scale-97 transition-all cursor-pointer"
+            className="w-full h-[48px] rounded-[16px] bg-gradient-to-r from-[#D30915] to-[#B60711] hover:from-[#B60711] hover:to-[#c21a57] text-white font-black text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_8px_24px_rgba(211, 9, 21,0.32)] active:scale-97 transition-all cursor-pointer"
           >
             <span>View Full Order & Tracking</span>
             <ArrowRight className="w-4 h-4" />
@@ -261,7 +261,7 @@ export const OrderSuccessPopupModal: React.FC<OrderSuccessPopupModalProps> = ({
             <button
               type="button"
               onClick={onProceedToConfirmation}
-              className="text-[#ec2f73] hover:underline font-black cursor-pointer"
+              className="text-[#D30915] hover:underline font-black cursor-pointer"
             >
               Open now
             </button>
@@ -269,7 +269,7 @@ export const OrderSuccessPopupModal: React.FC<OrderSuccessPopupModalProps> = ({
 
           <div className="w-full h-1.5 bg-[#f4e8f0] rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-[#ec2f73] to-emerald-500 rounded-full transition-all duration-1000 ease-linear"
+              className="h-full bg-gradient-to-r from-[#D30915] to-emerald-500 rounded-full transition-all duration-1000 ease-linear"
               style={{ width: `${((4 - countdown) / 4) * 100}%` }}
             />
           </div>

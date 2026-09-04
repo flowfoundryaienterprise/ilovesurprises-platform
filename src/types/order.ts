@@ -60,6 +60,10 @@ export interface Order {
   status: OrderStatus;
   estimatedDeliveryDate: string;
   trackingNumber?: string;
+  attributedRep?: {
+    name: string;
+    repUsername: string;
+  };
   notes?: string;
 }
 

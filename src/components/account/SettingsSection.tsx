@@ -11,6 +11,11 @@ import {
 } from 'lucide-react';
 import type { UserProfile, UserSettings } from '../../types';
 import { accountService } from '../../services/accountService';
+import { LuxuryRegionalSelect } from './LuxuryRegionalSelect';
+import {
+  DEFAULT_CURRENCY_OPTIONS,
+  DEFAULT_LANGUAGE_OPTIONS,
+} from '../../constants/regional';
 
 interface SettingsSectionProps {
   user: UserProfile;
@@ -40,9 +45,22 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({
   const handleSelectChange = (key: 'currency' | 'language', value: string) => {
     const updated = accountService.updateUserSettings({ [key]: value });
     setSettings(updated);
+    const title = key === 'currency' ? 'Currency Updated' : 'Language Updated';
     onShowToast(`Preference set to ${value}`, {
-      title: 'Preferences Saved',
+      title,
       type: 'success',
+    });
+  };
+
+  const handleResetRegionalDefaults = () => {
+    const updated = accountService.updateUserSettings({
+      currency: 'USD ($)',
+      language: 'English (US)',
+    });
+    setSettings(updated);
+    onShowToast('Reset to default US English and USD ($)', {
+      title: 'Defaults Restored',
+      type: 'info',
     });
   };
 
@@ -63,7 +81,7 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({
       {/* 1. Notifications Preferences */}
       <div className="bg-white rounded-[24px] p-6 sm:p-8 border border-[#eedbe6] shadow-[0_8px_24px_rgba(50,31,63,0.04)]">
         <div className="flex items-center gap-2.5 pb-4 border-b border-[#f5eaf1] mb-5">
-          <div className="w-8 h-8 rounded-[10px] bg-[#fff0f5] text-[#ec2f73] flex items-center justify-center border border-[#f5cad7]">
+          <div className="w-8 h-8 rounded-[10px] bg-[#fff1f2] text-[#D30915] flex items-center justify-center border border-[#fecdd3]">
             <Bell className="w-4 h-4" />
           </div>
           <div>
@@ -80,7 +98,7 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({
           {/* Order Status Updates */}
           <div className="flex items-center justify-between p-3.5 rounded-[16px] bg-[#fffafc] border border-[#f5e4ec]">
             <div className="flex items-start gap-3">
-              <Mail className="w-4 h-4 text-[#ec2f73] mt-0.5 shrink-0" />
+              <Mail className="w-4 h-4 text-[#D30915] mt-0.5 shrink-0" />
               <div>
                 <strong className="text-xs font-bold text-[#141219] block">
                   Order & Live Courier Email Updates
@@ -97,7 +115,7 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({
                 onChange={() => handleToggle('orderStatusUpdates')}
                 className="sr-only peer"
               />
-              <div className="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#ec2f73]" />
+              <div className="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#D30915]" />
             </label>
           </div>
 
@@ -121,7 +139,7 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({
                 onChange={() => handleToggle('smsNotifications')}
                 className="sr-only peer"
               />
-              <div className="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#ec2f73]" />
+              <div className="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#D30915]" />
             </label>
           </div>
 
@@ -145,7 +163,7 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({
                 onChange={() => handleToggle('surpriseDropAlerts')}
                 className="sr-only peer"
               />
-              <div className="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#ec2f73]" />
+              <div className="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#D30915]" />
             </label>
           </div>
         </div>
@@ -219,38 +237,60 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-bold text-[#141219] mb-1.5">
-              Preferred Currency
-            </label>
-            <select
-              value={settings.currency}
-              onChange={(e) => handleSelectChange('currency', e.target.value)}
-              className="w-full h-[42px] px-3 rounded-[12px] bg-[#fffafb] border border-[#e8dfe5] text-xs font-bold text-[#141219] outline-none"
-            >
-              <option value="USD ($)">USD ($) — United States Dollar</option>
-              <option value="CAD ($)">CAD ($) — Canadian Dollar</option>
-              <option value="EUR (€)">EUR (€) — Euro</option>
-              <option value="GBP (£)">GBP (£) — British Pound</option>
-              <option value="AUD ($)">AUD ($) — Australian Dollar</option>
-            </select>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
+          <LuxuryRegionalSelect
+            label="Preferred Currency"
+            description="Catalog & checkout display"
+            type="currency"
+            options={DEFAULT_CURRENCY_OPTIONS}
+            value={settings.currency}
+            onChange={(val) => handleSelectChange('currency', val)}
+            searchPlaceholder="Search currency by code, name, or country..."
+          />
 
-          <div>
-            <label className="block text-xs font-bold text-[#141219] mb-1.5">
-              Display Language
-            </label>
-            <select
-              value={settings.language}
-              onChange={(e) => handleSelectChange('language', e.target.value)}
-              className="w-full h-[42px] px-3 rounded-[12px] bg-[#fffafb] border border-[#e8dfe5] text-xs font-bold text-[#141219] outline-none"
+          <LuxuryRegionalSelect
+            label="Display Language"
+            description="Storefront & email translation"
+            type="language"
+            options={DEFAULT_LANGUAGE_OPTIONS}
+            value={settings.language}
+            onChange={(val) => handleSelectChange('language', val)}
+            searchPlaceholder="Search language by name or region..."
+          />
+        </div>
+
+        {/* Live Locale & Price Formatting Preview */}
+        <div className="mt-5 p-4 rounded-[18px] bg-gradient-to-br from-[#fff8fb] to-[#fcf5f9] border border-[#fecdd3] shadow-2xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-xs font-black text-[#141219] font-display">
+                  Live Formatting Preview
+                </span>
+                <span className="text-[10px] font-bold text-[#D30915] bg-white px-2 py-0.5 rounded-full border border-[#fecdd3]">
+                  Instant Sync
+                </span>
+              </div>
+              <p className="text-[11px] text-[#716d77]">
+                Sample candle:{' '}
+                <strong className="text-[#141219] font-bold">
+                  {DEFAULT_CURRENCY_OPTIONS.find((c) => c.value === settings.currency)?.samplePrice || '$49.95 USD'}
+                </strong>{' '}
+                • Courier estimate in {settings.language}:{' '}
+                <strong className="text-[#141219] font-bold">
+                  {DEFAULT_LANGUAGE_OPTIONS.find((l) => l.value === settings.language)?.sampleDate || 'Friday, September 4, 2026'}
+                </strong>
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleResetRegionalDefaults}
+              className="text-[11px] font-bold text-[#D30915] hover:text-[#9B060E] bg-white hover:bg-[#fff1f2] px-3 py-1.5 rounded-full border border-[#fecdd3] transition-all cursor-pointer shrink-0 self-start sm:self-auto shadow-2xs"
             >
-              <option value="English (US)">English (United States)</option>
-              <option value="English (UK)">English (United Kingdom)</option>
-              <option value="Spanish">Español (Spanish)</option>
-              <option value="French">Français (French)</option>
-            </select>
+              Reset to Defaults (US / USD)
+            </button>
           </div>
         </div>
       </div>

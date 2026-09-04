@@ -43,11 +43,11 @@ export const MarketingKitSection: React.FC<MarketingKitSectionProps> = ({
   return (
     <div className="space-y-4 sm:space-y-6 animate-in fade-in duration-200">
       {/* 1. Header Banner */}
-      <div className="bg-gradient-to-br from-[#fff0f5] via-white to-[#fdf2f8] rounded-[20px] sm:rounded-[24px] p-4 sm:p-7 lg:p-8 border border-[#f5cad7] shadow-[0_10px_30px_rgba(236,47,115,0.06)] relative overflow-hidden">
-        <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-[#ec2f73]/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="bg-gradient-to-br from-[#fff1f2] via-white to-[#fdf2f8] rounded-[20px] sm:rounded-[24px] p-4 sm:p-7 lg:p-8 border border-[#fecdd3] shadow-[0_10px_30px_rgba(211, 9, 21,0.06)] relative overflow-hidden">
+        <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-[#D30915]/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 max-w-2xl">
-          <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#ec2f73] bg-[#fff0f5] px-2.5 sm:px-3 py-1 rounded-full border border-[#f5cad7] inline-flex items-center gap-1.5 mb-2">
+          <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#D30915] bg-[#fff1f2] px-2.5 sm:px-3 py-1 rounded-full border border-[#fecdd3] inline-flex items-center gap-1.5 mb-2">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Official Representative Marketing Vault</span>
           </span>
@@ -65,9 +65,9 @@ export const MarketingKitSection: React.FC<MarketingKitSectionProps> = ({
       {/* 2. Downloadable Promo Graphics & Flyer Packs */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4">
         {/* Pack 1: Instagram & TikTok Story Graphics */}
-        <div className="bg-white rounded-[18px] sm:rounded-[22px] p-4 sm:p-5 border border-[#eedbe6] shadow-[0_4px_18px_rgba(50,31,63,0.03)] hover:border-[#ec2f73]/40 transition-all flex flex-col justify-between group">
+        <div className="bg-white rounded-[18px] sm:rounded-[22px] p-4 sm:p-5 border border-[#eedbe6] shadow-[0_4px_18px_rgba(50,31,63,0.03)] hover:border-[#D30915]/40 transition-all flex flex-col justify-between group">
           <div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-[12px] sm:rounded-[14px] bg-[#fff0f5] text-[#ec2f73] border border-[#f5cad7] flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-[12px] sm:rounded-[14px] bg-[#fff1f2] text-[#D30915] border border-[#fecdd3] flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
               <ImageIcon className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
 
@@ -93,7 +93,7 @@ export const MarketingKitSection: React.FC<MarketingKitSectionProps> = ({
           <button
             type="button"
             onClick={() => handleDownloadAsset('Instagram Stories & Reels Pack')}
-            className="w-full h-[36px] sm:h-[38px] rounded-[11px] sm:rounded-[12px] bg-[#fff0f5] hover:bg-[#ec2f73] text-[#ec2f73] hover:text-white font-black text-xs uppercase tracking-wider border border-[#f5cad7] transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+            className="w-full h-[36px] sm:h-[38px] rounded-[11px] sm:rounded-[12px] bg-[#fff1f2] hover:bg-[#D30915] text-[#D30915] hover:text-white font-black text-xs uppercase tracking-wider border border-[#fecdd3] transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
           >
             <Download className="w-3.5 h-3.5" />
             <span>Download ZIP (14 MB)</span>
@@ -101,7 +101,7 @@ export const MarketingKitSection: React.FC<MarketingKitSectionProps> = ({
         </div>
 
         {/* Pack 2: Printable Candle Party Forms */}
-        <div className="bg-white rounded-[18px] sm:rounded-[22px] p-4 sm:p-5 border border-[#eedbe6] shadow-[0_4px_18px_rgba(50,31,63,0.03)] hover:border-[#ec2f73]/40 transition-all flex flex-col justify-between group">
+        <div className="bg-white rounded-[18px] sm:rounded-[22px] p-4 sm:p-5 border border-[#eedbe6] shadow-[0_4px_18px_rgba(50,31,63,0.03)] hover:border-[#D30915]/40 transition-all flex flex-col justify-between group">
           <div>
             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-[12px] sm:rounded-[14px] bg-purple-50 text-purple-700 border border-purple-200 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
               <FileText className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -137,7 +137,7 @@ export const MarketingKitSection: React.FC<MarketingKitSectionProps> = ({
         </div>
 
         {/* Pack 3: VIP Customer Sample Coupon Pack */}
-        <div className="bg-white rounded-[18px] sm:rounded-[22px] p-4 sm:p-5 border border-[#eedbe6] shadow-[0_4px_18px_rgba(50,31,63,0.03)] hover:border-[#ec2f73]/40 transition-all flex flex-col justify-between group">
+        <div className="bg-white rounded-[18px] sm:rounded-[22px] p-4 sm:p-5 border border-[#eedbe6] shadow-[0_4px_18px_rgba(50,31,63,0.03)] hover:border-[#D30915]/40 transition-all flex flex-col justify-between group">
           <div>
             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-[12px] sm:rounded-[14px] bg-amber-50 text-amber-700 border border-amber-200 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
               <Gift className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -153,7 +153,7 @@ export const MarketingKitSection: React.FC<MarketingKitSectionProps> = ({
             <ul className="text-[11px] text-[#55505a] space-y-1 mb-3 sm:mb-4">
               <li className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Rep Code: <strong className="font-mono text-[#ec2f73]">@{repUsername}10</strong></span>
+                <span>Rep Code: <strong className="font-mono text-[#D30915]">@{repUsername}10</strong></span>
               </li>
               <li className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
@@ -177,7 +177,7 @@ export const MarketingKitSection: React.FC<MarketingKitSectionProps> = ({
       <div className="bg-white rounded-[20px] sm:rounded-[24px] p-4 sm:p-7 border border-[#eedbe6] shadow-[0_8px_24px_rgba(50,31,63,0.04)] space-y-3 sm:space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#f5eaf1]">
           <div>
-            <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-black uppercase tracking-wider text-[#ec2f73]">
+            <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-black uppercase tracking-wider text-[#D30915]">
               <MessageCircle className="w-3.5 h-3.5" />
               <span>Copy & Paste Scripts</span>
             </div>
@@ -189,7 +189,7 @@ export const MarketingKitSection: React.FC<MarketingKitSectionProps> = ({
           <button
             type="button"
             onClick={handleCopyScript}
-            className="h-[36px] px-4 rounded-[12px] bg-[#ec2f73] hover:bg-[#d92467] text-white text-xs font-black transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer w-full sm:w-auto"
+            className="h-[36px] px-4 rounded-[12px] bg-[#D30915] hover:bg-[#B60711] text-white text-xs font-black transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer w-full sm:w-auto"
           >
             <Share2 className="w-3.5 h-3.5" />
             <span>Copy Caption Script</span>

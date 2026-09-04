@@ -36,7 +36,7 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
         {label && (
           <label htmlFor={id} className="block text-[11px] sm:text-xs font-bold text-[#141219]">
             {label}
-            {required && <span className="text-[#ec2f73] ml-0.5">*</span>}
+            {required && <span className="text-[#D30915] ml-0.5">*</span>}
           </label>
         )}
         {rightAction}
@@ -60,7 +60,7 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
           className={`w-full h-[42px] sm:h-[44px] pl-10 pr-10 rounded-[13px] bg-[#fffafb] border text-xs sm:text-sm font-medium text-[#141219] placeholder:text-[#9c95a0] transition-all outline-none disabled:opacity-50 disabled:cursor-not-allowed ${
             error
               ? 'border-red-400 focus:border-red-500 focus:bg-white focus:ring-2 focus:ring-red-100'
-              : 'border-[#ebdce5] hover:border-[#f1b8cb] focus:border-[#ec2f73] focus:bg-white focus:ring-2 focus:ring-[#ec2f73]/10'
+              : 'border-[#ebdce5] hover:border-[#f1b8cb] focus:border-[#D30915] focus:bg-white focus:ring-2 focus:ring-[#D30915]/10'
           }`}
           aria-invalid={!!error}
           aria-describedby={error ? `${id}-error` : undefined}
@@ -70,7 +70,7 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
           type="button"
           disabled={disabled}
           onClick={() => setShowPassword((prev) => !prev)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#8a858f] hover:text-[#ec2f73] focus:text-[#ec2f73] focus:outline-none transition-colors cursor-pointer rounded"
+          className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#8a858f] hover:text-[#D30915] focus:text-[#D30915] focus:outline-none transition-colors cursor-pointer rounded"
           aria-label={showPassword ? 'Hide password' : 'Show password'}
         >
           {showPassword ? (

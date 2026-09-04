@@ -91,14 +91,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         }`}
       >
         {/* Soft Ambient Corner Glows */}
-        <div className="absolute -top-16 -right-16 w-44 h-44 bg-[#ec2f73]/10 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute -top-16 -right-16 w-44 h-44 bg-[#D30915]/10 rounded-full blur-2xl pointer-events-none" />
         <div className="absolute -bottom-16 -left-16 w-44 h-44 bg-[#54217f]/8 rounded-full blur-2xl pointer-events-none" />
 
         {/* Close Button */}
         <button
           type="button"
           onClick={handleTriggerClose}
-          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-stone-100 hover:bg-[#fff0f5] text-[#716d77] hover:text-[#ec2f73] flex items-center justify-center transition-all duration-200 cursor-pointer shadow-2xs z-20 focus:outline-none focus:ring-2 focus:ring-[#ec2f73]/30 active:scale-90"
+          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-stone-100 hover:bg-[#fff1f2] text-[#716d77] hover:text-[#D30915] flex items-center justify-center transition-all duration-200 cursor-pointer shadow-2xs z-20 focus:outline-none focus:ring-2 focus:ring-[#D30915]/30 active:scale-90"
           aria-label="Close authentication modal"
         >
           <X className="w-4 h-4 stroke-[2.2]" />

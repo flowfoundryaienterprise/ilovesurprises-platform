@@ -85,6 +85,10 @@ export const orderService = {
     promoCode?: string;
     shippingFee: number;
     total: number;
+    attributedRep?: {
+      name: string;
+      repUsername: string;
+    };
   }): Promise<Order> {
     // Simulating realistic backend order creation latency (450ms)
     await new Promise((resolve) => setTimeout(resolve, 450));
@@ -104,6 +108,7 @@ export const orderService = {
       promoCode: params.promoCode,
       shippingFee: params.shippingFee,
       total: params.total,
+      attributedRep: params.attributedRep,
     };
 
     const existing = this.getOrders();

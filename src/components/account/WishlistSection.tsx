@@ -40,7 +40,7 @@ export const WishlistSection: React.FC<WishlistSectionProps> = ({
               <h2 className="text-lg sm:text-xl font-black text-[#141219] m-0 font-display">
                 My Saved Wishlist
               </h2>
-              <span className="text-[11px] font-black uppercase text-[#ec2f73] bg-[#fff0f5] px-2.5 py-0.5 rounded-full border border-[#f5cad7]">
+              <span className="text-[11px] font-black uppercase text-[#D30915] bg-[#fff1f2] px-2.5 py-0.5 rounded-full border border-[#fecdd3]">
                 {wishlistProducts.length} {wishlistProducts.length === 1 ? 'Item' : 'Items'}
               </span>
             </div>
@@ -53,7 +53,7 @@ export const WishlistSection: React.FC<WishlistSectionProps> = ({
             <button
               type="button"
               onClick={onNavigateToShop}
-              className="hidden sm:flex items-center gap-1.5 text-xs font-black text-[#ec2f73] hover:underline cursor-pointer"
+              className="hidden sm:flex items-center gap-1.5 text-xs font-black text-[#D30915] hover:underline cursor-pointer"
             >
               <span>Explore More</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -70,7 +70,7 @@ export const WishlistSection: React.FC<WishlistSectionProps> = ({
           </div>
         ) : wishlistProducts.length === 0 ? (
           <div className="text-center py-12 px-4 rounded-[20px] bg-[#fffafc] border border-dashed border-[#eedbe6]">
-            <div className="w-16 h-16 rounded-full bg-[#fff0f5] text-[#ec2f73] border-2 border-[#f5cad7] flex items-center justify-center mx-auto mb-3 shadow-xs">
+            <div className="w-16 h-16 rounded-full bg-[#fff1f2] text-[#D30915] border-2 border-[#fecdd3] flex items-center justify-center mx-auto mb-3 shadow-xs">
               <Heart className="w-8 h-8" />
             </div>
             <h3 className="text-lg font-black text-[#141219] mb-1 font-display">
@@ -82,7 +82,7 @@ export const WishlistSection: React.FC<WishlistSectionProps> = ({
             <button
               type="button"
               onClick={onNavigateToShop}
-              className="h-[42px] px-7 rounded-[13px] bg-[#ec2f73] hover:bg-[#d92467] text-white font-black text-xs uppercase tracking-wider shadow-xs cursor-pointer inline-flex items-center gap-2 transition-all active:scale-95"
+              className="h-[42px] px-7 rounded-[13px] bg-[#D30915] hover:bg-[#B60711] text-white font-black text-xs uppercase tracking-wider shadow-xs cursor-pointer inline-flex items-center gap-2 transition-all active:scale-95"
             >
               <Sparkles className="w-4 h-4" />
               <span>Explore Best-Selling Candles</span>
@@ -94,7 +94,7 @@ export const WishlistSection: React.FC<WishlistSectionProps> = ({
             {wishlistProducts.map((product) => (
               <div
                 key={product.id}
-                className="p-4 rounded-[20px] bg-[#fffafc] border border-[#eedbe6] hover:border-[#f5cad7] transition-all flex flex-col justify-between group shadow-2xs hover:shadow-[0_6px_20px_rgba(236,47,115,0.08)]"
+                className="p-4 rounded-[20px] bg-[#fffafc] border border-[#eedbe6] hover:border-[#fecdd3] transition-all flex flex-col justify-between group shadow-2xs hover:shadow-[0_6px_20px_rgba(211, 9, 21,0.08)]"
               >
                 <div>
                   <div className="relative w-full aspect-square rounded-[16px] bg-white border border-[#eee2eb] p-2 overflow-hidden flex items-center justify-center cursor-pointer mb-3">
@@ -106,7 +106,7 @@ export const WishlistSection: React.FC<WishlistSectionProps> = ({
                     />
 
                     {product.badge && (
-                      <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-[#ec2f73] text-white text-[9px] font-black uppercase tracking-wider shadow-xs">
+                      <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-[#D30915] text-white text-[9px] font-black uppercase tracking-wider shadow-xs">
                         {product.badge}
                       </span>
                     )}
@@ -114,7 +114,7 @@ export const WishlistSection: React.FC<WishlistSectionProps> = ({
                     <button
                       type="button"
                       onClick={() => onWishlistToggle(product)}
-                      className="w-7 h-7 rounded-full bg-white/90 hover:bg-white text-red-500 absolute top-2.5 right-2.5 flex items-center justify-center shadow-xs transition-colors cursor-pointer border border-[#f5cad7]"
+                      className="w-7 h-7 rounded-full bg-white/90 hover:bg-white text-red-500 absolute top-2.5 right-2.5 flex items-center justify-center shadow-xs transition-colors cursor-pointer border border-[#fecdd3]"
                       title="Remove from wishlist"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -129,7 +129,7 @@ export const WishlistSection: React.FC<WishlistSectionProps> = ({
 
                   <h4
                     onClick={() => onSelectProduct(product)}
-                    className="text-xs sm:text-sm font-black text-[#141219] m-0 line-clamp-2 hover:text-[#ec2f73] cursor-pointer"
+                    className="text-xs sm:text-sm font-black text-[#141219] m-0 line-clamp-2 hover:text-[#D30915] cursor-pointer"
                   >
                     {product.name}
                   </h4>
@@ -149,7 +149,7 @@ export const WishlistSection: React.FC<WishlistSectionProps> = ({
                     onClick={() => {
                       onAddToCart(product, 1);
                     }}
-                    className="h-[34px] px-3.5 rounded-[10px] bg-[#ec2f73] hover:bg-[#d92467] text-white text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+                    className="h-[34px] px-3.5 rounded-[10px] bg-[#D30915] hover:bg-[#B60711] text-white text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
                   >
                     <ShoppingBag className="w-3.5 h-3.5" />
                     <span>Add to Bag</span>

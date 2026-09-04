@@ -70,14 +70,14 @@ export const About: React.FC<AboutProps> = ({
       <div className="max-w-[1360px] mx-auto px-2.5 sm:px-4 lg:px-6 space-y-6 sm:space-y-12 lg:space-y-16">
         
         {/* 1. Ultra-Luxe Hero Banner & Brand Intro */}
-        <div className="bg-gradient-to-br from-[#fff0f5] via-[#fff8fb] to-[#fbf4ff] rounded-[20px] sm:rounded-[32px] p-4 sm:p-10 lg:p-16 border-2 border-[#f5cad7] shadow-[0_12px_40px_rgba(236,47,115,0.08)] relative overflow-hidden text-center">
+        <div className="bg-gradient-to-br from-[#fff1f2] via-[#fff8fb] to-[#fbf4ff] rounded-[20px] sm:rounded-[32px] p-4 sm:p-10 lg:p-16 border-2 border-[#fecdd3] shadow-[0_12px_40px_rgba(211, 9, 21,0.08)] relative overflow-hidden text-center">
           {/* Ambient Glows */}
-          <div className="absolute -top-12 -left-12 w-64 sm:w-80 h-64 sm:h-80 bg-[#ec2f73]/12 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -top-12 -left-12 w-64 sm:w-80 h-64 sm:h-80 bg-[#D30915]/12 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-12 -right-12 w-64 sm:w-88 h-64 sm:h-88 bg-purple-500/12 rounded-full blur-3xl pointer-events-none" />
 
           <div className="relative z-10 max-w-3xl mx-auto space-y-3 sm:space-y-4">
-            <div className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-white text-[#ec2f73] border border-[#f5cad7] text-[10px] sm:text-xs font-black uppercase tracking-wider shadow-2xs">
-              <Sparkles className="w-3.5 h-3.5 text-[#ec2f73] shrink-0" />
+            <div className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-white text-[#D30915] border border-[#fecdd3] text-[10px] sm:text-xs font-black uppercase tracking-wider shadow-2xs">
+              <Sparkles className="w-3.5 h-3.5 text-[#D30915] shrink-0" />
               <span>Our Brand Story & Craftsmanship</span>
             </div>
 
@@ -91,8 +91,8 @@ export const About: React.FC<AboutProps> = ({
 
             {/* Quick KPI Trust Ribbon (2x2 on mobile, 4-col on tablet/desktop) */}
             <div className="pt-3 sm:pt-5 grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 text-center">
-              <div className="p-2.5 sm:p-3.5 rounded-[14px] sm:rounded-[20px] bg-white border border-[#eedbe6] shadow-xs group hover:border-[#ec2f73] transition-all">
-                <div className="flex items-center justify-center gap-1 text-[10px] sm:text-xs font-black text-[#ec2f73] uppercase mb-0.5">
+              <div className="p-2.5 sm:p-3.5 rounded-[14px] sm:rounded-[20px] bg-white border border-[#eedbe6] shadow-xs group hover:border-[#D30915] transition-all">
+                <div className="flex items-center justify-center gap-1 text-[10px] sm:text-xs font-black text-[#D30915] uppercase mb-0.5">
                   <Leaf className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
                   <span>100% Pure</span>
                 </div>
@@ -100,7 +100,7 @@ export const About: React.FC<AboutProps> = ({
                 <span className="text-[9px] sm:text-[10px] text-[#716d77]">Clean, Vegan Wax</span>
               </div>
 
-              <div className="p-2.5 sm:p-3.5 rounded-[14px] sm:rounded-[20px] bg-white border border-[#eedbe6] shadow-xs group hover:border-[#ec2f73] transition-all">
+              <div className="p-2.5 sm:p-3.5 rounded-[14px] sm:rounded-[20px] bg-white border border-[#eedbe6] shadow-xs group hover:border-[#D30915] transition-all">
                 <div className="flex items-center justify-center gap-1 text-[10px] sm:text-xs font-black text-purple-600 uppercase mb-0.5">
                   <Package className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
                   <span>85,000+</span>
@@ -109,7 +109,7 @@ export const About: React.FC<AboutProps> = ({
                 <span className="text-[9px] sm:text-[10px] text-[#716d77]">Nationwide Fans</span>
               </div>
 
-              <div className="p-2.5 sm:p-3.5 rounded-[14px] sm:rounded-[20px] bg-white border border-[#eedbe6] shadow-xs group hover:border-[#ec2f73] transition-all">
+              <div className="p-2.5 sm:p-3.5 rounded-[14px] sm:rounded-[20px] bg-white border border-[#eedbe6] shadow-xs group hover:border-[#D30915] transition-all">
                 <div className="flex items-center justify-center gap-1 text-[10px] sm:text-xs font-black text-emerald-600 uppercase mb-0.5">
                   <DollarSign className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
                   <span>$2 to $2.5K</span>
@@ -118,7 +118,7 @@ export const About: React.FC<AboutProps> = ({
                 <span className="text-[9px] sm:text-[10px] text-[#716d77]">100% Win Guarantee</span>
               </div>
 
-              <div className="p-2.5 sm:p-3.5 rounded-[14px] sm:rounded-[20px] bg-white border border-[#eedbe6] shadow-xs group hover:border-[#ec2f73] transition-all">
+              <div className="p-2.5 sm:p-3.5 rounded-[14px] sm:rounded-[20px] bg-white border border-[#eedbe6] shadow-xs group hover:border-[#D30915] transition-all">
                 <div className="flex items-center justify-center gap-1 text-[10px] sm:text-xs font-black text-amber-600 uppercase mb-0.5">
                   <Gem className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
                   <span>Up to $7,500</span>
@@ -131,35 +131,35 @@ export const About: React.FC<AboutProps> = ({
         </div>
 
         {/* 2. Our Origin Story Section & Signature Multi-Product Art */}
-        <div className="bg-white rounded-[20px] sm:rounded-[32px] p-4 sm:p-8 lg:p-12 border-2 border-[#f5cad7] shadow-[0_12px_40px_rgba(236,47,115,0.06)] relative overflow-hidden">
+        <div className="bg-white rounded-[20px] sm:rounded-[32px] p-4 sm:p-8 lg:p-12 border-2 border-[#fecdd3] shadow-[0_12px_40px_rgba(211, 9, 21,0.06)] relative overflow-hidden">
           {/* Subtle Ambient Lighting */}
-          <div className="absolute top-0 right-1/4 w-72 sm:w-96 h-72 sm:h-96 bg-[#ec2f73]/5 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-0 right-1/4 w-72 sm:w-96 h-72 sm:h-96 bg-[#D30915]/5 rounded-full blur-3xl pointer-events-none" />
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-center relative z-10">
             {/* Left Column: Styled Story Narrative & 3 Feature Cards */}
             <div className="lg:col-span-6 space-y-3.5 sm:space-y-5">
               <div className="space-y-1.5 sm:space-y-2">
-                <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-[#ec2f73] bg-[#fff0f5] px-3 sm:px-3.5 py-1 rounded-full border border-[#f5cad7] inline-flex items-center gap-1.5 shadow-2xs">
-                  <Heart className="w-3.5 h-3.5 text-[#ec2f73] fill-[#ec2f73]" />
+                <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-[#D30915] bg-[#fff1f2] px-3 sm:px-3.5 py-1 rounded-full border border-[#fecdd3] inline-flex items-center gap-1.5 shadow-2xs">
+                  <Heart className="w-3.5 h-3.5 text-[#D30915] fill-[#D30915]" />
                   <span>How It All Began</span>
                 </span>
 
                 <h2 className="text-xl sm:text-3xl lg:text-[34px] font-black text-[#141219] font-display tracking-tight leading-tight m-0">
                   Transforming Daily Self-Care into an{' '}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ec2f73] via-[#ff3b83] to-[#d92467] font-black">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D30915] via-[#E51D29] to-[#B60711] font-black">
                     Unforgettable Event
                   </span>
                 </h2>
               </div>
 
               {/* Story Narrative Box */}
-              <div className="p-3.5 sm:p-5 rounded-[16px] sm:rounded-[22px] bg-gradient-to-br from-[#fff0f5] via-[#fff8fb] to-[#fbf4ff] border border-[#f5cad7] space-y-2.5 sm:space-y-3 shadow-2xs">
+              <div className="p-3.5 sm:p-5 rounded-[16px] sm:rounded-[22px] bg-gradient-to-br from-[#fff1f2] via-[#fff8fb] to-[#fbf4ff] border border-[#fecdd3] space-y-2.5 sm:space-y-3 shadow-2xs">
                 <p className="text-xs sm:text-[13px] text-[#423d47] leading-relaxed font-medium m-0">
                   <strong className="text-[#141219] font-black">I Love Surprises</strong> was founded on a simple, delightful premise: self-care should smell heavenly, burn cleanly, and deliver an authentic rush of anticipation. We grew tired of plain candles that promised magic but delivered empty jars.
                 </p>
 
                 <p className="text-xs sm:text-[13px] text-[#423d47] leading-relaxed font-medium m-0">
-                  We set out to create the world's most joyful unboxing experience by hand-pouring clean American soy candles and sealing genuine US currency (<strong className="text-[#ec2f73] font-black">$2 to $2,500</strong>) and certified fine jewelry (<strong className="text-purple-700 font-black">up to $7,500</strong>) deep beneath the wax in heat-resistant protective gold foil.
+                  We set out to create the world's most joyful unboxing experience by hand-pouring clean American soy candles and sealing genuine US currency (<strong className="text-[#D30915] font-black">$2 to $2,500</strong>) and certified fine jewelry (<strong className="text-purple-700 font-black">up to $7,500</strong>) deep beneath the wax in heat-resistant protective gold foil.
                 </p>
               </div>
 
@@ -181,8 +181,8 @@ export const About: React.FC<AboutProps> = ({
                 </div>
 
                 {/* Feature 2 */}
-                <div className="p-3 sm:p-3.5 rounded-[14px] sm:rounded-[18px] bg-[#fff0f5] border border-[#f5cad7] flex items-start gap-2.5 sm:gap-3.5 transition-all hover:border-[#ec2f73] group shadow-2xs">
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-[10px] sm:rounded-[12px] bg-[#ec2f73] text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
+                <div className="p-3 sm:p-3.5 rounded-[14px] sm:rounded-[18px] bg-[#fff1f2] border border-[#fecdd3] flex items-start gap-2.5 sm:gap-3.5 transition-all hover:border-[#D30915] group shadow-2xs">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-[10px] sm:rounded-[12px] bg-[#D30915] text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
                     <Leaf className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
                   <div>
@@ -214,7 +214,7 @@ export const About: React.FC<AboutProps> = ({
 
             {/* Right Column: Exact Home Hero Multi-Product Composition */}
             <div className="lg:col-span-6">
-              <div className="relative rounded-[20px] sm:rounded-[28px] overflow-hidden border-2 border-[#f5cad7] shadow-[0_12px_36px_rgba(50,31,63,0.08)] bg-gradient-to-br from-[#fff0f5] via-[#fff8fb] to-[#fbf4ff] h-[300px] sm:h-[420px] lg:h-[480px] flex items-center justify-center">
+              <div className="relative rounded-[20px] sm:rounded-[28px] overflow-hidden border-2 border-[#fecdd3] shadow-[0_12px_36px_rgba(50,31,63,0.08)] bg-gradient-to-br from-[#fff1f2] via-[#fff8fb] to-[#fbf4ff] h-[300px] sm:h-[420px] lg:h-[480px] flex items-center justify-center">
                 {/* Radial White/Pink Backdrop Glow Aura */}
                 <div
                   className="absolute w-[240px] sm:w-[360px] lg:w-[420px] h-[240px] sm:h-[360px] lg:h-[420px] left-1/2 -translate-x-1/2 top-[6%] rounded-full pointer-events-none animate-aura-glow"
@@ -231,7 +231,7 @@ export const About: React.FC<AboutProps> = ({
                 <img
                   src="/assets/ilovesurprises/hero/hero-main-product.png"
                   alt="Premium Cash Candle with Real Cash"
-                  className="absolute left-1/2 -translate-x-1/2 top-[4%] w-[56%] sm:w-[54%] max-h-[260px] sm:max-h-[380px] object-contain drop-shadow-[0_14px_18px_rgba(35,14,30,0.16)] drop-shadow-[0_30px_42px_rgba(58,25,52,0.22)] drop-shadow-[0_50px_70px_rgba(236,47,115,0.18)] z-10 transition-all duration-500 hover:scale-105"
+                  className="absolute left-1/2 -translate-x-1/2 top-[4%] w-[56%] sm:w-[54%] max-h-[260px] sm:max-h-[380px] object-contain drop-shadow-[0_14px_18px_rgba(35,14,30,0.16)] drop-shadow-[0_30px_42px_rgba(58,25,52,0.22)] drop-shadow-[0_50px_70px_rgba(211, 9, 21,0.18)] z-10 transition-all duration-500 hover:scale-105"
                 />
 
                 {/* Mini Products Ground Contact Shadows */}
@@ -243,21 +243,21 @@ export const About: React.FC<AboutProps> = ({
                 <img
                   src="/assets/ilovesurprises/hero/hero-mini-1.png"
                   alt="Cash Bath Bomb with Surprise"
-                  className="absolute bottom-[3%] left-[4%] sm:left-[6%] w-[26%] sm:w-[25%] aspect-square object-contain drop-shadow-[0_8px_12px_rgba(35,14,30,0.14)] drop-shadow-[0_18px_26px_rgba(58,25,52,0.20)] drop-shadow-[0_28px_40px_rgba(236,47,115,0.15)] z-20 hover:scale-110 transition-all duration-300"
+                  className="absolute bottom-[3%] left-[4%] sm:left-[6%] w-[26%] sm:w-[25%] aspect-square object-contain drop-shadow-[0_8px_12px_rgba(35,14,30,0.14)] drop-shadow-[0_18px_26px_rgba(58,25,52,0.20)] drop-shadow-[0_28px_40px_rgba(211, 9, 21,0.15)] z-20 hover:scale-110 transition-all duration-300"
                 />
 
                 {/* Mini Product 2: Birthday Cake Cash Slime (Center) */}
                 <img
                   src="/assets/ilovesurprises/hero/hero-mini-2.png"
                   alt="Birthday Cake Cash Slime with Surprise"
-                  className="absolute bottom-[3%] left-1/2 -translate-x-1/2 w-[26%] sm:w-[25%] aspect-square object-contain drop-shadow-[0_8px_12px_rgba(35,14,30,0.14)] drop-shadow-[0_18px_26px_rgba(58,25,52,0.20)] drop-shadow-[0_28px_40px_rgba(236,47,115,0.15)] z-20 hover:scale-110 transition-all duration-300"
+                  className="absolute bottom-[3%] left-1/2 -translate-x-1/2 w-[26%] sm:w-[25%] aspect-square object-contain drop-shadow-[0_8px_12px_rgba(35,14,30,0.14)] drop-shadow-[0_18px_26px_rgba(58,25,52,0.20)] drop-shadow-[0_28px_40px_rgba(211, 9, 21,0.15)] z-20 hover:scale-110 transition-all duration-300"
                 />
 
                 {/* Mini Product 3: Surprise Bath Bomb with Ring (Right) */}
                 <img
                   src="/assets/ilovesurprises/hero/hero-mini-3.png"
                   alt="Surprise Bath Bomb"
-                  className="absolute bottom-[3%] right-[4%] sm:right-[6%] w-[26%] sm:w-[25%] aspect-square object-contain drop-shadow-[0_8px_12px_rgba(35,14,30,0.14)] drop-shadow-[0_18px_26px_rgba(58,25,52,0.20)] drop-shadow-[0_28px_40px_rgba(236,47,115,0.15)] z-20 hover:scale-110 transition-all duration-300"
+                  className="absolute bottom-[3%] right-[4%] sm:right-[6%] w-[26%] sm:w-[25%] aspect-square object-contain drop-shadow-[0_8px_12px_rgba(35,14,30,0.14)] drop-shadow-[0_18px_26px_rgba(58,25,52,0.20)] drop-shadow-[0_28px_40px_rgba(211, 9, 21,0.15)] z-20 hover:scale-110 transition-all duration-300"
                 />
               </div>
             </div>
@@ -265,9 +265,9 @@ export const About: React.FC<AboutProps> = ({
         </div>
 
         {/* 3. Interactive "How The Reveal Works" Step-by-Step */}
-        <div className="bg-white rounded-[20px] sm:rounded-[30px] p-4 sm:p-8 lg:p-10 border-2 border-[#f5cad7] shadow-[0_8px_30px_rgba(50,31,63,0.04)] space-y-6 sm:space-y-8">
+        <div className="bg-white rounded-[20px] sm:rounded-[30px] p-4 sm:p-8 lg:p-10 border-2 border-[#fecdd3] shadow-[0_8px_30px_rgba(50,31,63,0.04)] space-y-6 sm:space-y-8">
           <div className="text-center max-w-2xl mx-auto space-y-1.5 sm:space-y-2">
-            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#ec2f73] bg-[#fff0f5] px-3 py-1 rounded-full border border-[#f5cad7]">
+            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#D30915] bg-[#fff1f2] px-3 py-1 rounded-full border border-[#fecdd3]">
               The Unboxing Experience
             </span>
             <h2 className="text-xl sm:text-3xl font-black text-[#141219] font-display m-0">
@@ -280,9 +280,9 @@ export const About: React.FC<AboutProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-5">
             {/* Step 1 */}
-            <div className="p-4 sm:p-6 rounded-[18px] sm:rounded-[24px] bg-gradient-to-br from-[#fffafc] to-[#fff0f5] border border-[#f5cad7] flex flex-col justify-between group hover:border-[#ec2f73] transition-all space-y-3">
+            <div className="p-4 sm:p-6 rounded-[18px] sm:rounded-[24px] bg-gradient-to-br from-[#fffafc] to-[#fff1f2] border border-[#fecdd3] flex flex-col justify-between group hover:border-[#D30915] transition-all space-y-3">
               <div className="space-y-2 sm:space-y-3">
-                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-[12px] sm:rounded-[14px] bg-[#ec2f73] text-white font-black text-xs sm:text-sm flex items-center justify-center shadow-xs">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-[12px] sm:rounded-[14px] bg-[#D30915] text-white font-black text-xs sm:text-sm flex items-center justify-center shadow-xs">
                   01
                 </div>
                 <h3 className="text-sm sm:text-base font-black text-[#141219] font-display m-0">
@@ -292,7 +292,7 @@ export const About: React.FC<AboutProps> = ({
                   Light your natural cotton wick and let master-curated fragrance fill your room with warmth for 15 to 20 hours of clean burn.
                 </p>
               </div>
-              <div className="pt-2.5 sm:pt-3 border-t border-[#f5cad7]/60 text-[10px] sm:text-[11px] font-bold text-[#ec2f73] flex items-center gap-1.5">
+              <div className="pt-2.5 sm:pt-3 border-t border-[#fecdd3]/60 text-[10px] sm:text-[11px] font-bold text-[#D30915] flex items-center gap-1.5">
                 <Flame className="w-3.5 h-3.5 shrink-0" />
                 <span>50-70+ Hours Burn Time</span>
               </div>
@@ -342,7 +342,7 @@ export const About: React.FC<AboutProps> = ({
         <div className="bg-white rounded-[20px] sm:rounded-[30px] p-4 sm:p-8 lg:p-10 border-2 border-[#eedbe6] shadow-[0_8px_30px_rgba(50,31,63,0.04)] space-y-4 sm:space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 sm:pb-4 border-b border-[#f5eaf1]">
             <div>
-              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#ec2f73] bg-[#fff0f5] px-3 py-1 rounded-full border border-[#f5cad7]">
+              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#D30915] bg-[#fff1f2] px-3 py-1 rounded-full border border-[#fecdd3]">
                 Product Lineup
               </span>
               <h3 className="text-lg sm:text-2xl font-black text-[#141219] font-display m-0 mt-1">
@@ -357,8 +357,8 @@ export const About: React.FC<AboutProps> = ({
                 onClick={() => setActiveCategoryTab('cash')}
                 className={`px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-[10px] sm:rounded-[12px] text-[11px] sm:text-xs font-black transition-all cursor-pointer whitespace-nowrap shrink-0 snap-start min-h-[36px] sm:min-h-[38px] ${
                   activeCategoryTab === 'cash'
-                    ? 'bg-[#ec2f73] text-white shadow-2xs'
-                    : 'text-[#55505a] hover:text-[#ec2f73]'
+                    ? 'bg-[#D30915] text-white shadow-2xs'
+                    : 'text-[#55505a] hover:text-[#D30915]'
                 }`}
               >
                 💵 Real Cash Candles
@@ -369,8 +369,8 @@ export const About: React.FC<AboutProps> = ({
                 onClick={() => setActiveCategoryTab('jewelry')}
                 className={`px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-[10px] sm:rounded-[12px] text-[11px] sm:text-xs font-black transition-all cursor-pointer whitespace-nowrap shrink-0 snap-start min-h-[36px] sm:min-h-[38px] ${
                   activeCategoryTab === 'jewelry'
-                    ? 'bg-[#ec2f73] text-white shadow-2xs'
-                    : 'text-[#55505a] hover:text-[#ec2f73]'
+                    ? 'bg-[#D30915] text-white shadow-2xs'
+                    : 'text-[#55505a] hover:text-[#D30915]'
                 }`}
               >
                 💍 Fine Jewelry
@@ -381,8 +381,8 @@ export const About: React.FC<AboutProps> = ({
                 onClick={() => setActiveCategoryTab('bath')}
                 className={`px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-[10px] sm:rounded-[12px] text-[11px] sm:text-xs font-black transition-all cursor-pointer whitespace-nowrap shrink-0 snap-start min-h-[36px] sm:min-h-[38px] ${
                   activeCategoryTab === 'bath'
-                    ? 'bg-[#ec2f73] text-white shadow-2xs'
-                    : 'text-[#55505a] hover:text-[#ec2f73]'
+                    ? 'bg-[#D30915] text-white shadow-2xs'
+                    : 'text-[#55505a] hover:text-[#D30915]'
                 }`}
               >
                 🛁 Bath & Slimes
@@ -393,8 +393,8 @@ export const About: React.FC<AboutProps> = ({
                 onClick={() => setActiveCategoryTab('zodiac')}
                 className={`px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-[10px] sm:rounded-[12px] text-[11px] sm:text-xs font-black transition-all cursor-pointer whitespace-nowrap shrink-0 snap-start min-h-[36px] sm:min-h-[38px] ${
                   activeCategoryTab === 'zodiac'
-                    ? 'bg-[#ec2f73] text-white shadow-2xs'
-                    : 'text-[#55505a] hover:text-[#ec2f73]'
+                    ? 'bg-[#D30915] text-white shadow-2xs'
+                    : 'text-[#55505a] hover:text-[#D30915]'
                 }`}
               >
                 ⭐ Zodiac Signs
@@ -403,7 +403,7 @@ export const About: React.FC<AboutProps> = ({
           </div>
 
           {/* Active Category Presentation Card */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-center p-3.5 sm:p-6 rounded-[18px] sm:rounded-[24px] bg-[#fffafc] border border-[#f5cad7]/80">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-center p-3.5 sm:p-6 rounded-[18px] sm:rounded-[24px] bg-[#fffafc] border border-[#fecdd3]/80">
             <div className="lg:col-span-4 flex items-center justify-center bg-white rounded-[16px] sm:rounded-[20px] p-3 sm:p-4 border border-[#eedbe6]">
               <img
                 src={currentHighlight.image}
@@ -413,7 +413,7 @@ export const About: React.FC<AboutProps> = ({
             </div>
 
             <div className="lg:col-span-8 space-y-2.5 sm:space-y-3">
-              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#ec2f73] bg-white px-2.5 sm:px-3 py-1 rounded-full border border-[#f5cad7] inline-block shadow-2xs">
+              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#D30915] bg-white px-2.5 sm:px-3 py-1 rounded-full border border-[#fecdd3] inline-block shadow-2xs">
                 {currentHighlight.badge}
               </span>
               <h4 className="text-lg sm:text-2xl font-black text-[#141219] font-display m-0">
@@ -429,7 +429,7 @@ export const About: React.FC<AboutProps> = ({
                 <button
                   type="button"
                   onClick={onNavigateToShop}
-                  className="h-[38px] sm:h-[40px] px-5 rounded-[11px] bg-[#ec2f73] hover:bg-[#d92467] text-white font-black text-xs uppercase tracking-wider shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 w-full sm:w-auto"
+                  className="h-[38px] sm:h-[40px] px-5 rounded-[11px] bg-[#D30915] hover:bg-[#B60711] text-white font-black text-xs uppercase tracking-wider shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 w-full sm:w-auto"
                 >
                   <span>Browse Collection</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -442,7 +442,7 @@ export const About: React.FC<AboutProps> = ({
         {/* 5. The 4 Artisan Craftsmanship Pillars */}
         <div className="space-y-4 sm:space-y-6">
           <div className="text-center max-w-2xl mx-auto space-y-1.5 sm:space-y-2">
-            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#ec2f73] bg-[#fff0f5] px-3 py-1 rounded-full border border-[#f5cad7]">
+            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#D30915] bg-[#fff1f2] px-3 py-1 rounded-full border border-[#fecdd3]">
               The Quality Difference
             </span>
             <h2 className="text-xl sm:text-3xl font-black text-[#141219] font-display m-0">
@@ -455,7 +455,7 @@ export const About: React.FC<AboutProps> = ({
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
             {/* Pillar 1: 100% Pure Soy Wax */}
-            <div className="bg-white rounded-[18px] sm:rounded-[24px] p-4 sm:p-6 border border-[#eedbe6] shadow-[0_6px_20px_rgba(50,31,63,0.03)] hover:border-[#ec2f73]/50 transition-all flex flex-col justify-between group">
+            <div className="bg-white rounded-[18px] sm:rounded-[24px] p-4 sm:p-6 border border-[#eedbe6] shadow-[0_6px_20px_rgba(50,31,63,0.03)] hover:border-[#D30915]/50 transition-all flex flex-col justify-between group">
               <div>
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-[12px] sm:rounded-[14px] bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-105 transition-transform shadow-xs">
                   <Leaf className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -473,9 +473,9 @@ export const About: React.FC<AboutProps> = ({
             </div>
 
             {/* Pillar 2: Phthalate-Free Fragrances */}
-            <div className="bg-white rounded-[18px] sm:rounded-[24px] p-4 sm:p-6 border border-[#eedbe6] shadow-[0_6px_20px_rgba(50,31,63,0.03)] hover:border-[#ec2f73]/50 transition-all flex flex-col justify-between group">
+            <div className="bg-white rounded-[18px] sm:rounded-[24px] p-4 sm:p-6 border border-[#eedbe6] shadow-[0_6px_20px_rgba(50,31,63,0.03)] hover:border-[#D30915]/50 transition-all flex flex-col justify-between group">
               <div>
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-[12px] sm:rounded-[14px] bg-pink-50 text-[#ec2f73] border border-[#f5cad7] flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-105 transition-transform shadow-xs">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-[12px] sm:rounded-[14px] bg-red-50 text-[#D30915] border border-[#fecdd3] flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-105 transition-transform shadow-xs">
                   <Droplets className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
                 <h3 className="text-sm sm:text-base font-black text-[#141219] mb-1.5 font-display">
@@ -485,13 +485,13 @@ export const About: React.FC<AboutProps> = ({
                   Custom-blended fragrance oils with complex top, heart, and base notes. 100% phthalate-free, paraben-free, and cruelty-free.
                 </p>
               </div>
-              <span className="text-[9px] sm:text-[10px] font-bold text-[#ec2f73] bg-[#fff0f5] px-2 py-0.5 rounded-full border border-[#f5cad7] mt-3 sm:mt-4 self-start">
+              <span className="text-[9px] sm:text-[10px] font-bold text-[#D30915] bg-[#fff1f2] px-2 py-0.5 rounded-full border border-[#fecdd3] mt-3 sm:mt-4 self-start">
                 Phthalate-Free
               </span>
             </div>
 
             {/* Pillar 3: Lead-Free Cotton Wicks */}
-            <div className="bg-white rounded-[18px] sm:rounded-[24px] p-4 sm:p-6 border border-[#eedbe6] shadow-[0_6px_20px_rgba(50,31,63,0.03)] hover:border-[#ec2f73]/50 transition-all flex flex-col justify-between group">
+            <div className="bg-white rounded-[18px] sm:rounded-[24px] p-4 sm:p-6 border border-[#eedbe6] shadow-[0_6px_20px_rgba(50,31,63,0.03)] hover:border-[#D30915]/50 transition-all flex flex-col justify-between group">
               <div>
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-[12px] sm:rounded-[14px] bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-105 transition-transform shadow-xs">
                   <Flame className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -509,7 +509,7 @@ export const About: React.FC<AboutProps> = ({
             </div>
 
             {/* Pillar 4: Guaranteed Real Cash & Jewelry */}
-            <div className="bg-white rounded-[18px] sm:rounded-[24px] p-4 sm:p-6 border border-[#eedbe6] shadow-[0_6px_20px_rgba(50,31,63,0.03)] hover:border-[#ec2f73]/50 transition-all flex flex-col justify-between group">
+            <div className="bg-white rounded-[18px] sm:rounded-[24px] p-4 sm:p-6 border border-[#eedbe6] shadow-[0_6px_20px_rgba(50,31,63,0.03)] hover:border-[#D30915]/50 transition-all flex flex-col justify-between group">
               <div>
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-[12px] sm:rounded-[14px] bg-purple-50 text-purple-600 border border-purple-200 flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-105 transition-transform shadow-xs">
                   <Gem className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -531,11 +531,11 @@ export const About: React.FC<AboutProps> = ({
         {/* 6. Mission & Vision */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           {/* Mission */}
-          <div className="bg-gradient-to-br from-white via-[#fffafc] to-[#fff3f8] rounded-[20px] sm:rounded-[28px] p-4 sm:p-8 border-2 border-[#f5cad7] shadow-[0_8px_30px_rgba(236,47,115,0.06)] space-y-2.5 sm:space-y-3">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-[12px] sm:rounded-[14px] bg-[#fff0f5] text-[#ec2f73] border border-[#f5cad7] flex items-center justify-center shadow-xs">
+          <div className="bg-gradient-to-br from-white via-[#fffafc] to-[#fff3f8] rounded-[20px] sm:rounded-[28px] p-4 sm:p-8 border-2 border-[#fecdd3] shadow-[0_8px_30px_rgba(211, 9, 21,0.06)] space-y-2.5 sm:space-y-3">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-[12px] sm:rounded-[14px] bg-[#fff1f2] text-[#D30915] border border-[#fecdd3] flex items-center justify-center shadow-xs">
               <Sparkles className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
-            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#ec2f73] block">Our Mission</span>
+            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#D30915] block">Our Mission</span>
             <h3 className="text-lg sm:text-xl font-black text-[#141219] font-display m-0">
               To Deliver Wonder, Warmth & Joy to Every Home
             </h3>
@@ -562,7 +562,7 @@ export const About: React.FC<AboutProps> = ({
         {/* 7. Core Values */}
         <div className="bg-white rounded-[20px] sm:rounded-[28px] p-4 sm:p-8 lg:p-10 border border-[#eedbe6] shadow-[0_8px_30px_rgba(50,31,63,0.04)] space-y-4 sm:space-y-6">
           <div className="text-center max-w-xl mx-auto space-y-1 sm:space-y-1.5">
-            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#ec2f73] bg-[#fff0f5] px-3 py-1 rounded-full border border-[#f5cad7]">
+            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#D30915] bg-[#fff1f2] px-3 py-1 rounded-full border border-[#fecdd3]">
               Guiding Principles
             </span>
             <h2 className="text-xl sm:text-3xl font-black text-[#141219] font-display m-0">
@@ -572,7 +572,7 @@ export const About: React.FC<AboutProps> = ({
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
             <div className="p-3.5 sm:p-4 rounded-[14px] sm:rounded-[20px] bg-[#fffafc] border border-[#eedbe6]">
-              <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-[#ec2f73] mb-1.5 sm:mb-2" />
+              <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-[#D30915] mb-1.5 sm:mb-2" />
               <h4 className="text-xs sm:text-sm font-black text-[#141219] mb-0.5 sm:mb-1">Authenticity First</h4>
               <p className="text-[11px] sm:text-xs text-[#716d77] leading-relaxed m-0">
                 100% of our products contain a real surprise prize. Transparent appraisals and genuine currency.
@@ -606,15 +606,15 @@ export const About: React.FC<AboutProps> = ({
         </div>
 
         {/* 8. Dual CTA Light Luxury Footer Banner */}
-        <div className="bg-gradient-to-br from-[#fff0f5] via-[#fff8fb] to-[#fbf4ff] rounded-[20px] sm:rounded-[30px] p-5 sm:p-10 lg:p-12 border-2 border-[#f5cad7] shadow-[0_12px_36px_rgba(236,47,115,0.08)] relative overflow-hidden">
+        <div className="bg-gradient-to-br from-[#fff1f2] via-[#fff8fb] to-[#fbf4ff] rounded-[20px] sm:rounded-[30px] p-5 sm:p-10 lg:p-12 border-2 border-[#fecdd3] shadow-[0_12px_36px_rgba(211, 9, 21,0.08)] relative overflow-hidden">
           {/* Soft Ambient Backlights */}
-          <div className="absolute top-0 right-0 w-64 sm:w-96 h-64 sm:h-96 bg-[#ec2f73]/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-0 right-0 w-64 sm:w-96 h-64 sm:h-96 bg-[#D30915]/10 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-10 left-1/3 w-60 sm:w-80 h-60 sm:h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
 
           <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6">
             <div className="max-w-xl space-y-1.5 sm:space-y-2.5">
-              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#ec2f73] bg-white px-3 sm:px-3.5 py-1 rounded-full border border-[#f5cad7] shadow-2xs inline-flex items-center gap-1.5">
-                <Star className="w-3.5 h-3.5 text-[#ec2f73] fill-[#ec2f73]" />
+              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#D30915] bg-white px-3 sm:px-3.5 py-1 rounded-full border border-[#fecdd3] shadow-2xs inline-flex items-center gap-1.5">
+                <Star className="w-3.5 h-3.5 text-[#D30915] fill-[#D30915]" />
                 <span>Ready to Experience the Magic?</span>
               </span>
 
@@ -631,7 +631,7 @@ export const About: React.FC<AboutProps> = ({
               <button
                 type="button"
                 onClick={onNavigateToShop}
-                className="w-full sm:w-auto min-h-[44px] sm:min-h-[46px] px-5 sm:px-7 rounded-[13px] sm:rounded-[14px] bg-[#ec2f73] hover:bg-[#d92467] text-white font-black text-xs uppercase tracking-wider shadow-[0_6px_20px_rgba(236,47,115,0.28)] active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full sm:w-auto min-h-[44px] sm:min-h-[46px] px-5 sm:px-7 rounded-[13px] sm:rounded-[14px] bg-[#D30915] hover:bg-[#B60711] text-white font-black text-xs uppercase tracking-wider shadow-[0_6px_20px_rgba(211, 9, 21,0.28)] active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>Shop Surprise Candles</span>
                 <ArrowRight className="w-4 h-4" />
@@ -640,7 +640,7 @@ export const About: React.FC<AboutProps> = ({
               <button
                 type="button"
                 onClick={onNavigateToAffiliate}
-                className="w-full sm:w-auto min-h-[44px] sm:min-h-[46px] px-5 sm:px-6 rounded-[13px] sm:rounded-[14px] bg-white hover:bg-[#fff0f5] text-[#141219] hover:text-[#ec2f73] border border-[#eedbe6] hover:border-[#f5cad7] font-black text-xs uppercase tracking-wider shadow-2xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full sm:w-auto min-h-[44px] sm:min-h-[46px] px-5 sm:px-6 rounded-[13px] sm:rounded-[14px] bg-white hover:bg-[#fff1f2] text-[#141219] hover:text-[#D30915] border border-[#eedbe6] hover:border-[#fecdd3] font-black text-xs uppercase tracking-wider shadow-2xs transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>Join Rep Program (20%)</span>
               </button>

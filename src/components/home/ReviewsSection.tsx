@@ -27,17 +27,17 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ isLoading = fals
     <section id="reviews" className="max-w-[1460px] mx-auto px-3 sm:px-6 py-4 sm:py-6 overflow-hidden">
       
       {/* Master Customer Reveal & Social Proof Showcase Card */}
-      <div className="relative rounded-[24px] sm:rounded-[30px] border border-[#ebd2e2] bg-gradient-to-br from-[#fff2f7] via-[#fffafc] to-[#fbf6ff] p-5 sm:p-7 lg:p-8 shadow-[0_16px_45px_rgba(50,31,63,0.08)] overflow-hidden">
+      <div className="relative rounded-[24px] sm:rounded-[30px] border border-[#ebd2e2] bg-gradient-to-br from-[#fff1f2] via-[#fffafc] to-[#fbf6ff] p-5 sm:p-7 lg:p-8 shadow-[0_16px_45px_rgba(50,31,63,0.08)] overflow-hidden">
         
         {/* Soft Ambient Radial Backlight */}
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#ec2f73]/8 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#D30915]/8 rounded-full blur-3xl pointer-events-none" />
 
         {/* Section Header: Title, Subtitle & Trust Rating Summary */}
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5 mb-6 z-10 relative">
           
           <div className="max-w-2xl">
             {/* Top Eyebrow Tag */}
-            <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#ec2f73]/10 text-[#ec2f73] text-[10px] sm:text-[11px] font-black uppercase tracking-wider mb-2.5 shadow-2xs">
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#D30915]/10 text-[#D30915] text-[10px] sm:text-[11px] font-black uppercase tracking-wider mb-2.5 shadow-2xs">
               <Sparkles className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: '4s' }} />
               <span>Real Customer Reveals</span>
             </div>
@@ -45,7 +45,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ isLoading = fals
             {/* Main Headline */}
             <h2 className="text-2xl sm:text-3xl lg:text-[34px] font-black text-[#141219] tracking-tight leading-snug hero-title-font m-0 mb-2">
               Unboxings, Real Cash &{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ec2f73] via-[#ff3b83] to-[#d92467]">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D30915] via-[#E51D29] to-[#B60711]">
                 Fine Jewelry Reveals
               </span>
             </h2>
@@ -79,8 +79,8 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ isLoading = fals
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 stroke-[2.5]" />
                 <span>100% Win in Every Order</span>
               </div>
-              <div className="flex items-center gap-1.5 text-[#ec2f73]">
-                <Award className="w-3.5 h-3.5 text-[#ec2f73]" />
+              <div className="flex items-center gap-1.5 text-[#D30915]">
+                <Award className="w-3.5 h-3.5 text-[#D30915]" />
                 <span>$1.2M+ In Prizes Revealed</span>
               </div>
             </div>
@@ -95,8 +95,8 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ isLoading = fals
             onClick={() => setActiveFilter('all')}
             className={`px-3.5 py-1.5 rounded-full text-xs font-extrabold transition-all duration-200 cursor-pointer shrink-0 ${
               activeFilter === 'all'
-                ? 'bg-[#ec2f73] text-white shadow-[0_4px_14px_rgba(236,47,115,0.3)]'
-                : 'bg-white text-[#55505a] border border-[#e8dfe5] hover:border-[#ec2f73] hover:text-[#ec2f73]'
+                ? 'bg-[#D30915] text-white shadow-[0_4px_14px_rgba(211, 9, 21,0.3)]'
+                : 'bg-white text-[#55505a] border border-[#e8dfe5] hover:border-[#D30915] hover:text-[#D30915]'
             }`}
           >
             All Reveals ({reviewsData.length})
@@ -169,7 +169,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ isLoading = fals
             return (
               <div
                 key={review.id}
-                className="p-4 rounded-[20px] bg-white border border-[#eedbe6] shadow-[0_8px_24px_rgba(50,31,63,0.04)] hover:shadow-[0_16px_36px_rgba(236,47,115,0.12)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group"
+                className="p-4 rounded-[20px] bg-white border border-[#eedbe6] shadow-[0_8px_24px_rgba(50,31,63,0.04)] hover:shadow-[0_16px_36px_rgba(211, 9, 21,0.12)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group"
               >
                 <div>
                   
@@ -179,7 +179,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ isLoading = fals
                       <img
                         src={review.avatar || '/assets/ilovesurprises/Profile/profile%20image.webp'}
                         alt={review.author}
-                        className="w-10 h-10 rounded-full object-cover border border-[#f5cad7] bg-[#fff0f5] shrink-0"
+                        className="w-10 h-10 rounded-full object-cover border border-[#fecdd3] bg-[#fff1f2] shrink-0"
                         loading="lazy"
                       />
                       
@@ -205,7 +205,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ isLoading = fals
                   </div>
 
                   {/* Review Title with Quotes */}
-                  <h4 className="text-xs sm:text-[13px] font-black text-[#141219] leading-snug m-0 mb-1.5 group-hover:text-[#ec2f73] transition-colors line-clamp-2">
+                  <h4 className="text-xs sm:text-[13px] font-black text-[#141219] leading-snug m-0 mb-1.5 group-hover:text-[#D30915] transition-colors line-clamp-2">
                     "{review.title}"
                   </h4>
 
@@ -225,7 +225,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ isLoading = fals
                         isCash
                           ? 'bg-gradient-to-r from-emerald-50 to-teal-50/50 border-emerald-200 text-emerald-800'
                           : isJewelry
-                          ? 'bg-gradient-to-r from-[#fff0f5] to-[#fff7fa] border-[#f5cad7] text-[#ec2f73]'
+                          ? 'bg-gradient-to-r from-[#fff1f2] to-[#fff7fa] border-[#fecdd3] text-[#D30915]'
                           : 'bg-gradient-to-r from-purple-50 to-pink-50/50 border-purple-200 text-purple-800'
                       }`}
                     >
@@ -234,7 +234,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ isLoading = fals
                           isCash
                             ? 'bg-emerald-100 text-emerald-700'
                             : isJewelry
-                            ? 'bg-[#ffe4ee] text-[#ec2f73]'
+                            ? 'bg-[#ffe4ee] text-[#D30915]'
                             : 'bg-purple-100 text-purple-700'
                         }`}
                       >
@@ -295,7 +295,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ isLoading = fals
           </div>
 
           <div className="p-2.5 rounded-[14px] bg-white/80 border border-[#f2e6ec] flex flex-col items-center justify-center">
-            <Gem className="w-4 h-4 text-[#ec2f73] mb-1" />
+            <Gem className="w-4 h-4 text-[#D30915] mb-1" />
             <strong className="text-xs font-black text-[#141219]">Appraised Jewelry</strong>
             <span className="text-[10px] text-[#716d77]">Sterling Silver & 14K Gold</span>
           </div>

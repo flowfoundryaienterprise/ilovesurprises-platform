@@ -69,16 +69,16 @@ export const EarningsChart: React.FC = () => {
   const peakPeriod = [...data].sort((a, b) => b.personal + b.team - (a.personal + a.team))[0];
 
   return (
-    <div className="bg-gradient-to-b from-white via-[#fffdfd] to-[#fff8fb] rounded-[20px] sm:rounded-[28px] p-4 sm:p-7 lg:p-9 border-2 border-[#f5cad7] shadow-[0_12px_36px_rgba(236,47,115,0.06)] space-y-4 sm:space-y-7 relative overflow-hidden">
+    <div className="bg-gradient-to-b from-white via-[#fffdfd] to-[#fff8fb] rounded-[20px] sm:rounded-[28px] p-4 sm:p-7 lg:p-9 border-2 border-[#fecdd3] shadow-[0_12px_36px_rgba(211, 9, 21,0.06)] space-y-4 sm:space-y-7 relative overflow-hidden">
       {/* Soft Ambient Backlights */}
-      <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-bl from-[#ec2f73]/8 to-transparent rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-bl from-[#D30915]/8 to-transparent rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-1/4 w-72 h-72 bg-purple-500/8 rounded-full blur-3xl pointer-events-none" />
 
       {/* 1. Header Toolbar */}
       <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4 pb-4 sm:pb-5 border-b border-[#f5eaf1]">
         <div>
           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap mb-1">
-            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#ec2f73] bg-[#fff0f5] px-2.5 sm:px-3 py-1 rounded-full border border-[#f5cad7] inline-flex items-center gap-1.5 shadow-2xs">
+            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#D30915] bg-[#fff1f2] px-2.5 sm:px-3 py-1 rounded-full border border-[#fecdd3] inline-flex items-center gap-1.5 shadow-2xs">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Revenue & Commission Analytics</span>
             </span>
@@ -105,8 +105,8 @@ export const EarningsChart: React.FC = () => {
               onClick={() => setViewStyle('stacked')}
               className={`px-2.5 sm:px-3 py-1.5 rounded-[9px] sm:rounded-[10px] text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer flex-1 sm:flex-initial ${
                 viewStyle === 'stacked'
-                  ? 'bg-[#ec2f73] text-white font-black shadow-xs'
-                  : 'text-[#55505a] hover:text-[#ec2f73]'
+                  ? 'bg-[#D30915] text-white font-black shadow-xs'
+                  : 'text-[#55505a] hover:text-[#D30915]'
               }`}
               title="Stacked Pillar View"
             >
@@ -119,8 +119,8 @@ export const EarningsChart: React.FC = () => {
               onClick={() => setViewStyle('grouped')}
               className={`px-2.5 sm:px-3 py-1.5 rounded-[9px] sm:rounded-[10px] text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer flex-1 sm:flex-initial ${
                 viewStyle === 'grouped'
-                  ? 'bg-[#ec2f73] text-white font-black shadow-xs'
-                  : 'text-[#55505a] hover:text-[#ec2f73]'
+                  ? 'bg-[#D30915] text-white font-black shadow-xs'
+                  : 'text-[#55505a] hover:text-[#D30915]'
               }`}
               title="Side-by-Side Comparison"
             >
@@ -140,7 +140,7 @@ export const EarningsChart: React.FC = () => {
               className={`px-2 sm:px-3 py-1.5 rounded-[9px] sm:rounded-[10px] text-[11px] sm:text-xs font-bold transition-all cursor-pointer flex-1 sm:flex-initial text-center ${
                 timeframe === 'daily'
                   ? 'bg-[#141219] text-white font-black shadow-xs'
-                  : 'text-[#55505a] hover:text-[#ec2f73]'
+                  : 'text-[#55505a] hover:text-[#D30915]'
               }`}
             >
               7 Days
@@ -155,7 +155,7 @@ export const EarningsChart: React.FC = () => {
               className={`px-2 sm:px-3 py-1.5 rounded-[9px] sm:rounded-[10px] text-[11px] sm:text-xs font-bold transition-all cursor-pointer flex-1 sm:flex-initial text-center ${
                 timeframe === 'weekly'
                   ? 'bg-[#141219] text-white font-black shadow-xs'
-                  : 'text-[#55505a] hover:text-[#ec2f73]'
+                  : 'text-[#55505a] hover:text-[#D30915]'
               }`}
             >
               4 Weeks
@@ -170,7 +170,7 @@ export const EarningsChart: React.FC = () => {
               className={`px-2 sm:px-3 py-1.5 rounded-[9px] sm:rounded-[10px] text-[11px] sm:text-xs font-bold transition-all cursor-pointer flex-1 sm:flex-initial text-center ${
                 timeframe === 'monthly'
                   ? 'bg-[#141219] text-white font-black shadow-xs'
-                  : 'text-[#55505a] hover:text-[#ec2f73]'
+                  : 'text-[#55505a] hover:text-[#D30915]'
               }`}
             >
               6 Months
@@ -182,13 +182,13 @@ export const EarningsChart: React.FC = () => {
       {/* 2. Key Metrics Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3.5">
         {/* Personal Sales Card */}
-        <div className="p-3.5 sm:p-4 rounded-[16px] sm:rounded-[20px] bg-gradient-to-br from-white to-[#fff0f5] border-2 border-[#f5cad7] shadow-xs flex items-center justify-between group hover:border-[#ec2f73] transition-all">
+        <div className="p-3.5 sm:p-4 rounded-[16px] sm:rounded-[20px] bg-gradient-to-br from-white to-[#fff1f2] border-2 border-[#fecdd3] shadow-xs flex items-center justify-between group hover:border-[#D30915] transition-all">
           <div className="flex items-center gap-2.5 sm:gap-3">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[12px] bg-gradient-to-tr from-[#ec2f73] to-[#ff4785] text-white flex items-center justify-center shadow-xs shrink-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[12px] bg-gradient-to-tr from-[#D30915] to-[#ff4785] text-white flex items-center justify-center shadow-xs shrink-0">
               <Flame className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <span className="text-[9px] sm:text-[10px] uppercase font-black text-[#ec2f73] block">
+              <span className="text-[9px] sm:text-[10px] uppercase font-black text-[#D30915] block">
                 Personal 20% Direct Sales
               </span>
               <strong className="text-base sm:text-xl font-black text-[#141219]">
@@ -196,7 +196,7 @@ export const EarningsChart: React.FC = () => {
               </strong>
             </div>
           </div>
-          <span className="text-[10px] sm:text-xs font-black text-[#ec2f73] bg-white px-2 sm:px-2.5 py-1 rounded-full border border-[#f5cad7] shadow-2xs shrink-0">
+          <span className="text-[10px] sm:text-xs font-black text-[#D30915] bg-white px-2 sm:px-2.5 py-1 rounded-full border border-[#fecdd3] shadow-2xs shrink-0">
             {((totalPersonalEarnings / totalPeriodEarnings) * 100).toFixed(0)}%
           </span>
         </div>
@@ -248,7 +248,7 @@ export const EarningsChart: React.FC = () => {
         <div className="flex items-center justify-between gap-2 sm:gap-4 flex-wrap text-xs pb-3 border-b border-[#f5eaf1]">
           <div className="flex items-center gap-3 sm:gap-4 font-bold text-[#55505a] flex-wrap text-[11px] sm:text-xs">
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <span className="w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-[5px] sm:rounded-[6px] bg-gradient-to-t from-[#ec2f73] to-[#ff4785] shadow-xs shrink-0" />
+              <span className="w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-[5px] sm:rounded-[6px] bg-gradient-to-t from-[#D30915] to-[#ff4785] shadow-xs shrink-0" />
               <span className="text-[#141219]">Personal Direct (20%)</span>
             </div>
 
@@ -259,7 +259,7 @@ export const EarningsChart: React.FC = () => {
           </div>
 
           <span className="text-[10px] sm:text-[11px] text-[#8a858f] font-medium hidden md:inline-flex items-center gap-1">
-            <Info className="w-3.5 h-3.5 text-[#ec2f73]" />
+            <Info className="w-3.5 h-3.5 text-[#D30915]" />
             <span>Tap any bar for full tier breakdown</span>
           </span>
         </div>
@@ -322,8 +322,8 @@ export const EarningsChart: React.FC = () => {
                         {/* Tooltip Breakdown */}
                         <div className="space-y-0.5 sm:space-y-1 text-[10px] sm:text-[11px]">
                           <div className="flex items-center justify-between">
-                            <span className="flex items-center gap-1 text-pink-300">
-                              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#ec2f73]" />
+                            <span className="flex items-center gap-1 text-red-300">
+                              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#D30915]" />
                               <span>Direct:</span>
                             </span>
                             <strong className="text-white font-mono">${item.personal.toFixed(2)}</strong>
@@ -354,7 +354,7 @@ export const EarningsChart: React.FC = () => {
                     <div
                       className={`mb-1.5 sm:mb-2 transition-all duration-200 text-[9px] sm:text-[11px] font-black font-mono px-1.5 sm:px-2 py-0.5 rounded-full shadow-2xs ${
                         isHovered
-                          ? 'bg-[#ec2f73] text-white scale-110 shadow-md'
+                          ? 'bg-[#D30915] text-white scale-110 shadow-md'
                           : 'bg-white/90 text-[#141219] border border-[#eedbe6]'
                       }`}
                     >
@@ -362,13 +362,13 @@ export const EarningsChart: React.FC = () => {
                     </div>
 
                     {/* Light Pillar Track Column */}
-                    <div className="w-full max-w-[48px] sm:max-w-[56px] h-full flex items-end justify-center bg-[#fff8fb]/70 rounded-t-[14px] sm:rounded-t-[18px] p-1 sm:p-1.5 transition-all group-hover:bg-[#fff0f5]">
+                    <div className="w-full max-w-[48px] sm:max-w-[56px] h-full flex items-end justify-center bg-[#fff8fb]/70 rounded-t-[14px] sm:rounded-t-[18px] p-1 sm:p-1.5 transition-all group-hover:bg-[#fff1f2]">
                       {viewStyle === 'stacked' ? (
                         /* Mode 1: 3D Stacked Pillar */
                         <div
                           className={`w-full rounded-t-[10px] sm:rounded-t-[14px] overflow-hidden transition-all duration-300 flex flex-col-reverse shadow-md relative ${
                             isHovered
-                              ? 'scale-103 shadow-[0_10px_24px_rgba(236,47,115,0.35)] brightness-105'
+                              ? 'scale-103 shadow-[0_10px_24px_rgba(211, 9, 21,0.35)] brightness-105'
                               : ''
                           }`}
                           style={{ height: `${Math.max(14, totalHeightPercent)}%` }}
@@ -378,7 +378,7 @@ export const EarningsChart: React.FC = () => {
 
                           {/* Personal Tier (Bottom Stack) */}
                           <div
-                            className="bg-gradient-to-t from-[#ec2f73] via-[#ff3b7d] to-[#ff5388] transition-all relative"
+                            className="bg-gradient-to-t from-[#D30915] via-[#ff3b7d] to-[#ff5388] transition-all relative"
                             style={{ height: `${personalRatio}%` }}
                           />
 
@@ -393,7 +393,7 @@ export const EarningsChart: React.FC = () => {
                         <div className="w-full h-full flex items-end justify-center gap-1 sm:gap-1.5">
                           {/* Personal Bar */}
                           <div
-                            className="flex-1 rounded-t-[8px] sm:rounded-t-[10px] bg-gradient-to-t from-[#ec2f73] to-[#ff4785] transition-all duration-300 relative shadow-xs"
+                            className="flex-1 rounded-t-[8px] sm:rounded-t-[10px] bg-gradient-to-t from-[#D30915] to-[#ff4785] transition-all duration-300 relative shadow-xs"
                             style={{ height: `${Math.max(12, personalHeightPercent)}%` }}
                           >
                             <div className="absolute top-0 inset-x-0 h-0.5 bg-white/50" />
@@ -412,7 +412,7 @@ export const EarningsChart: React.FC = () => {
 
                     {/* Bottom Label Tag */}
                     <div className="mt-2 text-center w-full">
-                      <span className="block text-[9px] sm:text-xs font-bold text-[#55505a] truncate group-hover:text-[#ec2f73] transition-colors">
+                      <span className="block text-[9px] sm:text-xs font-bold text-[#55505a] truncate group-hover:text-[#D30915] transition-colors">
                         {item.shortLabel}
                       </span>
                     </div>

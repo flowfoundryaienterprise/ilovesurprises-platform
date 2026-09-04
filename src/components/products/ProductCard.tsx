@@ -68,7 +68,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {/* Top-Left Badges Stack with Proper Flex Spacing & No Overlap */}
         <div className="absolute top-1.5 left-1.5 flex flex-col items-start gap-1 max-w-[calc(100%-36px)] z-10">
           {discountPercent && (
-            <span className="px-2 py-0.5 rounded-full bg-[#ec2f73] text-white text-[8.5px] sm:text-[9px] font-black uppercase tracking-wider shadow-xs">
+            <span className="px-2 py-0.5 rounded-full bg-[#D30915] text-white text-[8.5px] sm:text-[9px] font-black uppercase tracking-wider shadow-xs">
               {discountPercent}% OFF
             </span>
           )}
@@ -87,8 +87,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           aria-label={isWishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
           className={`absolute top-1.5 right-1.5 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer shadow-xs active:scale-90 z-20 ${
             isWishlisted
-              ? 'bg-[#ec2f73] text-white shadow-[0_4px_12px_rgba(236,47,115,0.3)]'
-              : 'bg-white/90 hover:bg-white text-[#716d77] hover:text-[#ec2f73] hover:shadow-[0_4px_12px_rgba(236,47,115,0.2)] hover:scale-110'
+              ? 'bg-[#D30915] text-white shadow-[0_4px_12px_rgba(211, 9, 21,0.3)]'
+              : 'bg-white/90 hover:bg-white text-[#716d77] hover:text-[#D30915] hover:shadow-[0_4px_12px_rgba(211, 9, 21,0.2)] hover:scale-110'
           }`}
         >
           <Heart className={`w-3.5 h-3.5 ${isWishlisted ? 'fill-current' : ''}`} />
@@ -97,7 +97,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {/* Surprise Pill Tag at Bottom of Image with Strict Truncation and No Overflow */}
         {product.surpriseValue && (
           <div className="absolute bottom-1.5 left-1.5 right-1.5 bg-white/95 backdrop-blur-xs rounded-[8px] px-2 py-0.5 border border-[#f2e6ec] flex items-center gap-1 shadow-2xs z-10 pointer-events-none overflow-hidden max-w-[calc(100%-12px)]">
-            <Sparkles className="w-2.5 h-2.5 text-[#ec2f73] shrink-0 animate-pulse" />
+            <Sparkles className="w-2.5 h-2.5 text-[#D30915] shrink-0 animate-pulse" />
             <span className="text-[9px] sm:text-[10px] font-bold text-[#141219] truncate leading-tight">
               {product.surpriseValue}
             </span>
@@ -121,7 +121,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </div>
 
           {/* Product Name */}
-          <h3 className="text-xs sm:text-[13px] font-bold text-[#141219] leading-snug line-clamp-2 m-0 mb-1 group-hover:text-[#ec2f73] transition-colors min-h-[2rem]">
+          <h3 className="text-xs sm:text-[13px] font-bold text-[#141219] leading-snug line-clamp-2 m-0 mb-1 group-hover:text-[#D30915] transition-colors min-h-[2rem]">
             {product.name}
           </h3>
         </div>
@@ -144,14 +144,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <button
               type="button"
               onClick={handleAdd}
-              className="h-[32px] sm:h-[34px] px-3.5 rounded-[10px] bg-[#fff3f7] hover:bg-[#ec2f73] text-[#ec2f73] hover:text-white border border-[#f5cad7] hover:border-[#ec2f73] text-xs font-black uppercase tracking-wider flex items-center gap-1 shadow-2xs hover:shadow-[0_6px_20px_rgba(236,47,115,0.32)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 cursor-pointer"
+              className="h-[32px] sm:h-[34px] px-3.5 rounded-[10px] bg-[#fff5f5] hover:bg-[#D30915] text-[#D30915] hover:text-white border border-[#fecdd3] hover:border-[#D30915] text-xs font-black uppercase tracking-wider flex items-center gap-1 shadow-2xs hover:shadow-[0_6px_20px_rgba(211, 9, 21,0.32)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 cursor-pointer"
               aria-label={`Add ${product.name} to cart`}
             >
               <Plus className="w-3.5 h-3.5 stroke-[3]" />
               <span>ADD</span>
             </button>
           ) : (
-            <div className="h-[32px] sm:h-[34px] rounded-[10px] bg-[#ec2f73] text-white flex items-center px-1 font-black text-xs shadow-[0_6px_18px_rgba(236,47,115,0.28)]">
+            <div className="h-[32px] sm:h-[34px] rounded-[10px] bg-[#D30915] text-white flex items-center px-1 font-black text-xs shadow-[0_6px_18px_rgba(211, 9, 21,0.28)]">
               <button
                 type="button"
                 onClick={handleDecrement}

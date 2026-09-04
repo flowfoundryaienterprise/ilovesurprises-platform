@@ -27,12 +27,12 @@ const LEVEL_COLORS: Record<
   { bg: string; text: string; border: string; label: string; rate: string; pill: string }
 > = {
   1: {
-    bg: 'bg-pink-50',
-    text: 'text-[#ec2f73]',
-    border: 'border-[#f5cad7]',
+    bg: 'bg-red-50',
+    text: 'text-[#D30915]',
+    border: 'border-[#fecdd3]',
     label: 'Level 1 (Direct)',
     rate: '5% Override',
-    pill: 'bg-[#fff0f5] text-[#ec2f73] border-[#f5cad7]',
+    pill: 'bg-[#fff1f2] text-[#D30915] border-[#fecdd3]',
   },
   2: {
     bg: 'bg-purple-50',
@@ -150,12 +150,12 @@ export const GenealogyTree: React.FC<GenealogyTreeProps> = ({
         {/* Node Member Card */}
         <div
           onClick={() => setSelectedMember(node)}
-          className={`w-[240px] sm:w-[280px] bg-white rounded-[18px] sm:rounded-[22px] p-3 sm:p-4 border-2 transition-all duration-200 cursor-pointer text-left relative z-10 shadow-[0_6px_20px_rgba(50,31,63,0.06)] hover:shadow-[0_10px_30px_rgba(236,47,115,0.18)] select-none ${
+          className={`w-[240px] sm:w-[280px] bg-white rounded-[18px] sm:rounded-[22px] p-3 sm:p-4 border-2 transition-all duration-200 cursor-pointer text-left relative z-10 shadow-[0_6px_20px_rgba(50,31,63,0.06)] hover:shadow-[0_10px_30px_rgba(211, 9, 21,0.18)] select-none ${
             isMatched
-              ? 'border-[#ec2f73] ring-4 ring-[#ec2f73]/25 scale-103'
+              ? 'border-[#D30915] ring-4 ring-[#D30915]/25 scale-103'
               : selectedMember?.id === node.id
-              ? 'border-[#ec2f73] ring-2 ring-[#ec2f73]/20'
-              : 'border-[#eedbe6] hover:border-[#f5cad7]'
+              ? 'border-[#D30915] ring-2 ring-[#D30915]/20'
+              : 'border-[#eedbe6] hover:border-[#fecdd3]'
           }`}
         >
           {/* Top Level Pill Bar */}
@@ -183,7 +183,7 @@ export const GenealogyTree: React.FC<GenealogyTreeProps> = ({
               <img
                 src={node.avatar || DEFAULT_PROFILE_AVATAR}
                 alt={node.name}
-                className="w-10 h-10 sm:w-11 sm:h-11 rounded-full object-cover border-2 border-[#f5cad7] shadow-xs"
+                className="w-10 h-10 sm:w-11 sm:h-11 rounded-full object-cover border-2 border-[#fecdd3] shadow-xs"
               />
             </div>
 
@@ -194,7 +194,7 @@ export const GenealogyTree: React.FC<GenealogyTreeProps> = ({
               <span className="text-[10px] text-[#8a858f] font-mono block truncate">
                 @{node.repUsername}
               </span>
-              <div className="flex items-center gap-1 text-[9px] font-bold text-[#ec2f73] mt-0.5">
+              <div className="flex items-center gap-1 text-[9px] font-bold text-[#D30915] mt-0.5">
                 <Award className="w-2.5 h-2.5 shrink-0" />
                 <span className="truncate">{node.rank}</span>
               </div>
@@ -233,7 +233,7 @@ export const GenealogyTree: React.FC<GenealogyTreeProps> = ({
                 onClick={(e) => toggleNode(node.id, e)}
                 className={`w-full min-h-[32px] sm:min-h-[34px] rounded-[10px] text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs ${
                   isExpanded
-                    ? 'bg-[#fff0f5] text-[#ec2f73] hover:bg-[#ffe6ef]'
+                    ? 'bg-[#fff1f2] text-[#D30915] hover:bg-[#ffe6ef]'
                     : 'bg-purple-50 text-purple-800 hover:bg-purple-100'
                 }`}
               >
@@ -331,7 +331,7 @@ export const GenealogyTree: React.FC<GenealogyTreeProps> = ({
                         <button
                           type="button"
                           onClick={(e) => toggleNode(member.id, e)}
-                          className="w-5 h-5 rounded-md bg-[#fff0f5] text-[#ec2f73] flex items-center justify-center cursor-pointer shrink-0"
+                          className="w-5 h-5 rounded-md bg-[#fff1f2] text-[#D30915] flex items-center justify-center cursor-pointer shrink-0"
                         >
                           {isExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
                         </button>
@@ -342,11 +342,11 @@ export const GenealogyTree: React.FC<GenealogyTreeProps> = ({
                       <img
                         src={member.avatar || DEFAULT_PROFILE_AVATAR}
                         alt={member.name}
-                        className="w-6 h-6 sm:w-7 sm:h-7 rounded-full object-cover border border-[#f5cad7] shrink-0"
+                        className="w-6 h-6 sm:w-7 sm:h-7 rounded-full object-cover border border-[#fecdd3] shrink-0"
                       />
 
                       <div className="min-w-0">
-                        <strong className="font-bold text-[#141219] block leading-tight group-hover:text-[#ec2f73] truncate text-[11px] sm:text-xs">
+                        <strong className="font-bold text-[#141219] block leading-tight group-hover:text-[#D30915] truncate text-[11px] sm:text-xs">
                           {member.name}
                         </strong>
                         <span className="text-[9px] sm:text-[10px] text-[#8a858f] font-mono truncate block">
@@ -407,7 +407,7 @@ export const GenealogyTree: React.FC<GenealogyTreeProps> = ({
       {/* 1. Header & Controls Toolbar */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4 pb-3 sm:pb-4 border-b border-[#f5eaf1]">
         <div>
-          <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-black uppercase tracking-wider text-[#ec2f73]">
+          <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-black uppercase tracking-wider text-[#D30915]">
             <Layers className="w-3.5 h-3.5" />
             <span>Interactive 5-Tier Downline Network</span>
           </div>
@@ -428,8 +428,8 @@ export const GenealogyTree: React.FC<GenealogyTreeProps> = ({
               onClick={() => setViewMode('canvas')}
               className={`px-2.5 sm:px-3 py-1.5 rounded-[9px] text-[11px] sm:text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 viewMode === 'canvas'
-                  ? 'bg-[#ec2f73] text-white shadow-2xs font-black'
-                  : 'text-[#55505a] hover:text-[#ec2f73]'
+                  ? 'bg-[#D30915] text-white shadow-2xs font-black'
+                  : 'text-[#55505a] hover:text-[#D30915]'
               }`}
             >
               <GitFork className="w-3.5 h-3.5" />
@@ -441,8 +441,8 @@ export const GenealogyTree: React.FC<GenealogyTreeProps> = ({
               onClick={() => setViewMode('list')}
               className={`px-2.5 sm:px-3 py-1.5 rounded-[9px] text-[11px] sm:text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 viewMode === 'list'
-                  ? 'bg-[#ec2f73] text-white shadow-2xs font-black'
-                  : 'text-[#55505a] hover:text-[#ec2f73]'
+                  ? 'bg-[#D30915] text-white shadow-2xs font-black'
+                  : 'text-[#55505a] hover:text-[#D30915]'
               }`}
             >
               <List className="w-3.5 h-3.5" />
@@ -458,7 +458,7 @@ export const GenealogyTree: React.FC<GenealogyTreeProps> = ({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search tree..."
-              className="h-[34px] sm:h-[36px] pl-8 pr-7 rounded-[11px] bg-[#fffafb] border border-[#e8dfe5] focus:border-[#ec2f73] text-xs text-[#141219] outline-none w-full sm:w-44 shadow-2xs"
+              className="h-[34px] sm:h-[36px] pl-8 pr-7 rounded-[11px] bg-[#fffafb] border border-[#e8dfe5] focus:border-[#D30915] text-xs text-[#141219] outline-none w-full sm:w-44 shadow-2xs"
             />
             {search && (
               <button
@@ -475,7 +475,7 @@ export const GenealogyTree: React.FC<GenealogyTreeProps> = ({
           <button
             type="button"
             onClick={handleExpandAll}
-            className="h-[34px] sm:h-[36px] px-3 sm:px-3.5 rounded-[11px] bg-white border border-[#eedbe6] hover:border-[#ec2f73] text-[#55505a] hover:text-[#ec2f73] text-[11px] sm:text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shadow-2xs"
+            className="h-[34px] sm:h-[36px] px-3 sm:px-3.5 rounded-[11px] bg-white border border-[#eedbe6] hover:border-[#D30915] text-[#55505a] hover:text-[#D30915] text-[11px] sm:text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shadow-2xs"
             title="Expand All Nodes"
           >
             <Maximize2 className="w-3 h-3" />
@@ -485,7 +485,7 @@ export const GenealogyTree: React.FC<GenealogyTreeProps> = ({
           <button
             type="button"
             onClick={handleCollapseAll}
-            className="h-[34px] sm:h-[36px] px-3 sm:px-3.5 rounded-[11px] bg-white border border-[#eedbe6] hover:border-[#ec2f73] text-[#55505a] hover:text-[#ec2f73] text-[11px] sm:text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shadow-2xs"
+            className="h-[34px] sm:h-[36px] px-3 sm:px-3.5 rounded-[11px] bg-white border border-[#eedbe6] hover:border-[#D30915] text-[#55505a] hover:text-[#D30915] text-[11px] sm:text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shadow-2xs"
             title="Collapse All Nodes"
           >
             <Minimize2 className="w-3 h-3" />
@@ -517,7 +517,7 @@ export const GenealogyTree: React.FC<GenealogyTreeProps> = ({
               <button
                 type="button"
                 onClick={handleResetZoom}
-                className="w-7 h-7 rounded-[8px] hover:bg-white text-[#716d77] hover:text-[#ec2f73] flex items-center justify-center cursor-pointer"
+                className="w-7 h-7 rounded-[8px] hover:bg-white text-[#716d77] hover:text-[#D30915] flex items-center justify-center cursor-pointer"
                 title="Reset Zoom (100%)"
               >
                 <RotateCcw className="w-3 h-3" />
@@ -553,25 +553,25 @@ export const GenealogyTree: React.FC<GenealogyTreeProps> = ({
           >
             {/* Root Leader Node (You) */}
             <div className="flex flex-col items-center mb-6">
-              <div className="p-3.5 sm:p-5 rounded-[20px] sm:rounded-[24px] bg-gradient-to-r from-[#ec2f73] via-[#f43f5e] to-[#ff4785] text-white shadow-[0_12px_32px_rgba(236,47,115,0.38)] flex items-center gap-3 sm:gap-4 border-2 border-white ring-4 ring-[#ec2f73]/25">
-                <div className="w-10 h-10 sm:w-13 sm:h-13 rounded-full bg-white text-[#ec2f73] font-black text-base sm:text-xl flex items-center justify-center shadow-xs shrink-0">
+              <div className="p-3.5 sm:p-5 rounded-[20px] sm:rounded-[24px] bg-gradient-to-r from-[#D30915] via-[#f43f5e] to-[#ff4785] text-white shadow-[0_12px_32px_rgba(211, 9, 21,0.38)] flex items-center gap-3 sm:gap-4 border-2 border-white ring-4 ring-[#D30915]/25">
+                <div className="w-10 h-10 sm:w-13 sm:h-13 rounded-full bg-white text-[#D30915] font-black text-base sm:text-xl flex items-center justify-center shadow-xs shrink-0">
                   ★
                 </div>
                 <div>
-                  <span className="text-[9px] sm:text-[10px] uppercase font-black tracking-widest text-pink-100 block">
+                  <span className="text-[9px] sm:text-[10px] uppercase font-black tracking-widest text-red-100 block">
                     Top Sponsor Leader (You)
                   </span>
                   <strong className="text-sm sm:text-lg font-black text-white block leading-tight">
                     Sarah's Direct Team Network
                   </strong>
-                  <span className="text-[10px] sm:text-[11px] text-pink-100 font-medium mt-0.5 block">
+                  <span className="text-[10px] sm:text-[11px] text-red-100 font-medium mt-0.5 block">
                     20% Personal + Up to 15% 5-Tier Overrides (35% Max)
                   </span>
                 </div>
               </div>
 
               {/* Vertical Root Line down to Level 1 */}
-              <div className="w-0.5 h-8 bg-[#ec2f73] mt-2" />
+              <div className="w-0.5 h-8 bg-[#D30915] mt-2" />
             </div>
 
             {/* Level 1 Nodes Container */}
@@ -601,12 +601,12 @@ export const GenealogyTree: React.FC<GenealogyTreeProps> = ({
 
       {/* 4. Selected Member Inspect Modal / Drawer */}
       {selectedMember && (
-        <div className="p-4 sm:p-5 rounded-[18px] sm:rounded-[22px] bg-gradient-to-r from-[#fff0f5] via-[#fff8fb] to-[#fbf5ff] border-2 border-[#f5cad7] flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 animate-in fade-in shadow-xs">
+        <div className="p-4 sm:p-5 rounded-[18px] sm:rounded-[22px] bg-gradient-to-r from-[#fff1f2] via-[#fff8fb] to-[#fbf5ff] border-2 border-[#fecdd3] flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 animate-in fade-in shadow-xs">
           <div className="flex items-center gap-3 sm:gap-3.5">
             <img
               src={selectedMember.avatar || DEFAULT_PROFILE_AVATAR}
               alt={selectedMember.name}
-              className="w-11 h-11 sm:w-13 sm:h-13 rounded-full object-cover border-2 border-[#ec2f73] shadow-xs shrink-0"
+              className="w-11 h-11 sm:w-13 sm:h-13 rounded-full object-cover border-2 border-[#D30915] shadow-xs shrink-0"
             />
 
             <div className="min-w-0">

@@ -100,7 +100,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
         <div className="flex items-center justify-between pb-3.5 mb-3.5 border-b border-[#f4edf2]">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-black uppercase tracking-wider text-[#ec2f73] block">
+              <span className="text-[10px] font-black uppercase tracking-wider text-[#D30915] block">
                 Order Receipt & Courier Status
               </span>
             </div>
@@ -112,7 +112,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-stone-100 hover:bg-[#fff0f5] text-[#716d77] hover:text-[#ec2f73] flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-stone-100 hover:bg-[#fff1f2] text-[#716d77] hover:text-[#D30915] flex items-center justify-center transition-colors cursor-pointer"
             aria-label="Close modal"
           >
             <X className="w-4 h-4" />
@@ -122,15 +122,15 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
         {/* Scrollable Order Details Body */}
         <div className="flex-1 overflow-y-auto pr-1 space-y-4 text-xs">
           {/* Live Delivery Pipeline Animation */}
-          <div className="p-5 rounded-[22px] bg-gradient-to-b from-[#fff6fa] via-[#fffafc] to-[#ffffff] border border-[#f5cad7] shadow-[0_8px_30px_rgba(236,47,115,0.08)] relative overflow-hidden">
+          <div className="p-5 rounded-[22px] bg-gradient-to-b from-[#fff6fa] via-[#fffafc] to-[#ffffff] border border-[#fecdd3] shadow-[0_8px_30px_rgba(211, 9, 21,0.08)] relative overflow-hidden">
             <div className="flex items-center justify-between gap-3 mb-5">
               <div className="flex items-center gap-2.5">
                 <div className="relative flex items-center justify-center">
-                  <span className="w-3.5 h-3.5 rounded-full bg-[#ec2f73] inline-block animate-ping opacity-75 absolute" />
-                  <span className="w-3 h-3 rounded-full bg-[#ec2f73] inline-block relative shadow-[0_0_10px_#ec2f73]" />
+                  <span className="w-3.5 h-3.5 rounded-full bg-[#D30915] inline-block animate-ping opacity-75 absolute" />
+                  <span className="w-3 h-3 rounded-full bg-[#D30915] inline-block relative shadow-[0_0_10px_#D30915]" />
                 </div>
                 <div>
-                  <span className="text-[10px] text-[#ec2f73] font-black uppercase tracking-wider block">
+                  <span className="text-[10px] text-[#D30915] font-black uppercase tracking-wider block">
                     Live Courier Pipeline
                   </span>
                   <strong className="text-sm font-black text-[#141219]">
@@ -152,7 +152,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
               <div className="relative pt-6 pb-4 px-2">
                 <div className="h-2.5 w-full bg-[#f2e6ee] rounded-full overflow-hidden relative">
                   <div
-                    className="h-full bg-gradient-to-r from-[#ec2f73] via-[#ff4785] to-[#ec2f73] rounded-full transition-all duration-1000 ease-out relative"
+                    className="h-full bg-gradient-to-r from-[#D30915] via-[#ff4785] to-[#D30915] rounded-full transition-all duration-1000 ease-out relative"
                     style={{ width: `${getProgressPercentage(order.status)}%` }}
                   >
                     <div className="absolute inset-0 anim-delivery-road opacity-40" />
@@ -165,7 +165,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                   style={{ left: `${getProgressPercentage(order.status)}%` }}
                 >
                   <div className="flex flex-col items-center">
-                    <div className="w-8 h-8 rounded-full bg-[#ec2f73] text-white flex items-center justify-center shadow-[0_4px_14px_rgba(236,47,115,0.45)] anim-delivery-truck">
+                    <div className="w-8 h-8 rounded-full bg-[#D30915] text-white flex items-center justify-center shadow-[0_4px_14px_rgba(211, 9, 21,0.45)] anim-delivery-truck">
                       {order.status === 'delivered' ? (
                         <Gift className="w-4 h-4" />
                       ) : order.status === 'shipped' || order.status === 'out_for_delivery' ? (
@@ -174,7 +174,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                         <Package className="w-4 h-4 anim-delivery-package" />
                       )}
                     </div>
-                    <div className="w-2 h-2 rounded-full bg-[#ec2f73] mt-1 shadow-xs animate-bounce" />
+                    <div className="w-2 h-2 rounded-full bg-[#D30915] mt-1 shadow-xs animate-bounce" />
                   </div>
                 </div>
 
@@ -192,7 +192,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                     <div
                       className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black shadow-xs mb-1.5 transition-all ${
                         order.status === 'processing'
-                          ? 'bg-[#ec2f73] text-white ring-4 ring-[#ffe4ee] anim-delivery-glow'
+                          ? 'bg-[#D30915] text-white ring-4 ring-[#ffe4ee] anim-delivery-glow'
                           : order.status === 'shipped' || order.status === 'delivered' || order.status === 'out_for_delivery'
                           ? 'bg-emerald-600 text-white ring-4 ring-emerald-100'
                           : 'bg-stone-200 text-stone-500'
@@ -212,7 +212,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                     <div
                       className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black shadow-xs mb-1.5 transition-all ${
                         order.status === 'shipped' || order.status === 'out_for_delivery'
-                          ? 'bg-[#ec2f73] text-white ring-4 ring-[#ffe4ee] anim-delivery-glow'
+                          ? 'bg-[#D30915] text-white ring-4 ring-[#ffe4ee] anim-delivery-glow'
                           : order.status === 'delivered'
                           ? 'bg-emerald-600 text-white ring-4 ring-emerald-100'
                           : 'bg-stone-200 text-stone-500'
@@ -250,9 +250,9 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
             )}
 
             {/* Tracking Number and ETA */}
-            <div className="mt-3 pt-3 border-t border-[#f5cad7]/60 bg-white/80 rounded-[14px] p-3 space-y-2">
+            <div className="mt-3 pt-3 border-t border-[#fecdd3]/60 bg-white/80 rounded-[14px] p-3 space-y-2">
               <div className="flex items-center justify-between text-xs font-bold text-[#141219] flex-wrap gap-2">
-                <span className="flex items-center gap-1.5 text-[#ec2f73]">
+                <span className="flex items-center gap-1.5 text-[#D30915]">
                   <Clock className="w-3.5 h-3.5" />
                   <span>
                     Estimated Arrival: <strong>{order.estimatedDeliveryDate}</strong>
@@ -262,7 +262,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                   <button
                     type="button"
                     onClick={handleCopyTracking}
-                    className="text-[11px] font-black text-[#ec2f73] hover:underline cursor-pointer flex items-center gap-1"
+                    className="text-[11px] font-black text-[#D30915] hover:underline cursor-pointer flex items-center gap-1"
                   >
                     <Copy className="w-3 h-3" />
                     <span>
@@ -277,7 +277,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
           {/* Items List */}
           <div>
             <h4 className="text-xs font-black uppercase tracking-wider text-[#716d77] mb-2 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#ec2f73]" />
+              <Sparkles className="w-3.5 h-3.5 text-[#D30915]" />
               <span>Items In Package ({order.items.length})</span>
             </h4>
             <div className="space-y-2 divide-y divide-[#f7eff4]">
@@ -360,7 +360,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
             </div>
             <div className="flex justify-between pt-1.5 border-t border-stone-200 font-black text-sm text-[#141219]">
               <span>Total Paid</span>
-              <span className="text-[#ec2f73]">${order.total.toFixed(2)}</span>
+              <span className="text-[#D30915]">${order.total.toFixed(2)}</span>
             </div>
           </div>
         </div>
@@ -372,7 +372,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
             onClick={() => {
               if (typeof window !== 'undefined') window.print();
             }}
-            className="h-[38px] px-4 rounded-[11px] bg-white border border-[#e8dfe5] hover:border-[#ec2f73] text-[#55505a] hover:text-[#ec2f73] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+            className="h-[38px] px-4 rounded-[11px] bg-white border border-[#e8dfe5] hover:border-[#D30915] text-[#55505a] hover:text-[#D30915] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
           >
             <Printer className="w-3.5 h-3.5" />
             <span>Print Invoice</span>
@@ -381,7 +381,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="h-[38px] px-5 rounded-[11px] bg-[#ec2f73] hover:bg-[#d92467] text-white text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-xs"
+            className="h-[38px] px-5 rounded-[11px] bg-[#D30915] hover:bg-[#B60711] text-white text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-xs"
           >
             Close Receipt
           </button>

@@ -92,7 +92,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
         {/* Modal Top Header */}
         <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#f4edf2]">
           <div>
-            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#ec2f73] block">
+            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#D30915] block">
               Representative Payout Hub
             </span>
             <h3 className="text-sm sm:text-lg font-black text-[#141219] m-0 font-display">
@@ -102,7 +102,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-stone-100 hover:bg-[#fff0f5] text-[#716d77] hover:text-[#ec2f73] flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-stone-100 hover:bg-[#fff1f2] text-[#716d77] hover:text-[#D30915] flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -121,7 +121,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
               </h4>
 
               <p className="text-xs text-[#716d77] max-w-sm mx-auto leading-relaxed">
-                Your request to transfer <strong className="text-[#141219] font-black">${successPayout.amount.toFixed(2)}</strong> via <strong className="capitalize">{successPayout.method.replace('_', ' ')}</strong> ({successPayout.destinationAccount}) is processing. Reference: <code className="text-[#ec2f73] font-bold">{successPayout.referenceId}</code>.
+                Your request to transfer <strong className="text-[#141219] font-black">${successPayout.amount.toFixed(2)}</strong> via <strong className="capitalize">{successPayout.method.replace('_', ' ')}</strong> ({successPayout.destinationAccount}) is processing. Reference: <code className="text-[#D30915] font-bold">{successPayout.referenceId}</code>.
               </p>
 
               <div className="pt-2 sm:pt-3">
@@ -131,7 +131,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
                     setSuccessPayout(null);
                     onClose();
                   }}
-                  className="h-[40px] px-6 rounded-[12px] bg-[#ec2f73] text-white font-black text-xs uppercase tracking-wider shadow-xs cursor-pointer w-full sm:w-auto"
+                  className="h-[40px] px-6 rounded-[12px] bg-[#D30915] text-white font-black text-xs uppercase tracking-wider shadow-xs cursor-pointer w-full sm:w-auto"
                 >
                   Done & Close
                 </button>
@@ -140,7 +140,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
           ) : (
             <form onSubmit={handleWithdraw} className="space-y-3.5 sm:space-y-4">
               {/* Balance Banner */}
-              <div className="p-3.5 sm:p-4 rounded-[16px] sm:rounded-[18px] bg-gradient-to-r from-[#fff0f5] via-[#fff8fb] to-[#fbf5ff] border border-[#f5cad7] flex items-center justify-between">
+              <div className="p-3.5 sm:p-4 rounded-[16px] sm:rounded-[18px] bg-gradient-to-r from-[#fff1f2] via-[#fff8fb] to-[#fbf5ff] border border-[#fecdd3] flex items-center justify-between">
                 <div>
                   <span className="text-[9px] sm:text-[10px] uppercase font-bold text-[#716d77] block">
                     Available for Payout
@@ -168,7 +168,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
               {/* Amount Input */}
               <div>
                 <label className="block text-xs font-bold text-[#141219] mb-1">
-                  Withdrawal Amount ($ USD) <span className="text-[#ec2f73]">*</span>
+                  Withdrawal Amount ($ USD) <span className="text-[#D30915]">*</span>
                 </label>
                 <div className="relative">
                   <DollarSign className="w-4 h-4 text-[#8a858f] absolute left-3 top-1/2 -translate-y-1/2" />
@@ -180,12 +180,12 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
                     required
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    className="w-full h-[42px] sm:h-[44px] pl-9 pr-20 rounded-[12px] sm:rounded-[13px] bg-[#fffafb] border border-[#e8dfe5] focus:border-[#ec2f73] text-sm text-[#141219] outline-none font-bold"
+                    className="w-full h-[42px] sm:h-[44px] pl-9 pr-20 rounded-[12px] sm:rounded-[13px] bg-[#fffafb] border border-[#e8dfe5] focus:border-[#D30915] text-sm text-[#141219] outline-none font-bold"
                   />
                   <button
                     type="button"
                     onClick={() => setAmount(stats.availableBalance.toFixed(2))}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-black uppercase text-[#ec2f73] bg-[#fff0f5] px-2 sm:px-2.5 py-1 rounded-[8px] border border-[#f5cad7] hover:bg-[#ec2f73] hover:text-white transition-colors cursor-pointer"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-black uppercase text-[#D30915] bg-[#fff1f2] px-2 sm:px-2.5 py-1 rounded-[8px] border border-[#fecdd3] hover:bg-[#D30915] hover:text-white transition-colors cursor-pointer"
                   >
                     Max All
                   </button>
@@ -206,8 +206,8 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
                     }}
                     className={`p-2.5 sm:p-3 rounded-[12px] sm:rounded-[14px] border text-center transition-all cursor-pointer ${
                       method === 'paypal'
-                        ? 'bg-[#fff0f5] border-[#ec2f73] text-[#ec2f73] shadow-xs'
-                        : 'bg-white border-[#e8dfe5] text-[#55505a] hover:border-[#f5cad7]'
+                        ? 'bg-[#fff1f2] border-[#D30915] text-[#D30915] shadow-xs'
+                        : 'bg-white border-[#e8dfe5] text-[#55505a] hover:border-[#fecdd3]'
                     }`}
                   >
                     <span className="block font-black text-[11px] sm:text-xs">PayPal</span>
@@ -222,8 +222,8 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
                     }}
                     className={`p-2.5 sm:p-3 rounded-[12px] sm:rounded-[14px] border text-center transition-all cursor-pointer ${
                       method === 'bank_transfer'
-                        ? 'bg-[#fff0f5] border-[#ec2f73] text-[#ec2f73] shadow-xs'
-                        : 'bg-white border-[#e8dfe5] text-[#55505a] hover:border-[#f5cad7]'
+                        ? 'bg-[#fff1f2] border-[#D30915] text-[#D30915] shadow-xs'
+                        : 'bg-white border-[#e8dfe5] text-[#55505a] hover:border-[#fecdd3]'
                     }`}
                   >
                     <span className="block font-black text-[11px] sm:text-xs">Bank Wire</span>
@@ -238,8 +238,8 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
                     }}
                     className={`p-2.5 sm:p-3 rounded-[12px] sm:rounded-[14px] border text-center transition-all cursor-pointer ${
                       method === 'venmo'
-                        ? 'bg-[#fff0f5] border-[#ec2f73] text-[#ec2f73] shadow-xs'
-                        : 'bg-white border-[#e8dfe5] text-[#55505a] hover:border-[#f5cad7]'
+                        ? 'bg-[#fff1f2] border-[#D30915] text-[#D30915] shadow-xs'
+                        : 'bg-white border-[#e8dfe5] text-[#55505a] hover:border-[#fecdd3]'
                     }`}
                   >
                     <span className="block font-black text-[11px] sm:text-xs">Venmo</span>
@@ -262,7 +262,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
                   required
                   value={destination}
                   onChange={(e) => setDestination(e.target.value)}
-                  className="w-full h-[38px] sm:h-[40px] px-3 sm:px-3.5 rounded-[12px] bg-[#fffafb] border border-[#e8dfe5] focus:border-[#ec2f73] text-xs text-[#141219] outline-none font-medium"
+                  className="w-full h-[38px] sm:h-[40px] px-3 sm:px-3.5 rounded-[12px] bg-[#fffafb] border border-[#e8dfe5] focus:border-[#D30915] text-xs text-[#141219] outline-none font-medium"
                 />
               </div>
 
@@ -282,7 +282,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
                 <button
                   type="submit"
                   disabled={!isEligible || isSubmitting}
-                  className="h-[38px] sm:h-[40px] px-5 sm:px-6 rounded-[12px] bg-[#ec2f73] hover:bg-[#d92467] disabled:opacity-50 text-white font-black text-xs uppercase tracking-wider shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
+                  className="h-[38px] sm:h-[40px] px-5 sm:px-6 rounded-[12px] bg-[#D30915] hover:bg-[#B60711] disabled:opacity-50 text-white font-black text-xs uppercase tracking-wider shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
                 >
                   {isSubmitting ? (
                     <span>Processing...</span>
@@ -300,7 +300,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
           {/* Recent Payout History Ledger */}
           <div className="pt-3 sm:pt-4 border-t border-[#f4edf2]">
             <h4 className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-[#716d77] mb-2 sm:mb-2.5 flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-[#ec2f73]" />
+              <Clock className="w-3.5 h-3.5 text-[#D30915]" />
               <span>Recent Payout History</span>
             </h4>
 

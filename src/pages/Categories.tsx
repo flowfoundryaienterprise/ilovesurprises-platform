@@ -55,7 +55,7 @@ export const Categories: React.FC<CategoriesProps> = ({
         <button
           type="button"
           onClick={onBackToHome}
-          className="inline-flex items-center gap-1.5 text-xs font-black text-[#ec2f73] hover:underline cursor-pointer active:scale-95 transition-transform"
+          className="inline-flex items-center gap-1.5 text-xs font-black text-[#D30915] hover:underline cursor-pointer active:scale-95 transition-transform"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Home</span>
@@ -72,19 +72,19 @@ export const Categories: React.FC<CategoriesProps> = ({
       <div className="relative rounded-[20px] sm:rounded-[34px] overflow-hidden border border-[#f1dbe8] bg-[radial-gradient(circle_at_85%_20%,rgba(255,203,222,0.45),transparent_45%),linear-gradient(135deg,#fffafb_0%,#fff3f8_45%,#faf4ff_100%)] p-4 sm:p-8 lg:p-12 mb-6 sm:mb-10 shadow-[0_12px_36px_rgba(50,31,63,0.05)]">
         
         {/* Soft Radial Ambient Glow */}
-        <div className="absolute top-0 right-0 w-72 sm:w-96 h-72 sm:h-96 bg-gradient-to-br from-[#ec2f73]/12 to-purple-600/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-72 sm:w-96 h-72 sm:h-96 bg-gradient-to-br from-[#D30915]/12 to-purple-600/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 max-w-3xl">
           {/* Eyebrow Pill Tag */}
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-[#ec2f73]/10 border border-[#f5cad7] text-[#ec2f73] text-[9px] sm:text-[11px] font-black uppercase tracking-[0.16em] mb-2.5 sm:mb-3.5 shadow-2xs">
-            <Sparkles className="w-3 sm:w-3.5 h-3 sm:h-3.5 animate-pulse text-[#ec2f73]" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-[#D30915]/10 border border-[#fecdd3] text-[#D30915] text-[9px] sm:text-[11px] font-black uppercase tracking-[0.16em] mb-2.5 sm:mb-3.5 shadow-2xs">
+            <Sparkles className="w-3 sm:w-3.5 h-3 sm:h-3.5 animate-pulse text-[#D30915]" />
             <span>Discover Collections</span>
           </div>
 
           {/* Main Headline */}
           <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-[#141219] tracking-tight leading-[1.15] sm:leading-[1.1] m-0 mb-2.5 sm:mb-3.5 font-display">
             Explore All Collections{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ec2f73] via-[#ff3880] to-[#d92467]">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D30915] via-[#ff3880] to-[#B60711]">
               with Guaranteed Wins
             </span>
           </h1>
@@ -97,7 +97,7 @@ export const Categories: React.FC<CategoriesProps> = ({
           {/* 3 Quick Value Badges (Mobile Compact & Touch Friendly) */}
           <div className="grid grid-cols-3 gap-1.5 sm:gap-3 max-w-2xl">
             <div className="flex flex-col sm:flex-row items-center sm:items-center text-center sm:text-left gap-1 sm:gap-2.5 p-2 sm:px-3.5 sm:py-2.5 rounded-[12px] sm:rounded-[15px] bg-white/95 border border-[#ebdce5] shadow-2xs">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-[8px] sm:rounded-[10px] bg-[#fff0f5] text-[#ec2f73] flex items-center justify-center shrink-0 shadow-2xs">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-[8px] sm:rounded-[10px] bg-[#fff1f2] text-[#D30915] flex items-center justify-center shrink-0 shadow-2xs">
                 <Gem className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
               </div>
               <div className="min-w-0">
@@ -146,8 +146,8 @@ export const Categories: React.FC<CategoriesProps> = ({
                 onClick={() => setActiveFilter(tab.id as RevealFilter)}
                 className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs font-black whitespace-nowrap transition-all duration-200 cursor-pointer snap-start shrink-0 flex items-center gap-1.5 active:scale-95 ${
                   isSelected
-                    ? 'bg-[#ec2f73] text-white shadow-[0_4px_14px_rgba(236,47,115,0.3)]'
-                    : 'bg-white hover:bg-[#fff0f5] text-[#141219] hover:text-[#ec2f73] border border-[#ebdce5]'
+                    ? 'bg-[#D30915] text-white shadow-[0_4px_14px_rgba(211, 9, 21,0.3)]'
+                    : 'bg-white hover:bg-[#fff1f2] text-[#141219] hover:text-[#D30915] border border-[#ebdce5]'
                 }`}
               >
                 <span>{tab.label}</span>
@@ -206,7 +206,7 @@ export const Categories: React.FC<CategoriesProps> = ({
             <div
               key={category.id}
               onClick={() => onSelectCategory(category.name)}
-              className="group relative rounded-[22px] sm:rounded-[28px] bg-white border border-[#eee7ed] hover:border-[#f1b8cb] active:border-[#ec2f73] p-4 sm:p-6 flex flex-col justify-between shadow-[0_4px_20px_rgba(50,31,63,0.03)] hover:shadow-[0_20px_45px_rgba(236,47,115,0.12)] sm:hover:-translate-y-1.5 active:scale-[0.985] transition-all duration-200 cursor-pointer"
+              className="group relative rounded-[22px] sm:rounded-[28px] bg-white border border-[#eee7ed] hover:border-[#f1b8cb] active:border-[#D30915] p-4 sm:p-6 flex flex-col justify-between shadow-[0_4px_20px_rgba(50,31,63,0.03)] hover:shadow-[0_20px_45px_rgba(211, 9, 21,0.12)] sm:hover:-translate-y-1.5 active:scale-[0.985] transition-all duration-200 cursor-pointer"
             >
               <div>
                 {/* Image Showcase Container with Glassmorphic Badge */}
@@ -232,8 +232,8 @@ export const Categories: React.FC<CategoriesProps> = ({
                       </>
                     ) : (
                       <>
-                        <Gem className="w-3 h-3 text-[#ec2f73]" />
-                        <span className="text-[9px] sm:text-[10px] font-extrabold text-[#ec2f73]">Jewelry Reveals</span>
+                        <Gem className="w-3 h-3 text-[#D30915]" />
+                        <span className="text-[9px] sm:text-[10px] font-extrabold text-[#D30915]">Jewelry Reveals</span>
                       </>
                     )}
                   </div>
@@ -241,10 +241,10 @@ export const Categories: React.FC<CategoriesProps> = ({
 
                 {/* Category Name & Tagline */}
                 <div className="mb-1.5 sm:mb-2">
-                  <span className="block text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#ec2f73] mb-0.5 sm:mb-1">
+                  <span className="block text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#D30915] mb-0.5 sm:mb-1">
                     {category.tagline}
                   </span>
-                  <h3 className="text-base sm:text-xl font-black text-[#141219] group-hover:text-[#ec2f73] transition-colors m-0 font-display">
+                  <h3 className="text-base sm:text-xl font-black text-[#141219] group-hover:text-[#D30915] transition-colors m-0 font-display">
                     {category.name}
                   </h3>
                 </div>
@@ -278,7 +278,7 @@ export const Categories: React.FC<CategoriesProps> = ({
 
               {/* Action Button Strip */}
               <div className="pt-2.5 sm:pt-3.5 border-t border-[#f7edf3] flex items-center justify-between">
-                <span className="text-xs font-black text-[#ec2f73] group-hover:underline flex items-center gap-1">
+                <span className="text-xs font-black text-[#D30915] group-hover:underline flex items-center gap-1">
                   Explore Collection{' '}
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1.5 transition-transform" />
                 </span>
@@ -289,7 +289,7 @@ export const Categories: React.FC<CategoriesProps> = ({
                       Win up to $2,500
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-0.5 text-[#ec2f73] bg-[#fff0f5] px-2 sm:px-2.5 py-0.5 rounded-full border border-[#f5cad7]">
+                    <span className="inline-flex items-center gap-0.5 text-[#D30915] bg-[#fff1f2] px-2 sm:px-2.5 py-0.5 rounded-full border border-[#fecdd3]">
                       Valued up to $7,500
                     </span>
                   )}
@@ -303,11 +303,11 @@ export const Categories: React.FC<CategoriesProps> = ({
 
       {/* 5. "How It Works" 3-Step Unboxing Experience Strip (Light Luxury Theme) */}
       <div className="rounded-[20px] sm:rounded-[28px] bg-[radial-gradient(circle_at_85%_15%,rgba(255,203,222,0.35),transparent_40%),linear-gradient(135deg,#fffafb_0%,#fff5f8_50%,#fbf6ff_100%)] p-4 sm:p-8 lg:p-10 mb-8 sm:mb-12 shadow-[0_12px_36px_rgba(50,31,63,0.04)] border border-[#ebdce5] relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-72 sm:w-80 h-72 sm:h-80 bg-gradient-to-br from-[#ec2f73]/8 to-purple-500/8 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-72 sm:w-80 h-72 sm:h-80 bg-gradient-to-br from-[#D30915]/8 to-purple-500/8 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 max-w-4xl mx-auto text-center mb-5 sm:mb-8">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-[#ec2f73]/10 border border-[#f5cad7] text-[#ec2f73] text-[9px] sm:text-[11px] font-black uppercase tracking-wider mb-2 shadow-2xs">
-            <Sparkles className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-[#ec2f73] animate-pulse" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-[#D30915]/10 border border-[#fecdd3] text-[#D30915] text-[9px] sm:text-[11px] font-black uppercase tracking-wider mb-2 shadow-2xs">
+            <Sparkles className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-[#D30915] animate-pulse" />
             <span>The Magic Unboxing</span>
           </div>
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-[#141219] m-0 mb-1.5 sm:mb-2 font-display">
@@ -321,10 +321,10 @@ export const Categories: React.FC<CategoriesProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-6 relative z-10 max-w-5xl mx-auto">
           {/* Step 1 */}
           <div className="rounded-[18px] sm:rounded-[22px] bg-white/95 backdrop-blur-md p-4 sm:p-6 border border-[#eedce6] shadow-2xs hover:shadow-md hover:border-[#f1b8cb] flex flex-col items-center text-center transition-all">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-[14px] sm:rounded-[16px] bg-[#fff0f5] text-[#ec2f73] border border-[#f5cad7] flex items-center justify-center mb-2.5 sm:mb-3.5 shadow-2xs">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-[14px] sm:rounded-[16px] bg-[#fff1f2] text-[#D30915] border border-[#fecdd3] flex items-center justify-center mb-2.5 sm:mb-3.5 shadow-2xs">
               <Flame className="w-5 h-5 sm:w-6 sm:h-6 animate-pulse" />
             </div>
-            <span className="text-[9px] sm:text-[10px] font-black uppercase text-[#ec2f73] tracking-wider mb-0.5 sm:mb-1">Step 01</span>
+            <span className="text-[9px] sm:text-[10px] font-black uppercase text-[#D30915] tracking-wider mb-0.5 sm:mb-1">Step 01</span>
             <h4 className="text-sm sm:text-base font-black text-[#141219] mb-1 sm:mb-1.5 m-0 font-display">Light & Enjoy Scent</h4>
             <p className="text-[11px] sm:text-xs text-[#716d77] m-0 leading-relaxed font-medium">
               Burn your candle or drop your bath bomb to fill your home with soothing, premium essential oils.
@@ -360,7 +360,7 @@ export const Categories: React.FC<CategoriesProps> = ({
       {/* 6. Trust & Guarantee Strip (2-Column Grid on Mobile) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 p-3.5 sm:p-5 rounded-[18px] sm:rounded-[24px] bg-[#fffafc] border border-[#f2e6ee] shadow-2xs">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[14px] bg-white border border-[#f5cad7] text-emerald-600 flex items-center justify-center shrink-0 shadow-2xs">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[14px] bg-white border border-[#fecdd3] text-emerald-600 flex items-center justify-center shrink-0 shadow-2xs">
             <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
           <div className="min-w-0">
@@ -370,7 +370,7 @@ export const Categories: React.FC<CategoriesProps> = ({
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[14px] bg-white border border-[#f5cad7] text-amber-500 flex items-center justify-center shrink-0 shadow-2xs">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[14px] bg-white border border-[#fecdd3] text-amber-500 flex items-center justify-center shrink-0 shadow-2xs">
             <Truck className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
           <div className="min-w-0">
@@ -380,7 +380,7 @@ export const Categories: React.FC<CategoriesProps> = ({
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[14px] bg-white border border-[#f5cad7] text-[#ec2f73] flex items-center justify-center shrink-0 shadow-2xs">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[14px] bg-white border border-[#fecdd3] text-[#D30915] flex items-center justify-center shrink-0 shadow-2xs">
             <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
           <div className="min-w-0">
@@ -390,7 +390,7 @@ export const Categories: React.FC<CategoriesProps> = ({
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[14px] bg-white border border-[#f5cad7] text-amber-500 flex items-center justify-center shrink-0 shadow-2xs">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-[14px] bg-white border border-[#fecdd3] text-amber-500 flex items-center justify-center shrink-0 shadow-2xs">
             <Star className="w-4 h-4 sm:w-5 sm:h-5 fill-amber-500" />
           </div>
           <div className="min-w-0">

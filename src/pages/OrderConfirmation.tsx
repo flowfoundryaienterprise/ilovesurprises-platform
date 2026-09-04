@@ -58,7 +58,7 @@ export const OrderConfirmation: React.FC<OrderConfirmationProps> = ({
         <button
           type="button"
           onClick={onNavigateToShop}
-          className="h-[46px] px-6 rounded-[14px] bg-[#ec2f73] text-white font-black text-xs uppercase cursor-pointer"
+          className="h-[46px] px-6 rounded-[14px] bg-[#D30915] text-white font-black text-xs uppercase cursor-pointer"
         >
           Return to Store
         </button>
@@ -87,7 +87,7 @@ export const OrderConfirmation: React.FC<OrderConfirmationProps> = ({
         <div id="order-details-section" className="bg-white rounded-[24px] p-5 sm:p-7 border border-[#eedbe6] shadow-[0_10px_30px_rgba(50,31,63,0.04)] mb-8 scroll-mt-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-[#f5eaf1] mb-6">
             <div>
-              <span className="text-[10px] font-black uppercase tracking-wider text-[#ec2f73] flex items-center gap-1">
+              <span className="text-[10px] font-black uppercase tracking-wider text-[#D30915] flex items-center gap-1">
                 <Clock className="w-3.5 h-3.5" />
                 <span>Estimated Arrival</span>
               </span>
@@ -116,16 +116,16 @@ export const OrderConfirmation: React.FC<OrderConfirmationProps> = ({
 
             {/* Step 2 */}
             <div className="flex flex-col items-center">
-              <div className="w-9 h-9 rounded-full bg-[#ec2f73] text-white flex items-center justify-center text-xs font-black shadow-xs mb-1.5 ring-4 ring-[#ec2f73]/20">
+              <div className="w-9 h-9 rounded-full bg-[#D30915] text-white flex items-center justify-center text-xs font-black shadow-xs mb-1.5 ring-4 ring-[#D30915]/20">
                 <Package className="w-4 h-4" />
               </div>
-              <span className="text-[11px] sm:text-xs font-black text-[#ec2f73]">Processing</span>
-              <span className="text-[10px] text-[#ec2f73] font-bold hidden sm:block">Packing Candle</span>
+              <span className="text-[11px] sm:text-xs font-black text-[#D30915]">Processing</span>
+              <span className="text-[10px] text-[#D30915] font-bold hidden sm:block">Packing Candle</span>
             </div>
 
             {/* Step 3 */}
             <div className="flex flex-col items-center">
-              <div className="w-9 h-9 rounded-full bg-[#fff0f5] border border-[#eedbe6] text-[#8a858f] flex items-center justify-center text-xs font-black mb-1.5">
+              <div className="w-9 h-9 rounded-full bg-[#fff1f2] border border-[#eedbe6] text-[#8a858f] flex items-center justify-center text-xs font-black mb-1.5">
                 <Truck className="w-4 h-4" />
               </div>
               <span className="text-[11px] sm:text-xs font-bold text-[#716d77]">Shipped</span>
@@ -134,7 +134,7 @@ export const OrderConfirmation: React.FC<OrderConfirmationProps> = ({
 
             {/* Step 4 */}
             <div className="flex flex-col items-center">
-              <div className="w-9 h-9 rounded-full bg-[#fff0f5] border border-[#eedbe6] text-[#8a858f] flex items-center justify-center text-xs font-black mb-1.5">
+              <div className="w-9 h-9 rounded-full bg-[#fff1f2] border border-[#eedbe6] text-[#8a858f] flex items-center justify-center text-xs font-black mb-1.5">
                 <Gift className="w-4 h-4" />
               </div>
               <span className="text-[11px] sm:text-xs font-bold text-[#716d77]">Delivered</span>
@@ -151,7 +151,7 @@ export const OrderConfirmation: React.FC<OrderConfirmationProps> = ({
           <div className="md:col-span-7 bg-white rounded-[24px] p-5 sm:p-6 border border-[#eedbe6] shadow-[0_10px_30px_rgba(50,31,63,0.04)]">
             <div className="flex items-center justify-between pb-3 border-b border-[#f5eaf1] mb-4">
               <h3 className="text-sm font-black text-[#141219] m-0 font-display flex items-center gap-2">
-                <ShoppingBag className="w-4 h-4 text-[#ec2f73]" />
+                <ShoppingBag className="w-4 h-4 text-[#D30915]" />
                 <span>Purchased Items ({order.items.length})</span>
               </h3>
               <span className="text-[11px] text-[#716d77]">{formattedDate}</span>
@@ -219,7 +219,7 @@ export const OrderConfirmation: React.FC<OrderConfirmationProps> = ({
 
               <div className="flex items-center justify-between pt-2 border-t border-[#f5eaf1] text-base font-black text-[#141219]">
                 <span>Total Paid</span>
-                <span className="text-lg text-[#ec2f73]">${order.total.toFixed(2)}</span>
+                <span className="text-lg text-[#D30915]">${order.total.toFixed(2)}</span>
               </div>
             </div>
 
@@ -231,7 +231,7 @@ export const OrderConfirmation: React.FC<OrderConfirmationProps> = ({
             {/* Delivery Destination Card */}
             <div className="bg-white rounded-[24px] p-5 border border-[#eedbe6] shadow-[0_10px_30px_rgba(50,31,63,0.04)]">
               <div className="flex items-center gap-2 pb-3 border-b border-[#f5eaf1] mb-3">
-                <Truck className="w-4 h-4 text-[#ec2f73]" />
+                <Truck className="w-4 h-4 text-[#D30915]" />
                 <h4 className="text-xs font-black uppercase tracking-wider text-[#141219] m-0">
                   Shipping Destination
                 </h4>
@@ -314,10 +314,10 @@ export const OrderConfirmation: React.FC<OrderConfirmationProps> = ({
           <button
             type="button"
             onClick={handlePrint}
-            className="group w-full sm:w-auto h-[38px] sm:h-[40px] px-4 rounded-[13px] sm:rounded-full bg-white border border-[#e2d5df] hover:border-[#ec2f73]/50 hover:bg-[#fff0f5] text-xs font-bold text-[#1e1926] hover:text-[#ec2f73] flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-95"
+            className="group w-full sm:w-auto h-[38px] sm:h-[40px] px-4 rounded-[13px] sm:rounded-full bg-white border border-[#e2d5df] hover:border-[#D30915]/50 hover:bg-[#fff1f2] text-xs font-bold text-[#1e1926] hover:text-[#D30915] flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-95"
             title="Print Official Order Receipt"
           >
-            <Printer className="w-3.5 h-3.5 text-[#5e5866] group-hover:text-[#ec2f73] group-hover:scale-110 transition-all duration-200" />
+            <Printer className="w-3.5 h-3.5 text-[#5e5866] group-hover:text-[#D30915] group-hover:scale-110 transition-all duration-200" />
             <span>Print Receipt</span>
           </button>
 
@@ -325,7 +325,7 @@ export const OrderConfirmation: React.FC<OrderConfirmationProps> = ({
             <button
               type="button"
               onClick={() => onNavigateToAccountOrders(order.id)}
-              className="group w-full sm:w-auto h-[38px] sm:h-[40px] px-4.5 rounded-[13px] sm:rounded-full bg-white border border-[#ec2f73] text-[#ec2f73] hover:bg-[#fff0f5] font-bold text-xs tracking-wide transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs active:scale-95"
+              className="group w-full sm:w-auto h-[38px] sm:h-[40px] px-4.5 rounded-[13px] sm:rounded-full bg-white border border-[#D30915] text-[#D30915] hover:bg-[#fff1f2] font-bold text-xs tracking-wide transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs active:scale-95"
             >
               <span>View in My Orders</span>
             </button>
@@ -333,7 +333,7 @@ export const OrderConfirmation: React.FC<OrderConfirmationProps> = ({
             <button
               type="button"
               onClick={onNavigateToShop}
-              className="group w-full sm:w-auto h-[38px] sm:h-[40px] px-5 rounded-[13px] sm:rounded-full bg-gradient-to-r from-[#ec2f73] via-[#e5286e] to-[#d81f62] hover:brightness-105 active:scale-95 text-white font-bold text-xs tracking-wide shadow-[0_4px_16px_rgba(236,47,115,0.35)] hover:shadow-[0_6px_22px_rgba(236,47,115,0.48)] transition-all cursor-pointer flex items-center justify-center gap-1.5"
+              className="group w-full sm:w-auto h-[38px] sm:h-[40px] px-5 rounded-[13px] sm:rounded-full bg-gradient-to-r from-[#D30915] via-[#e5286e] to-[#d81f62] hover:brightness-105 active:scale-95 text-white font-bold text-xs tracking-wide shadow-[0_4px_16px_rgba(211, 9, 21,0.35)] hover:shadow-[0_6px_22px_rgba(211, 9, 21,0.48)] transition-all cursor-pointer flex items-center justify-center gap-1.5"
             >
               <ShoppingBag className="w-3.5 h-3.5 group-hover:scale-110 transition-transform duration-200" />
               <span>Continue Shopping</span>

@@ -71,7 +71,7 @@ export const AddressManagementSection: React.FC<AddressManagementSectionProps> =
               <h2 className="text-lg sm:text-xl font-black text-[#141219] m-0 font-display">
                 Saved Shipping Destinations
               </h2>
-              <span className="text-[11px] font-black uppercase text-[#ec2f73] bg-[#fff0f5] px-2.5 py-0.5 rounded-full border border-[#f5cad7]">
+              <span className="text-[11px] font-black uppercase text-[#D30915] bg-[#fff1f2] px-2.5 py-0.5 rounded-full border border-[#fecdd3]">
                 {addresses.length}/3 Maximum
               </span>
             </div>
@@ -83,7 +83,7 @@ export const AddressManagementSection: React.FC<AddressManagementSectionProps> =
           <button
             type="button"
             onClick={handleOpenNew}
-            className="h-[38px] px-4 rounded-[12px] bg-[#ec2f73] hover:bg-[#d92467] text-white text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-xs self-start sm:self-auto"
+            className="h-[38px] px-4 rounded-[12px] bg-[#D30915] hover:bg-[#B60711] text-white text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-xs self-start sm:self-auto"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>{addresses.length >= 3 ? 'Replace / Add Address' : 'Add New Address'}</span>
@@ -93,7 +93,7 @@ export const AddressManagementSection: React.FC<AddressManagementSectionProps> =
         {/* Empty State */}
         {addresses.length === 0 ? (
           <div className="text-center py-12 px-4 rounded-[20px] bg-[#fffafc] border border-dashed border-[#eedbe6]">
-            <div className="w-16 h-16 rounded-full bg-[#fff0f5] text-[#ec2f73] border-2 border-[#f5cad7] flex items-center justify-center mx-auto mb-3 shadow-xs">
+            <div className="w-16 h-16 rounded-full bg-[#fff1f2] text-[#D30915] border-2 border-[#fecdd3] flex items-center justify-center mx-auto mb-3 shadow-xs">
               <MapPin className="w-8 h-8" />
             </div>
             <h3 className="text-lg font-black text-[#141219] mb-1 font-display">
@@ -105,7 +105,7 @@ export const AddressManagementSection: React.FC<AddressManagementSectionProps> =
             <button
               type="button"
               onClick={handleOpenNew}
-              className="h-[42px] px-6 rounded-[12px] bg-[#ec2f73] hover:bg-[#d92467] text-white font-black text-xs uppercase tracking-wider transition-all cursor-pointer shadow-xs inline-flex items-center gap-2"
+              className="h-[42px] px-6 rounded-[12px] bg-[#D30915] hover:bg-[#B60711] text-white font-black text-xs uppercase tracking-wider transition-all cursor-pointer shadow-xs inline-flex items-center gap-2"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add Your First Address</span>
@@ -119,14 +119,14 @@ export const AddressManagementSection: React.FC<AddressManagementSectionProps> =
                 key={addr.id}
                 className={`p-5 rounded-[20px] border-2 transition-all flex flex-col justify-between ${
                   addr.isDefault
-                    ? 'bg-[#fffafc] border-[#ec2f73] shadow-xs'
-                    : 'bg-white border-[#eedbe6] hover:border-[#f5cad7]'
+                    ? 'bg-[#fffafc] border-[#D30915] shadow-xs'
+                    : 'bg-white border-[#eedbe6] hover:border-[#fecdd3]'
                 }`}
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-xs font-black text-[#141219] flex items-center gap-1.5">
-                      <MapPin className="w-4 h-4 text-[#ec2f73]" />
+                      <MapPin className="w-4 h-4 text-[#D30915]" />
                       <span>{addr.label || 'Saved Location'}</span>
                     </span>
                     {addr.isDefault && (
@@ -158,7 +158,7 @@ export const AddressManagementSection: React.FC<AddressManagementSectionProps> =
                     <button
                       type="button"
                       onClick={() => handleSetDefault(addr.id)}
-                      className="text-[11px] font-black text-[#ec2f73] hover:underline cursor-pointer"
+                      className="text-[11px] font-black text-[#D30915] hover:underline cursor-pointer"
                     >
                       Set as Default
                     </button>
@@ -172,7 +172,7 @@ export const AddressManagementSection: React.FC<AddressManagementSectionProps> =
                     <button
                       type="button"
                       onClick={() => handleOpenEdit(addr)}
-                      className="p-1.5 rounded-lg text-[#716d77] hover:text-[#ec2f73] hover:bg-[#fff0f5] transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg text-[#716d77] hover:text-[#D30915] hover:bg-[#fff1f2] transition-colors cursor-pointer"
                       title="Edit Address"
                     >
                       <Edit2 className="w-3.5 h-3.5" />

@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Check, Sparkles, ArrowRight, ShieldCheck } from 'lucide-react';
+import { User, Sparkles, ArrowRight, ShieldCheck } from 'lucide-react';
 import { Skeleton } from '../ui/Skeleton';
 
 interface AffiliateSectionProps {
@@ -57,7 +57,7 @@ export const AffiliateSection: React.FC<AffiliateSectionProps> = ({ isLoading = 
       <div className="relative rounded-[28px] sm:rounded-[32px] border border-[#f1dbe8] bg-[radial-gradient(circle_at_80%_25%,rgba(255,203,222,0.45),transparent_40%),linear-gradient(120deg,#fffafb_0%,#fff5f8_50%,#fcf8ff_100%)] p-6 sm:p-10 lg:p-12 shadow-[0_20px_50px_rgba(50,31,63,0.07)] overflow-hidden">
         
         {/* Soft Ambient Radial Backlight */}
-        <div className="absolute -top-10 right-1/4 w-[420px] h-[420px] bg-[#ec2f73]/8 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-10 right-1/4 w-[420px] h-[420px] bg-[#D30915]/8 rounded-full blur-3xl pointer-events-none" />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
           
@@ -65,92 +65,66 @@ export const AffiliateSection: React.FC<AffiliateSectionProps> = ({ isLoading = 
           <div className="lg:col-span-5 flex flex-col items-start text-left z-10">
             
             {/* Eyebrow Tag */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#fff0f5] border border-[#f5cad7] text-[#ec2f73] text-[10px] sm:text-[11px] font-black uppercase tracking-[0.18em] mb-3 shadow-2xs">
-              <Sparkles className="w-3.5 h-3.5 text-[#ec2f73] animate-pulse" />
-              <span>Affiliate Program</span>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#fff1f2] border border-[#fecdd3] text-[#D30915] text-[10px] sm:text-[11px] font-black uppercase tracking-[0.18em] mb-3 shadow-2xs">
+              <Sparkles className="w-3.5 h-3.5 text-[#D30915] animate-pulse" />
+              <span>Independent Consultant Opportunity</span>
             </div>
 
             {/* Main Heading */}
-            <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-black text-[#141219] leading-[1.06] tracking-tight m-0 mb-3 font-display">
-              Earn More with{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ec2f73] via-[#ff3b83] to-[#d92467]">
-                I Love Surprises
+            <h2 className="text-3xl sm:text-4xl lg:text-[40px] font-black text-[#141219] leading-[1.08] tracking-tight m-0 mb-3 font-display">
+              Become an Independent{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D30915] via-[#E51D29] to-[#B60711]">
+                Surprise Consultant
               </span>
             </h2>
 
             {/* Description */}
             <p className="text-xs sm:text-sm text-[#55505a] leading-[1.65] m-0 mb-5 font-medium">
-              Sell products and earn 20%. Refer other reps and earn from customer sales through five sponsor levels.
+              Turn your love for surprises into income. Start your business today for just <strong className="text-[#141219] font-black">$19.99/month</strong>.
             </p>
 
-            {/* Checkmark Perks List */}
-            <div className="space-y-2.5 mb-6 w-full text-xs sm:text-[13px] text-[#2c2830] font-bold">
-              <div className="flex items-center gap-2.5 p-2 rounded-[12px] bg-white/70 border border-[#f5e4ee] shadow-2xs hover:bg-white hover:border-[#f1b8cb] transition-all">
-                <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                </div>
-                <span><strong className="text-emerald-700">20%</strong> on your personal customer sales</span>
+            {/* 4 Consultant Pillar Cards */}
+            <div className="grid grid-cols-2 gap-2.5 mb-6 w-full">
+              <div className="p-2.5 rounded-[13px] bg-white/90 border border-[#f5e4ee] shadow-2xs">
+                <span className="text-xs font-black text-[#D30915] block leading-tight">$19.99/month</span>
+                <strong className="text-[11px] font-bold text-[#141219] block mt-0.5">Low Start-Up</strong>
+                <span className="text-[10px] text-[#716d77] block leading-tight">Big opportunity</span>
               </div>
 
-              <div className="flex items-center gap-2.5 p-2 rounded-[12px] bg-white/70 border border-[#f5e4ee] shadow-2xs hover:bg-white hover:border-[#f1b8cb] transition-all">
-                <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                </div>
-                <span><strong className="text-[#141219]">5%</strong> on Level 1 customer sales</span>
+              <div className="p-2.5 rounded-[13px] bg-white/90 border border-[#f5e4ee] shadow-2xs">
+                <span className="text-xs font-black text-emerald-700 block leading-tight">20% Personal</span>
+                <strong className="text-[11px] font-bold text-[#141219] block mt-0.5">Sales Commission</strong>
+                <span className="text-[10px] text-[#716d77] block leading-tight">Earn on every sale</span>
               </div>
 
-              <div className="flex items-center gap-2.5 p-2 rounded-[12px] bg-white/70 border border-[#f5e4ee] shadow-2xs hover:bg-white hover:border-[#f1b8cb] transition-all">
-                <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                </div>
-                <span><strong className="text-[#141219]">4%</strong> on Level 2</span>
+              <div className="p-2.5 rounded-[13px] bg-white/90 border border-[#f5e4ee] shadow-2xs">
+                <span className="text-xs font-black text-purple-700 block leading-tight">5 Team Levels</span>
+                <strong className="text-[11px] font-bold text-[#141219] block mt-0.5">Team Overrides</strong>
+                <span className="text-[10px] text-[#716d77] block leading-tight">Earn multiple ways</span>
               </div>
 
-              <div className="flex items-center gap-2.5 p-2 rounded-[12px] bg-white/70 border border-[#f5e4ee] shadow-2xs hover:bg-white hover:border-[#f1b8cb] transition-all">
-                <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                </div>
-                <span><strong className="text-[#141219]">3%</strong> on Level 3</span>
-              </div>
-
-              <div className="flex items-center gap-2.5 p-2 rounded-[12px] bg-white/70 border border-[#f5e4ee] shadow-2xs hover:bg-white hover:border-[#f1b8cb] transition-all">
-                <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                </div>
-                <span><strong className="text-[#141219]">2%</strong> on Level 4</span>
-              </div>
-
-              <div className="flex items-center gap-2.5 p-2 rounded-[12px] bg-white/70 border border-[#f5e4ee] shadow-2xs hover:bg-white hover:border-[#f1b8cb] transition-all">
-                <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                </div>
-                <span><strong className="text-[#141219]">1%</strong> on Level 5</span>
-              </div>
-
-              {/* Maximum Total Payout Pill */}
-              <div className="flex items-center gap-2.5 p-2.5 rounded-[12px] bg-gradient-to-r from-[#fff0f5] to-[#ffeef4] border border-[#f5cad7] shadow-2xs text-[#ec2f73]">
-                <div className="w-5 h-5 rounded-full bg-[#ec2f73] text-white flex items-center justify-center shrink-0">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                </div>
-                <span className="font-black text-[13px]">Maximum total payout: 35%</span>
+              <div className="p-2.5 rounded-[13px] bg-white/90 border border-[#f5e4ee] shadow-2xs">
+                <span className="text-xs font-black text-amber-700 block leading-tight">Personal Link</span>
+                <strong className="text-[11px] font-bold text-[#141219] block mt-0.5">Your Storefront</strong>
+                <span className="text-[10px] text-[#716d77] block leading-tight">Your own brand</span>
               </div>
             </div>
 
             {/* CTAs with Smooth Hover States */}
             <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
               <a
-                href="#join"
-                className="group inline-flex items-center justify-center gap-2 min-h-[48px] px-7 rounded-[14px] bg-gradient-to-r from-[#ec2f73] to-[#d92467] hover:from-[#d92467] hover:to-[#c21a57] text-white font-black text-xs sm:text-[13px] uppercase tracking-wider shadow-[0_10px_26px_rgba(236,47,115,0.28)] hover:shadow-[0_14px_32px_rgba(236,47,115,0.40)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 cursor-pointer"
+                href="/affiliate"
+                className="group inline-flex items-center justify-center gap-2 min-h-[48px] px-7 rounded-[14px] bg-gradient-to-r from-[#D30915] to-[#B60711] hover:from-[#B60711] hover:to-[#96060e] text-white font-black text-xs sm:text-[13px] uppercase tracking-wider shadow-[0_10px_26px_rgba(211, 9, 21,0.28)] hover:shadow-[0_14px_32px_rgba(211, 9, 21,0.40)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 cursor-pointer"
               >
-                <span>Join Now</span>
+                <span>Join for $19.99/month</span>
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </a>
 
               <a
-                href="#commission"
-                className="inline-flex items-center justify-center min-h-[48px] px-6 rounded-[14px] bg-white hover:bg-[#fff9fb] border border-[#ebdce5] hover:border-[#ec2f73] text-[#141219] hover:text-[#ec2f73] font-black text-xs sm:text-[13px] uppercase tracking-wider shadow-2xs hover:shadow-[0_6px_18px_rgba(50,31,63,0.06)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 cursor-pointer"
+                href="/affiliate"
+                className="inline-flex items-center justify-center min-h-[48px] px-6 rounded-[14px] bg-white hover:bg-[#fff9fb] border border-[#ebdce5] hover:border-[#D30915] text-[#141219] hover:text-[#D30915] font-black text-xs sm:text-[13px] uppercase tracking-wider shadow-2xs hover:shadow-[0_6px_18px_rgba(50,31,63,0.06)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 cursor-pointer"
               >
-                See Commission Plan
+                Learn More
               </a>
             </div>
 
@@ -179,9 +153,9 @@ export const AffiliateSection: React.FC<AffiliateSectionProps> = ({ isLoading = 
               <div className="space-y-2.5">
                 
                 {/* Personal Sales Row (Highlight) */}
-                <div className="flex items-center justify-between p-3 rounded-[15px] bg-gradient-to-r from-[#fff0f5] to-[#fff8fb] border border-[#f5cad7] shadow-2xs">
+                <div className="flex items-center justify-between p-3 rounded-[15px] bg-gradient-to-r from-[#fff1f2] to-[#fff8fb] border border-[#fecdd3] shadow-2xs">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-[10px] bg-[#ec2f73] text-white flex items-center justify-center font-black text-xs shadow-2xs">
+                    <div className="w-8 h-8 rounded-[10px] bg-[#D30915] text-white flex items-center justify-center font-black text-xs shadow-2xs">
                       <User className="w-4 h-4" />
                     </div>
                     <div>
@@ -193,13 +167,13 @@ export const AffiliateSection: React.FC<AffiliateSectionProps> = ({ isLoading = 
                       </span>
                     </div>
                   </div>
-                  <div className="text-base sm:text-lg font-black text-[#ec2f73] hero-title-font">
+                  <div className="text-base sm:text-lg font-black text-[#D30915] hero-title-font">
                     20%
                   </div>
                 </div>
 
                 {/* Level 1 Referral */}
-                <div className="flex items-center justify-between p-2.5 px-3 rounded-[14px] bg-[#faf6f9] border border-[#f0e4ec] hover:border-[#ec2f73] transition-colors">
+                <div className="flex items-center justify-between p-2.5 px-3 rounded-[14px] bg-[#faf6f9] border border-[#f0e4ec] hover:border-[#D30915] transition-colors">
                   <div className="flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-[8px] bg-purple-100 text-purple-700 flex items-center justify-center font-black text-xs">
                       1
@@ -212,7 +186,7 @@ export const AffiliateSection: React.FC<AffiliateSectionProps> = ({ isLoading = 
                 </div>
 
                 {/* Level 2 Referral */}
-                <div className="flex items-center justify-between p-2.5 px-3 rounded-[14px] bg-[#faf6f9] border border-[#f0e4ec] hover:border-[#ec2f73] transition-colors">
+                <div className="flex items-center justify-between p-2.5 px-3 rounded-[14px] bg-[#faf6f9] border border-[#f0e4ec] hover:border-[#D30915] transition-colors">
                   <div className="flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-[8px] bg-purple-100 text-purple-700 flex items-center justify-center font-black text-xs">
                       2
@@ -225,7 +199,7 @@ export const AffiliateSection: React.FC<AffiliateSectionProps> = ({ isLoading = 
                 </div>
 
                 {/* Level 3 Referral */}
-                <div className="flex items-center justify-between p-2.5 px-3 rounded-[14px] bg-[#faf6f9] border border-[#f0e4ec] hover:border-[#ec2f73] transition-colors">
+                <div className="flex items-center justify-between p-2.5 px-3 rounded-[14px] bg-[#faf6f9] border border-[#f0e4ec] hover:border-[#D30915] transition-colors">
                   <div className="flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-[8px] bg-purple-100 text-purple-700 flex items-center justify-center font-black text-xs">
                       3
@@ -238,7 +212,7 @@ export const AffiliateSection: React.FC<AffiliateSectionProps> = ({ isLoading = 
                 </div>
 
                 {/* Level 4 Referral */}
-                <div className="flex items-center justify-between p-2.5 px-3 rounded-[14px] bg-[#faf6f9] border border-[#f0e4ec] hover:border-[#ec2f73] transition-colors">
+                <div className="flex items-center justify-between p-2.5 px-3 rounded-[14px] bg-[#faf6f9] border border-[#f0e4ec] hover:border-[#D30915] transition-colors">
                   <div className="flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-[8px] bg-purple-100 text-purple-700 flex items-center justify-center font-black text-xs">
                       4
@@ -251,7 +225,7 @@ export const AffiliateSection: React.FC<AffiliateSectionProps> = ({ isLoading = 
                 </div>
 
                 {/* Level 5 Referral */}
-                <div className="flex items-center justify-between p-2.5 px-3 rounded-[14px] bg-[#faf6f9] border border-[#f0e4ec] hover:border-[#ec2f73] transition-colors">
+                <div className="flex items-center justify-between p-2.5 px-3 rounded-[14px] bg-[#faf6f9] border border-[#f0e4ec] hover:border-[#D30915] transition-colors">
                   <div className="flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-[8px] bg-purple-100 text-purple-700 flex items-center justify-center font-black text-xs">
                       5
@@ -278,7 +252,7 @@ export const AffiliateSection: React.FC<AffiliateSectionProps> = ({ isLoading = 
 
                 {/* Compact Stacked Percent Badges Bar */}
                 <div className="flex items-center gap-1">
-                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-[#ec2f73] text-white">
+                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-[#D30915] text-white">
                     You 20%
                   </span>
                   <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full bg-purple-600 text-white">
@@ -300,8 +274,8 @@ export const AffiliateSection: React.FC<AffiliateSectionProps> = ({ isLoading = 
               </div>
 
               {/* Sponsor Network Advantage Callout */}
-              <div className="mt-3 p-2.5 rounded-[12px] bg-[#fff0f5] border border-[#f5cad7] flex items-center gap-2 text-[11px] font-bold text-[#ec2f73]">
-                <ShieldCheck className="w-4 h-4 text-[#ec2f73] shrink-0" />
+              <div className="mt-3 p-2.5 rounded-[12px] bg-[#fff1f2] border border-[#fecdd3] flex items-center gap-2 text-[11px] font-bold text-[#D30915]">
+                <ShieldCheck className="w-4 h-4 text-[#D30915] shrink-0" />
                 <span><strong>5-Tier Sponsor Network</strong> — Earn overrides on every team sale with weekly payouts</span>
               </div>
 

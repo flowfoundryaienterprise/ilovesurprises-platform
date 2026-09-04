@@ -75,18 +75,18 @@ export const ToastNotification: React.FC<ToastNotificationProps> = ({
       case 'cart':
         return {
           icon: <ShoppingBag className="w-4 h-4 text-white" />,
-          bg: 'bg-gradient-to-r from-[#ec2f73] to-[#d92467]',
+          bg: 'bg-gradient-to-r from-[#D30915] to-[#B60711]',
           badgeText: 'Added to Bag',
-          borderColor: 'border-[#f5cad7]',
-          glowColor: 'shadow-[0_14px_36px_rgba(236,47,115,0.28)]',
+          borderColor: 'border-[#fecdd3]',
+          glowColor: 'shadow-[0_14px_36px_rgba(211, 9, 21,0.28)]',
         };
       case 'wishlist':
         return {
           icon: <Heart className="w-4 h-4 text-white fill-white" />,
-          bg: 'bg-gradient-to-r from-[#ec2f73] to-[#ff4081]',
+          bg: 'bg-gradient-to-r from-[#D30915] to-[#ff4081]',
           badgeText: 'Wishlist Updated',
-          borderColor: 'border-[#f5cad7]',
-          glowColor: 'shadow-[0_14px_36px_rgba(236,47,115,0.28)]',
+          borderColor: 'border-[#fecdd3]',
+          glowColor: 'shadow-[0_14px_36px_rgba(211, 9, 21,0.28)]',
         };
       case 'order':
         return {
@@ -141,7 +141,7 @@ export const ToastNotification: React.FC<ToastNotificationProps> = ({
 
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5 leading-none mb-0.5">
-              <span className="text-[10px] font-black uppercase tracking-wider text-[#ec2f73]">
+              <span className="text-[10px] font-black uppercase tracking-wider text-[#D30915]">
                 {toast.title || styleConfig.badgeText}
               </span>
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -161,7 +161,7 @@ export const ToastNotification: React.FC<ToastNotificationProps> = ({
               toast.onAction?.();
               handleManualDismiss();
             }}
-            className="h-[32px] px-3 rounded-[10px] bg-[#fff0f5] hover:bg-[#ec2f73] text-[#ec2f73] hover:text-white border border-[#f5cad7] text-xs font-black uppercase tracking-wider flex items-center gap-1 shadow-2xs active:scale-95 transition-all cursor-pointer shrink-0"
+            className="h-[32px] px-3 rounded-[10px] bg-[#fff1f2] hover:bg-[#D30915] text-[#D30915] hover:text-white border border-[#fecdd3] text-xs font-black uppercase tracking-wider flex items-center gap-1 shadow-2xs active:scale-95 transition-all cursor-pointer shrink-0"
           >
             <span>{toast.actionLabel}</span>
             <ArrowRight className="w-3 h-3" />
@@ -172,7 +172,7 @@ export const ToastNotification: React.FC<ToastNotificationProps> = ({
         <button
           type="button"
           onClick={handleManualDismiss}
-          className="w-7 h-7 rounded-full bg-stone-100 hover:bg-[#fff0f5] text-[#8a858f] hover:text-[#141219] flex items-center justify-center transition-colors cursor-pointer shrink-0 active:scale-90"
+          className="w-7 h-7 rounded-full bg-stone-100 hover:bg-[#fff1f2] text-[#8a858f] hover:text-[#141219] flex items-center justify-center transition-colors cursor-pointer shrink-0 active:scale-90"
           aria-label="Dismiss notification"
         >
           <X className="w-3.5 h-3.5" />
@@ -181,7 +181,7 @@ export const ToastNotification: React.FC<ToastNotificationProps> = ({
         {/* Animated Countdown Progress Line */}
         <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#f7edf3]">
           <div
-            className="h-full bg-gradient-to-r from-[#ec2f73] to-[#ff3b81] transition-all duration-75 ease-linear rounded-full"
+            className="h-full bg-gradient-to-r from-[#D30915] to-[#ff3b81] transition-all duration-75 ease-linear rounded-full"
             style={{ width: `${progress}%` }}
           />
         </div>

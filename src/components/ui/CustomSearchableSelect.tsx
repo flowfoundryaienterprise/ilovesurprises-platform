@@ -115,7 +115,7 @@ export const CustomSearchableSelect: React.FC<CustomSearchableSelectProps> = ({
     <div ref={containerRef} className={`relative flex flex-col min-w-0 ${className}`}>
       {/* Label */}
       <label className="block text-xs font-bold text-[#141219] mb-1.5 truncate">
-        {label} {required && <span className="text-[#ec2f73]">*</span>}
+        {label} {required && <span className="text-[#D30915]">*</span>}
       </label>
 
       {/* Trigger Button - Mobile App Sized */}
@@ -127,15 +127,15 @@ export const CustomSearchableSelect: React.FC<CustomSearchableSelectProps> = ({
         aria-expanded={isOpen}
         className={`w-full min-h-[46px] sm:min-h-[44px] px-3.5 rounded-[14px] bg-[#fffafb] border text-left transition-all duration-200 flex items-center justify-between gap-2 cursor-pointer shadow-xs active:scale-[0.99] min-w-0 ${
           isOpen
-            ? 'border-[#ec2f73] ring-3 ring-[#ec2f73]/15 bg-white shadow-[0_4px_16px_rgba(236,47,115,0.08)]'
+            ? 'border-[#D30915] ring-3 ring-[#D30915]/15 bg-white shadow-[0_4px_16px_rgba(211, 9, 21,0.08)]'
             : error
             ? 'border-red-500 bg-red-50/20'
-            : 'border-[#e8dfe5] hover:border-[#ec2f73] hover:bg-white'
+            : 'border-[#e8dfe5] hover:border-[#D30915] hover:bg-white'
         } ${disabled ? 'opacity-50 cursor-not-allowed bg-stone-100' : ''}`}
       >
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
           {icon && (
-            <div className={`shrink-0 transition-colors ${isOpen ? 'text-[#ec2f73]' : 'text-[#8a858f]'}`}>
+            <div className={`shrink-0 transition-colors ${isOpen ? 'text-[#D30915]' : 'text-[#8a858f]'}`}>
               {icon}
             </div>
           )}
@@ -154,13 +154,13 @@ export const CustomSearchableSelect: React.FC<CustomSearchableSelectProps> = ({
 
         <div className="flex items-center gap-1.5 shrink-0">
           {selectedOption?.badge && (
-            <span className="text-[9px] font-black uppercase text-[#ec2f73] bg-[#fff0f5] px-2 py-0.5 rounded-full border border-[#f5cad7] hidden sm:inline-block">
+            <span className="text-[9px] font-black uppercase text-[#D30915] bg-[#fff1f2] px-2 py-0.5 rounded-full border border-[#fecdd3] hidden sm:inline-block">
               {selectedOption.badge}
             </span>
           )}
           <ChevronDown
             className={`w-4 h-4 text-[#8a858f] transition-transform duration-250 shrink-0 ${
-              isOpen ? 'rotate-180 text-[#ec2f73]' : ''
+              isOpen ? 'rotate-180 text-[#D30915]' : ''
             }`}
           />
         </div>
@@ -185,7 +185,7 @@ export const CustomSearchableSelect: React.FC<CustomSearchableSelectProps> = ({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={searchPlaceholder}
-                className="w-full h-[36px] pl-8 pr-7 rounded-[10px] bg-[#fffafc] border border-[#ecdbe6] focus:border-[#ec2f73] text-xs text-[#141219] placeholder:text-[#9c95a0] outline-none font-medium"
+                className="w-full h-[36px] pl-8 pr-7 rounded-[10px] bg-[#fffafc] border border-[#ecdbe6] focus:border-[#D30915] text-xs text-[#141219] placeholder:text-[#9c95a0] outline-none font-medium"
               />
               {searchQuery && (
                 <button
@@ -213,13 +213,13 @@ export const CustomSearchableSelect: React.FC<CustomSearchableSelectProps> = ({
                     onClick={() => handleSelect(option.value)}
                     className={`w-full p-2.5 rounded-[12px] text-left transition-all flex items-center justify-between gap-2 cursor-pointer ${
                       isSelected
-                        ? 'bg-[#fff0f5] text-[#ec2f73] font-black shadow-2xs border border-[#f5cad7]'
-                        : 'hover:bg-[#fff7fa] text-[#141219] hover:text-[#ec2f73]'
+                        ? 'bg-[#fff1f2] text-[#D30915] font-black shadow-2xs border border-[#fecdd3]'
+                        : 'hover:bg-[#fff7fa] text-[#141219] hover:text-[#D30915]'
                     }`}
                   >
                     <div className="flex items-center gap-2 min-w-0 flex-1">
                       {option.icon && (
-                        <div className={`shrink-0 ${isSelected ? 'text-[#ec2f73]' : 'text-[#8a858f]'}`}>
+                        <div className={`shrink-0 ${isSelected ? 'text-[#D30915]' : 'text-[#8a858f]'}`}>
                           {option.icon}
                         </div>
                       )}
@@ -240,14 +240,14 @@ export const CustomSearchableSelect: React.FC<CustomSearchableSelectProps> = ({
                         <span
                           className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${
                             isSelected
-                              ? 'bg-[#ec2f73] text-white'
+                              ? 'bg-[#D30915] text-white'
                               : 'bg-[#f6ebf2] text-[#716d77]'
                           }`}
                         >
                           {option.badge}
                         </span>
                       )}
-                      {isSelected && <Check className="w-3.5 h-3.5 text-[#ec2f73] stroke-[3]" />}
+                      {isSelected && <Check className="w-3.5 h-3.5 text-[#D30915] stroke-[3]" />}
                     </div>
                   </button>
                 );
@@ -282,7 +282,7 @@ export const CustomSearchableSelect: React.FC<CustomSearchableSelectProps> = ({
             {/* Header */}
             <div className="px-5 py-3 border-b border-[#f5eaf1] flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2 min-w-0">
-                {icon && <div className="text-[#ec2f73] shrink-0">{icon}</div>}
+                {icon && <div className="text-[#D30915] shrink-0">{icon}</div>}
                 <h3 className="text-base font-black text-[#141219] m-0 truncate font-display">
                   {label}
                 </h3>
@@ -306,7 +306,7 @@ export const CustomSearchableSelect: React.FC<CustomSearchableSelectProps> = ({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={searchPlaceholder}
-                  className="w-full h-[44px] pl-10 pr-9 rounded-[14px] bg-white border border-[#e8dfe5] focus:border-[#ec2f73] text-sm text-[#141219] placeholder:text-[#9c95a0] outline-none font-medium shadow-2xs"
+                  className="w-full h-[44px] pl-10 pr-9 rounded-[14px] bg-white border border-[#e8dfe5] focus:border-[#D30915] text-sm text-[#141219] placeholder:text-[#9c95a0] outline-none font-medium shadow-2xs"
                 />
                 {searchQuery && (
                   <button
@@ -332,13 +332,13 @@ export const CustomSearchableSelect: React.FC<CustomSearchableSelectProps> = ({
                       onClick={() => handleSelect(option.value)}
                       className={`w-full min-h-[50px] px-4 py-3 rounded-[16px] text-left transition-all flex items-center justify-between gap-3 active:scale-[0.98] cursor-pointer ${
                         isSelected
-                          ? 'bg-[#fff0f5] text-[#ec2f73] font-black border-2 border-[#ec2f73] shadow-xs'
+                          ? 'bg-[#fff1f2] text-[#D30915] font-black border-2 border-[#D30915] shadow-xs'
                           : 'bg-white border border-[#f0e4ec] text-[#141219] hover:bg-[#fff9fc]'
                       }`}
                     >
                       <div className="flex items-center gap-3 min-w-0 flex-1">
                         {option.icon && (
-                          <div className={`shrink-0 ${isSelected ? 'text-[#ec2f73]' : 'text-[#8a858f]'}`}>
+                          <div className={`shrink-0 ${isSelected ? 'text-[#D30915]' : 'text-[#8a858f]'}`}>
                             {option.icon}
                           </div>
                         )}
@@ -359,7 +359,7 @@ export const CustomSearchableSelect: React.FC<CustomSearchableSelectProps> = ({
                           <span
                             className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${
                               isSelected
-                                ? 'bg-[#ec2f73] text-white'
+                                ? 'bg-[#D30915] text-white'
                                 : 'bg-[#f6ebf2] text-[#716d77]'
                             }`}
                           >
@@ -367,7 +367,7 @@ export const CustomSearchableSelect: React.FC<CustomSearchableSelectProps> = ({
                           </span>
                         )}
                         {isSelected && (
-                          <div className="w-6 h-6 rounded-full bg-[#ec2f73] text-white flex items-center justify-center shrink-0 shadow-2xs">
+                          <div className="w-6 h-6 rounded-full bg-[#D30915] text-white flex items-center justify-center shrink-0 shadow-2xs">
                             <Check className="w-3.5 h-3.5 stroke-[3]" />
                           </div>
                         )}

@@ -17,6 +17,7 @@ import { ProductGallery } from '../components/products/ProductGallery';
 import { ProductCard } from '../components/products/ProductCard';
 import { productsData } from '../data/products';
 import type { Product, CartItem } from '../types';
+import { representativeService, type PublicRepresentative } from '../services/representativeService';
 
 interface ProductDetailsProps {
   product: Product;
@@ -43,6 +44,16 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
 }) => {
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState('Classic 14oz');
+  const [rep, setRep] = useState<PublicRepresentative | null>(() => representativeService.getAttributedRepresentative());
+
+  useEffect(() => {
+    const handleRep = (e: Event) => {
+      const customEvent = e as CustomEvent<PublicRepresentative | null>;
+      setRep(customEvent.detail || representativeService.getAttributedRepresentative());
+    };
+    window.addEventListener('ils_representative_attributed', handleRep);
+    return () => window.removeEventListener('ils_representative_attributed', handleRep);
+  }, []);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -77,7 +88,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
         <button
           type="button"
           onClick={onBackToShop}
-          className="inline-flex items-center gap-1.5 text-xs font-black text-[#ec2f73] hover:underline cursor-pointer"
+          className="inline-flex items-center gap-1.5 text-xs font-black text-[#D30915] hover:underline cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to All Surprises</span>
@@ -112,7 +123,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
 
               {/* Category & Ratings Badge */}
               <div className="flex items-center justify-between gap-2 mb-2">
-                <span className="text-[11px] font-black uppercase tracking-wider text-[#ec2f73] bg-[#fff0f5] px-3 py-1 rounded-full border border-[#f5cad7]">
+                <span className="text-[11px] font-black uppercase tracking-wider text-[#D30915] bg-[#fff1f2] px-3 py-1 rounded-full border border-[#fecdd3]">
                   {product.category}
                 </span>
 
@@ -124,6 +135,16 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                   <span className="text-[#8a858f] font-normal">({product.reviewCount} verified reviews)</span>
                 </div>
               </div>
+
+              {/* Representative Endorsement Pill */}
+              {rep && (
+                <div className="mb-3 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#fff5f6] border border-[#ffd8dc]">
+                  <img src={rep.avatar} alt={rep.name} className="w-4 h-4 rounded-full object-cover ring-1 ring-[#D30915]/40" />
+                  <span className="text-[11px] text-[#645c68]">
+                    Shopping with <strong className="text-[#141219] font-bold">{rep.name}</strong>
+                  </span>
+                </div>
+              )}
 
               {/* Product Title */}
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#141219] tracking-tight leading-tight m-0 mb-3 font-display">
@@ -143,7 +164,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                 )}
 
                 {discountPercent && (
-                  <span className="px-2.5 py-0.5 rounded-full bg-[#ec2f73] text-white text-[10.5px] sm:text-xs font-black uppercase tracking-wider shrink-0 shadow-2xs">
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#D30915] text-white text-[10.5px] sm:text-xs font-black uppercase tracking-wider shrink-0 shadow-2xs">
                     Save {discountPercent}%
                   </span>
                 )}
@@ -154,9 +175,9 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
               </div>
 
               {/* Surprise Reveal Guarantee Feature Card */}
-              <div className="p-4 rounded-[18px] bg-gradient-to-r from-[#fff3f7] via-[#fff8fb] to-[#fff3f7] border border-[#f5cad7] mb-6 shadow-2xs">
+              <div className="p-4 rounded-[18px] bg-gradient-to-r from-[#fff5f5] via-[#fff8fb] to-[#fff5f5] border border-[#fecdd3] mb-6 shadow-2xs">
                 <div className="flex items-center gap-2 mb-1.5">
-                  <div className="w-7 h-7 rounded-full bg-[#ec2f73] text-white flex items-center justify-center shrink-0">
+                  <div className="w-7 h-7 rounded-full bg-[#D30915] text-white flex items-center justify-center shrink-0">
                     {product.surpriseType === 'cash' ? (
                       <DollarSign className="w-4 h-4 stroke-[3]" />
                     ) : (
@@ -169,7 +190,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                         ? 'Guaranteed Real Cash Prize Inside'
                         : 'Guaranteed Fine Jewelry Inside'}
                     </h4>
-                    <p className="text-[11px] text-[#ec2f73] font-black m-0">
+                    <p className="text-[11px] text-[#D30915] font-black m-0">
                       {product.surpriseValue || 'Authentic Reveal in Every Jar'}
                     </p>
                   </div>
@@ -214,7 +235,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                       type="button"
                       onClick={() => setSelectedSize(sizeItem.value)}
                       className={`py-2 px-1.5 sm:px-3.5 rounded-[12px] text-center border transition-all cursor-pointer flex flex-col items-center justify-center ${selectedSize === sizeItem.value
-                        ? 'border-[#ec2f73] bg-[#fff0f5] text-[#ec2f73] font-black shadow-xs ring-2 ring-[#ec2f73]/15'
+                        ? 'border-[#D30915] bg-[#fff1f2] text-[#D30915] font-black shadow-xs ring-2 ring-[#D30915]/15'
                         : 'border-[#ebdce5] bg-white text-[#55505a] hover:border-[#f1b8cb]'
                         }`}
                     >
@@ -253,7 +274,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                       disabled={quantity <= 1}
                       className={`w-9 sm:w-10 h-full rounded-[12px] flex items-center justify-center font-black transition-all cursor-pointer shadow-2xs active:scale-90 ${quantity <= 1
                         ? 'bg-white/60 text-[#a8a3ad] cursor-not-allowed opacity-60'
-                        : 'bg-white hover:bg-[#fff0f5] text-[#141219] hover:text-[#ec2f73] hover:shadow-xs'
+                        : 'bg-white hover:bg-[#fff1f2] text-[#141219] hover:text-[#D30915] hover:shadow-xs'
                         }`}
                       aria-label="Decrease quantity"
                     >
@@ -267,7 +288,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                     <button
                       type="button"
                       onClick={() => setQuantity((q) => q + 1)}
-                      className="w-9 sm:w-10 h-full rounded-[12px] bg-white hover:bg-[#fff0f5] text-[#141219] hover:text-[#ec2f73] flex items-center justify-center font-black transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-90"
+                      className="w-9 sm:w-10 h-full rounded-[12px] bg-white hover:bg-[#fff1f2] text-[#141219] hover:text-[#D30915] flex items-center justify-center font-black transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-90"
                       aria-label="Increase quantity"
                     >
                       <Plus className="w-3.5 sm:w-4 h-3.5 sm:h-4 stroke-[2.5]" />
@@ -278,7 +299,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                   <button
                     type="button"
                     onClick={handleAddToCartClick}
-                    className="flex-1 min-h-[48px] px-3 sm:px-6 rounded-[16px] bg-[#fff0f5] hover:bg-[#ec2f73] text-[#ec2f73] hover:text-white border-2 border-[#ec2f73] text-xs sm:text-sm font-black uppercase tracking-wider shadow-2xs hover:shadow-[0_8px_24px_rgba(236,47,115,0.3)] active:scale-97 transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 min-w-0"
+                    className="flex-1 min-h-[48px] px-3 sm:px-6 rounded-[16px] bg-[#fff1f2] hover:bg-[#D30915] text-[#D30915] hover:text-white border-2 border-[#D30915] text-xs sm:text-sm font-black uppercase tracking-wider shadow-2xs hover:shadow-[0_8px_24px_rgba(211, 9, 21,0.3)] active:scale-97 transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 min-w-0"
                   >
                     <ShoppingBag className="w-4 h-4 shrink-0" />
                     <span className="truncate">Add to Cart — ${(product.price * quantity).toFixed(2)}</span>
@@ -290,7 +311,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                   <button
                     type="button"
                     onClick={handleBuyNowClick}
-                    className="w-full sm:w-auto min-h-[50px] px-6 sm:px-8 rounded-[16px] bg-gradient-to-r from-[#ec2f73] via-[#ff2e79] to-[#d92467] hover:from-[#d92467] hover:to-[#b81850] text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-[0_10px_28px_rgba(236,47,115,0.38)] hover:shadow-[0_14px_36px_rgba(236,47,115,0.52)] active:scale-[0.98] transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 group relative overflow-hidden"
+                    className="w-full sm:w-auto min-h-[50px] px-6 sm:px-8 rounded-[16px] bg-gradient-to-r from-[#D30915] via-[#ff2e79] to-[#B60711] hover:from-[#B60711] hover:to-[#b81850] text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-[0_10px_28px_rgba(211, 9, 21,0.38)] hover:shadow-[0_14px_36px_rgba(211, 9, 21,0.52)] active:scale-[0.98] transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 group relative overflow-hidden"
                   >
                     {/* Subtle Shimmer Light Sweep */}
                     <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/25 to-transparent pointer-events-none" />
@@ -323,7 +344,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                   <span>30-Day Returns</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#ec2f73] shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-[#D30915] shrink-0" />
                   <span>Made in USA</span>
                 </div>
               </div>
@@ -339,7 +360,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
         <div className="pt-8 border-t border-[#f2edf1]">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <span className="block text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-[#ec2f73] mb-1">
+              <span className="block text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-[#D30915] mb-1">
                 More in {product.category}
               </span>
               <h3 className="text-xl sm:text-2xl font-black text-[#141219] m-0 font-display">
@@ -349,7 +370,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
             <button
               type="button"
               onClick={onBackToShop}
-              className="text-xs sm:text-sm font-bold text-[#ec2f73] hover:underline cursor-pointer"
+              className="text-xs sm:text-sm font-bold text-[#D30915] hover:underline cursor-pointer"
             >
               View Full Collection →
             </button>

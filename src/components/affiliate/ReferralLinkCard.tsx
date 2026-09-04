@@ -65,9 +65,9 @@ export const ReferralLinkCard: React.FC<ReferralLinkCardProps> = ({
   const shareUrl = encodeURIComponent(stats.referralLink);
 
   return (
-    <div className="bg-gradient-to-br from-white via-[#fff8fb] to-[#fff0f5] rounded-[20px] sm:rounded-[26px] p-4 sm:p-6 lg:p-8 border-2 border-[#f5cad7] shadow-[0_12px_36px_rgba(236,47,115,0.08)] relative overflow-hidden">
+    <div className="bg-gradient-to-br from-white via-[#fff8fb] to-[#fff1f2] rounded-[20px] sm:rounded-[26px] p-4 sm:p-6 lg:p-8 border-2 border-[#fecdd3] shadow-[0_12px_36px_rgba(211, 9, 21,0.08)] relative overflow-hidden">
       {/* Soft Ambient Backlight */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-[#ec2f73]/15 to-transparent rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-[#D30915]/15 to-transparent rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-10 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative z-10 space-y-4 sm:space-y-5">
@@ -75,8 +75,8 @@ export const ReferralLinkCard: React.FC<ReferralLinkCardProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
           <div>
             <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 flex-wrap">
-              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#ec2f73] bg-[#fff0f5] px-2.5 sm:px-3 py-1 rounded-full border border-[#f5cad7] inline-flex items-center gap-1.5 shadow-2xs">
-                <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#ec2f73]" />
+              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#D30915] bg-[#fff1f2] px-2.5 sm:px-3 py-1 rounded-full border border-[#fecdd3] inline-flex items-center gap-1.5 shadow-2xs">
+                <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#D30915]" />
                 <span>20% Direct Commission Active</span>
               </span>
 
@@ -91,24 +91,24 @@ export const ReferralLinkCard: React.FC<ReferralLinkCardProps> = ({
             </h3>
 
             <p className="text-xs sm:text-sm text-[#716d77] m-0 mt-1">
-              Every candle ordered through your rep link earns you <strong className="text-[#ec2f73] font-black">20% commission</strong> with weekly automated payouts.
+              Every candle ordered through your rep link earns you <strong className="text-[#D30915] font-black">20% commission</strong> with weekly automated payouts.
             </p>
           </div>
 
           <button
             type="button"
             onClick={() => setIsQrModalOpen(true)}
-            className="h-[36px] sm:h-[38px] px-3.5 sm:px-4 rounded-[12px] bg-white border border-[#eedbe6] hover:border-[#ec2f73] text-[#55505a] hover:text-[#ec2f73] text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 shadow-2xs self-start sm:self-auto cursor-pointer shrink-0"
+            className="h-[36px] sm:h-[38px] px-3.5 sm:px-4 rounded-[12px] bg-white border border-[#eedbe6] hover:border-[#D30915] text-[#55505a] hover:text-[#D30915] text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 shadow-2xs self-start sm:self-auto cursor-pointer shrink-0"
           >
-            <QrCode className="w-4 h-4 text-[#ec2f73]" />
+            <QrCode className="w-4 h-4 text-[#D30915]" />
             <span>Show QR Code</span>
           </button>
         </div>
 
         {/* High-Tech Link Bar & Copy Button */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2.5">
-          <div className="flex-1 flex items-center bg-white rounded-[14px] sm:rounded-[16px] border-2 border-[#f0dae7] focus-within:border-[#ec2f73] px-3 sm:px-4 py-2 sm:py-2.5 shadow-xs transition-all overflow-hidden">
-            <Globe className="w-4 h-4 text-[#ec2f73] shrink-0 mr-2 sm:mr-2.5" />
+          <div className="flex-1 flex items-center bg-white rounded-[14px] sm:rounded-[16px] border-2 border-[#f0dae7] focus-within:border-[#D30915] px-3 sm:px-4 py-2 sm:py-2.5 shadow-xs transition-all overflow-hidden">
+            <Globe className="w-4 h-4 text-[#D30915] shrink-0 mr-2 sm:mr-2.5" />
             <span className="font-mono text-[11px] sm:text-sm text-[#141219] truncate font-bold select-all flex-1">
               {stats.referralLink}
             </span>
@@ -120,7 +120,7 @@ export const ReferralLinkCard: React.FC<ReferralLinkCardProps> = ({
             className={`min-h-[44px] sm:min-h-[46px] px-5 sm:px-7 rounded-[13px] sm:rounded-[15px] font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-95 shrink-0 ${
               copied
                 ? 'bg-emerald-600 text-white shadow-[0_6px_20px_rgba(16,185,129,0.3)]'
-                : 'bg-[#ec2f73] hover:bg-[#d92467] text-white shadow-[0_6px_20px_rgba(236,47,115,0.28)]'
+                : 'bg-[#D30915] hover:bg-[#B60711] text-white shadow-[0_6px_20px_rgba(211, 9, 21,0.28)]'
             }`}
           >
             {copied ? (
@@ -148,11 +148,11 @@ export const ReferralLinkCard: React.FC<ReferralLinkCardProps> = ({
                   value={newUsername}
                   onChange={(e) => setNewUsername(e.target.value)}
                   placeholder="custom_handle"
-                  className="h-[34px] px-3 rounded-[10px] bg-white border border-[#ec2f73] text-xs font-mono font-bold text-[#141219] outline-none shadow-xs flex-1 sm:flex-initial"
+                  className="h-[34px] px-3 rounded-[10px] bg-white border border-[#D30915] text-xs font-mono font-bold text-[#141219] outline-none shadow-xs flex-1 sm:flex-initial"
                 />
                 <button
                   type="submit"
-                  className="h-[34px] px-3.5 rounded-[10px] bg-[#ec2f73] text-white text-xs font-black cursor-pointer shadow-2xs shrink-0"
+                  className="h-[34px] px-3.5 rounded-[10px] bg-[#D30915] text-white text-xs font-black cursor-pointer shadow-2xs shrink-0"
                 >
                   Save
                 </button>
@@ -176,7 +176,7 @@ export const ReferralLinkCard: React.FC<ReferralLinkCardProps> = ({
                     setNewUsername(stats.repUsername);
                     setIsEditingUsername(true);
                   }}
-                  className="text-[10px] sm:text-[11px] font-black text-[#ec2f73] hover:underline flex items-center gap-1 cursor-pointer"
+                  className="text-[10px] sm:text-[11px] font-black text-[#D30915] hover:underline flex items-center gap-1 cursor-pointer"
                 >
                   <Edit2 className="w-3 h-3" />
                   <span>Customize Handle</span>
@@ -188,7 +188,7 @@ export const ReferralLinkCard: React.FC<ReferralLinkCardProps> = ({
           {/* Social Share Buttons */}
           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
             <span className="text-[10px] sm:text-[11px] text-[#716d77] font-semibold flex items-center gap-1">
-              <Share2 className="w-3.5 h-3.5 text-[#ec2f73]" />
+              <Share2 className="w-3.5 h-3.5 text-[#D30915]" />
               <span>Share:</span>
             </span>
 
@@ -236,14 +236,14 @@ export const ReferralLinkCard: React.FC<ReferralLinkCardProps> = ({
               <button
                 type="button"
                 onClick={() => setIsQrModalOpen(false)}
-                className="w-7 h-7 rounded-full bg-stone-100 hover:bg-[#fff0f5] text-[#716d77] hover:text-[#ec2f73] flex items-center justify-center cursor-pointer"
+                className="w-7 h-7 rounded-full bg-stone-100 hover:bg-[#fff1f2] text-[#716d77] hover:text-[#D30915] flex items-center justify-center cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
             </div>
 
             {/* High-Contrast Dynamic QR */}
-            <div className="w-44 sm:w-52 h-44 sm:h-52 mx-auto bg-white p-3 sm:p-3.5 rounded-[20px] sm:rounded-[22px] border-2 border-[#ec2f73] shadow-md flex items-center justify-center mb-3">
+            <div className="w-44 sm:w-52 h-44 sm:h-52 mx-auto bg-white p-3 sm:p-3.5 rounded-[20px] sm:rounded-[22px] border-2 border-[#D30915] shadow-md flex items-center justify-center mb-3">
               <img
                 src={qrCodeUrl}
                 alt="Representative QR Code"
@@ -263,7 +263,7 @@ export const ReferralLinkCard: React.FC<ReferralLinkCardProps> = ({
                 href={stats.referralLink}
                 target="_blank"
                 rel="noreferrer"
-                className="h-[38px] px-3 rounded-[12px] bg-[#fff0f5] hover:bg-[#ffe3ee] text-[#ec2f73] font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
+                className="h-[38px] px-3 rounded-[12px] bg-[#fff1f2] hover:bg-[#ffe3ee] text-[#D30915] font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
                 <span>Visit Store</span>
@@ -272,7 +272,7 @@ export const ReferralLinkCard: React.FC<ReferralLinkCardProps> = ({
               <a
                 href={qrCodeUrl}
                 download={`ILoveSurprises_QR_${stats.repUsername}.png`}
-                className="h-[38px] px-3 rounded-[12px] bg-[#ec2f73] hover:bg-[#d92467] text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-colors"
+                className="h-[38px] px-3 rounded-[12px] bg-[#D30915] hover:bg-[#B60711] text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-colors"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Save QR</span>

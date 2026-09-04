@@ -78,7 +78,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
           <h2 className="text-base sm:text-xl font-black text-[#141219] uppercase tracking-wide flex items-center gap-2 m-0 font-display">
             <span>Trending Best Sellers</span>
             {!isLoading && (
-              <span className="text-xs font-bold text-[#ec2f73] bg-[#fff0f5] px-2 py-0.5 rounded-full lowercase">
+              <span className="text-xs font-bold text-[#D30915] bg-[#fff1f2] px-2 py-0.5 rounded-full lowercase">
                 {filteredProducts.length} items
               </span>
             )}
@@ -95,8 +95,8 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
                 type="button"
                 onClick={() => handleChipClick(chip)}
                 className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 cursor-pointer active:scale-95 ${isActive
-                  ? 'bg-[#ec2f73] text-white shadow-[0_4px_14px_rgba(236,47,115,0.35)] scale-102'
-                  : 'bg-white border border-[#eee7ed] text-[#716d77] hover:border-[#f5cad7] hover:bg-[#fff5f8] hover:text-[#ec2f73] hover:shadow-2xs'
+                  ? 'bg-[#D30915] text-white shadow-[0_4px_14px_rgba(211, 9, 21,0.35)] scale-102'
+                  : 'bg-white border border-[#eee7ed] text-[#716d77] hover:border-[#fecdd3] hover:bg-[#fff5f8] hover:text-[#D30915] hover:shadow-2xs'
                   }`}
               >
                 {chip}
@@ -119,13 +119,13 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
         </div>
       ) : filteredProducts.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-2xl border border-[#eee7ed] p-6 shadow-2xs">
-          <Sparkles className="w-8 h-8 text-[#ec2f73] mx-auto mb-2 opacity-50" />
+          <Sparkles className="w-8 h-8 text-[#D30915] mx-auto mb-2 opacity-50" />
           <h3 className="text-sm font-bold text-[#141219]">No surprises found matching your filter</h3>
           <p className="text-xs text-[#716d77] mt-1">Try selecting "All Surprises" or clearing your search term.</p>
           <button
             type="button"
             onClick={() => handleChipClick('All Surprises')}
-            className="mt-3 px-5 py-2 rounded-xl bg-[#ec2f73] hover:bg-[#d92467] text-white text-xs font-bold shadow-[0_6px_16px_rgba(236,47,115,0.28)] hover:shadow-[0_10px_24px_rgba(236,47,115,0.38)] hover:-translate-y-0.5 active:scale-95 transition-all cursor-pointer"
+            className="mt-3 px-5 py-2 rounded-xl bg-[#D30915] hover:bg-[#B60711] text-white text-xs font-bold shadow-[0_6px_16px_rgba(211, 9, 21,0.28)] hover:shadow-[0_10px_24px_rgba(211, 9, 21,0.38)] hover:-translate-y-0.5 active:scale-95 transition-all cursor-pointer"
           >
             Reset Filters
           </button>

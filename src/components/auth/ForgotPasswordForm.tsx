@@ -48,9 +48,9 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
       {/* Centered Logo & Header */}
       <div className="text-center mb-5">
         <img
-          src="/assets/ilovesurprises/logo/i love surprises logo.jpeg"
+          src="/assets/ilovesurprises/logo/New logo.jpeg"
           alt="I Love Surprises Logo"
-          className="h-10 sm:h-12 w-auto max-w-[180px] sm:max-w-[210px] mx-auto object-contain mb-2.5"
+          className="h-[49px] sm:h-[57px] w-auto max-w-[225px] sm:max-w-[265px] mx-auto object-contain mb-3"
           loading="eager"
         />
         <h2 className="text-xl sm:text-2xl font-black text-[#141219] tracking-tight m-0 font-display">
@@ -77,7 +77,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
             </p>
           </div>
 
-          <div className="p-3 rounded-[13px] bg-[#fff0f5] border border-[#f5cad7] text-left text-xs text-[#55505a]">
+          <div className="p-3 rounded-[13px] bg-[#fff1f2] border border-[#fecdd3] text-left text-xs text-[#55505a]">
             <p className="m-0 font-medium">
               💡 <strong>Tip:</strong> If you don't see the email within a few minutes, check your spam or promotions folder.
             </p>
@@ -86,7 +86,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
           <button
             type="button"
             onClick={onSwitchToLogin}
-            className="w-full h-[44px] rounded-[13px] bg-[#ec2f73] hover:bg-[#d92467] text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-[0_8px_20px_rgba(236,47,115,0.28)] active:scale-97 transition-all cursor-pointer flex items-center justify-center gap-2"
+            className="w-full h-[44px] rounded-[13px] bg-[#D30915] hover:bg-[#B60711] text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-[0_8px_20px_rgba(211, 9, 21,0.28)] active:scale-97 transition-all cursor-pointer flex items-center justify-center gap-2"
           >
             <span>Back to Login</span>
             <ArrowRight className="w-4 h-4" />
@@ -104,7 +104,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
 
           <div>
             <label htmlFor="forgot-identifier" className="block text-[11px] sm:text-xs font-bold text-[#141219] mb-1">
-              Email or Mobile Number <span className="text-[#ec2f73]">*</span>
+              Email or Mobile Number <span className="text-[#D30915]">*</span>
             </label>
             <div className="relative">
               <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8a858f] pointer-events-none">
@@ -123,7 +123,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
                 }}
                 className={`w-full h-[42px] sm:h-[44px] pl-10 pr-3 rounded-[13px] bg-[#fffafb] border text-xs sm:text-sm font-medium text-[#141219] placeholder:text-[#9c95a0] transition-all outline-none disabled:opacity-50 ${error
                     ? 'border-red-400 focus:border-red-500 focus:bg-white focus:ring-2 focus:ring-red-100'
-                    : 'border-[#ebdce5] hover:border-[#f1b8cb] focus:border-[#ec2f73] focus:bg-white focus:ring-2 focus:ring-[#ec2f73]/10'
+                    : 'border-[#ebdce5] hover:border-[#f1b8cb] focus:border-[#D30915] focus:bg-white focus:ring-2 focus:ring-[#D30915]/10'
                   }`}
               />
             </div>
@@ -132,7 +132,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full h-[44px] sm:h-[46px] rounded-[14px] bg-gradient-to-r from-[#ec2f73] to-[#d92467] hover:from-[#d92467] hover:to-[#c21a57] text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-[0_8px_22px_rgba(236,47,115,0.28)] hover:shadow-[0_12px_28px_rgba(236,47,115,0.38)] active:scale-97 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer flex items-center justify-center gap-2"
+            className="w-full h-[44px] sm:h-[46px] rounded-[14px] bg-gradient-to-r from-[#D30915] to-[#B60711] hover:from-[#B60711] hover:to-[#c21a57] text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-[0_8px_22px_rgba(211, 9, 21,0.28)] hover:shadow-[0_12px_28px_rgba(211, 9, 21,0.38)] active:scale-97 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer flex items-center justify-center gap-2"
           >
             {isLoading ? (
               <div className="flex items-center gap-2">
@@ -151,7 +151,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
             <button
               type="button"
               onClick={onSwitchToLogin}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#716d77] hover:text-[#ec2f73] transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#716d77] hover:text-[#D30915] transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back to Login</span>

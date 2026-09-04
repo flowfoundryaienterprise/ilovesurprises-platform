@@ -3,6 +3,7 @@ import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
 import { AuthModal } from './components/auth/AuthModal';
 import { CartDrawer } from './components/cart/CartDrawer';
+import { RepresentativeSubscriptionModal } from './components/affiliate/RepresentativeSubscriptionModal';
 import { ToastNotification, type ToastData } from './components/ui/ToastNotification';
 import { Home } from './pages/Home';
 import { Shop } from './pages/Shop';
@@ -14,9 +15,13 @@ import { Account, type AccountTab } from './pages/Account';
 import { AffiliateDashboard } from './pages/AffiliateDashboard';
 import { About } from './pages/About';
 import { Contact } from './pages/Contact';
+import { Rewards } from './pages/Rewards';
+import { AdminDashboard } from './pages/AdminDashboard';
 import type { Product, CartItem, UserProfile, Order } from './types';
+import type { AdminTab } from './types/admin';
 import { productsData } from './data/products';
 import { accountService } from './services/accountService';
+import { representativeService } from './services/representativeService';
 
 export type AppView =
   | 'home'
@@ -28,12 +33,15 @@ export type AppView =
   | 'account'
   | 'affiliate'
   | 'about'
-  | 'contact';
+  | 'contact'
+  | 'rewards'
+  | 'admin';
 
 export function App() {
   const [currentView, setCurrentView] = useState<AppView>(() => {
     if (typeof window === 'undefined') return 'home';
     const path = window.location.pathname;
+    if (path === '/admin') return 'admin';
     if (path === '/shop') return 'shop';
     if (path === '/categories') return 'categories';
     if (path.startsWith('/product/')) return 'product-details';
@@ -43,6 +51,20 @@ export function App() {
     if (path === '/affiliate') return 'affiliate';
     if (path === '/about') return 'about';
     if (path === '/contact') return 'contact';
+    if (path === '/rewards') return 'rewards';
+
+    // Check for representative in path or query
+    const trimmedPath = path.startsWith('/rep/') ? path.replace('/rep/', '') : path.slice(1);
+    if (
+      trimmedPath &&
+      !['admin', 'shop', 'categories', 'checkout', 'order-confirmation', 'account', 'affiliate', 'about', 'contact', 'rewards'].includes(
+        trimmedPath
+      ) &&
+      !trimmedPath.includes('/')
+    ) {
+      representativeService.setAttributedRepresentative(trimmedPath);
+    }
+
     return 'home';
   });
 
@@ -67,6 +89,20 @@ export function App() {
 
   const [latestPlacedOrder, setLatestPlacedOrder] = useState<Order | null>(null);
   const [accountActiveTab, setAccountActiveTab] = useState<AccountTab>('profile');
+  const [adminActiveTab, setAdminActiveTab] = useState<AdminTab>(() => {
+    if (typeof window === 'undefined') return 'overview';
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    if (
+      tab &&
+      ['overview', 'representatives', 'memberships', 'commerce', 'commissions', 'reports', 'settings', 'permissions'].includes(
+        tab
+      )
+    ) {
+      return tab as AdminTab;
+    }
+    return 'overview';
+  });
   const [highlightOrderId, setHighlightOrderId] = useState<string | null>(null);
 
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -83,11 +119,28 @@ export function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All Surprises');
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
   const [toast, setToast] = useState<ToastData | null>(null);
   const [navDirection, setNavDirection] = useState<'forward' | 'backward'>('forward');
 
   // Track scroll position per page for smooth return navigation
   const scrollPositions = useRef<Record<string, number>>({});
+
+  // Sync user profile if consultant status or profile changes in storage
+  useEffect(() => {
+    const handleUserUpdated = () => {
+      const stored = accountService.getStoredUser();
+      if (stored) {
+        setUser(stored);
+      }
+    };
+    window.addEventListener('ilovesurprises_user_updated', handleUserUpdated);
+    window.addEventListener('ils_consultant_subscribed', handleUserUpdated);
+    return () => {
+      window.removeEventListener('ilovesurprises_user_updated', handleUserUpdated);
+      window.removeEventListener('ils_consultant_subscribed', handleUserUpdated);
+    };
+  }, []);
 
   const totalCartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
   const cartSubtotal = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
@@ -112,6 +165,58 @@ export function App() {
       duration: options?.duration || 3200,
     });
   };
+
+  // Dynamic SEO management per view & product
+  useEffect(() => {
+    const titles: Record<AppView, string> = {
+      home: 'ILoveSurprises.com | Luxury Jewelry & Real Cash Reveal Candles',
+      shop: 'Shop Surprise Candles & Melts | ILoveSurprises.com',
+      categories: 'Browse Surprise Categories | Candles, Melts & Bath | ILoveSurprises.com',
+      'product-details': selectedProduct ? `${selectedProduct.name} | ILoveSurprises.com` : 'Product Details | ILoveSurprises.com',
+      checkout: 'Secure SSL Checkout | ILoveSurprises.com',
+      'order-confirmation': 'Order Confirmation | ILoveSurprises.com',
+      account: 'My Account & Order History | ILoveSurprises.com',
+      affiliate: 'Surprise Consultant Portal & Earnings | ILoveSurprises.com',
+      about: 'About Us | The Story of ILoveSurprises.com',
+      contact: 'Contact & VIP Concierge | ILoveSurprises.com',
+      rewards: 'Surprise Club™ VIP Rewards & Loyalty | ILoveSurprises.com',
+      admin: 'Admin Control Center | ILoveSurprises.com',
+    };
+
+    const descriptions: Record<AppView, string> = {
+      home: 'Discover hand-poured soy candles and luxury bath treats with real cash ($2 - $2,500) or fine jewelry hidden inside every item.',
+      shop: 'Explore our full collection of aroma soy candles, bath bombs, wax melts, and mystery boxes with genuine surprise reveals.',
+      categories: 'Shop by surprise category: Cash Candles, Jewelry Candles, Wax Melts, and Curated Monthly Surprise Boxes.',
+      'product-details': selectedProduct?.description || 'Handcrafted luxury soy candle with guaranteed hidden surprises inside.',
+      checkout: 'Complete your purchase with 256-bit SSL encrypted checkout and 100% win guarantee protection.',
+      'order-confirmation': 'Your surprise package has been ordered and is preparing for express delivery.',
+      account: 'Manage your profile, tracked shipping addresses, orders, and consultant status.',
+      affiliate: 'Earn 20% direct customer commissions plus 5 levels of team overrides up to 35% total compensation.',
+      about: 'Learn about our passion for unforgettable unboxing moments, clean natural ingredients, and verified reveals.',
+      contact: 'Get in touch with the ILoveSurprises concierge team for order support, custom gifts, or partnership inquiries.',
+      rewards: 'Earn 10 points per $1 spent on cash reveal candles and fine jewelry. Redeem points for discount vouchers, free candles, and VIP perks.',
+      admin: 'Secure internal management system for store commerce, representatives, memberships, and commissions.',
+    };
+
+    document.title = titles[currentView] || 'ILoveSurprises.com';
+
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (!metaDesc) {
+      metaDesc = document.createElement('meta');
+      metaDesc.setAttribute('name', 'description');
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.setAttribute('content', descriptions[currentView] || descriptions.home);
+
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    const currentOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://ilovesurprises.com';
+    canonical.setAttribute('href', `${currentOrigin}${window.location.pathname}`);
+  }, [currentView, selectedProduct]);
 
   // Browser history popstate handler with back detection & drawer interception
   useEffect(() => {
@@ -141,6 +246,13 @@ export function App() {
         }
         if (e.state.tab) {
           setAccountActiveTab(e.state.tab);
+          if (
+            ['overview', 'representatives', 'memberships', 'commerce', 'commissions', 'reports', 'settings', 'permissions'].includes(
+              e.state.tab
+            )
+          ) {
+            setAdminActiveTab(e.state.tab as AdminTab);
+          }
         }
 
         // Restore scroll position
@@ -148,7 +260,20 @@ export function App() {
         window.scrollTo({ top: targetScroll, behavior: 'smooth' });
       } else {
         const path = window.location.pathname;
-        if (path === '/shop') {
+        if (path === '/admin') {
+          const params = new URLSearchParams(window.location.search);
+          const tab = params.get('tab');
+          if (
+            tab &&
+            ['overview', 'representatives', 'memberships', 'commerce', 'commissions', 'reports', 'settings', 'permissions'].includes(
+              tab
+            )
+          ) {
+            setAdminActiveTab(tab as AdminTab);
+          }
+          setCurrentView('admin');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (path === '/shop') {
           setCurrentView('shop');
           window.scrollTo({ top: scrollPositions.current['shop'] || 0, behavior: 'smooth' });
         } else if (path === '/categories') {
@@ -405,8 +530,32 @@ export function App() {
     }
   };
 
-  const handleNavigate = (route: 'home' | 'shop' | 'categories' | 'affiliate' | 'about' | 'contact') => {
-    if (route === 'shop') {
+  const handleNavigateToRewards = (direction: 'forward' | 'backward' = 'forward') => {
+    scrollPositions.current[currentView] = window.scrollY;
+    setNavDirection(direction);
+    setCurrentView('rewards');
+    const targetScroll = direction === 'backward' ? scrollPositions.current['rewards'] || 0 : 0;
+    window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+    if (window.history.pushState) {
+      window.history.pushState({ view: 'rewards' }, '', '/rewards');
+    }
+  };
+
+  const handleNavigateToAdmin = (tab: AdminTab = 'overview') => {
+    scrollPositions.current[currentView] = window.scrollY;
+    setNavDirection('forward');
+    setAdminActiveTab(tab);
+    setCurrentView('admin');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (window.history.pushState) {
+      window.history.pushState({ view: 'admin', tab }, '', `/admin?tab=${tab}`);
+    }
+  };
+
+  const handleNavigate = (route: 'home' | 'shop' | 'categories' | 'affiliate' | 'about' | 'contact' | 'rewards' | 'admin') => {
+    if (route === 'admin') {
+      handleNavigateToAdmin('overview');
+    } else if (route === 'shop') {
       handleNavigateToShop(undefined, 'forward');
     } else if (route === 'categories') {
       handleNavigateToCategories('forward');
@@ -416,6 +565,8 @@ export function App() {
       handleNavigateToAbout('forward');
     } else if (route === 'contact') {
       handleNavigateToContact('forward');
+    } else if (route === 'rewards') {
+      handleNavigateToRewards('forward');
     } else {
       handleNavigateToHome('forward');
     }
@@ -425,157 +576,183 @@ export function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-[#141219]">
-      {/* 1. Header / Navbar with Active Highlighting, Search, Location, User Menu & Cart */}
-      <Header
-        cartCount={totalCartCount}
-        cartSubtotal={cartSubtotal}
-        user={user}
-        activeView={currentView}
-        onOpenCart={() => setIsCartOpen(true)}
-        onOpenAuth={handleOpenAuth}
-        onLogout={handleLogout}
-        onSearch={(q) => {
-          setSearchQuery(q);
-          if (q.trim()) {
-            setCurrentView('shop');
-          }
-        }}
-        onNavigate={handleNavigate}
-        onNavigateToAccount={handleNavigateToAccount}
-        onNavigateToAffiliate={handleNavigateToAffiliate}
-        onSelectProduct={handleSelectProduct}
-      />
+      {currentView === 'admin' ? (
+        <div key="page-admin" className="flex-1 w-full min-h-screen bg-[#fcf9fb]">
+          <AdminDashboard
+            initialTab={adminActiveTab}
+            onNavigateToHome={() => handleNavigateToHome('backward')}
+            onShowToast={showToast}
+          />
+        </div>
+      ) : (
+        <>
+          {/* 1. Header / Navbar with Active Highlighting, Search, Location, User Menu & Cart */}
+          <Header
+            cartCount={totalCartCount}
+            cartSubtotal={cartSubtotal}
+            user={user}
+            activeView={currentView}
+            onOpenCart={() => setIsCartOpen(true)}
+            onOpenAuth={handleOpenAuth}
+            onLogout={handleLogout}
+            onSearch={(q) => {
+              setSearchQuery(q);
+              if (q.trim()) {
+                setCurrentView('shop');
+              }
+            }}
+            onNavigate={handleNavigate}
+            onNavigateToAccount={handleNavigateToAccount}
+            onNavigateToAffiliate={handleNavigateToAffiliate}
+            onOpenSubscription={() => setIsSubscriptionModalOpen(true)}
+            onNavigateToAdmin={() => handleNavigateToAdmin('overview')}
+            onSelectProduct={handleSelectProduct}
+            onSelectCategory={(category) => handleNavigateToShop(category)}
+          />
 
-      {/* Main Dynamic View: Home | Shop | Categories | Product Details | Checkout | Order Confirmation | Account | Affiliate */}
-      <main className="flex-1 w-full overflow-hidden">
-        {currentView === 'home' && (
-          <div key="page-home" className={transitionClass}>
-            <Home
-              cart={cart}
-              searchQuery={searchQuery}
-              selectedCategory={selectedCategory}
-              onSelectCategory={(cat) => handleNavigateToShop(cat, 'forward')}
-              onViewAllCategories={() => handleNavigateToCategories('forward')}
-              onAddToCart={handleAddToCart}
-              onUpdateQuantity={handleUpdateQuantity}
-              onWishlistToggle={handleWishlistToggle}
-              onSelectProduct={handleSelectProduct}
-            />
-          </div>
-        )}
+          {/* Main Dynamic View: Home | Shop | Categories | Product Details | Checkout | Order Confirmation | Account | Affiliate */}
+          <main className="flex-1 w-full overflow-hidden">
+            {currentView === 'home' && (
+              <div key="page-home" className={transitionClass}>
+                <Home
+                  cart={cart}
+                  searchQuery={searchQuery}
+                  selectedCategory={selectedCategory}
+                  onSelectCategory={(cat) => handleNavigateToShop(cat, 'forward')}
+                  onViewAllCategories={() => handleNavigateToCategories('forward')}
+                  onAddToCart={handleAddToCart}
+                  onUpdateQuantity={handleUpdateQuantity}
+                  onWishlistToggle={handleWishlistToggle}
+                  onSelectProduct={handleSelectProduct}
+                />
+              </div>
+            )}
 
-        {currentView === 'categories' && (
-          <div key="page-categories" className={transitionClass}>
-            <Categories
-              onSelectCategory={(cat) => handleNavigateToShop(cat, 'forward')}
-              onBackToHome={() => handleNavigateToHome('backward')}
-            />
-          </div>
-        )}
+            {currentView === 'categories' && (
+              <div key="page-categories" className={transitionClass}>
+                <Categories
+                  onSelectCategory={(cat) => handleNavigateToShop(cat, 'forward')}
+                  onBackToHome={() => handleNavigateToHome('backward')}
+                />
+              </div>
+            )}
 
-        {currentView === 'shop' && (
-          <div key="page-shop" className={transitionClass}>
-            <Shop
-              cart={cart}
-              wishlistIds={wishlistIds}
-              initialCategory={selectedCategory}
-              initialSearchQuery={searchQuery}
-              onAddToCart={handleAddToCart}
-              onUpdateQuantity={handleUpdateQuantity}
-              onWishlistToggle={handleWishlistToggle}
-              onSelectProduct={handleSelectProduct}
-            />
-          </div>
-        )}
+            {currentView === 'shop' && (
+              <div key="page-shop" className={transitionClass}>
+                <Shop
+                  cart={cart}
+                  wishlistIds={wishlistIds}
+                  initialCategory={selectedCategory}
+                  initialSearchQuery={searchQuery}
+                  onAddToCart={handleAddToCart}
+                  onUpdateQuantity={handleUpdateQuantity}
+                  onWishlistToggle={handleWishlistToggle}
+                  onSelectProduct={handleSelectProduct}
+                />
+              </div>
+            )}
 
-        {currentView === 'product-details' && selectedProduct && (
-          <div key={`page-product-${selectedProduct.id}`} className={transitionClass}>
-            <ProductDetails
-              product={selectedProduct}
-              cart={cart}
-              wishlistIds={wishlistIds}
-              onBackToShop={() => handleNavigateToShop(undefined, 'backward')}
-              onAddToCart={handleAddToCart}
-              onUpdateQuantity={handleUpdateQuantity}
-              onWishlistToggle={handleWishlistToggle}
-              onSelectProduct={handleSelectProduct}
-              onOpenCart={() => setIsCartOpen(true)}
-            />
-          </div>
-        )}
+            {currentView === 'product-details' && selectedProduct && (
+              <div key={`page-product-${selectedProduct.id}`} className={transitionClass}>
+                <ProductDetails
+                  product={selectedProduct}
+                  cart={cart}
+                  wishlistIds={wishlistIds}
+                  onBackToShop={() => handleNavigateToShop(undefined, 'backward')}
+                  onAddToCart={handleAddToCart}
+                  onUpdateQuantity={handleUpdateQuantity}
+                  onWishlistToggle={handleWishlistToggle}
+                  onSelectProduct={handleSelectProduct}
+                  onOpenCart={() => setIsCartOpen(true)}
+                />
+              </div>
+            )}
 
-        {currentView === 'checkout' && (
-          <div key="page-checkout" className={transitionClass}>
-            <Checkout
-              cart={cart}
-              user={user}
-              appliedPromoCode={appliedCheckoutPromo}
-              onOrderCompleted={handleOrderCompleted}
-              onNavigateToShop={() => handleNavigateToShop(undefined, 'forward')}
-              onBackToCart={() => setIsCartOpen(true)}
-            />
-          </div>
-        )}
+            {currentView === 'checkout' && (
+              <div key="page-checkout" className={transitionClass}>
+                <Checkout
+                  cart={cart}
+                  user={user}
+                  appliedPromoCode={appliedCheckoutPromo}
+                  onOrderCompleted={handleOrderCompleted}
+                  onNavigateToShop={() => handleNavigateToShop(undefined, 'forward')}
+                  onBackToCart={() => setIsCartOpen(true)}
+                />
+              </div>
+            )}
 
-        {currentView === 'order-confirmation' && (
-          <div key={`page-order-confirmation-${confirmedOrderId || 'latest'}`} className={transitionClass}>
-            <OrderConfirmation
-              orderId={confirmedOrderId || undefined}
-              latestOrder={latestPlacedOrder}
-              onNavigateToShop={() => handleNavigateToShop(undefined, 'forward')}
-              onNavigateToAccountOrders={(orderId) => handleNavigateToAccount('orders', orderId)}
-            />
-          </div>
-        )}
+            {currentView === 'order-confirmation' && (
+              <div key={`page-order-confirmation-${confirmedOrderId || 'latest'}`} className={transitionClass}>
+                <OrderConfirmation
+                  orderId={confirmedOrderId || undefined}
+                  latestOrder={latestPlacedOrder}
+                  onNavigateToShop={() => handleNavigateToShop(undefined, 'forward')}
+                  onNavigateToAccountOrders={(orderId) => handleNavigateToAccount('orders', orderId)}
+                />
+              </div>
+            )}
 
-        {currentView === 'account' && (
-          <div key={`page-account-${accountActiveTab}`} className={transitionClass}>
-            <Account
-              user={user}
-              activeTab={accountActiveTab}
-              highlightOrderId={highlightOrderId}
-              wishlistIds={wishlistIds}
-              onOpenAuth={handleOpenAuth}
-              onLogout={handleLogout}
-              onNavigateToShop={() => handleNavigateToShop(undefined, 'forward')}
-              onSelectProduct={handleSelectProduct}
-              onAddToCart={handleAddToCart}
-              onWishlistToggle={handleWishlistToggle}
-              onTabChange={(tab) => setAccountActiveTab(tab)}
-              onNavigateToAffiliate={handleNavigateToAffiliate}
-            />
-          </div>
-        )}
+            {currentView === 'account' && (
+              <div key={`page-account-${accountActiveTab}`} className={transitionClass}>
+                <Account
+                  user={user}
+                  activeTab={accountActiveTab}
+                  highlightOrderId={highlightOrderId}
+                  wishlistIds={wishlistIds}
+                  onOpenAuth={handleOpenAuth}
+                  onLogout={handleLogout}
+                  onNavigateToShop={() => handleNavigateToShop(undefined, 'forward')}
+                  onSelectProduct={handleSelectProduct}
+                  onAddToCart={handleAddToCart}
+                  onWishlistToggle={handleWishlistToggle}
+                  onTabChange={(tab) => setAccountActiveTab(tab)}
+                  onNavigateToAffiliate={handleNavigateToAffiliate}
+                />
+              </div>
+            )}
 
-        {currentView === 'affiliate' && (
-          <div key="page-affiliate" className={transitionClass}>
-            <AffiliateDashboard
-              user={user}
-              onNavigateToHome={() => handleNavigateToHome('backward')}
-              onNavigateToAccount={() => handleNavigateToAccount('profile')}
-              onShowToast={showToast}
-            />
-          </div>
-        )}
+            {currentView === 'affiliate' && (
+              <div key="page-affiliate" className={transitionClass}>
+                <AffiliateDashboard
+                  user={user}
+                  onNavigateToHome={() => handleNavigateToHome('backward')}
+                  onNavigateToAccount={() => handleNavigateToAccount('profile')}
+                  onShowToast={showToast}
+                />
+              </div>
+            )}
 
-        {currentView === 'about' && (
-          <div key="page-about" className={transitionClass}>
-            <About
-              onNavigateToShop={() => handleNavigateToShop(undefined, 'forward')}
-              onNavigateToAffiliate={() => handleNavigateToAffiliate('forward')}
-            />
-          </div>
-        )}
+            {currentView === 'about' && (
+              <div key="page-about" className={transitionClass}>
+                <About
+                  onNavigateToShop={() => handleNavigateToShop(undefined, 'forward')}
+                  onNavigateToAffiliate={() => handleNavigateToAffiliate('forward')}
+                />
+              </div>
+            )}
 
-        {currentView === 'contact' && (
-          <div key="page-contact" className={transitionClass}>
-            <Contact />
-          </div>
-        )}
-      </main>
+            {currentView === 'contact' && (
+              <div key="page-contact" className={transitionClass}>
+                <Contact />
+              </div>
+            )}
 
-      {/* Footer */}
-      <Footer onNavigate={handleNavigate} />
+            {currentView === 'rewards' && (
+              <div key="page-rewards" className={transitionClass}>
+                <Rewards
+                  user={user}
+                  onNavigateToShop={() => handleNavigateToShop(undefined, 'forward')}
+                  onOpenAuth={handleOpenAuth}
+                  onShowToast={showToast}
+                />
+              </div>
+            )}
+          </main>
+
+          {/* Footer */}
+          <Footer onNavigate={handleNavigate} />
+        </>
+      )}
 
       {/* Sign In & Login / Create Account Modal */}
       <AuthModal
@@ -593,6 +770,19 @@ export function App() {
         onUpdateQuantity={handleUpdateQuantity}
         onRemoveItem={handleRemoveItem}
         onCheckout={handleTriggerCheckout}
+      />
+
+      {/* Representative Consultant Subscription & Enrollment Modal */}
+      <RepresentativeSubscriptionModal
+        isOpen={isSubscriptionModalOpen}
+        user={user}
+        onClose={() => setIsSubscriptionModalOpen(false)}
+        onSuccess={() => {
+          const fresh = accountService.getStoredUser();
+          if (fresh) setUser(fresh);
+          handleNavigateToAffiliate('forward');
+        }}
+        onShowToast={showToast}
       />
 
       {/* State-of-the-Art Luxury Toast Notification (Dynamic Top Island & Glow) */}

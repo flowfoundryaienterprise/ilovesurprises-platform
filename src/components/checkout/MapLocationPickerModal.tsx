@@ -404,7 +404,7 @@ export const MapLocationPickerModal: React.FC<MapLocationPickerModalProps> = ({
             type="button"
             onClick={onClose}
             aria-label="Close Map"
-            className="w-8 h-8 rounded-full bg-[#f8f2f6] hover:bg-[#ffe5ee] text-[#716d77] hover:text-[#ec2f73] flex items-center justify-center transition-all cursor-pointer shadow-2xs"
+            className="w-8 h-8 rounded-full bg-[#f8f2f6] hover:bg-[#ffe5ee] text-[#716d77] hover:text-[#D30915] flex items-center justify-center transition-all cursor-pointer shadow-2xs"
           >
             <X className="w-4 h-4" />
           </button>
@@ -415,7 +415,7 @@ export const MapLocationPickerModal: React.FC<MapLocationPickerModalProps> = ({
           <div className="flex flex-col sm:flex-row items-center gap-2 relative">
             {/* Search Input Box */}
             <div className="relative flex-1 w-full">
-              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#ec2f73]">
+              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#D30915]">
                 {isSearching ? <Loader2 className="w-4 h-4 animate-spin text-[#1a73e8]" /> : <Search className="w-4 h-4 text-[#716d77]" />}
               </div>
               <input
@@ -477,7 +477,7 @@ export const MapLocationPickerModal: React.FC<MapLocationPickerModalProps> = ({
           <button
             type="button"
             onClick={() => setMapStyle((prev) => (prev === 'normal' ? 'satellite' : 'normal'))}
-            className="absolute top-3 right-3 z-20 h-[36px] px-3.5 rounded-[12px] bg-white/95 hover:bg-[#fff0f5] text-[#141219] hover:text-[#ec2f73] backdrop-blur-md border border-[#eedbe6] shadow-[0_4px_16px_rgba(0,0,0,0.14)] text-xs font-black transition-all flex items-center gap-2 cursor-pointer active:scale-95 select-none"
+            className="absolute top-3 right-3 z-20 h-[36px] px-3.5 rounded-[12px] bg-white/95 hover:bg-[#fff1f2] text-[#141219] hover:text-[#D30915] backdrop-blur-md border border-[#eedbe6] shadow-[0_4px_16px_rgba(0,0,0,0.14)] text-xs font-black transition-all flex items-center gap-2 cursor-pointer active:scale-95 select-none"
           >
             {mapStyle === 'normal' ? (
               <>
@@ -555,7 +555,7 @@ export const MapLocationPickerModal: React.FC<MapLocationPickerModalProps> = ({
             <button
               type="button"
               onClick={handleConfirm}
-              className="flex-1 sm:flex-initial h-[42px] px-6 rounded-[12px] bg-gradient-to-r from-[#ec2f73] via-[#ff3b81] to-[#d92467] hover:from-[#d92467] hover:to-[#be1d58] text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-[0_6px_20px_rgba(236,47,115,0.35)] active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap"
+              className="flex-1 sm:flex-initial h-[42px] px-6 rounded-[12px] bg-gradient-to-r from-[#D30915] via-[#ff3b81] to-[#B60711] hover:from-[#B60711] hover:to-[#be1d58] text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-[0_6px_20px_rgba(211, 9, 21,0.35)] active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap"
             >
               <Check className="w-4 h-4 stroke-[3]" />
               <span>Confirm Location & Deliver</span>
