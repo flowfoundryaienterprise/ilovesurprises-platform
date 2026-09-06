@@ -260,6 +260,22 @@ export function SEOHead({ view, product, category, repUsername, accountTab }: SE
         };
         break;
 
+      case 'appraisal':
+        seo = {
+          title: `Appraise Your Jewelry ${BRAND_SUFFIX}`,
+          description:
+            'Found a piece of jewelry in your surprise candle? Enter your jewelry code to discover its certified retail appraisal value, metal purity, and gemstone specifications.',
+          canonical: `${SITE_ORIGIN}/appraise-your-jewelry`,
+          isPrivate: false,
+          ogType: 'website',
+          ogImage: DEFAULT_IMAGE,
+          breadcrumbs: [
+            { name: 'Home', url: `${SITE_ORIGIN}/` },
+            { name: 'Appraise Your Jewelry', url: `${SITE_ORIGIN}/appraise-your-jewelry` },
+          ],
+        };
+        break;
+
       case 'checkout':
         seo = {
           title: `Secure Checkout ${BRAND_SUFFIX}`,

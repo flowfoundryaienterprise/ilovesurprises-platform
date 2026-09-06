@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ShieldCheck, Truck, Sparkles, Mail, Phone, Lock, CheckCheck, Send, DollarSign } from 'lucide-react';
 
 interface FooterProps {
-  onNavigate?: (route: 'home' | 'shop' | 'categories' | 'affiliate' | 'about' | 'contact' | 'rewards' | 'admin') => void;
+  onNavigate?: (route: 'home' | 'shop' | 'categories' | 'affiliate' | 'about' | 'contact' | 'rewards' | 'admin' | 'appraisal') => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
@@ -351,10 +351,10 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <li>
                 <button
                   type="button"
-                  onClick={() => onNavigate?.('about')}
-                  className="hover:text-[#D30915] hover:translate-x-1 inline-block transition-all py-0.5 text-left cursor-pointer bg-transparent border-none p-0"
+                  onClick={() => onNavigate?.('appraisal')}
+                  className="hover:text-[#D30915] hover:translate-x-1 inline-block transition-all py-0.5 text-left cursor-pointer bg-transparent border-none p-0 font-bold"
                 >
-                  💎 Guaranteed Prize Appraisals
+                  💎 Appraise Your Jewelry
                 </button>
               </li>
             </ul>

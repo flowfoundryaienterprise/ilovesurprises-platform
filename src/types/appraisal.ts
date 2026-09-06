@@ -1,0 +1,44 @@
+export type JewelryType = 'Ring' | 'Necklace' | 'Earrings' | 'Bracelet' | 'Pendant';
+
+export type AppraisalStatus = 'active' | 'archived';
+
+export interface JewelryAppraisal {
+  id: string;
+  code: string;
+  name: string;
+  type: JewelryType;
+  estimatedValue: number;
+  image: string;
+  material: string;
+  stone?: string;
+  cutSetting?: string;
+  description: string;
+  status: AppraisalStatus;
+  serialNumber: string;
+  inspectedDate: string;
+  createdAt?: string;
+}
+
+/**
+ * Sanitized public customer-facing appraisal result
+ * Strips internal cost, vendor, or administrative fields
+ */
+export interface PublicAppraisalResult {
+  code: string;
+  name: string;
+  type: JewelryType;
+  estimatedValue: number;
+  image: string;
+  material: string;
+  stone?: string;
+  cutSetting?: string;
+  description: string;
+  serialNumber: string;
+  inspectedDate: string;
+}
+
+export interface AppraisalLookupResponse {
+  success: boolean;
+  data?: PublicAppraisalResult;
+  error?: string;
+}

@@ -14,6 +14,7 @@ import {
   ExternalLink,
   X,
   UserCheck,
+  Gem,
 } from 'lucide-react';
 import type { AdminTab, AdminRole } from '../../types/admin';
 import { ADMIN_ROLES_CONFIG } from '../../services/adminService';
@@ -64,6 +65,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     },
     { id: 'memberships', label: 'Memberships', icon: CreditCard },
     { id: 'commerce', label: 'Commerce & Orders', icon: ShoppingBag },
+    { id: 'appraisals', label: 'Jewelry Appraisals', icon: Gem },
     {
       id: 'commissions',
       label: 'Commissions Ledger',

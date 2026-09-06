@@ -8,7 +8,8 @@ export type AdminTab =
   | 'commissions'
   | 'reports'
   | 'settings'
-  | 'permissions';
+  | 'permissions'
+  | 'appraisals';
 
 export interface AdminRoleDefinition {
   id: AdminRole;

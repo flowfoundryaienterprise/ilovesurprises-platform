@@ -38,12 +38,12 @@ export interface HeaderProps {
   cartCount?: number;
   cartSubtotal?: number;
   user?: UserProfile | null;
-  activeView?: 'home' | 'shop' | 'categories' | 'product-details' | 'checkout' | 'order-confirmation' | 'account' | 'affiliate' | 'about' | 'contact' | 'rewards' | 'admin';
+  activeView?: 'home' | 'shop' | 'categories' | 'product-details' | 'checkout' | 'order-confirmation' | 'account' | 'affiliate' | 'about' | 'contact' | 'rewards' | 'admin' | 'appraisal';
   onOpenCart?: () => void;
   onOpenAuth?: (mode?: 'login' | 'signup' | 'forgot') => void;
   onLogout?: () => void;
   onSearch?: (query: string) => void;
-  onNavigate?: (route: 'home' | 'shop' | 'categories' | 'affiliate' | 'about' | 'contact' | 'rewards' | 'admin') => void;
+  onNavigate?: (route: 'home' | 'shop' | 'categories' | 'affiliate' | 'about' | 'contact' | 'rewards' | 'admin' | 'appraisal') => void;
   onNavigateToAccount?: (tab?: 'profile' | 'orders' | 'addresses' | 'wishlist' | 'settings' | 'affiliate') => void;
   onNavigateToAffiliate?: () => void;
   onOpenSubscription?: () => void;
@@ -241,6 +241,8 @@ export const Header: React.FC<HeaderProps> = ({
         }
       } else if (cat.slug === 'contact') {
         onNavigate?.('contact');
+      } else if (cat.slug === 'appraise-your-jewelry' || cat.id === 'appraisal') {
+        onNavigate?.('appraisal');
       }
       return;
     }
@@ -1404,7 +1406,8 @@ export const Header: React.FC<HeaderProps> = ({
                 const isRouteActive =
                   (cat.slug === 'home' && (activeView === 'home' || !activeView)) ||
                   (cat.slug === 'affiliate' && activeView === 'affiliate') ||
-                  (cat.slug === 'contact' && activeView === 'contact');
+                  (cat.slug === 'contact' && activeView === 'contact') ||
+                  (cat.slug === 'appraise-your-jewelry' && activeView === 'appraisal');
                 return (
                   <button
                     key={cat.id}
@@ -1808,7 +1811,8 @@ export const Header: React.FC<HeaderProps> = ({
                       const isRouteActive =
                         (cat.slug === 'home' && (activeView === 'home' || !activeView)) ||
                         (cat.slug === 'affiliate' && activeView === 'affiliate') ||
-                        (cat.slug === 'contact' && activeView === 'contact');
+                        (cat.slug === 'contact' && activeView === 'contact') ||
+                        (cat.slug === 'appraise-your-jewelry' && activeView === 'appraisal');
                       return (
                         <button
                           key={cat.id}

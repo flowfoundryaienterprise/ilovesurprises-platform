@@ -346,6 +346,14 @@ export const NAVIGATION_CATEGORIES: NavigationCategory[] = [
     isDirectLink: true,
   },
   {
+    id: 'appraisal',
+    name: 'Appraise Jewelry',
+    slug: 'appraise-your-jewelry',
+    href: '/appraise-your-jewelry',
+    isDirectLink: true,
+    badge: '💎 Value',
+  },
+  {
     id: 'contact',
     name: 'Contact',
     slug: 'contact',

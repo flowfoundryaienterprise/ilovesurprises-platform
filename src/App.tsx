@@ -27,6 +27,7 @@ const Categories = lazy(() => import('./pages/Categories').then((m) => ({ defaul
 const About = lazy(() => import('./pages/About').then((m) => ({ default: m.About })));
 const Contact = lazy(() => import('./pages/Contact').then((m) => ({ default: m.Contact })));
 const Rewards = lazy(() => import('./pages/Rewards').then((m) => ({ default: m.Rewards })));
+const AppraiseJewelry = lazy(() => import('./pages/AppraiseJewelry').then((m) => ({ default: m.AppraiseJewelry })));
 const RepresentativeSubscriptionModal = lazy(() =>
   import('./components/affiliate/RepresentativeSubscriptionModal').then((m) => ({
     default: m.RepresentativeSubscriptionModal,
@@ -55,7 +56,8 @@ export type AppView =
   | 'about'
   | 'contact'
   | 'rewards'
-  | 'admin';
+  | 'admin'
+  | 'appraisal';
 
 export function App() {
   const pathname = usePathname();
@@ -88,6 +90,7 @@ export function App() {
     if (path === '/about') return 'about';
     if (path === '/contact') return 'contact';
     if (path === '/rewards') return 'rewards';
+    if (path === '/appraise-your-jewelry' || path === '/appraisal') return 'appraisal';
 
     // Check for representative in path or query
     const trimmedPath = path.startsWith('/rep/') ? path.replace('/rep/', '') : path.slice(1);
@@ -109,6 +112,8 @@ export function App() {
         'about',
         'contact',
         'rewards',
+        'appraisal',
+        'appraise-your-jewelry',
       ].includes(trimmedPath) &&
       !trimmedPath.includes('/')
     ) {
@@ -229,6 +234,7 @@ export function App() {
       contact: 'Contact & VIP Concierge | ILoveSurprises.com',
       rewards: 'Surprise Club™ VIP Rewards & Loyalty | ILoveSurprises.com',
       admin: 'Admin Control Center | ILoveSurprises.com',
+      appraisal: 'Appraise Your Jewelry | ILoveSurprises.com',
     };
 
     const descriptions: Record<AppView, string> = {
@@ -244,6 +250,7 @@ export function App() {
       contact: 'Get in touch with the ILoveSurprises concierge team for order support, custom gifts, or partnership inquiries.',
       rewards: 'Earn 10 points per $1 spent on cash reveal candles and fine jewelry. Redeem points for discount vouchers, free candles, and VIP perks.',
       admin: 'Secure internal management system for store commerce, representatives, memberships, and commissions.',
+      appraisal: 'Found a piece of jewelry in your surprise candle? Enter your jewelry code to discover its certified retail appraisal value, metal purity, and gemstone specifications.',
     };
 
     document.title = titles[currentView] || 'ILoveSurprises.com';
@@ -425,6 +432,9 @@ export function App() {
         } else if (path === '/contact') {
           setCurrentView('contact');
           window.scrollTo({ top: scrollPositions.current['contact'] || 0, behavior: 'smooth' });
+        } else if (path === '/appraise-your-jewelry' || path === '/appraisal') {
+          setCurrentView('appraisal');
+          window.scrollTo({ top: scrollPositions.current['appraisal'] || 0, behavior: 'smooth' });
         } else if (path.startsWith('/product/')) {
           const slug = path.replace('/product/', '');
           const matched = productsData.find((p) => p.slug === slug || p.id === slug);
@@ -812,6 +822,17 @@ export function App() {
     }
   };
 
+  const handleNavigateToAppraisal = (direction: 'forward' | 'backward' = 'forward') => {
+    scrollPositions.current[currentView] = window.scrollY;
+    setNavDirection(direction);
+    setCurrentView('appraisal');
+    const targetScroll = direction === 'backward' ? scrollPositions.current['appraisal'] || 0 : 0;
+    window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+    if (window.history.pushState) {
+      window.history.pushState({ view: 'appraisal' }, '', '/appraise-your-jewelry');
+    }
+  };
+
   const handleNavigateToAdmin = (tab: AdminTab = 'overview') => {
     scrollPositions.current[currentView] = window.scrollY;
     setNavDirection('forward');
@@ -823,9 +844,13 @@ export function App() {
     }
   };
 
-  const handleNavigate = (route: 'home' | 'shop' | 'categories' | 'affiliate' | 'about' | 'contact' | 'rewards' | 'admin') => {
+  const handleNavigate = (
+    route: 'home' | 'shop' | 'categories' | 'affiliate' | 'about' | 'contact' | 'rewards' | 'admin' | 'appraisal'
+  ) => {
     if (route === 'admin') {
       handleNavigateToAdmin('overview');
+    } else if (route === 'appraisal') {
+      handleNavigateToAppraisal('forward');
     } else if (route === 'shop') {
       handleNavigateToShop(undefined, 'forward');
     } else if (route === 'categories') {
@@ -1090,6 +1115,16 @@ export function App() {
                     onNavigateToShop={() => handleNavigateToShop(undefined, 'forward')}
                     onOpenAuth={handleOpenAuth}
                     onShowToast={showToast}
+                  />
+                </Suspense>
+              </div>
+            )}
+
+            {currentView === 'appraisal' && (
+              <div key="page-appraisal" className={transitionClass}>
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <AppraiseJewelry
+                    onNavigateToShop={() => handleNavigateToShop(undefined, 'forward')}
                   />
                 </Suspense>
               </div>

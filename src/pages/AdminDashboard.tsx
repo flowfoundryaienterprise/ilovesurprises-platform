@@ -27,6 +27,7 @@ import { AdminOverview } from '../components/admin/AdminOverview';
 import { AdminRepresentatives } from '../components/admin/AdminRepresentatives';
 import { AdminMemberships } from '../components/admin/AdminMemberships';
 import { AdminCommerce } from '../components/admin/AdminCommerce';
+import { AdminAppraisals } from '../components/admin/AdminAppraisals';
 import { AdminCommissions } from '../components/admin/AdminCommissions';
 import { AdminReports } from '../components/admin/AdminReports';
 import { AdminSettings } from '../components/admin/AdminSettings';
@@ -268,6 +269,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   onCreateDiscount={handleCreateDiscount}
                   onShowToast={onShowToast}
                 />
+              )}
+
+              {activeTab === 'appraisals' && (
+                <AdminAppraisals onShowToast={onShowToast} />
               )}
 
               {activeTab === 'commissions' && (
