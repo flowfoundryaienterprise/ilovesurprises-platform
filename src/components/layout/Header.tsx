@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Search,
+  ShoppingCart,
   ShoppingBag,
   User,
   MapPin,
@@ -10,6 +11,8 @@ import {
   X,
   Star,
   Truck,
+  Gift,
+  Flame,
   LogOut,
   PackageCheck,
   Heart,
@@ -25,6 +28,8 @@ import {
   Mail,
   Mic,
   Volume2,
+  Megaphone,
+  Gem,
 } from 'lucide-react';
 import type { UserProfile, Product } from '../../types';
 import { productsData } from '../../data/products';
@@ -95,9 +100,9 @@ export interface SearchTypingSuggestion {
 }
 
 const SEARCH_SUGGESTIONS: SearchTypingSuggestion[] = [
+  { prefix: 'Search for', highlight: 'Luxury Fizzy Cash Bath Bombs', query: 'Cash Bath Bombs' },
   { prefix: 'Search for', highlight: 'Cash Candles ($2-$2,500 Inside)', query: 'Cash Candles' },
   { prefix: 'Search for', highlight: 'Diamond Ring Reveal Candles', query: 'Diamond Ring Candles' },
-  { prefix: 'Search for', highlight: 'Luxury Fizzy Cash Bath Bombs', query: 'Cash Bath Bombs' },
   { prefix: 'Search for', highlight: 'Goat Milk Real Cash Soaps', query: 'Goat Milk Cash Money Soaps' },
   { prefix: 'Search for', highlight: 'Scented Aroma Wax Melts', query: 'Wax Melts' },
   { prefix: 'Search for', highlight: 'Belgian Chocolates with Cash', query: 'Chocolates' },
@@ -136,6 +141,8 @@ export const Header: React.FC<HeaderProps> = ({
   const [currentLoc] = useState(availableLocations[0]);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isClosingMobileMenu, setIsClosingMobileMenu] = useState(false);
+  const mobileMenuCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [_activeNavId, setActiveNavId] = useState<string>('home');
   const [isListening, setIsListening] = useState(false);
   const [voiceFeedback, setVoiceFeedback] = useState<string | null>(null);
@@ -379,17 +386,61 @@ export const Header: React.FC<HeaderProps> = ({
       .slice(0, 12);
   }, [searchQuery]);
 
-  // Open Mobile Menu safely
+  // Open Mobile Menu safely with smooth entry transition
   const openMobileMenu = () => {
+    if (mobileMenuCloseTimerRef.current) {
+      clearTimeout(mobileMenuCloseTimerRef.current);
+      mobileMenuCloseTimerRef.current = null;
+    }
+    setIsClosingMobileMenu(false);
     setIsMobileMenuOpen(true);
     setIsMobileSearchOpen(false);
     setIsSearchOpen(false);
   };
 
-  // Close Mobile Menu safely
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false);
-  };
+  // Close Mobile Menu with smooth sliding exit transition
+  const closeMobileMenu = useCallback((immediate = false) => {
+    if (immediate) {
+      if (mobileMenuCloseTimerRef.current) {
+        clearTimeout(mobileMenuCloseTimerRef.current);
+        mobileMenuCloseTimerRef.current = null;
+      }
+      setIsMobileMenuOpen(false);
+      setIsClosingMobileMenu(false);
+      return;
+    }
+    if (isClosingMobileMenu || !isMobileMenuOpen) return;
+    setIsClosingMobileMenu(true);
+    mobileMenuCloseTimerRef.current = setTimeout(() => {
+      setIsMobileMenuOpen(false);
+      setIsClosingMobileMenu(false);
+      mobileMenuCloseTimerRef.current = null;
+    }, 280);
+  }, [isClosingMobileMenu, isMobileMenuOpen]);
+
+  // Prevent background scroll while mobile drawer is open
+  useEffect(() => {
+    if (isMobileMenuOpen || isClosingMobileMenu) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    };
+  }, [isMobileMenuOpen, isClosingMobileMenu]);
+
+  // Clean up timer on unmount
+  useEffect(() => {
+    return () => {
+      if (mobileMenuCloseTimerRef.current) {
+        clearTimeout(mobileMenuCloseTimerRef.current);
+      }
+    };
+  }, []);
 
   // Close Voice Modal safely
   const closeVoiceModal = () => {
@@ -472,7 +523,7 @@ export const Header: React.FC<HeaderProps> = ({
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isListening, isSearchOpen, isVoiceModalOpen]);
+  }, [isListening, isSearchOpen, isVoiceModalOpen, closeMobileMenu]);
 
   // Auto-focus input when search opens
   useEffect(() => {
@@ -647,9 +698,8 @@ export const Header: React.FC<HeaderProps> = ({
 
   const renderSearchDropdown = (isMobileDropdown = false) => (
     <div
-      className={`absolute top-full left-0 right-0 mt-2 bg-white/98 backdrop-blur-xl rounded-[20px] border border-[#eedfe8] shadow-[0_20px_50px_rgba(50,31,63,0.18)] p-3 sm:p-4 z-50 animate-in fade-in zoom-in-95 duration-150 ease-out isolate ${
-        isMobileDropdown ? 'w-full' : ''
-      }`}
+      className={`absolute top-full left-0 right-0 mt-2 bg-white/98 backdrop-blur-xl rounded-[20px] border border-[#eedfe8] shadow-[0_20px_50px_rgba(50,31,63,0.18)] p-3 sm:p-4 z-50 animate-in fade-in zoom-in-95 duration-150 ease-out isolate ${isMobileDropdown ? 'w-full' : ''
+        }`}
       role="region"
       aria-label="Search suggestions"
     >
@@ -787,32 +837,31 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <>
-      {/* 1. Top VIP Announcement Ribbon (Hidden on mobile) */}
-      <div className="hidden md:block bg-gradient-to-r from-[#fff1f6] via-[#fff8fb] to-[#fbf6ff] border-b border-[#f5e8ef] text-[10px] sm:text-[11px] font-bold text-[#716d77] py-1 sm:py-1.5 px-3 sm:px-4 relative z-30">
+      {/* 1. Top Announcement Ribbon */}
+      <div className="hidden md:block bg-[#FCF2F4] border-b border-[#F4E3EC] text-[11px] font-semibold text-[#141219] py-1.5 px-4 relative z-30">
         <div className="max-w-[1460px] mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-1.5 sm:gap-2 text-[#141219] truncate">
-            <span className="flex h-1.5 w-1.5 sm:h-2 sm:w-2 relative shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#D30915] opacity-75" />
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-[#D30915]" />
-            </span>
-            <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#D30915] shrink-0" />
+          <div className="flex items-center gap-2 text-[#141219] truncate">
+            <Truck className="w-4 h-4 text-[#D30915] fill-[#D30915] shrink-0" />
             <span className="truncate">
               Fast Express Dispatch • Guaranteed Real Cash ($2-$2,500) or Jewelry in 100% of Orders
             </span>
           </div>
 
-          <div className="hidden sm:flex items-center gap-4 text-[#716d77] shrink-0 ml-2">
+          <div className="hidden sm:flex items-center gap-3 text-[#141219] shrink-0 ml-2">
             <button
               type="button"
               onClick={() => onNavigate?.('rewards')}
-              className="flex items-center gap-1 hover:text-[#D30915] transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 hover:text-[#D30915] transition-colors cursor-pointer"
             >
-              <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+              <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500 shrink-0" />
               <span>Surprise Club Rewards</span>
             </button>
-            <span className="text-[#eee7ed]">|</span>
-            <span>Free Shipping $50+</span>
-            <span className="text-[#eee7ed]">|</span>
+            <span className="text-[#e2d5de]">|</span>
+            <div className="flex items-center gap-1.5">
+              <Gift className="w-3.5 h-3.5 text-[#D30915] shrink-0" />
+              <span>Free Shipping $50+</span>
+            </div>
+            <span className="text-[#e2d5de]">|</span>
             <a
               href="/affiliate"
               onClick={(e) => {
@@ -843,13 +892,11 @@ export const Header: React.FC<HeaderProps> = ({
                   });
                 }
               }}
-              className="text-[#D30915] hover:underline font-black cursor-pointer inline-flex items-center gap-1"
+              className="text-[#D30915] hover:underline font-bold cursor-pointer inline-flex items-center gap-1"
             >
+              <Flame className="w-3.5 h-3.5 text-[#D30915] fill-[#D30915] shrink-0" />
               {user && isConsultantSubscribed ? (
-                <>
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>My Storefront</span>
-                </>
+                <span>My Storefront</span>
               ) : (
                 <span>Earn 20% Reps</span>
               )}
@@ -859,12 +906,12 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* 2. Flying / Floating Main Brand & Navigation Header Bar */}
-      <header className="sticky top-0 z-40 w-full max-w-full pointer-events-none pt-1.5 sm:pt-2 px-2 sm:px-4 lg:px-6 transition-all duration-300">
+      <header className={`sticky top-0 z-40 w-full max-w-full pointer-events-none pt-2 sm:pt-2.5 pb-2.5 sm:pb-3 px-2 sm:px-4 lg:px-6 transition-all duration-300 ${isScrolled ? '' : 'bg-[#FCF2F4]'
+        }`}>
         {/* Top Edge Blur Strip: blurs content in the top gap above the navbar while scrolling */}
         <div
-          className={`absolute inset-x-0 top-0 h-3 sm:h-4 pointer-events-none -z-10 transition-opacity duration-300 ${
-            isScrolled ? 'opacity-100' : 'opacity-0'
-          }`}
+          className={`absolute inset-x-0 top-0 h-3 sm:h-4 pointer-events-none -z-10 transition-opacity duration-300 ${isScrolled ? 'opacity-100' : 'opacity-0'
+            }`}
           style={{
             backdropFilter: 'blur(16px)',
             WebkitBackdropFilter: 'blur(16px)',
@@ -872,56 +919,35 @@ export const Header: React.FC<HeaderProps> = ({
           }}
         />
 
-        {/* Down Edge Blur Strip: blurs content below the navbar while scrolling */}
-        <div
-          className={`absolute inset-x-0 top-full h-7 sm:h-9 pointer-events-none -z-10 transition-opacity duration-300 ${
-            isScrolled ? 'opacity-100' : 'opacity-0'
-          }`}
-          style={{
-            backdropFilter: 'blur(16px)',
-            WebkitBackdropFilter: 'blur(16px)',
-            background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.7) 0%, transparent 100%)',
-            maskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
-            WebkitMaskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
-          }}
-        />
-
         {/* Floating Navbar Card (Solid White, No Blur Back) */}
-        <div className="relative pointer-events-auto w-full max-w-[1460px] mx-auto rounded-[20px] sm:rounded-[24px] bg-white border border-[#eedfe8] shadow-[0_16px_40px_-8px_rgba(40,15,30,0.12),0_4px_16px_rgba(211,9,21,0.04),0_1px_3px_rgba(0,0,0,0.04)] px-2.5 sm:px-4 lg:px-6 py-1.5 transition-all">
-          <div className="relative flex items-center justify-between gap-1.5 sm:gap-2 xl:gap-3 2xl:gap-6">
+        <div className="relative pointer-events-auto w-full max-w-[1460px] mx-auto rounded-[20px] sm:rounded-[24px] bg-white border border-[#eedfe8] shadow-[0_4px_25px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.02)] px-4 sm:px-6 py-2 transition-all">
+          <div className="relative flex items-center justify-between gap-2.5 sm:gap-3 xl:gap-5">
 
-          {/* Left Block: Brand Logo (Moved 7px left on mobile only) */}
-          <div className="flex items-center shrink min-w-0 -ml-[7px] sm:ml-0">
-            {/* Brand Logo */}
-            <a
-              href="/"
-              onClick={(e) =>
-                handleNavClick(e, {
-                  id: 'home',
-                  label: 'Home',
-                  href: '/',
-                  targetSectionId: 'hero',
-                  icon: HomeIcon,
-                })
-              }
-              className="flex items-center shrink min-w-0 group focus:outline-none"
-              aria-label="ILoveSurprises Home"
-            >
-              <picture className="flex items-center shrink min-w-0">
-                <source srcSet="/assets/ilovesurprises/logo/logo.svg" type="image/svg+xml" />
-                <source
-                  srcSet="/assets/ilovesurprises/logo/logo-ultra-hd.png 2x, /assets/ilovesurprises/logo/logo-16k.png 1x"
-                  type="image/png"
-                />
+            {/* Left Block: Brand Logo */}
+            <div className="flex items-center shrink-0 min-w-0 lg:w-[310px] xl:w-[340px]">
+              <a
+                href="/"
+                onClick={(e) =>
+                  handleNavClick(e, {
+                    id: 'home',
+                    label: 'Home',
+                    href: '/',
+                    targetSectionId: 'hero',
+                    icon: HomeIcon,
+                  })
+                }
+                className="flex items-center shrink-0 group focus:outline-none select-none"
+                aria-label="ILoveSurprises Home"
+              >
                 <img
-                  src="/assets/ilovesurprises/logo/logo-16k.png"
+                  src="/assets/ilovesurprises/logo/Picsart_26-09-06_11-33-04-479.png"
                   alt="I Love Surprises Logo"
-                  width={2576}
-                  height={620}
+                  width={2392}
+                  height={797}
                   loading="eager"
                   fetchPriority="high"
                   decoding="async"
-                  className="h-[42px] min-[360px]:h-[46px] min-[390px]:h-[50px] min-[420px]:h-[52px] sm:h-[54px] md:h-[60px] lg:h-[64px] xl:h-[68px] 2xl:h-[72px] w-auto max-w-[170px] min-[360px]:max-w-[195px] min-[390px]:max-w-[215px] min-[420px]:max-w-[230px] sm:max-w-[225px] md:max-w-[250px] lg:max-w-[270px] xl:max-w-[290px] 2xl:max-w-[310px] object-contain transition-transform duration-300 group-hover:scale-102"
+                  className="h-[48px] min-[360px]:h-[52px] min-[390px]:h-[55px] min-[420px]:h-[58px] sm:h-[54px] md:h-[58px] lg:h-[62px] xl:h-[66px] w-auto max-w-[195px] min-[360px]:max-w-[210px] min-[390px]:max-w-[225px] min-[420px]:max-w-[240px] sm:max-w-[210px] md:max-w-[235px] lg:max-w-[255px] xl:max-w-[275px] object-contain transition-transform duration-300 group-hover:scale-102"
                   style={{
                     imageRendering: '-webkit-optimize-contrast',
                     WebkitBackfaceVisibility: 'hidden',
@@ -929,535 +955,567 @@ export const Header: React.FC<HeaderProps> = ({
                     transform: 'translateZ(0)',
                   }}
                 />
-              </picture>
-            </a>
-          </div>
+              </a>
+            </div>
 
-          {/* Desktop Center: Large Pill-Shaped Search Bar (flex-1 max-w-2xl) */}
-          <div ref={desktopSearchContainerRef} className="hidden lg:flex flex-1 max-w-2xl mx-3 xl:mx-6 relative">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                executeSearch();
-              }}
-              className="relative flex items-center w-full h-[42px] xl:h-[44px] rounded-full bg-white border border-[#e5dfe5] hover:border-[#D30915]/50 focus-within:border-[#D30915] focus-within:ring-2 focus-within:ring-[#D30915]/15 transition-all px-4 shadow-2xs overflow-hidden"
-            >
-              <Search className="w-4 h-4 text-[#716d77] group-focus-within:text-[#D30915] shrink-0 mr-2.5 transition-colors z-10" />
-              <div className="relative flex-1 h-full flex items-center overflow-hidden">
-                <input
-                  ref={desktopSearchInputRef}
-                  type="search"
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                  onFocus={() => {
-                    setIsDesktopSearchFocused(true);
-                    setIsSearchOpen(true);
-                  }}
-                  onBlur={() => setIsDesktopSearchFocused(false)}
-                  placeholder={isDesktopSearchFocused ? 'Search candles, jewelry, bath treats...' : ''}
-                  className="w-full h-full text-[13.5px] text-[#141219] placeholder:text-[#8a858f] bg-transparent outline-none border-0 font-medium tracking-tight relative z-10"
-                  aria-label="Search for candles, jewelry, bath bombs..."
-                />
+            {/* Desktop Center: Large Pill-Shaped Search Bar */}
+            <div ref={desktopSearchContainerRef} className="hidden lg:flex flex-1 justify-center max-w-xl xl:max-w-2xl mx-auto relative -translate-x-[30px]">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  executeSearch();
+                }}
+                className="relative flex items-center w-full h-[42px] xl:h-[44px] rounded-full bg-[#f8f9fa] border border-[#e5e7eb] hover:border-[#D30915]/50 focus-within:border-[#D30915] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#D30915]/15 transition-all pl-4 pr-1.5 shadow-2xs overflow-hidden"
+              >
+                <Search className="w-4 h-4 text-[#8a8f98] group-focus-within:text-[#D30915] shrink-0 mr-2.5 transition-colors z-10" />
+                <div className="relative flex-1 h-full flex items-center overflow-hidden">
+                  <input
+                    ref={desktopSearchInputRef}
+                    type="search"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    onFocus={() => {
+                      setIsDesktopSearchFocused(true);
+                      setIsSearchOpen(true);
+                    }}
+                    onBlur={() => setIsDesktopSearchFocused(false)}
+                    placeholder={isDesktopSearchFocused ? 'Search candles, jewelry, bath treats...' : ''}
+                    className="w-full h-full text-[13.5px] text-[#141219] placeholder:text-[#8a858f] bg-transparent outline-none border-0 font-medium tracking-tight relative z-10"
+                    aria-label="Search for candles, jewelry, bath bombs..."
+                  />
 
-                {/* Typing Animated Rotating Placeholder */}
-                {!searchQuery && (
-                  <div
-                    className={`absolute inset-0 flex items-center pointer-events-none select-none transition-opacity duration-200 z-5 ${
-                      isDesktopSearchFocused ? 'opacity-0' : 'opacity-100'
-                    }`}
+                  {/* Typing Animated Rotating Placeholder */}
+                  {!searchQuery && (
+                    <div
+                      className={`absolute inset-0 flex items-center pointer-events-none select-none transition-opacity duration-200 z-5 ${isDesktopSearchFocused ? 'opacity-0' : 'opacity-100'
+                        }`}
+                    >
+                      <div className="flex items-center text-[13.5px] truncate text-[#716d77]">
+                        <span className="shrink-0 font-normal mr-1.5">{SEARCH_SUGGESTIONS[searchPlaceholderIndex].prefix}</span>
+                        <span className="font-medium text-[#716d77] tracking-tight truncate">
+                          {typedPlaceholderText}
+                        </span>
+                        <span className="inline-block w-[1.5px] h-[14px] bg-[#D30915] animate-typing-cursor shrink-0 ml-0.5 self-center" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={handleClearSearch}
+                    className="p-1.5 rounded-full text-[#8a858f] hover:text-[#141219] hover:bg-gray-100 active:scale-90 transition-all mr-1 cursor-pointer z-10"
+                    title="Clear search"
+                    aria-label="Clear search"
                   >
-                    <div className="flex items-center text-[13.5px] truncate text-[#716d77]">
-                      <span className="shrink-0 font-normal mr-1.5">{SEARCH_SUGGESTIONS[searchPlaceholderIndex].prefix}</span>
-                      <span className="font-medium text-[#716d77] tracking-tight truncate">
-                        {typedPlaceholderText}
-                      </span>
-                      <span className="inline-block w-[1.5px] h-[14px] bg-[#D30915] animate-typing-cursor shrink-0 ml-0.5 self-center" />
-                    </div>
-                  </div>
+                    <X className="w-3.5 h-3.5" />
+                  </button>
                 )}
-              </div>
-              {searchQuery && (
                 <button
                   type="button"
-                  onClick={handleClearSearch}
-                  className="p-1.5 rounded-full text-[#8a858f] hover:text-[#141219] hover:bg-gray-100 active:scale-90 transition-all mr-1 cursor-pointer z-10"
-                  title="Clear search"
-                  aria-label="Clear search"
+                  onClick={startVoiceSearch}
+                  className="p-1.5 rounded-full text-[#8a8f98] hover:text-[#D30915] hover:bg-gray-100 active:scale-90 transition-all cursor-pointer z-10 mr-1"
+                  title="Search by voice"
+                  aria-label="Search by voice"
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <Mic className="w-4 h-4" />
                 </button>
-              )}
-              <button
-                type="button"
-                onClick={startVoiceSearch}
-                className="p-1.5 rounded-full text-[#8a858f] hover:text-[#D30915] hover:bg-[#fff0f3] active:scale-90 transition-all cursor-pointer z-10"
-                title="Search by voice"
-                aria-label="Search by voice"
-              >
-                <Mic className="w-3.5 h-3.5" />
-              </button>
-            </form>
+                <button
+                  type="submit"
+                  className="w-[34px] h-[34px] xl:w-[36px] xl:h-[36px] aspect-square rounded-full bg-[#D30915] hover:bg-[#b60711] text-white flex items-center justify-center shrink-0 shadow-xs transition-all hover:scale-105 active:scale-95 cursor-pointer z-10"
+                  title="Search"
+                  aria-label="Submit Search"
+                >
+                  <Search className="w-4 h-4 text-white stroke-[2.5]" />
+                </button>
+              </form>
 
-            {/* Desktop Live Search Dropdown */}
-            {isSearchOpen && renderSearchDropdown(false)}
-          </div>
+              {/* Desktop Live Search Dropdown */}
+              {isSearchOpen && renderSearchDropdown(false)}
+            </div>
 
-          {/* Right Header Actions: Login, Join for $20/mo Button, Cart & Hamburger */}
-          <div className="relative z-30 flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Right Header Actions: Login, Join for $20/mo Button, Cart & Hamburger */}
+            <div className="relative z-30 flex items-center justify-end gap-1.5 sm:gap-2 shrink-0 lg:w-[310px] xl:w-[340px]">
 
-            {/* When NOT logged in: Login Button matching Reference */}
-            {!user ? (
-              <button
-                type="button"
-                onClick={() => onOpenAuth?.('login')}
-                className="hidden sm:flex items-center gap-1.5 h-[36px] sm:h-[38px] px-3.5 sm:px-4 rounded-full hover:bg-[#fff1f2] text-[13.5px] xl:text-[14px] font-bold text-[#141219] hover:text-[#D30915] active:scale-95 transition-all cursor-pointer select-none shrink-0"
-              >
-                <User className="w-4 h-4 text-[#141219]" />
-                <span>Login</span>
-              </button>
-            ) : (
-              /* When LOGGED IN: User Profile Pill (Desktop & Tablet only) */
-              <div ref={userMenuRef} className="hidden sm:block relative shrink-0">
+              {/* When NOT logged in: Login Button matching Reference */}
+              {!user ? (
                 <button
                   type="button"
-                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center gap-1.5 h-[36px] sm:h-[38px] p-1 sm:p-1.5 pr-2.5 rounded-[13px] sm:rounded-[14px] bg-[#fffafc] border border-[#fecdd3] hover:border-[#D30915] shadow-2xs hover:shadow-[0_2px_8px_rgba(211,9,21,0.12)] active:scale-95 transition-all cursor-pointer text-left"
-                  aria-haspopup="true"
-                  aria-expanded={isUserMenuOpen}
+                  onClick={() => onOpenAuth?.('login')}
+                  className="hidden sm:flex items-center gap-1.5 h-[38px] px-3.5 rounded-full hover:bg-gray-100 text-[13.5px] xl:text-[14px] font-bold text-[#141219] hover:text-[#D30915] active:scale-95 transition-all cursor-pointer select-none shrink-0"
                 >
-                  <img
-                    src={user.avatar || '/assets/ilovesurprises/Profile/profile%20image.webp'}
-                    alt={user.name}
-                    className="w-6 h-6 rounded-full object-cover border border-[#D30915]"
-                  />
-
-                  <div className="leading-tight hidden 2xl:block">
-                    <span className="block text-[13.5px] xl:text-[14px] font-bold text-[#141219] truncate max-w-[95px]">
-                      {user.name.split(' ')[0]}
-                    </span>
-                  </div>
-
-                  <ChevronDown
-                    className={`w-3 h-3 text-[#716d77] transition-transform ${isUserMenuOpen ? 'rotate-180 text-[#D30915]' : ''
-                      }`}
-                  />
+                  <User className="w-4 h-4 text-[#141219]" />
+                  <span>Login</span>
                 </button>
+              ) : (
+                /* When LOGGED IN: User Profile Pill (Desktop & Tablet only) */
+                <div ref={userMenuRef} className="hidden sm:block relative shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                    className="flex items-center gap-1.5 h-[36px] sm:h-[38px] p-1 sm:p-1.5 pr-2.5 rounded-[13px] sm:rounded-[14px] bg-[#fffafc] border border-[#fecdd3] hover:border-[#D30915] shadow-2xs hover:shadow-[0_2px_8px_rgba(211,9,21,0.12)] active:scale-95 transition-all cursor-pointer text-left"
+                    aria-haspopup="true"
+                    aria-expanded={isUserMenuOpen}
+                  >
+                    <img
+                      src={user.avatar || '/assets/ilovesurprises/Profile/profile%20image.webp'}
+                      alt={user.name}
+                      className="w-6 h-6 rounded-full object-cover border border-[#D30915]"
+                    />
 
-                {/* User Dropdown Menu */}
-                {isUserMenuOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-64 p-3 bg-white rounded-[20px] border border-[#eee7ed] shadow-[0_16px_40px_rgba(50,31,63,0.15)] z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                    <div className="p-2 mb-2 bg-[#fff8fb] rounded-[14px] border border-[#f5e4ec]">
-                      <strong className="block text-xs font-black text-[#141219] truncate">
-                        {user.name}
-                      </strong>
-                      <span className="text-[10px] text-[#716d77] block truncate">{user.email}</span>
-                      <span className="inline-block mt-1 text-[9px] font-black uppercase text-[#D30915] bg-white px-2 py-0.5 rounded-full border border-[#fecdd3]">
-                        {user.role === 'representative' ? '★ Active Representative' : '💎 VIP Member'}
+                    <div className="leading-tight hidden 2xl:block">
+                      <span className="block text-[13.5px] xl:text-[14px] font-bold text-[#141219] truncate max-w-[95px]">
+                        {user.name.split(' ')[0]}
                       </span>
                     </div>
 
-                    <div className="space-y-1 text-xs font-bold text-[#55505a]">
-                      {user.role === 'representative' && (
+                    <ChevronDown
+                      className={`w-3 h-3 text-[#716d77] transition-transform ${isUserMenuOpen ? 'rotate-180 text-[#D30915]' : ''
+                        }`}
+                    />
+                  </button>
+
+                  {/* User Dropdown Menu */}
+                  {isUserMenuOpen && (
+                    <div className="absolute right-0 top-full mt-2 w-64 p-3 bg-white rounded-[20px] border border-[#eee7ed] shadow-[0_16px_40px_rgba(50,31,63,0.15)] z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                      <div className="p-2 mb-2 bg-[#fff8fb] rounded-[14px] border border-[#f5e4ec]">
+                        <strong className="block text-xs font-black text-[#141219] truncate">
+                          {user.name}
+                        </strong>
+                        <span className="text-[10px] text-[#716d77] block truncate">{user.email}</span>
+                        <span className="inline-block mt-1 text-[9px] font-black uppercase text-[#D30915] bg-white px-2 py-0.5 rounded-full border border-[#fecdd3]">
+                          {user.role === 'representative' ? '★ Active Representative' : '💎 VIP Member'}
+                        </span>
+                      </div>
+
+                      <div className="space-y-1 text-xs font-bold text-[#55505a]">
+                        {user.role === 'representative' && (
+                          <a
+                            href="/affiliate"
+                            onClick={(e) => {
+                              setIsUserMenuOpen(false);
+                              handleNavClick(e, {
+                                id: 'affiliate',
+                                label: 'Affiliate',
+                                href: '/affiliate',
+                                targetSectionId: 'affiliate',
+                                icon: Users,
+                              });
+                            }}
+                            className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff1f2] hover:text-[#D30915] transition-colors whitespace-nowrap"
+                          >
+                            <Users className="w-3.5 h-3.5 text-[#D30915]" />
+                            <span>Rep Portal Dashboard</span>
+                          </a>
+                        )}
+
                         <a
-                          href="/affiliate"
+                          href="/account"
                           onClick={(e) => {
+                            e.preventDefault();
                             setIsUserMenuOpen(false);
-                            handleNavClick(e, {
-                              id: 'affiliate',
-                              label: 'Affiliate',
-                              href: '/affiliate',
-                              targetSectionId: 'affiliate',
-                              icon: Users,
-                            });
+                            if (onNavigateToAccount) {
+                              onNavigateToAccount('profile');
+                            } else {
+                              onNavigate?.('home');
+                            }
                           }}
                           className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff1f2] hover:text-[#D30915] transition-colors whitespace-nowrap"
                         >
-                          <Users className="w-3.5 h-3.5 text-[#D30915]" />
-                          <span>Rep Portal Dashboard</span>
+                          <User className="w-3.5 h-3.5 text-[#D30915]" />
+                          <span>My Account & Profile</span>
                         </a>
-                      )}
 
-                      <a
-                        href="/account"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setIsUserMenuOpen(false);
-                          if (onNavigateToAccount) {
-                            onNavigateToAccount('profile');
-                          } else {
-                            onNavigate?.('home');
-                          }
-                        }}
-                        className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff1f2] hover:text-[#D30915] transition-colors whitespace-nowrap"
-                      >
-                        <User className="w-3.5 h-3.5 text-[#D30915]" />
-                        <span>My Account & Profile</span>
-                      </a>
-
-                      <a
-                        href="/account"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setIsUserMenuOpen(false);
-                          if (onNavigateToAccount) {
-                            onNavigateToAccount('orders');
-                          } else {
-                            onNavigate?.('home');
-                          }
-                        }}
-                        className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff1f2] hover:text-[#D30915] transition-colors whitespace-nowrap"
-                      >
-                        <PackageCheck className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>My Surprise Orders</span>
-                      </a>
-
-                      <a
-                        href="/account"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setIsUserMenuOpen(false);
-                          if (onNavigateToAccount) {
-                            onNavigateToAccount('addresses');
-                          } else {
-                            onNavigate?.('home');
-                          }
-                        }}
-                        className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff1f2] hover:text-[#D30915] transition-colors whitespace-nowrap"
-                      >
-                        <MapPin className="w-3.5 h-3.5 text-purple-600" />
-                        <span>Saved Addresses</span>
-                      </a>
-
-                      <a
-                        href="/account"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setIsUserMenuOpen(false);
-                          if (onNavigateToAccount) {
-                            onNavigateToAccount('wishlist');
-                          } else {
-                            onNavigate?.('home');
-                          }
-                        }}
-                        className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff1f2] hover:text-[#D30915] transition-colors whitespace-nowrap"
-                      >
-                        <Heart className="w-3.5 h-3.5 text-[#D30915]" />
-                        <span>My Wishlist</span>
-                      </a>
-
-                      <a
-                        href="/account"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setIsUserMenuOpen(false);
-                          if (onNavigateToAccount) {
-                            onNavigateToAccount('settings');
-                          } else {
-                            onNavigate?.('home');
-                          }
-                        }}
-                        className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff1f2] hover:text-[#D30915] transition-colors whitespace-nowrap"
-                      >
-                        <User className="w-3.5 h-3.5 text-stone-500" />
-                        <span>Account Settings</span>
-                      </a>
-
-                      <a
-                        href="/admin"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setIsUserMenuOpen(false);
-                          if (onNavigateToAdmin) {
-                            onNavigateToAdmin();
-                          } else {
-                            onNavigate?.('admin');
-                          }
-                        }}
-                        className="flex items-center gap-2 p-2 rounded-[10px] bg-[#fffbfd] hover:bg-[#fff1f2] text-[#D30915] font-black transition-colors whitespace-nowrap"
-                      >
-                        <Sparkles className="w-3.5 h-3.5 text-[#D30915]" />
-                        <span>Admin Suite Portal</span>
-                      </a>
-
-                      <div className="pt-1.5 border-t border-[#f4edf2]">
-                        <button
-                          type="button"
-                          onClick={() => {
+                        <a
+                          href="/account"
+                          onClick={(e) => {
+                            e.preventDefault();
                             setIsUserMenuOpen(false);
-                            try {
-                              localStorage.removeItem('ils_consultant_subscribed');
-                              localStorage.removeItem('ils_consultant_username');
-                              localStorage.removeItem('ils_consultant_name');
-                            } catch {}
-                            setIsConsultantSubscribed(false);
-                            window.dispatchEvent(new CustomEvent('ils_consultant_subscribed', { detail: { subscribed: false } }));
-                            onLogout?.();
+                            if (onNavigateToAccount) {
+                              onNavigateToAccount('orders');
+                            } else {
+                              onNavigate?.('home');
+                            }
                           }}
-                          className="w-full flex items-center gap-2 p-2 rounded-[10px] text-red-600 hover:bg-red-50 transition-colors cursor-pointer text-left"
+                          className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff1f2] hover:text-[#D30915] transition-colors whitespace-nowrap"
                         >
-                          <LogOut className="w-3.5 h-3.5" />
-                          <span>Sign Out</span>
-                        </button>
+                          <PackageCheck className="w-3.5 h-3.5 text-emerald-600" />
+                          <span>My Surprise Orders</span>
+                        </a>
+
+                        <a
+                          href="/account"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setIsUserMenuOpen(false);
+                            if (onNavigateToAccount) {
+                              onNavigateToAccount('addresses');
+                            } else {
+                              onNavigate?.('home');
+                            }
+                          }}
+                          className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff1f2] hover:text-[#D30915] transition-colors whitespace-nowrap"
+                        >
+                          <MapPin className="w-3.5 h-3.5 text-purple-600" />
+                          <span>Saved Addresses</span>
+                        </a>
+
+                        <a
+                          href="/account"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setIsUserMenuOpen(false);
+                            if (onNavigateToAccount) {
+                              onNavigateToAccount('wishlist');
+                            } else {
+                              onNavigate?.('home');
+                            }
+                          }}
+                          className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff1f2] hover:text-[#D30915] transition-colors whitespace-nowrap"
+                        >
+                          <Heart className="w-3.5 h-3.5 text-[#D30915]" />
+                          <span>My Wishlist</span>
+                        </a>
+
+                        <a
+                          href="/account"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setIsUserMenuOpen(false);
+                            if (onNavigateToAccount) {
+                              onNavigateToAccount('settings');
+                            } else {
+                              onNavigate?.('home');
+                            }
+                          }}
+                          className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff1f2] hover:text-[#D30915] transition-colors whitespace-nowrap"
+                        >
+                          <User className="w-3.5 h-3.5 text-stone-500" />
+                          <span>Account Settings</span>
+                        </a>
+
+                        <a
+                          href="/admin"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setIsUserMenuOpen(false);
+                            if (onNavigateToAdmin) {
+                              onNavigateToAdmin();
+                            } else {
+                              onNavigate?.('admin');
+                            }
+                          }}
+                          className="flex items-center gap-2 p-2 rounded-[10px] bg-[#fffbfd] hover:bg-[#fff1f2] text-[#D30915] font-black transition-colors whitespace-nowrap"
+                        >
+                          <Sparkles className="w-3.5 h-3.5 text-[#D30915]" />
+                          <span>Admin Suite Portal</span>
+                        </a>
+
+                        <div className="pt-1.5 border-t border-[#f4edf2]">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsUserMenuOpen(false);
+                              try {
+                                localStorage.removeItem('ils_consultant_subscribed');
+                                localStorage.removeItem('ils_consultant_username');
+                                localStorage.removeItem('ils_consultant_name');
+                              } catch { }
+                              setIsConsultantSubscribed(false);
+                              window.dispatchEvent(new CustomEvent('ils_consultant_subscribed', { detail: { subscribed: false } }));
+                              onLogout?.();
+                            }}
+                            className="w-full flex items-center gap-2 p-2 rounded-[10px] text-red-600 hover:bg-red-50 transition-colors cursor-pointer text-left"
+                          >
+                            <LogOut className="w-3.5 h-3.5" />
+                            <span>Sign Out</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* 1. Mobile Search Icon Button (Mobile Only) */}
-            <button
-              type="button"
-              onClick={() => {
-                setIsMobileSearchOpen((prev) => !prev);
-                if (!isMobileSearchOpen) {
-                  setTimeout(() => mobileSearchInputRef.current?.focus(), 80);
-                }
-              }}
-              className={`lg:hidden w-[40px] h-[40px] rounded-full border transition-all cursor-pointer flex items-center justify-center shadow-2xs shrink-0 active:scale-95 ${
-                isMobileSearchOpen
-                  ? 'bg-[#fff0f3] border-[#D30915] text-[#D30915]'
-                  : 'bg-[#fffafb] border-[#f0e4ec] text-[#141219] hover:text-[#D30915] hover:border-[#D30915]'
-              }`}
-              aria-label="Search products"
-              title="Search"
-            >
-              <Search className="w-5 h-5 stroke-[2.2]" />
-            </button>
-
-            {/* Mobile Only: Top Navbar Cart Icon between Search Icon and Navbar Lines */}
-            <button
-              type="button"
-              onClick={onOpenCart}
-              className="lg:hidden relative w-[40px] h-[40px] rounded-full bg-[#fffafb] hover:bg-[#fff1f2] border border-[#f0e4ec] hover:border-[#D30915] text-[#141219] hover:text-[#D30915] active:scale-95 transition-all cursor-pointer flex items-center justify-center shadow-2xs shrink-0"
-              aria-label={`Shopping cart with ${cartCount} items`}
-              title="Shopping Cart"
-            >
-              <ShoppingBag className="w-5 h-5 text-[#D30915] shrink-0" />
-              {cartCount > 0 && (
-                <span
-                  key={cartCount}
-                  className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#D30915] text-white text-[10px] font-black flex items-center justify-center shadow-xs animate-in zoom-in-75 duration-150"
-                >
-                  {cartCount}
-                </span>
-              )}
-            </button>
-
-            {/* 2. Join $20/month CTA Button OR My Storefront when Subscribed (Desktop sm+ only) */}
-            {user && isConsultantSubscribed ? (
-              <button
-                type="button"
-                onClick={() => {
-                  if (onNavigateToAffiliate) {
-                    onNavigateToAffiliate();
-                  } else {
-                    onNavigate?.('affiliate');
-                  }
-                }}
-                className="hidden sm:inline-flex items-center justify-center gap-1.5 h-[38px] px-3.5 rounded-full bg-[#059669] hover:bg-[#047857] text-white text-[13.5px] xl:text-[14px] font-bold shadow-2xs hover:shadow-[0_4px_16px_rgba(5,150,105,0.25)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all cursor-pointer whitespace-nowrap select-none shrink-0"
-                title="Go to My Consultant Storefront Portal"
-              >
-                <Store className="w-4 h-4 shrink-0" />
-                <span>My Storefront</span>
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => {
-                  if (onOpenSubscription) {
-                    onOpenSubscription();
-                  } else if (onNavigateToAffiliate) {
-                    onNavigateToAffiliate();
-                  } else {
-                    onNavigate?.('affiliate');
-                  }
-                }}
-                className="hidden sm:inline-flex items-center justify-center gap-1.5 h-[38px] px-3.5 rounded-full bg-[#D30915] hover:bg-[#b60711] text-white text-[13.5px] xl:text-[14px] font-bold shadow-2xs hover:shadow-[0_6px_20px_rgba(211,9,21,0.28)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all cursor-pointer whitespace-nowrap select-none shrink-0"
-                title="Join $20/month"
-              >
-                <Users className="w-4 h-4 shrink-0" />
-                <span>Join $20/month</span>
-              </button>
-            )}
-
-            {/* 3. Shopping Cart Button: Hidden on mobile navbar, visible on desktop (lg+) */}
-            <button
-              type="button"
-              onClick={onOpenCart}
-              className="hidden lg:flex relative items-center justify-center lg:w-auto lg:h-[38px] lg:px-3.5 rounded-full bg-[#fffafc] hover:bg-[#fff0f3] text-[#141219] hover:text-[#D30915] border border-[#fecdd3] hover:border-[#D30915] shadow-2xs hover:shadow-[0_4px_16px_rgba(211,9,21,0.15)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all cursor-pointer select-none shrink-0"
-              aria-label={`Shopping cart with ${cartCount} items`}
-              title="Shopping Cart"
-            >
-              <ShoppingBag className="w-5 h-5 lg:w-[17px] lg:h-[17px] text-[#D30915] shrink-0" />
-              <span className="inline text-[13.5px] xl:text-[14px] font-bold tracking-tight ml-1.5">
-                Cart
-              </span>
-              <span
-                key={cartCount}
-                className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-black transition-colors shrink-0 ml-1.5 ${
-                  cartCount > 0
-                    ? 'bg-[#D30915] text-white shadow-xs'
-                    : 'bg-[#f5e8ef] text-[#716d77]'
-                }`}
-              >
-                {cartCount}
-              </span>
-            </button>
-
-            {/* 4. Mobile 3-Lines Hamburger Menu Button */}
-            <button
-              type="button"
-              onClick={openMobileMenu}
-              className="lg:hidden w-[40px] h-[40px] rounded-full bg-[#fffafb] hover:bg-[#fff1f2] border border-[#f0e4ec] hover:border-[#D30915] text-[#141219] hover:text-[#D30915] active:scale-95 transition-all cursor-pointer focus:outline-none flex items-center justify-center shadow-2xs shrink-0"
-              aria-label="Open navigation menu"
-              aria-expanded={isMobileMenuOpen}
-              title="Menu"
-            >
-              <Menu className="w-5 h-5 sm:w-5.5 sm:h-5.5 stroke-[2.5]" />
-            </button>
-
-          </div>
-        </div>
-
-        {/* Row 1.5 (Mobile Only): Expandable Full-Width Search Bar */}
-        {isMobileSearchOpen && (
-          <div ref={mobileSearchContainerRef} className="lg:hidden w-full pt-2 pb-0.5 relative animate-in fade-in slide-in-from-top-1 duration-200">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              executeSearch();
-            }}
-            className="relative flex items-center w-full h-[40px] rounded-full bg-white border border-[#e5dfe5] hover:border-[#D30915]/50 focus-within:border-[#D30915] focus-within:ring-2 focus-within:ring-[#D30915]/15 transition-all px-3.5 shadow-2xs overflow-hidden"
-          >
-            <Search className="w-4 h-4 text-[#716d77] shrink-0 mr-2 transition-colors z-10" />
-            <div className="relative flex-1 h-full flex items-center overflow-hidden">
-              <input
-                ref={mobileSearchInputRef}
-                type="search"
-                value={searchQuery}
-                onChange={handleSearchChange}
-                onFocus={() => {
-                  setIsMobileSearchFocused(true);
-                  setIsSearchOpen(true);
-                }}
-                onBlur={() => setIsMobileSearchFocused(false)}
-                placeholder={isMobileSearchFocused ? 'Search candles, jewelry...' : ''}
-                className="w-full h-full text-xs text-[#141219] placeholder:text-[#8a858f] bg-transparent outline-none border-0 font-medium relative z-10"
-                aria-label="Search for candles, jewelry, bath bombs..."
-              />
-
-              {/* Typing Animated Rotating Placeholder */}
-              {!searchQuery && (
-                <div
-                  className={`absolute inset-0 flex items-center pointer-events-none select-none transition-opacity duration-200 z-5 ${
-                    isMobileSearchFocused ? 'opacity-0' : 'opacity-100'
-                  }`}
-                >
-                  <div className="flex items-center text-xs truncate text-[#716d77]">
-                    <span className="shrink-0 font-normal mr-1">{SEARCH_SUGGESTIONS[searchPlaceholderIndex].prefix}</span>
-                    <span className="font-medium text-[#716d77] truncate">
-                      {typedPlaceholderText}
-                    </span>
-                    <span className="inline-block w-[1.5px] h-[12px] bg-[#D30915] animate-typing-cursor shrink-0 ml-0.5 self-center" />
-                  </div>
+                  )}
                 </div>
               )}
-            </div>
-            {searchQuery && (
+
+              {/* 1. Mobile Search Icon Button (Mobile Only) */}
               <button
                 type="button"
-                onClick={handleClearSearch}
-                className="p-1.5 rounded-full text-[#8a858f] hover:text-[#141219] hover:bg-gray-100 active:scale-90 transition-all mr-0.5 cursor-pointer z-10"
-                title="Clear search"
-                aria-label="Clear search"
+                onClick={() => {
+                  setIsMobileSearchOpen((prev) => !prev);
+                  if (!isMobileSearchOpen) {
+                    setTimeout(() => mobileSearchInputRef.current?.focus(), 80);
+                  }
+                }}
+                className={`lg:hidden w-[40px] h-[40px] rounded-full border transition-all cursor-pointer flex items-center justify-center shadow-2xs shrink-0 active:scale-95 ${isMobileSearchOpen
+                    ? 'bg-[#fff0f3] border-[#D30915] text-[#D30915]'
+                    : 'bg-[#fffafb] border-[#f0e4ec] text-[#141219] hover:text-[#D30915] hover:border-[#D30915]'
+                  }`}
+                aria-label="Search products"
+                title="Search"
               >
-                <X className="w-3.5 h-3.5" />
+                <Search className="w-5 h-5 stroke-[2.2]" />
               </button>
-            )}
-            <button
-              type="button"
-              onClick={startVoiceSearch}
-              className="p-1.5 rounded-full text-[#8a858f] hover:text-[#D30915] hover:bg-[#fff0f3] active:scale-90 transition-all cursor-pointer z-10"
-              title="Search by voice"
-              aria-label="Search by voice"
-            >
-              <Mic className="w-3.5 h-3.5" />
-            </button>
-          </form>
 
-          {/* Mobile Live Search Dropdown */}
-          {isSearchOpen && renderSearchDropdown(true)}
-        </div>
-        )}
+              {/* Mobile Only: Top Navbar Cart Icon between Search Icon and Navbar Lines */}
+              <button
+                type="button"
+                onClick={onOpenCart}
+                className="lg:hidden relative w-[40px] h-[40px] rounded-full bg-[#fffafb] hover:bg-[#fff1f2] border border-[#f0e4ec] hover:border-[#D30915] text-[#141219] hover:text-[#D30915] active:scale-95 transition-all cursor-pointer flex items-center justify-center shadow-2xs shrink-0"
+                aria-label={`Shopping cart with ${cartCount} items`}
+                title="Shopping Cart"
+              >
+                <ShoppingCart className="w-5 h-5 text-[#D30915] shrink-0" />
+                {cartCount > 0 && (
+                  <span
+                    key={cartCount}
+                    className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#D30915] text-white text-[10px] font-black flex items-center justify-center shadow-xs animate-in zoom-in-75 duration-150"
+                  >
+                    {cartCount}
+                  </span>
+                )}
+              </button>
 
-        {/* Row 2: Desktop Horizontal Category Navigation (JewelryCandles-style Information Architecture) */}
-        <nav
-          ref={desktopNavRef}
-          className="hidden lg:flex items-center justify-between border-t border-[#f4edf2] mt-1 sm:mt-1.5 pt-1.5 sm:pt-2 px-1 relative"
-          aria-label="Main Category Navigation"
-        >
-          <div className="w-full flex items-center justify-between gap-1 xl:gap-2">
-            {NAVIGATION_CATEGORIES.map((cat) => {
-              const hasSub = Boolean(cat.columns && cat.columns.length > 0);
-              const isMegaActive = activeMegaCategory === cat.id;
+              {/* 2. Join $20/month CTA Button OR My Storefront when Subscribed (Desktop sm+ only) */}
+              {user && isConsultantSubscribed ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (onNavigateToAffiliate) {
+                      onNavigateToAffiliate();
+                    } else {
+                      onNavigate?.('affiliate');
+                    }
+                  }}
+                  className="hidden sm:inline-flex items-center justify-center gap-1.5 h-[38px] px-3.5 rounded-full bg-[#059669] hover:bg-[#047857] text-white text-[13.5px] xl:text-[14px] font-bold shadow-2xs hover:shadow-[0_4px_16px_rgba(5,150,105,0.25)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all cursor-pointer whitespace-nowrap select-none shrink-0"
+                  title="Go to My Consultant Storefront Portal"
+                >
+                  <Store className="w-4 h-4 shrink-0" />
+                  <span>My Storefront</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (onOpenSubscription) {
+                      onOpenSubscription();
+                    } else if (onNavigateToAffiliate) {
+                      onNavigateToAffiliate();
+                    } else {
+                      onNavigate?.('affiliate');
+                    }
+                  }}
+                  className="hidden sm:inline-flex items-center justify-center gap-1.5 h-[38px] px-4 rounded-full bg-[#D30915] hover:bg-[#b60711] text-white text-[13.5px] xl:text-[14px] font-bold shadow-xs hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all cursor-pointer whitespace-nowrap select-none shrink-0"
+                  title="Join $20/month"
+                >
+                  <Users className="w-4 h-4 shrink-0" />
+                  <span>Join $20/month</span>
+                </button>
+              )}
 
-              if (!hasSub) {
+              {/* 3. Shopping Cart Button: Hidden on mobile navbar, visible on desktop (lg+) */}
+              <button
+                type="button"
+                onClick={onOpenCart}
+                className="hidden lg:flex relative items-center justify-center h-[38px] px-4 rounded-full bg-[#FDF0F3] hover:bg-[#FEEBF0] text-[#141219] hover:text-[#D30915] active:scale-95 transition-all cursor-pointer select-none shrink-0 gap-1.5"
+                aria-label={`Shopping cart with ${cartCount} items`}
+                title="Shopping Cart"
+              >
+                <ShoppingCart className="w-4 h-4 text-[#D30915] shrink-0" />
+                <span className="inline text-[13.5px] xl:text-[14px] font-bold tracking-tight text-[#141219]">
+                  Cart
+                </span>
+                <span className="text-[13.5px] font-bold text-[#716d77] ml-0.5">
+                  {cartCount}
+                </span>
+              </button>
+
+              {/* 4. Mobile 3-Lines Hamburger Menu Button */}
+              <button
+                type="button"
+                onClick={openMobileMenu}
+                className="lg:hidden w-[40px] h-[40px] rounded-full bg-[#fffafb] hover:bg-[#fff1f2] border border-[#f0e4ec] hover:border-[#D30915] text-[#141219] hover:text-[#D30915] active:scale-95 transition-all cursor-pointer focus:outline-none flex items-center justify-center shadow-2xs shrink-0"
+                aria-label="Open navigation menu"
+                aria-expanded={isMobileMenuOpen}
+                title="Menu"
+              >
+                <Menu className="w-5 h-5 sm:w-5.5 sm:h-5.5 stroke-[2.5]" />
+              </button>
+
+            </div>
+          </div>
+
+          {/* Row 1.5 (Mobile Only): Expandable Full-Width Search Bar */}
+          {isMobileSearchOpen && (
+            <div ref={mobileSearchContainerRef} className="lg:hidden w-full pt-2 pb-0.5 relative animate-in fade-in slide-in-from-top-1 duration-200">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  executeSearch();
+                }}
+                className="relative flex items-center w-full h-[40px] rounded-full bg-white border border-[#e5dfe5] hover:border-[#D30915]/50 focus-within:border-[#D30915] focus-within:ring-2 focus-within:ring-[#D30915]/15 transition-all px-3.5 shadow-2xs overflow-hidden"
+              >
+                <Search className="w-4 h-4 text-[#716d77] shrink-0 mr-2 transition-colors z-10" />
+                <div className="relative flex-1 h-full flex items-center overflow-hidden">
+                  <input
+                    ref={mobileSearchInputRef}
+                    type="search"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    onFocus={() => {
+                      setIsMobileSearchFocused(true);
+                      setIsSearchOpen(true);
+                    }}
+                    onBlur={() => setIsMobileSearchFocused(false)}
+                    placeholder={isMobileSearchFocused ? 'Search candles, jewelry...' : ''}
+                    className="w-full h-full text-xs text-[#141219] placeholder:text-[#8a858f] bg-transparent outline-none border-0 font-medium relative z-10"
+                    aria-label="Search for candles, jewelry, bath bombs..."
+                  />
+
+                  {/* Typing Animated Rotating Placeholder */}
+                  {!searchQuery && (
+                    <div
+                      className={`absolute inset-0 flex items-center pointer-events-none select-none transition-opacity duration-200 z-5 ${isMobileSearchFocused ? 'opacity-0' : 'opacity-100'
+                        }`}
+                    >
+                      <div className="flex items-center text-xs truncate text-[#716d77]">
+                        <span className="shrink-0 font-normal mr-1">{SEARCH_SUGGESTIONS[searchPlaceholderIndex].prefix}</span>
+                        <span className="font-medium text-[#716d77] truncate">
+                          {typedPlaceholderText}
+                        </span>
+                        <span className="inline-block w-[1.5px] h-[12px] bg-[#D30915] animate-typing-cursor shrink-0 ml-0.5 self-center" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={handleClearSearch}
+                    className="p-1.5 rounded-full text-[#8a858f] hover:text-[#141219] hover:bg-gray-100 active:scale-90 transition-all mr-0.5 cursor-pointer z-10"
+                    title="Clear search"
+                    aria-label="Clear search"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={startVoiceSearch}
+                  className="p-1.5 rounded-full text-[#8a858f] hover:text-[#D30915] hover:bg-[#fff0f3] active:scale-90 transition-all cursor-pointer z-10"
+                  title="Search by voice"
+                  aria-label="Search by voice"
+                >
+                  <Mic className="w-3.5 h-3.5" />
+                </button>
+              </form>
+
+              {/* Mobile Live Search Dropdown */}
+              {isSearchOpen && renderSearchDropdown(true)}
+            </div>
+          )}
+
+          {/* Row 2: Desktop Horizontal Category Navigation */}
+          <nav
+            ref={desktopNavRef}
+            className="hidden lg:flex items-center justify-between border-t border-[#f4ebf0] mt-1.5 pt-1.5 px-0.5 relative"
+            aria-label="Main Category Navigation"
+          >
+            {/* Left: Product Categories Cluster */}
+            <div className="flex items-center gap-1 xl:gap-1.5 2xl:gap-2.5 flex-nowrap translate-x-[15px]">
+              {/* Home Pill */}
+              <button
+                type="button"
+                onMouseEnter={handleMegaLeave}
+                onClick={() => {
+                  const homeCat = NAVIGATION_CATEGORIES.find((c) => c.slug === 'home');
+                  if (homeCat) handleCategoryClick(homeCat);
+                }}
+                className="flex items-center gap-1.5 px-2.5 xl:px-3 py-1 rounded-full bg-[#FDECEF] hover:bg-[#fcdde3] text-[#D30915] text-[13px] xl:text-[13.5px] font-bold transition-all cursor-pointer whitespace-nowrap select-none shrink-0 active:scale-95"
+              >
+                <HomeIcon className="w-3.5 h-3.5 text-[#D30915] shrink-0" />
+                <span>Home</span>
+              </button>
+
+              {/* Product Category Buttons */}
+              {NAVIGATION_CATEGORIES.filter(
+                (c) =>
+                  !c.hideInDesktopNav &&
+                  c.slug !== 'home' &&
+                  c.slug !== 'affiliate' &&
+                  c.slug !== 'appraise-your-jewelry' &&
+                  c.id !== 'appraisal' &&
+                  c.slug !== 'contact'
+              ).map((cat) => {
+                const hasSub = Boolean(cat.columns && cat.columns.length > 0);
+                const isMegaActive = activeMegaCategory === cat.id;
+
+                return (
+                  <div
+                    key={cat.id}
+                    className="relative group shrink-0"
+                    onMouseEnter={() => (hasSub ? handleMegaEnter(cat.id) : handleMegaLeave())}
+                    onMouseLeave={handleMegaLeave}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => handleCategoryClick(cat)}
+                      className={`group flex items-center gap-1 px-1 xl:px-1.5 py-0.5 rounded-full text-[13px] xl:text-[13.5px] font-bold transition-all cursor-pointer whitespace-nowrap select-none shrink-0 ${isMegaActive
+                          ? 'text-[#D30915] bg-[#fff0f3]'
+                          : 'text-[#141219] hover:text-[#D30915] hover:bg-[#fff9fb]'
+                        }`}
+                      aria-expanded={isMegaActive}
+                    >
+                      <span>{cat.name}</span>
+                      {cat.badge && (
+                        <span className="text-[8.5px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-[#FF3366] text-white ml-0.5">
+                          {cat.badge}
+                        </span>
+                      )}
+                      {hasSub && (
+                        <ChevronDown
+                          className={`w-3.5 h-3.5 text-[#716d77] transition-transform duration-200 group-hover:text-[#D30915] ${isMegaActive ? 'rotate-180 text-[#D30915]' : ''
+                            }`}
+                        />
+                      )}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Right: Utility Links Cluster (Divider + Affiliate Program + Appraise Jewelry) */}
+            <div className="flex items-center gap-1.5 xl:gap-2 shrink-0 ml-2 pl-2 xl:ml-3 xl:pl-3 border-l border-[#e2d5de]">
+              {NAVIGATION_CATEGORIES.filter(
+                (c) =>
+                  !c.hideInDesktopNav &&
+                  (c.slug === 'affiliate' || c.slug === 'appraise-your-jewelry' || c.id === 'appraisal')
+              ).map((cat) => {
                 const isRouteActive =
-                  (cat.slug === 'home' && (activeView === 'home' || !activeView)) ||
                   (cat.slug === 'affiliate' && activeView === 'affiliate') ||
-                  (cat.slug === 'contact' && activeView === 'contact') ||
                   (cat.slug === 'appraise-your-jewelry' && activeView === 'appraisal');
+
                 return (
                   <button
                     key={cat.id}
                     type="button"
                     onMouseEnter={handleMegaLeave}
                     onClick={() => handleCategoryClick(cat)}
-                    className={`px-1.5 xl:px-2.5 py-1 rounded-full text-[12px] xl:text-[13px] 2xl:text-[13.5px] font-bold transition-all cursor-pointer whitespace-nowrap select-none ${
-                      isRouteActive
-                        ? 'text-[#FF4D6A] bg-[#fff0f3] font-black'
-                        : 'text-[#141219] hover:text-[#FF4D6A] hover:bg-[#fff9fb]'
-                    }`}
+                    className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[13px] xl:text-[13.5px] font-bold transition-all cursor-pointer whitespace-nowrap select-none shrink-0 ${isRouteActive
+                        ? 'text-[#D30915] bg-[#fff0f3]'
+                        : 'text-[#141219] hover:text-[#D30915] hover:bg-[#fff9fb]'
+                      }`}
                   >
+                    {cat.slug === 'affiliate' && (
+                      <Megaphone className="w-3.5 h-3.5 text-[#D30915] shrink-0" />
+                    )}
+                    {(cat.slug === 'appraise-your-jewelry' || cat.id === 'appraisal') && (
+                      <Gem className="w-3.5 h-3.5 text-[#D30915] shrink-0" />
+                    )}
                     <span>{cat.name}</span>
                   </button>
                 );
-              }
-
-              return (
-                <div
-                  key={cat.id}
-                  className="relative group"
-                  onMouseEnter={() => handleMegaEnter(cat.id)}
-                  onMouseLeave={handleMegaLeave}
-                >
-                  <button
-                    type="button"
-                    onClick={() => handleCategoryClick(cat)}
-                    className={`group flex items-center gap-1 px-1.5 xl:px-2.5 py-1 rounded-full text-[12px] xl:text-[13px] 2xl:text-[13.5px] font-bold transition-all cursor-pointer whitespace-nowrap select-none ${
-                      isMegaActive
-                        ? 'text-[#FF4D6A] bg-[#fff0f3] font-black'
-                        : 'text-[#141219] hover:text-[#FF4D6A] hover:bg-[#fff9fb]'
-                    }`}
-                    aria-expanded={isMegaActive}
-                  >
-                    <span>{cat.name}</span>
-                    {cat.badge && (
-                      <span className="text-[8.5px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded-full bg-[#FF4D6A] text-white">
-                        {cat.badge}
-                      </span>
-                    )}
-                    <ChevronDown
-                      className={`w-3 h-3 text-[#7d7683] transition-transform duration-200 group-hover:text-[#FF4D6A] ${
-                        isMegaActive ? 'rotate-180 text-[#FF4D6A]' : ''
-                      }`}
-                    />
-                  </button>
-                </div>
-              );
-            })}
-          </div>
+              })}
+            </div>
 
           {/* Desktop Mega Menu Dropdown */}
           {displayedMegaCategory && (() => {
@@ -1725,15 +1783,17 @@ export const Header: React.FC<HeaderProps> = ({
             );
           })()}
         </nav>
-        </div>
-      </header>
+      </div>
+    </header>
 
       {/* 3. Full-Screen Mobile Navigation Drawer Portal */}
-      {typeof document !== 'undefined' && isMobileMenuOpen && createPortal(
-        <div className="fixed inset-0 z-[99999] flex justify-end">
+      {typeof document !== 'undefined' && (isMobileMenuOpen || isClosingMobileMenu) && createPortal(
+        <div className="fixed inset-0 z-[99999] flex justify-end overflow-hidden">
           {/* Backdrop overlay with blur */}
           <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs animate-backdrop-fade"
+            className={`fixed inset-0 bg-black/60 backdrop-blur-xs transition-all ${
+              isClosingMobileMenu ? 'animate-backdrop-out' : 'animate-backdrop-in'
+            }`}
             onClick={() => closeMobileMenu()}
             aria-hidden="true"
           />
@@ -1743,462 +1803,457 @@ export const Header: React.FC<HeaderProps> = ({
             role="dialog"
             aria-modal="true"
             aria-label="Mobile Navigation Menu"
-            className="relative w-[85%] max-w-[340px] h-full bg-white shadow-2xl z-10 flex flex-col justify-between overflow-y-auto border-l border-[#eee7ed] animate-drawer-in"
+            className={`relative w-[85%] max-w-[340px] h-full bg-white shadow-2xl z-10 flex flex-col justify-between overflow-y-auto border-l border-[#eee7ed] ${
+              isClosingMobileMenu ? 'animate-drawer-out' : 'animate-drawer-in'
+            }`}
           >
-            {/* Drawer Top Header */}
-            <div>
-              <div className="p-4 border-b border-[#f4edf2] flex items-center justify-between bg-gradient-to-r from-[#fff5f5] to-[#ffffff]">
-                <a
-                  href="/"
-                  onClick={(e) =>
-                    handleNavClick(e, {
-                      id: 'home',
-                      label: 'Home',
-                      href: '/',
-                      targetSectionId: 'hero',
-                      icon: HomeIcon,
-                    })
-                  }
-                  className="flex items-center shrink min-w-0"
-                  aria-label="Home"
-                >
-                  <picture className="flex items-center shrink min-w-0">
-                    <source srcSet="/assets/ilovesurprises/logo/logo.svg" type="image/svg+xml" />
-                    <source
-                      srcSet="/assets/ilovesurprises/logo/logo-ultra-hd.png 2x, /assets/ilovesurprises/logo/logo-16k.png 1x"
-                      type="image/png"
-                    />
-                    <img
-                      src="/assets/ilovesurprises/logo/logo-16k.png"
-                      alt="I Love Surprises Logo"
-                      width={2576}
-                      height={620}
-                      loading="lazy"
-                      decoding="async"
-                      className="h-[42px] min-[360px]:h-[46px] min-[390px]:h-[50px] min-[420px]:h-[52px] sm:h-[50px] w-auto max-w-[170px] min-[360px]:max-w-[195px] min-[390px]:max-w-[215px] min-[420px]:max-w-[230px] sm:max-w-[225px] object-contain"
-                      style={{
-                        imageRendering: '-webkit-optimize-contrast',
-                        WebkitBackfaceVisibility: 'hidden',
-                        backfaceVisibility: 'hidden',
-                        transform: 'translateZ(0)',
-                      }}
-                    />
-                  </picture>
-                </a>
+          {/* Drawer Top Header */}
+          <div>
+            <div className="p-4 border-b border-[#f4edf2] flex items-center justify-between bg-gradient-to-r from-[#fff5f5] to-[#ffffff]">
+              <a
+                href="/"
+                onClick={(e) =>
+                  handleNavClick(e, {
+                    id: 'home',
+                    label: 'Home',
+                    href: '/',
+                    targetSectionId: 'hero',
+                    icon: HomeIcon,
+                  })
+                }
+                className="flex items-center shrink min-w-0"
+                aria-label="Home"
+              >
+                <img
+                  src="/assets/ilovesurprises/logo/Picsart_26-09-06_11-33-04-479.png"
+                  alt="I Love Surprises Logo"
+                  width={2392}
+                  height={797}
+                  loading="lazy"
+                  decoding="async"
+                  className="h-[42px] min-[360px]:h-[46px] min-[390px]:h-[50px] min-[420px]:h-[52px] sm:h-[50px] w-auto max-w-[170px] min-[360px]:max-w-[195px] min-[390px]:max-w-[215px] min-[420px]:max-w-[230px] sm:max-w-[225px] object-contain"
+                  style={{
+                    imageRendering: '-webkit-optimize-contrast',
+                    WebkitBackfaceVisibility: 'hidden',
+                    backfaceVisibility: 'hidden',
+                    transform: 'translateZ(0)',
+                  }}
+                />
+              </a>
 
-                <button
-                  type="button"
-                  onClick={() => closeMobileMenu()}
-                  className="w-9 h-9 rounded-full bg-white border border-[#ecdbe6] hover:bg-[#fff1f2] hover:text-[#D30915] hover:border-[#fecdd3] text-[#716d77] flex items-center justify-center active:scale-90 transition-all cursor-pointer shadow-2xs"
-                  aria-label="Close navigation menu"
-                >
-                  <X className="w-4 h-4 stroke-[2.5]" />
-                </button>
-              </div>
-
-              {/* Drawer Category Accordion Menu (JewelryCandles-style Mobile Architecture) */}
-              <div className="p-3">
-                <span className="block text-[10px] font-black uppercase tracking-wider text-[#8a858f] px-2 mb-2">
-                  Categories &amp; Navigation
-                </span>
-
-                <div className="space-y-1.5">
-                  {NAVIGATION_CATEGORIES.map((cat) => {
-                    const isExpanded = expandedMobileCategory === cat.id;
-                    const hasSub = Boolean(cat.columns && cat.columns.length > 0);
-
-                    if (!hasSub) {
-                      const isRouteActive =
-                        (cat.slug === 'home' && (activeView === 'home' || !activeView)) ||
-                        (cat.slug === 'affiliate' && activeView === 'affiliate') ||
-                        (cat.slug === 'contact' && activeView === 'contact') ||
-                        (cat.slug === 'appraise-your-jewelry' && activeView === 'appraisal');
-                      return (
-                        <button
-                          key={cat.id}
-                          type="button"
-                          onClick={() => handleCategoryClick(cat)}
-                          className={`w-full min-h-[46px] px-3.5 py-2.5 rounded-[13px] flex items-center justify-between text-left font-bold text-sm transition-all cursor-pointer ${
-                            isRouteActive
-                              ? 'bg-[#fff1f2] text-[#D30915] border border-[#fecdd3] font-black shadow-2xs'
-                              : 'text-[#141219] hover:bg-[#fff9fb] hover:text-[#D30915] border border-transparent'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <span>{cat.name}</span>
-                          </div>
-                          <ArrowRight className="w-3.5 h-3.5 text-[#beb8c2]" />
-                        </button>
-                      );
-                    }
-
-                    return (
-                      <div key={cat.id} className="rounded-[13px] overflow-hidden border border-[#f3e7ee] bg-white transition-all shadow-2xs">
-                        {/* Accordion Trigger */}
-                        <button
-                          type="button"
-                          onClick={() => setExpandedMobileCategory(isExpanded ? null : cat.id)}
-                          className={`w-full min-h-[46px] px-3.5 py-2.5 flex items-center justify-between text-left font-bold text-sm transition-colors cursor-pointer select-none ${
-                            isExpanded ? 'bg-[#fff1f4] text-[#D30915]' : 'text-[#141219] hover:bg-[#fff9fb]'
-                          }`}
-                          aria-expanded={isExpanded}
-                        >
-                          <div className="flex items-center gap-2">
-                            <span>{cat.name}</span>
-                            {cat.badge && (
-                              <span className="text-[8.5px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded-full bg-[#D30915] text-white">
-                                {cat.badge}
-                              </span>
-                            )}
-                          </div>
-                          <ChevronDown
-                            className={`w-4 h-4 text-[#8a858f] transition-transform duration-200 ${
-                              isExpanded ? 'rotate-180 text-[#D30915]' : ''
-                            }`}
-                          />
-                        </button>
-
-                        {/* Accordion Expanded Subcategories */}
-                        {isExpanded && (
-                          <div className="px-2.5 py-2 bg-[#fdfafb] border-t border-[#f5e6ee] space-y-1">
-                            {cat.columns?.flatMap((col) => col.items).map((sub) => (
-                              <button
-                                key={sub.id}
-                                type="button"
-                                onClick={() => handleSubCategoryClick(cat, sub)}
-                                className="w-full min-h-[40px] px-3 py-1.5 rounded-[10px] flex items-center justify-between text-left text-xs font-semibold text-[#302936] hover:bg-[#fff0f3] hover:text-[#D30915] transition-colors cursor-pointer"
-                              >
-                                <span className="truncate">{sub.name}</span>
-                                {sub.badge && (
-                                  <span className="text-[8.5px] font-black px-1.5 py-0.2 rounded-full bg-[#fff0f3] text-[#D30915] border border-[#fecdd3] shrink-0 ml-1.5">
-                                    {sub.badge}
-                                  </span>
-                                )}
-                              </button>
-                            ))}
-                            <button
-                              type="button"
-                              onClick={() => handleCategoryClick(cat)}
-                              className="w-full min-h-[40px] mt-1.5 px-3 py-1.5 rounded-[10px] flex items-center justify-center gap-1.5 text-xs font-black text-[#D30915] bg-[#fff0f3] hover:bg-[#fedde4] transition-colors cursor-pointer border border-[#fcd5df]"
-                            >
-                              <span>{cat.viewAllLabel || `View All ${cat.name}`}</span>
-                              <ArrowRight className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Express Shipping Hub Location */}
-              <div className="p-3 border-t border-[#f4edf2]">
-                <div className="p-2.5 rounded-[14px] bg-[#fff8fb] border border-[#f5e4ec]">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-[#D30915] flex items-center gap-1">
-                      <Truck className="w-3 h-3" />
-                      <span>Express Shipping Hub</span>
-                    </span>
-                    <span className="text-[9px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.2 rounded-full">
-                      {currentLoc.eta}
-                    </span>
-                  </div>
-                  <div className="text-xs font-black text-[#141219] truncate">
-                    {currentLoc.name}, {currentLoc.state} ({currentLoc.zip})
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Drawer Footer: Account Actions & Support */}
-            <div className="p-4 border-t border-[#f4edf2] bg-gradient-to-b from-[#fffafc] to-[#fff5f5] space-y-3">
-              {/* Account Status */}
-              {!user ? (
-                <div className="space-y-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      closeMobileMenu();
-                      if (onOpenSubscription) {
-                        onOpenSubscription();
-                      } else if (onNavigateToAffiliate) {
-                        onNavigateToAffiliate();
-                      } else {
-                        onNavigate?.('affiliate');
-                      }
-                    }}
-                    className="w-full h-[42px] px-3.5 rounded-[12px] bg-[#D30915] hover:bg-[#b60711] text-white text-xs font-black shadow-md hover:shadow-lg active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-2 select-none"
-                  >
-                    <Users className="w-4 h-4" />
-                    <span>Join $20/month</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      closeMobileMenu();
-                      onOpenAuth?.('login');
-                    }}
-                    className="w-full h-[38px] px-3.5 rounded-[12px] bg-[#fff1f2] border border-[#fecdd3] hover:border-[#D30915] hover:bg-[#D30915] hover:text-white text-[#D30915] text-xs font-black shadow-2xs hover:shadow-xs active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-2 select-none"
-                  >
-                    <User className="w-4 h-4" />
-                    <span>Login</span>
-                  </button>
-                </div>
-              ) : (
-                <div className="p-2.5 bg-white rounded-[14px] border border-[#fecdd3] shadow-2xs space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <img
-                        src={user.avatar || '/assets/ilovesurprises/Profile/profile%20image.webp'}
-                        alt={user.name}
-                        className="w-8 h-8 rounded-full object-cover border border-[#D30915] shrink-0"
-                      />
-                      <div className="min-w-0">
-                        <strong className="block text-xs font-black text-[#141219] truncate">
-                          {user.name}
-                        </strong>
-                        <span className="text-[10px] text-[#716d77] block truncate">{user.email}</span>
-                      </div>
-                    </div>
-                    <span className="text-[9px] font-black uppercase text-[#D30915] bg-[#fff1f2] px-2 py-0.5 rounded-full border border-[#fecdd3] shrink-0">
-                      {user.role === 'representative' ? '20% Rep' : 'VIP'}
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-1.5 pt-1 border-t border-[#f4edf2] text-[11px] font-bold text-[#55505a]">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        closeMobileMenu();
-                        if (onNavigateToAccount) {
-                          onNavigateToAccount('profile');
-                        } else {
-                          onNavigate?.('home');
-                        }
-                      }}
-                      className="p-1.5 rounded-[8px] bg-[#fffafc] hover:bg-[#fff1f2] hover:text-[#D30915] flex items-center gap-1.5 cursor-pointer text-left"
-                    >
-                      <User className="w-3 h-3 text-[#D30915]" />
-                      <span>Account</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        closeMobileMenu();
-                        if (onNavigateToAccount) {
-                          onNavigateToAccount('orders');
-                        } else {
-                          onNavigate?.('home');
-                        }
-                      }}
-                      className="p-1.5 rounded-[8px] bg-[#fffafc] hover:bg-[#fff1f2] hover:text-[#D30915] flex items-center gap-1.5 cursor-pointer text-left"
-                    >
-                      <PackageCheck className="w-3 h-3 text-emerald-600" />
-                      <span>Orders</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        closeMobileMenu();
-                        if (onNavigateToAccount) {
-                          onNavigateToAccount('addresses');
-                        } else {
-                          onNavigate?.('home');
-                        }
-                      }}
-                      className="p-1.5 rounded-[8px] bg-[#fffafc] hover:bg-[#fff1f2] hover:text-[#D30915] flex items-center gap-1.5 cursor-pointer text-left"
-                    >
-                      <MapPin className="w-3 h-3 text-purple-600" />
-                      <span>Addresses</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        closeMobileMenu();
-                        if (onNavigateToAccount) {
-                          onNavigateToAccount('wishlist');
-                        } else {
-                          onNavigate?.('home');
-                        }
-                      }}
-                      className="p-1.5 rounded-[8px] bg-[#fffafc] hover:bg-[#fff1f2] hover:text-[#D30915] flex items-center gap-1.5 cursor-pointer text-left"
-                    >
-                      <Heart className="w-3 h-3 text-[#D30915]" />
-                      <span>Wishlist</span>
-                    </button>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      closeMobileMenu();
-                      if (onNavigateToAdmin) {
-                        onNavigateToAdmin();
-                      } else {
-                        onNavigate?.('admin');
-                      }
-                    }}
-                    className="w-full h-[32px] rounded-[10px] bg-[#fff1f2] text-[#D30915] hover:bg-[#ffe5ef] text-xs font-black transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>Admin Suite Portal</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      closeMobileMenu();
-                      try {
-                        localStorage.removeItem('ils_consultant_subscribed');
-                        localStorage.removeItem('ils_consultant_username');
-                        localStorage.removeItem('ils_consultant_name');
-                      } catch {}
-                      setIsConsultantSubscribed(false);
-                      window.dispatchEvent(new CustomEvent('ils_consultant_subscribed', { detail: { subscribed: false } }));
-                      onLogout?.();
-                    }}
-                    className="w-full h-[32px] rounded-[10px] bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    <LogOut className="w-3.5 h-3.5" />
-                    <span>Sign Out</span>
-                  </button>
-                </div>
-              )}
-
-              {/* Direct Support Contact Links */}
-              <div className="pt-2 border-t border-[#f2e6ee] flex items-center justify-between text-[10px] font-bold text-[#716d77]">
-                <a
-                  href="tel:18007877747"
-                  className="flex items-center gap-1 hover:text-[#D30915] transition-colors"
-                >
-                  <Phone className="w-3 h-3 text-emerald-600" />
-                  <span>1-800-SURPRISE</span>
-                </a>
-                <a
-                  href="mailto:support@ilovesurprises.com"
-                  className="flex items-center gap-1 hover:text-[#D30915] transition-colors"
-                >
-                  <Mail className="w-3 h-3 text-[#D30915]" />
-                  <span>Email Help</span>
-                </a>
-              </div>
-            </div>
-
-          </div>
-        </div>,
-        document.body
-      )}
-
-      {/* 4. YouTube-Style Animated Voice Search Modal Overlay */}
-      {typeof document !== 'undefined' && isVoiceModalOpen && createPortal(
-        <div className="fixed inset-0 z-[9999999] bg-black/65 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in zoom-in-95 duration-200">
-          <div className="relative w-full max-w-md bg-white rounded-[28px] p-6 sm:p-8 shadow-[0_25px_60px_rgba(0,0,0,0.35)] border border-[#f0dae7] text-center flex flex-col items-center overflow-hidden">
-
-            {/* Close Button in Top-Right */}
-            <button
-              type="button"
-              onClick={closeVoiceModal}
-              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#fff5f8] hover:bg-[#D30915] text-[#716d77] hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-xs border border-[#fecdd3]"
-              aria-label="Close voice search"
-            >
-              <X className="w-4 h-4 stroke-[2.5]" />
-            </button>
-
-            {/* Voice Status Heading */}
-            <div className="mb-6">
-              <span className="inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider text-[#D30915] bg-[#fff1f2] px-3 py-1 rounded-full border border-[#fecdd3] mb-2">
-                <Volume2 className="w-3.5 h-3.5" />
-                <span>Voice Search</span>
-              </span>
-              <h3 className="text-xl sm:text-2xl font-black text-[#141219]">
-                {isListening ? 'Listening...' : 'Try saying something'}
-              </h3>
-              <p className="text-xs sm:text-sm text-[#716d77] mt-1 max-w-[280px]">
-                Say a candle scent, jewelry surprise, or cash prize
-              </p>
-            </div>
-
-            {/* YouTube Animated Ripple Pulse & Equalizer */}
-            <div className="relative my-4 flex items-center justify-center w-40 h-40">
-              {/* Outer Ripple Wave 1 */}
-              <div
-                className={`absolute w-36 h-36 rounded-full bg-[#D30915]/15 transition-all duration-1000 ${isListening ? 'animate-ping' : 'scale-90 opacity-20'
-                  }`}
-              />
-
-              {/* Middle Ripple Wave 2 */}
-              <div
-                className={`absolute w-28 h-28 rounded-full bg-[#D30915]/25 transition-all duration-700 ${isListening ? 'animate-pulse' : 'scale-90 opacity-40'
-                  }`}
-              />
-
-              {/* Center YouTube Mic Button */}
               <button
                 type="button"
-                onClick={startVoiceSearch}
-                className={`relative z-10 w-20 h-20 rounded-full flex items-center justify-center text-white shadow-[0_10px_30px_rgba(211, 9, 21,0.45)] transition-transform duration-200 cursor-pointer active:scale-95 ${isListening
-                  ? 'bg-gradient-to-tr from-[#D30915] via-[#ff4081] to-[#ff2a6d] scale-105'
-                  : 'bg-gradient-to-tr from-[#716d77] to-[#36323d] hover:bg-[#D30915]'
-                  }`}
-                title={isListening ? 'Listening... Tap to stop' : 'Tap to start speaking'}
-                aria-label="Toggle voice search"
+                onClick={() => closeMobileMenu()}
+                className="w-9 h-9 rounded-full bg-white border border-[#ecdbe6] hover:bg-[#fff1f2] hover:text-[#D30915] hover:border-[#fecdd3] text-[#716d77] flex items-center justify-center active:scale-90 transition-all cursor-pointer shadow-2xs"
+                aria-label="Close navigation menu"
               >
-                <Mic className={`w-8 h-8 ${isListening ? 'animate-bounce text-white' : 'text-white'}`} />
+                <X className="w-4 h-4 stroke-[2.5]" />
               </button>
             </div>
 
-            {/* Sound Equalizer Waveform Bars */}
-            {isListening && (
-              <div className="flex items-center gap-1.5 h-6 mb-4">
-                <span className="w-1 bg-[#D30915] rounded-full animate-[pulse_0.6s_ease-in-out_infinite] h-3" />
-                <span className="w-1 bg-[#D30915] rounded-full animate-[pulse_0.4s_ease-in-out_infinite_0.1s] h-6" />
-                <span className="w-1 bg-[#D30915] rounded-full animate-[pulse_0.7s_ease-in-out_infinite_0.2s] h-4" />
-                <span className="w-1 bg-[#D30915] rounded-full animate-[pulse_0.5s_ease-in-out_infinite_0.15s] h-5" />
-                <span className="w-1 bg-[#D30915] rounded-full animate-[pulse_0.6s_ease-in-out_infinite_0.3s] h-3" />
+            {/* Drawer Category Accordion Menu (JewelryCandles-style Mobile Architecture) */}
+            <div className="p-3">
+              <span className="block text-[10px] font-black uppercase tracking-wider text-[#8a858f] px-2 mb-2">
+                Categories &amp; Navigation
+              </span>
+
+              <div className="space-y-1.5">
+                {NAVIGATION_CATEGORIES.map((cat) => {
+                  const isExpanded = expandedMobileCategory === cat.id;
+                  const hasSub = Boolean(cat.columns && cat.columns.length > 0);
+
+                  if (!hasSub) {
+                    const isRouteActive =
+                      (cat.slug === 'home' && (activeView === 'home' || !activeView)) ||
+                      (cat.slug === 'affiliate' && activeView === 'affiliate') ||
+                      (cat.slug === 'contact' && activeView === 'contact') ||
+                      (cat.slug === 'appraise-your-jewelry' && activeView === 'appraisal');
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => handleCategoryClick(cat)}
+                        className={`w-full min-h-[46px] px-3.5 py-2.5 rounded-[13px] flex items-center justify-between text-left font-bold text-sm transition-all cursor-pointer ${isRouteActive
+                            ? 'bg-[#fff1f2] text-[#D30915] border border-[#fecdd3] font-black shadow-2xs'
+                            : 'text-[#141219] hover:bg-[#fff9fb] hover:text-[#D30915] border border-transparent'
+                          }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span>{cat.name}</span>
+                        </div>
+                        <ArrowRight className="w-3.5 h-3.5 text-[#beb8c2]" />
+                      </button>
+                    );
+                  }
+
+                  return (
+                    <div key={cat.id} className="rounded-[13px] overflow-hidden border border-[#f3e7ee] bg-white transition-all shadow-2xs">
+                      {/* Accordion Trigger */}
+                      <button
+                        type="button"
+                        onClick={() => setExpandedMobileCategory(isExpanded ? null : cat.id)}
+                        className={`w-full min-h-[46px] px-3.5 py-2.5 flex items-center justify-between text-left font-bold text-sm transition-colors cursor-pointer select-none ${isExpanded ? 'bg-[#fff1f4] text-[#D30915]' : 'text-[#141219] hover:bg-[#fff9fb]'
+                          }`}
+                        aria-expanded={isExpanded}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span>{cat.name}</span>
+                          {cat.badge && (
+                            <span className="text-[8.5px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded-full bg-[#D30915] text-white">
+                              {cat.badge}
+                            </span>
+                          )}
+                        </div>
+                        <ChevronDown
+                          className={`w-4 h-4 text-[#8a858f] transition-transform duration-200 ${isExpanded ? 'rotate-180 text-[#D30915]' : ''
+                            }`}
+                        />
+                      </button>
+
+                      {/* Accordion Expanded Subcategories */}
+                      {isExpanded && (
+                        <div className="px-2.5 py-2 bg-[#fdfafb] border-t border-[#f5e6ee] space-y-1">
+                          {cat.columns?.flatMap((col) => col.items).map((sub) => (
+                            <button
+                              key={sub.id}
+                              type="button"
+                              onClick={() => handleSubCategoryClick(cat, sub)}
+                              className="w-full min-h-[40px] px-3 py-1.5 rounded-[10px] flex items-center justify-between text-left text-xs font-semibold text-[#302936] hover:bg-[#fff0f3] hover:text-[#D30915] transition-colors cursor-pointer"
+                            >
+                              <span className="truncate">{sub.name}</span>
+                              {sub.badge && (
+                                <span className="text-[8.5px] font-black px-1.5 py-0.2 rounded-full bg-[#fff0f3] text-[#D30915] border border-[#fecdd3] shrink-0 ml-1.5">
+                                  {sub.badge}
+                                </span>
+                              )}
+                            </button>
+                          ))}
+                          <button
+                            type="button"
+                            onClick={() => handleCategoryClick(cat)}
+                            className="w-full min-h-[40px] mt-1.5 px-3 py-1.5 rounded-[10px] flex items-center justify-center gap-1.5 text-xs font-black text-[#D30915] bg-[#fff0f3] hover:bg-[#fedde4] transition-colors cursor-pointer border border-[#fcd5df]"
+                          >
+                            <span>{cat.viewAllLabel || `View All ${cat.name}`}</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Express Shipping Hub Location */}
+            <div className="p-3 border-t border-[#f4edf2]">
+              <div className="p-2.5 rounded-[14px] bg-[#fff8fb] border border-[#f5e4ec]">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-[#D30915] flex items-center gap-1">
+                    <Truck className="w-3 h-3" />
+                    <span>Express Shipping Hub</span>
+                  </span>
+                  <span className="text-[9px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.2 rounded-full">
+                    {currentLoc.eta}
+                  </span>
+                </div>
+                <div className="text-xs font-black text-[#141219] truncate">
+                  {currentLoc.name}, {currentLoc.state} ({currentLoc.zip})
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Drawer Footer: Account Actions & Support */}
+          <div className="p-4 border-t border-[#f4edf2] bg-gradient-to-b from-[#fffafc] to-[#fff5f5] space-y-3">
+            {/* Account Status */}
+            {!user ? (
+              <div className="space-y-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    closeMobileMenu();
+                    if (onOpenSubscription) {
+                      onOpenSubscription();
+                    } else if (onNavigateToAffiliate) {
+                      onNavigateToAffiliate();
+                    } else {
+                      onNavigate?.('affiliate');
+                    }
+                  }}
+                  className="w-full h-[42px] px-3.5 rounded-[12px] bg-[#D30915] hover:bg-[#b60711] text-white text-xs font-black shadow-md hover:shadow-lg active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-2 select-none"
+                >
+                  <Users className="w-4 h-4" />
+                  <span>Join $20/month</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    closeMobileMenu();
+                    onOpenAuth?.('login');
+                  }}
+                  className="w-full h-[38px] px-3.5 rounded-[12px] bg-[#fff1f2] border border-[#fecdd3] hover:border-[#D30915] hover:bg-[#D30915] hover:text-white text-[#D30915] text-xs font-black shadow-2xs hover:shadow-xs active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-2 select-none"
+                >
+                  <User className="w-4 h-4" />
+                  <span>Login</span>
+                </button>
+              </div>
+            ) : (
+              <div className="p-2.5 bg-white rounded-[14px] border border-[#fecdd3] shadow-2xs space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <img
+                      src={user.avatar || '/assets/ilovesurprises/Profile/profile%20image.webp'}
+                      alt={user.name}
+                      className="w-8 h-8 rounded-full object-cover border border-[#D30915] shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <strong className="block text-xs font-black text-[#141219] truncate">
+                        {user.name}
+                      </strong>
+                      <span className="text-[10px] text-[#716d77] block truncate">{user.email}</span>
+                    </div>
+                  </div>
+                  <span className="text-[9px] font-black uppercase text-[#D30915] bg-[#fff1f2] px-2 py-0.5 rounded-full border border-[#fecdd3] shrink-0">
+                    {user.role === 'representative' ? '20% Rep' : 'VIP'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-1.5 pt-1 border-t border-[#f4edf2] text-[11px] font-bold text-[#55505a]">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      closeMobileMenu();
+                      if (onNavigateToAccount) {
+                        onNavigateToAccount('profile');
+                      } else {
+                        onNavigate?.('home');
+                      }
+                    }}
+                    className="p-1.5 rounded-[8px] bg-[#fffafc] hover:bg-[#fff1f2] hover:text-[#D30915] flex items-center gap-1.5 cursor-pointer text-left"
+                  >
+                    <User className="w-3 h-3 text-[#D30915]" />
+                    <span>Account</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      closeMobileMenu();
+                      if (onNavigateToAccount) {
+                        onNavigateToAccount('orders');
+                      } else {
+                        onNavigate?.('home');
+                      }
+                    }}
+                    className="p-1.5 rounded-[8px] bg-[#fffafc] hover:bg-[#fff1f2] hover:text-[#D30915] flex items-center gap-1.5 cursor-pointer text-left"
+                  >
+                    <PackageCheck className="w-3 h-3 text-emerald-600" />
+                    <span>Orders</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      closeMobileMenu();
+                      if (onNavigateToAccount) {
+                        onNavigateToAccount('addresses');
+                      } else {
+                        onNavigate?.('home');
+                      }
+                    }}
+                    className="p-1.5 rounded-[8px] bg-[#fffafc] hover:bg-[#fff1f2] hover:text-[#D30915] flex items-center gap-1.5 cursor-pointer text-left"
+                  >
+                    <MapPin className="w-3 h-3 text-purple-600" />
+                    <span>Addresses</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      closeMobileMenu();
+                      if (onNavigateToAccount) {
+                        onNavigateToAccount('wishlist');
+                      } else {
+                        onNavigate?.('home');
+                      }
+                    }}
+                    className="p-1.5 rounded-[8px] bg-[#fffafc] hover:bg-[#fff1f2] hover:text-[#D30915] flex items-center gap-1.5 cursor-pointer text-left"
+                  >
+                    <Heart className="w-3 h-3 text-[#D30915]" />
+                    <span>Wishlist</span>
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    closeMobileMenu();
+                    if (onNavigateToAdmin) {
+                      onNavigateToAdmin();
+                    } else {
+                      onNavigate?.('admin');
+                    }
+                  }}
+                  className="w-full h-[32px] rounded-[10px] bg-[#fff1f2] text-[#D30915] hover:bg-[#ffe5ef] text-xs font-black transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Admin Suite Portal</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    closeMobileMenu();
+                    try {
+                      localStorage.removeItem('ils_consultant_subscribed');
+                      localStorage.removeItem('ils_consultant_username');
+                      localStorage.removeItem('ils_consultant_name');
+                    } catch { }
+                    setIsConsultantSubscribed(false);
+                    window.dispatchEvent(new CustomEvent('ils_consultant_subscribed', { detail: { subscribed: false } }));
+                    onLogout?.();
+                  }}
+                  className="w-full h-[32px] rounded-[10px] bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Sign Out</span>
+                </button>
               </div>
             )}
 
-            {/* Live Transcribed Speech Feedback */}
-            <div className="w-full bg-[#fff9fb] border border-[#f5d8e4] rounded-[18px] p-3.5 min-h-[56px] flex items-center justify-center">
-              <p className="text-sm font-bold text-[#141219] break-words">
-                {voiceFeedback ? (
-                  <span className="text-[#D30915] font-black">&ldquo;{voiceFeedback}&rdquo;</span>
-                ) : (
-                  <span className="text-[#8a858f] text-xs">Speak now... e.g. &ldquo;Classic Cola Cash Candle&rdquo;</span>
-                )}
-              </p>
+            {/* Direct Support Contact Links */}
+            <div className="pt-2 border-t border-[#f2e6ee] flex items-center justify-between text-[10px] font-bold text-[#716d77]">
+              <a
+                href="tel:18007877747"
+                className="flex items-center gap-1 hover:text-[#D30915] transition-colors"
+              >
+                <Phone className="w-3 h-3 text-emerald-600" />
+                <span>1-800-SURPRISE</span>
+              </a>
+              <a
+                href="mailto:support@ilovesurprises.com"
+                className="flex items-center gap-1 hover:text-[#D30915] transition-colors"
+              >
+                <Mail className="w-3 h-3 text-[#D30915]" />
+                <span>Email Help</span>
+              </a>
             </div>
-
-            {/* Quick Test Voice Tags */}
-            <div className="mt-4 pt-3 border-t border-[#f4edf2] w-full">
-              <span className="block text-[10px] font-black uppercase tracking-wider text-[#8a858f] mb-2">
-                Or tap a popular phrase
-              </span>
-              <div className="flex flex-wrap justify-center gap-1.5">
-                {['Cash Candles', 'Diamond Ring', 'Cola Soda', 'Bath Bomb Cash'].map((phrase) => (
-                  <button
-                    key={phrase}
-                    type="button"
-                    onClick={() => {
-                      setVoiceFeedback(phrase);
-                      executeSearch(phrase);
-                    }}
-                    className="px-2.5 py-1 rounded-[10px] bg-white hover:bg-[#D30915] text-[#D30915] hover:text-white border border-[#fecdd3] text-xs font-bold transition-all shadow-2xs cursor-pointer"
-                  >
-                    &ldquo;{phrase}&rdquo;
-                  </button>
-                ))}
-              </div>
-            </div>
-
           </div>
-        </div>,
-        document.body
-      )}
+
+        </div>
+      </div>,
+      document.body
+    )
+  }
+
+  {/* 4. YouTube-Style Animated Voice Search Modal Overlay */ }
+  {
+    typeof document !== 'undefined' && isVoiceModalOpen && createPortal(
+      <div className="fixed inset-0 z-[9999999] bg-black/65 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="relative w-full max-w-md bg-white rounded-[28px] p-6 sm:p-8 shadow-[0_25px_60px_rgba(0,0,0,0.35)] border border-[#f0dae7] text-center flex flex-col items-center overflow-hidden">
+
+          {/* Close Button in Top-Right */}
+          <button
+            type="button"
+            onClick={closeVoiceModal}
+            className="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#fff5f8] hover:bg-[#D30915] text-[#716d77] hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-xs border border-[#fecdd3]"
+            aria-label="Close voice search"
+          >
+            <X className="w-4 h-4 stroke-[2.5]" />
+          </button>
+
+          {/* Voice Status Heading */}
+          <div className="mb-6">
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider text-[#D30915] bg-[#fff1f2] px-3 py-1 rounded-full border border-[#fecdd3] mb-2">
+              <Volume2 className="w-3.5 h-3.5" />
+              <span>Voice Search</span>
+            </span>
+            <h3 className="text-xl sm:text-2xl font-black text-[#141219]">
+              {isListening ? 'Listening...' : 'Try saying something'}
+            </h3>
+            <p className="text-xs sm:text-sm text-[#716d77] mt-1 max-w-[280px]">
+              Say a candle scent, jewelry surprise, or cash prize
+            </p>
+          </div>
+
+          {/* YouTube Animated Ripple Pulse & Equalizer */}
+          <div className="relative my-4 flex items-center justify-center w-40 h-40">
+            {/* Outer Ripple Wave 1 */}
+            <div
+              className={`absolute w-36 h-36 rounded-full bg-[#D30915]/15 transition-all duration-1000 ${isListening ? 'animate-ping' : 'scale-90 opacity-20'
+                }`}
+            />
+
+            {/* Middle Ripple Wave 2 */}
+            <div
+              className={`absolute w-28 h-28 rounded-full bg-[#D30915]/25 transition-all duration-700 ${isListening ? 'animate-pulse' : 'scale-90 opacity-40'
+                }`}
+            />
+
+            {/* Center YouTube Mic Button */}
+            <button
+              type="button"
+              onClick={startVoiceSearch}
+              className={`relative z-10 w-20 h-20 rounded-full flex items-center justify-center text-white shadow-[0_10px_30px_rgba(211, 9, 21,0.45)] transition-transform duration-200 cursor-pointer active:scale-95 ${isListening
+                ? 'bg-gradient-to-tr from-[#D30915] via-[#ff4081] to-[#ff2a6d] scale-105'
+                : 'bg-gradient-to-tr from-[#716d77] to-[#36323d] hover:bg-[#D30915]'
+                }`}
+              title={isListening ? 'Listening... Tap to stop' : 'Tap to start speaking'}
+              aria-label="Toggle voice search"
+            >
+              <Mic className={`w-8 h-8 ${isListening ? 'animate-bounce text-white' : 'text-white'}`} />
+            </button>
+          </div>
+
+          {/* Sound Equalizer Waveform Bars */}
+          {isListening && (
+            <div className="flex items-center gap-1.5 h-6 mb-4">
+              <span className="w-1 bg-[#D30915] rounded-full animate-[pulse_0.6s_ease-in-out_infinite] h-3" />
+              <span className="w-1 bg-[#D30915] rounded-full animate-[pulse_0.4s_ease-in-out_infinite_0.1s] h-6" />
+              <span className="w-1 bg-[#D30915] rounded-full animate-[pulse_0.7s_ease-in-out_infinite_0.2s] h-4" />
+              <span className="w-1 bg-[#D30915] rounded-full animate-[pulse_0.5s_ease-in-out_infinite_0.15s] h-5" />
+              <span className="w-1 bg-[#D30915] rounded-full animate-[pulse_0.6s_ease-in-out_infinite_0.3s] h-3" />
+            </div>
+          )}
+
+          {/* Live Transcribed Speech Feedback */}
+          <div className="w-full bg-[#fff9fb] border border-[#f5d8e4] rounded-[18px] p-3.5 min-h-[56px] flex items-center justify-center">
+            <p className="text-sm font-bold text-[#141219] break-words">
+              {voiceFeedback ? (
+                <span className="text-[#D30915] font-black">&ldquo;{voiceFeedback}&rdquo;</span>
+              ) : (
+                <span className="text-[#8a858f] text-xs">Speak now... e.g. &ldquo;Classic Cola Cash Candle&rdquo;</span>
+              )}
+            </p>
+          </div>
+
+          {/* Quick Test Voice Tags */}
+          <div className="mt-4 pt-3 border-t border-[#f4edf2] w-full">
+            <span className="block text-[10px] font-black uppercase tracking-wider text-[#8a858f] mb-2">
+              Or tap a popular phrase
+            </span>
+            <div className="flex flex-wrap justify-center gap-1.5">
+              {['Cash Candles', 'Diamond Ring', 'Cola Soda', 'Bath Bomb Cash'].map((phrase) => (
+                <button
+                  key={phrase}
+                  type="button"
+                  onClick={() => {
+                    setVoiceFeedback(phrase);
+                    executeSearch(phrase);
+                  }}
+                  className="px-2.5 py-1 rounded-[10px] bg-white hover:bg-[#D30915] text-[#D30915] hover:text-white border border-[#fecdd3] text-xs font-bold transition-all shadow-2xs cursor-pointer"
+                >
+                  &ldquo;{phrase}&rdquo;
+                </button>
+              ))}
+            </div>
+          </div>
+
+        </div>
+      </div>,
+      document.body
+    )
+  }
 
     </>
   );

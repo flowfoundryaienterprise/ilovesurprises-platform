@@ -86,7 +86,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           {(!isCollapsed || isMobileOpen) ? (
             <div className="flex flex-col gap-1 min-w-0">
               <img
-                src="/assets/ilovesurprises/logo/New logo.jpeg"
+                src="/assets/ilovesurprises/logo/Picsart_26-09-06_11-33-04-479.png"
                 alt="ILoveSurprises"
                 className="h-[33px] sm:h-[37px] w-auto max-w-[175px] object-contain"
               />

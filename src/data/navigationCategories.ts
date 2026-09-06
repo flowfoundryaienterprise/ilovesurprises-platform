@@ -31,6 +31,7 @@ export interface NavigationCategory {
   href: string;
   isDirectLink?: boolean;
   badge?: string;
+  hideInDesktopNav?: boolean;
   columns?: NavCategoryColumn[];
   spotlight?: NavSpotlightCard;
   viewAllLabel?: string;
@@ -50,7 +51,7 @@ export const NAVIGATION_CATEGORIES: NavigationCategory[] = [
     name: 'Candles',
     slug: 'candles',
     href: '/shop?category=candles',
-    badge: 'Popular',
+    badge: 'POPULAR',
     columns: [
       {
         heading: 'Cash & Novelty Candles',
@@ -192,7 +193,7 @@ export const NAVIGATION_CATEGORIES: NavigationCategory[] = [
     name: 'Jewelry',
     slug: 'jewelry',
     href: '/shop?category=jewelry',
-    badge: 'Real Gems',
+    badge: 'REAL GEMS',
     columns: [
       {
         heading: 'Jewelry Collections',
@@ -359,5 +360,6 @@ export const NAVIGATION_CATEGORIES: NavigationCategory[] = [
     slug: 'contact',
     href: '/contact',
     isDirectLink: true,
+    hideInDesktopNav: true,
   },
 ];

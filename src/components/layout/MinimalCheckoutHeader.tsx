@@ -47,53 +47,46 @@ export const MinimalCheckoutHeader: React.FC<MinimalCheckoutHeaderProps> = ({
             className="inline-flex items-center justify-center shrink-0 group focus:outline-none"
             aria-label="ILoveSurprises Home"
           >
-            <picture className="flex items-center shrink-0">
-              <source srcSet="/assets/ilovesurprises/logo/logo.svg" type="image/svg+xml" />
-              <source
-                srcSet="/assets/ilovesurprises/logo/logo-ultra-hd.png 2x, /assets/ilovesurprises/logo/logo-16k.png 1x"
-                type="image/png"
-              />
-              <img
-                src="/assets/ilovesurprises/logo/logo-16k.png"
-                alt="I Love Surprises Logo"
-                width={2576}
-                height={620}
-                loading="eager"
-                fetchPriority="high"
-                decoding="async"
-                className="h-[42px] min-[360px]:h-[46px] min-[390px]:h-[50px] min-[420px]:h-[52px] sm:h-[52px] md:h-[58px] lg:h-[62px] w-auto max-w-[170px] min-[360px]:max-w-[195px] min-[390px]:max-w-[215px] min-[420px]:max-w-[230px] sm:max-w-[215px] md:max-w-[245px] lg:max-w-[270px] object-contain transition-transform duration-200 group-hover:scale-102"
-                style={{
-                  imageRendering: '-webkit-optimize-contrast',
-                  WebkitBackfaceVisibility: 'hidden',
-                  backfaceVisibility: 'hidden',
-                  transform: 'translateZ(0)',
-                }}
-              />
-            </picture>
-          </a>
-        </div>
-
-        {/* Right column: Secure Checkout Badge (No menu, no search, no cart) */}
-        <div className="w-24 min-[420px]:w-32 sm:w-48 flex items-center justify-end shrink-0">
-          <div className="inline-flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-[#f0fdf4] border border-[#bbf7d0] text-[#15803d] shadow-2xs">
-            <Lock className="w-3.5 h-3.5 text-[#16a34a] shrink-0" />
-            <span className="text-[10px] min-[420px]:text-[11px] sm:text-xs font-black uppercase tracking-wider whitespace-nowrap">
-              <span className="hidden sm:inline">100% </span>Secure<span className="hidden md:inline"> Checkout</span>
-            </span>
-          </div>
-        </div>
+            <img
+              src="/assets/ilovesurprises/logo/Picsart_26-09-06_11-33-04-479.png"
+              alt="I Love Surprises Logo"
+              width={2392}
+              height={797}
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
+              className="h-[42px] min-[360px]:h-[46px] min-[390px]:h-[50px] min-[420px]:h-[52px] sm:h-[52px] md:h-[58px] lg:h-[62px] w-auto max-w-[170px] min-[360px]:max-w-[195px] min-[390px]:max-w-[215px] min-[420px]:max-w-[230px] sm:max-w-[215px] md:max-w-[245px] lg:max-w-[270px] object-contain transition-transform duration-200 group-hover:scale-102"
+              style={{
+                imageRendering: '-webkit-optimize-contrast',
+                WebkitBackfaceVisibility: 'hidden',
+                backfaceVisibility: 'hidden',
+                transform: 'translateZ(0)',
+              }}
+            />
+        </a>
       </div>
 
-      {/* Trust encryption sub-strip for maximum shopper confidence */}
-      <div className="bg-gradient-to-r from-[#fff7f9] via-[#fffbfd] to-[#fcf7ff] border-t border-[#f4ebf1] py-1 px-3 sm:px-6 text-center">
-        <div className="max-w-[1460px] mx-auto flex items-center justify-center gap-2 text-[10px] sm:text-[11px] font-bold text-[#716d77]">
-          <ShieldCheck className="w-3 h-3 text-[#16a34a] shrink-0" />
-          <span>256-Bit SSL Encrypted</span>
-          <span className="text-[#e2d5de]">•</span>
-          <span className="hidden min-[480px]:inline">Guaranteed Safe &amp; Secure Checkout</span>
-          <span className="min-[480px]:hidden">Safe Checkout</span>
+      {/* Right column: Secure Checkout Badge (No menu, no search, no cart) */}
+      <div className="w-24 min-[420px]:w-32 sm:w-48 flex items-center justify-end shrink-0">
+        <div className="inline-flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-[#f0fdf4] border border-[#bbf7d0] text-[#15803d] shadow-2xs">
+          <Lock className="w-3.5 h-3.5 text-[#16a34a] shrink-0" />
+          <span className="text-[10px] min-[420px]:text-[11px] sm:text-xs font-black uppercase tracking-wider whitespace-nowrap">
+            <span className="hidden sm:inline">100% </span>Secure<span className="hidden md:inline"> Checkout</span>
+          </span>
         </div>
       </div>
-    </header>
+    </div>
+
+      {/* Trust encryption sub-strip for maximum shopper confidence */ }
+  <div className="bg-gradient-to-r from-[#fff7f9] via-[#fffbfd] to-[#fcf7ff] border-t border-[#f4ebf1] py-1 px-3 sm:px-6 text-center">
+    <div className="max-w-[1460px] mx-auto flex items-center justify-center gap-2 text-[10px] sm:text-[11px] font-bold text-[#716d77]">
+      <ShieldCheck className="w-3 h-3 text-[#16a34a] shrink-0" />
+      <span>256-Bit SSL Encrypted</span>
+      <span className="text-[#e2d5de]">•</span>
+      <span className="hidden min-[480px]:inline">Guaranteed Safe &amp; Secure Checkout</span>
+      <span className="min-[480px]:hidden">Safe Checkout</span>
+    </div>
+  </div>
+    </header >
   );
 };

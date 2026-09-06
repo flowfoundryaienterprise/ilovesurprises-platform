@@ -106,7 +106,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
       {/* Centered Logo & Header */}
       <div className="text-center mb-4">
         <img
-          src="/assets/ilovesurprises/logo/New logo.jpeg"
+          src="/assets/ilovesurprises/logo/Picsart_26-09-06_11-33-04-479.png"
           alt="I Love Surprises Logo"
           className="h-[42px] min-[360px]:h-[46px] min-[390px]:h-[50px] min-[420px]:h-[52px] sm:h-[57px] w-auto max-w-[170px] min-[360px]:max-w-[195px] min-[390px]:max-w-[215px] min-[420px]:max-w-[230px] sm:max-w-[265px] mx-auto object-contain mb-2.5"
           loading="eager"
