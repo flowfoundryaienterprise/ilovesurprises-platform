@@ -47,23 +47,30 @@ export const MinimalCheckoutHeader: React.FC<MinimalCheckoutHeaderProps> = ({
             className="inline-flex items-center justify-center shrink-0 group focus:outline-none"
             aria-label="ILoveSurprises Home"
           >
-            <img
-              src="/assets/ilovesurprises/logo/Picsart_26-09-06_11-33-04-479.png"
-              alt="I Love Surprises Logo"
-              width={2392}
-              height={797}
-              loading="eager"
-              fetchPriority="high"
-              decoding="async"
-              className="h-[42px] min-[360px]:h-[46px] min-[390px]:h-[50px] min-[420px]:h-[52px] sm:h-[52px] md:h-[58px] lg:h-[62px] w-auto max-w-[170px] min-[360px]:max-w-[195px] min-[390px]:max-w-[215px] min-[420px]:max-w-[230px] sm:max-w-[215px] md:max-w-[245px] lg:max-w-[270px] object-contain transition-transform duration-200 group-hover:scale-102"
-              style={{
-                imageRendering: '-webkit-optimize-contrast',
-                WebkitBackfaceVisibility: 'hidden',
-                backfaceVisibility: 'hidden',
-                transform: 'translateZ(0)',
-              }}
-            />
-        </a>
+            <picture className="flex items-center shrink-0">
+              <source srcSet="/assets/ilovesurprises/logo/logo.svg" type="image/svg+xml" />
+              <source
+                srcSet="/assets/ilovesurprises/logo/logo-ultra-hd.png 2x, /assets/ilovesurprises/logo/logo-16k.png 1x"
+                type="image/png"
+              />
+              <img
+                src="/assets/ilovesurprises/logo/logo-16k.png"
+                alt="I Love Surprises Logo"
+                width={4096}
+                height={1364}
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
+                className="h-[42px] min-[360px]:h-[46px] min-[390px]:h-[50px] min-[420px]:h-[52px] sm:h-[52px] md:h-[58px] lg:h-[62px] w-auto max-w-[170px] min-[360px]:max-w-[195px] min-[390px]:max-w-[215px] min-[420px]:max-w-[230px] sm:max-w-[215px] md:max-w-[245px] lg:max-w-[270px] object-contain transition-transform duration-200 group-hover:scale-102"
+                style={{
+                  imageRendering: '-webkit-optimize-contrast',
+                  WebkitBackfaceVisibility: 'hidden',
+                  backfaceVisibility: 'hidden',
+                  transform: 'translateZ(0)',
+                }}
+              />
+            </picture>
+          </a>
       </div>
 
       {/* Right column: Secure Checkout Badge (No menu, no search, no cart) */}

@@ -47,12 +47,27 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
     <div className="w-full">
       {/* Centered Logo & Header */}
       <div className="text-center mb-5">
-        <img
-          src="/assets/ilovesurprises/logo/Picsart_26-09-06_11-33-04-479.png"
-          alt="I Love Surprises Logo"
-          className="h-[42px] min-[360px]:h-[46px] min-[390px]:h-[50px] min-[420px]:h-[52px] sm:h-[57px] w-auto max-w-[170px] min-[360px]:max-w-[195px] min-[390px]:max-w-[215px] min-[420px]:max-w-[230px] sm:max-w-[265px] mx-auto object-contain mb-3"
-          loading="eager"
-        />
+        <picture className="flex items-center justify-center shrink-0 mx-auto mb-3">
+          <source srcSet="/assets/ilovesurprises/logo/logo.svg" type="image/svg+xml" />
+          <source
+            srcSet="/assets/ilovesurprises/logo/logo-ultra-hd.png 2x, /assets/ilovesurprises/logo/logo-16k.png 1x"
+            type="image/png"
+          />
+          <img
+            src="/assets/ilovesurprises/logo/logo-16k.png"
+            alt="I Love Surprises Logo"
+            width={4096}
+            height={1364}
+            className="h-[42px] min-[360px]:h-[46px] min-[390px]:h-[50px] min-[420px]:h-[52px] sm:h-[57px] w-auto max-w-[170px] min-[360px]:max-w-[195px] min-[390px]:max-w-[215px] min-[420px]:max-w-[230px] sm:max-w-[265px] mx-auto object-contain"
+            loading="eager"
+            style={{
+              imageRendering: '-webkit-optimize-contrast',
+              WebkitBackfaceVisibility: 'hidden',
+              backfaceVisibility: 'hidden',
+              transform: 'translateZ(0)',
+            }}
+          />
+        </picture>
         <h2 className="text-xl sm:text-2xl font-black text-[#141219] tracking-tight m-0 font-display">
           Forgot Password?
         </h2>
