@@ -52,9 +52,30 @@ function filterProducts(
         }
       }
 
-      // 2. Categories filter (OR logic among selected categories)
+      // 2. Categories filter (OR logic among selected categories with smart hierarchy matching)
       if (filters.categories.length > 0) {
-        if (!filters.categories.includes(p.category)) {
+        const matchesCat = filters.categories.some((cat) => {
+          if (cat === p.category) return true;
+          const catNorm = cat.toLowerCase().trim();
+          const prodCatNorm = p.category.toLowerCase().trim();
+
+          // Parent category umbrellas
+          if (catNorm === 'candles' && prodCatNorm.includes('candle')) return true;
+          if ((catNorm === 'bath + bombs' || catNorm === 'bath & body') && (prodCatNorm.includes('bath') || prodCatNorm.includes('body'))) return true;
+          if (catNorm === 'wax melts' && prodCatNorm.includes('wax')) return true;
+          if (catNorm === 'soaps' && prodCatNorm.includes('soap')) return true;
+          if (catNorm === 'slimes' && prodCatNorm.includes('slime')) return true;
+          if (catNorm === 'jewelry' && (prodCatNorm.includes('jewelry') || p.surpriseType === 'jewelry')) return true;
+
+          // Subcategory name / keyword matching against product name or description
+          if (p.name.toLowerCase().includes(catNorm)) return true;
+          if (p.description?.toLowerCase().includes(catNorm)) return true;
+          if (p.scentNotes?.some((s) => s.toLowerCase().includes(catNorm))) return true;
+
+          return false;
+        });
+
+        if (!matchesCat) {
           return false;
         }
       }
@@ -258,9 +279,9 @@ export const Shop: React.FC<ShopProps> = ({
             setDraftFilters(appliedFilters);
             setIsMobileFilterOpen(true);
           }}
-          className={`flex-1 h-[38px] sm:h-[42px] rounded-[11px] sm:rounded-[13px] border flex items-center justify-center gap-2 text-xs font-black transition-all cursor-pointer ${activeFiltersCount > 0
-            ? 'bg-[#fff1f2] border-[#D30915] text-[#D30915] shadow-2xs'
-            : 'bg-white border-[#ebdce5] text-[#141219]'
+          className={`flex-1 h-[38px] sm:h-[42px] rounded-[11px] sm:rounded-[13px] border flex items-center justify-center gap-2 text-xs font-black active:scale-95 transition-all cursor-pointer shadow-2xs ${activeFiltersCount > 0
+            ? 'bg-[#fff1f2] border-[#D30915] text-[#D30915]'
+            : 'bg-white border-[#ebdce5] hover:border-[#D30915] text-[#141219]'
             }`}
         >
           <SlidersHorizontal className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -275,7 +296,7 @@ export const Shop: React.FC<ShopProps> = ({
         <button
           type="button"
           onClick={() => setIsMobileSortOpen(true)}
-          className="flex-1 h-[38px] sm:h-[42px] rounded-[11px] sm:rounded-[13px] bg-white border border-[#ebdce5] text-[#141219] flex items-center justify-center gap-1.5 text-xs font-black cursor-pointer"
+          className="flex-1 h-[38px] sm:h-[42px] rounded-[11px] sm:rounded-[13px] bg-white border border-[#ebdce5] hover:border-[#D30915] text-[#141219] flex items-center justify-center gap-1.5 text-xs font-black active:scale-95 transition-all cursor-pointer shadow-2xs"
         >
           <ArrowUpDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#716d77]" />
           <span className="truncate max-w-[120px]">{currentSortLabel}</span>
@@ -290,8 +311,8 @@ export const Shop: React.FC<ShopProps> = ({
           <button
             type="button"
             onClick={handleToggleDesktopFilter}
-            className={`hidden lg:flex items-center gap-2 h-[38px] px-3.5 rounded-[12px] border font-black text-xs transition-all duration-200 cursor-pointer shadow-2xs ${isDesktopFilterOpen || activeFiltersCount > 0
-              ? 'bg-[#fff1f2] border-[#D30915] text-[#D30915] shadow-xs'
+            className={`hidden lg:flex items-center gap-2 h-[38px] px-3.5 rounded-[12px] border font-black text-xs active:scale-95 transition-all duration-200 cursor-pointer shadow-2xs hover:shadow-xs ${isDesktopFilterOpen || activeFiltersCount > 0
+              ? 'bg-[#fff1f2] border-[#D30915] text-[#D30915]'
               : 'bg-white border-[#ebdce5] text-[#141219] hover:border-[#D30915] hover:text-[#D30915]'
               }`}
             aria-expanded={isDesktopFilterOpen}
@@ -323,7 +344,7 @@ export const Shop: React.FC<ShopProps> = ({
             <button
               type="button"
               onClick={() => setIsDesktopSortOpen(!isDesktopSortOpen)}
-              className="flex items-center gap-2 h-[38px] px-3.5 rounded-[12px] bg-white border border-[#ebdce5] hover:border-[#D30915] text-xs font-black text-[#141219] shadow-2xs transition-all cursor-pointer"
+              className="flex items-center gap-2 h-[38px] px-3.5 rounded-[12px] bg-white border border-[#ebdce5] hover:border-[#D30915] text-xs font-black text-[#141219] shadow-2xs hover:shadow-xs active:scale-95 transition-all cursor-pointer"
               aria-expanded={isDesktopSortOpen}
             >
               <span>{currentSortLabel}</span>

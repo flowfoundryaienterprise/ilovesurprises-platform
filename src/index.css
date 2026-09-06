@@ -66,6 +66,59 @@
   textarea {
     -webkit-tap-highlight-color: transparent;
   }
+
+  /* Universal Accessible Button Foundation & Tactile Micro-Interactions */
+  button,
+  a[role="button"],
+  input[type="button"],
+  input[type="submit"],
+  [role="button"] {
+    font-family: inherit;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Universal Accessible Focus Rings for Keyboard Users (WCAG AA Compliant) */
+  button:focus-visible,
+  a[role="button"]:focus-visible,
+  input[type="button"]:focus-visible,
+  input[type="submit"]:focus-visible,
+  [role="button"]:focus-visible {
+    outline: none !important;
+    box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px rgba(211, 9, 21, 0.5) !important;
+  }
+
+  /* Universal Smooth Tactile Micro-Press for interactive buttons */
+  button:not(:disabled):active,
+  a[role="button"]:not([aria-disabled="true"]):active,
+  input[type="submit"]:not(:disabled):active {
+    transform: translateY(1px) scale(0.985);
+  }
+
+  /* Universal Disabled State */
+  button:disabled,
+  button[disabled],
+  [aria-disabled="true"] {
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    opacity: 0.55 !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+}
+
+/* Standard Screen Reader Only Utility */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
 }
 
 .hero-title-font {
@@ -123,146 +176,150 @@
   -webkit-font-smoothing: antialiased;
 }
 
+/* Screen reader only utility */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
 /* ========================================================================= */
 /* GLOBAL TRANSITIONS & ENTRANCE/EXIT SUITE (ENHANCED SMOOTHNESS)           */
 /* ========================================================================= */
 
-/* 1. Page Transitions (Forward & Return / Back) */
+/* 1. Page Transitions (Forward & Return / Back) - 144Hz Subpixel Composited */
 @keyframes pageForwardIn {
   0% {
     opacity: 0;
-    transform: translateY(12px) scale(0.992);
+    transform: translate3d(0, 12px, 0) scale(0.992);
   }
 
   100% {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 
 @keyframes pageBackwardIn {
   0% {
     opacity: 0;
-    transform: translateY(-8px) scale(0.992);
+    transform: translate3d(0, -8px, 0) scale(0.992);
   }
 
   100% {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 
 .page-transition-forward {
   animation: pageForwardIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  will-change: opacity, transform;
 }
 
 .page-transition-backward {
   animation: pageBackwardIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  will-change: opacity, transform;
 }
 
 /* Legacy/Default page transition */
 .page-transition {
   animation: pageForwardIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  will-change: opacity, transform;
 }
 
 /* 2. Cart & Side Drawer Transitions */
 @keyframes drawerSlideRightIn {
   0% {
-    transform: translateX(100%);
+    transform: translate3d(100%, 0, 0);
   }
 
   100% {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
 @keyframes drawerSlideRightOut {
   0% {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
 
   100% {
-    transform: translateX(100%);
+    transform: translate3d(100%, 0, 0);
   }
 }
 
 .animate-drawer-in {
   animation: drawerSlideRightIn 0.34s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  will-change: transform;
 }
 
 .animate-drawer-out {
   animation: drawerSlideRightOut 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  will-change: transform;
 }
 
 /* 3. Bottom Sheet Transitions (Mobile Filters) */
 @keyframes sheetSlideBottomIn {
   0% {
-    transform: translateY(100%);
+    transform: translate3d(0, 100%, 0);
   }
 
   100% {
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
 @keyframes sheetSlideBottomOut {
   0% {
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
   }
 
   100% {
-    transform: translateY(100%);
+    transform: translate3d(0, 100%, 0);
   }
 }
 
 .animate-sheet-in {
   animation: sheetSlideBottomIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  will-change: transform;
 }
 
 .animate-sheet-out {
   animation: sheetSlideBottomOut 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  will-change: transform;
 }
 
 /* 4. Modal Pop In & Out */
 @keyframes modalPopIn {
   0% {
     opacity: 0;
-    transform: scale(0.95) translateY(10px);
+    transform: translate3d(0, 10px, 0) scale(0.95);
   }
 
   100% {
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 
 @keyframes modalPopOut {
   0% {
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: translate3d(0, 0, 0) scale(1);
   }
 
   100% {
     opacity: 0;
-    transform: scale(0.96) translateY(8px);
+    transform: translate3d(0, 8px, 0) scale(0.96);
   }
 }
 
 .animate-modal-in {
   animation: modalPopIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  will-change: opacity, transform;
 }
 
 .animate-modal-out {
   animation: modalPopOut 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  will-change: opacity, transform;
 }
 
 /* 5. Backdrop Fade In & Out */
@@ -288,82 +345,76 @@
 
 .animate-backdrop-in {
   animation: backdropFadeIn 0.26s ease-out forwards;
-  will-change: opacity;
 }
 
 .animate-backdrop-out {
   animation: backdropFadeOut 0.22s ease-in forwards;
-  will-change: opacity;
 }
 
 /* 6. Left Slide Drawer (Desktop Filter Panel) */
 @keyframes drawerSlideLeftIn {
   0% {
-    transform: translateX(-100%);
+    transform: translate3d(-100%, 0, 0);
     opacity: 0;
   }
 
   100% {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
     opacity: 1;
   }
 }
 
 @keyframes drawerSlideLeftOut {
   0% {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
     opacity: 1;
   }
 
   100% {
-    transform: translateX(-100%);
+    transform: translate3d(-100%, 0, 0);
     opacity: 0;
   }
 }
 
 .animate-drawer-left-in {
   animation: drawerSlideLeftIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  will-change: transform, opacity;
 }
 
 .animate-drawer-left-out {
   animation: drawerSlideLeftOut 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  will-change: transform, opacity;
 }
 
 /* 7. Mega Panel Expand & Collapse Transitions */
 @keyframes megaPanelExpand {
   0% {
     opacity: 0;
-    transform: translateY(-16px) scale(0.985);
+    transform: translate3d(0, -16px, 0) scale(0.985);
   }
 
   100% {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 
 @keyframes megaPanelCollapse {
   0% {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translate3d(0, 0, 0) scale(1);
   }
 
   100% {
     opacity: 0;
-    transform: translateY(-16px) scale(0.985);
+    transform: translate3d(0, -16px, 0) scale(0.985);
   }
 }
 
 .animate-panel-expand {
   animation: megaPanelExpand 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  will-change: opacity, transform;
 }
 
 .animate-panel-collapse {
   animation: megaPanelCollapse 0.30s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  will-change: opacity, transform;
 }
 
 /* Backward compatibility for backdrop/modal class names */
@@ -396,24 +447,22 @@
 
 .badge-pulse {
   animation: badgePop 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  will-change: transform;
 }
 
 @keyframes toastSlideUp {
   0% {
     opacity: 0;
-    transform: translate(-50%, 14px) scale(0.95);
+    transform: translate3d(-50%, 14px, 0) scale(0.95);
   }
 
   100% {
     opacity: 1;
-    transform: translate(-50%, 0) scale(1);
+    transform: translate3d(-50%, 0, 0) scale(1);
   }
 }
 
 .animate-toast {
   animation: toastSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  will-change: opacity, transform;
 }
 
 /* Tactile Button Animations & Hover Polish */
@@ -422,17 +471,16 @@
   color: #ffffff;
   box-shadow: 0 6px 20px rgba(211, 9, 21, 0.28);
   transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1), filter 0.18s ease;
-  will-change: transform;
 }
 
 .btn-primary-glow:hover {
-  transform: translateY(-2px) translateZ(0);
+  transform: translate3d(0, -2px, 0);
   box-shadow: 0 12px 30px rgba(211, 9, 21, 0.42);
   filter: brightness(1.04);
 }
 
 .btn-primary-glow:active {
-  transform: translateY(0px) scale(0.96) translateZ(0);
+  transform: translate3d(0, 0, 0) scale(0.96);
   box-shadow: 0 4px 14px rgba(211, 9, 21, 0.25);
 }
 
@@ -442,18 +490,17 @@
   color: #141219;
   box-shadow: 0 3px 10px rgba(50, 31, 63, 0.04);
   transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.18s ease, color 0.18s ease, box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: transform;
 }
 
 .btn-secondary-glow:hover {
-  transform: translateY(-2px) translateZ(0);
+  transform: translate3d(0, -2px, 0);
   border-color: #D30915;
   color: #D30915;
   box-shadow: 0 8px 24px rgba(211, 9, 21, 0.14);
 }
 
 .btn-secondary-glow:active {
-  transform: translateY(0px) scale(0.96) translateZ(0);
+  transform: translate3d(0, 0, 0) scale(0.96);
 }
 
 /* GPU Accelerated Smooth Micro-Interactions */
@@ -462,11 +509,11 @@
 }
 
 .hover-lift:hover {
-  transform: translateY(-3px) translateZ(0);
+  transform: translate3d(0, -3px, 0);
 }
 
 .hover-lift:active {
-  transform: translateY(0px) scale(0.96) translateZ(0);
+  transform: translate3d(0, 0, 0) scale(0.96);
 }
 
 .smooth-card {
@@ -876,6 +923,45 @@
   100% {
     transform: translateX(100%);
   }
+}
+
+/* Zepto-Style Animated Search Bar Ticker */
+@keyframes zeptoTickerSlide {
+  0% {
+    transform: translate3d(0, 120%, 0);
+    opacity: 0;
+  }
+  14% {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+  86% {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, -120%, 0);
+    opacity: 0;
+  }
+}
+
+.animate-zepto-ticker {
+  animation: zeptoTickerSlide 2.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+/* Typing Search Bar Cursor */
+@keyframes typingCursorBlink {
+  0%, 49% {
+    opacity: 1;
+  }
+  50%, 100% {
+    opacity: 0;
+  }
+}
+
+.animate-typing-cursor {
+  animation: typingCursorBlink 0.9s infinite;
 }
 
 /* Accessibility: Respect Reduced Motion Preferences */

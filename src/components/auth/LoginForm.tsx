@@ -75,7 +75,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         <img
           src="/assets/ilovesurprises/logo/New logo.jpeg"
           alt="I Love Surprises Logo"
-          className="h-[49px] sm:h-[57px] w-auto max-w-[225px] sm:max-w-[265px] mx-auto object-contain mb-3"
+          className="h-[42px] min-[360px]:h-[46px] min-[390px]:h-[50px] min-[420px]:h-[52px] sm:h-[57px] w-auto max-w-[170px] min-[360px]:max-w-[195px] min-[390px]:max-w-[215px] min-[420px]:max-w-[230px] sm:max-w-[265px] mx-auto object-contain mb-3"
           loading="eager"
         />
         <h2 className="text-xl sm:text-2xl font-black text-[#141219] tracking-tight m-0 font-display">
@@ -151,7 +151,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             <button
               type="button"
               onClick={onSwitchToForgotPassword}
-              className="text-[11px] font-bold text-[#D30915] hover:underline focus:outline-none cursor-pointer"
+              className="text-[11px] font-bold text-[#D30915] hover:text-[#B60711] hover:underline focus:outline-none cursor-pointer active:scale-95 transition-all"
             >
               Forgot Password?
             </button>
@@ -175,7 +175,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full h-[44px] sm:h-[46px] rounded-[14px] bg-gradient-to-r from-[#D30915] to-[#B60711] hover:from-[#B60711] hover:to-[#c21a57] text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-[0_8px_22px_rgba(211, 9, 21,0.28)] hover:shadow-[0_12px_28px_rgba(211, 9, 21,0.38)] active:scale-97 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 mt-3"
+          className="w-full h-[44px] sm:h-[46px] rounded-[14px] bg-gradient-to-r from-[#D30915] to-[#B60711] hover:from-[#B60711] hover:to-[#96050e] text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-[0_8px_22px_rgba(211,9,21,0.28)] hover:shadow-[0_12px_28px_rgba(211,9,21,0.38)] hover:-translate-y-0.5 active:translate-y-0 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 mt-3"
         >
           {isLoading ? (
             <div className="flex items-center gap-2">
@@ -198,7 +198,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           <button
             type="button"
             onClick={onSwitchToSignUp}
-            className="text-xs font-black text-[#D30915] hover:underline focus:outline-none cursor-pointer ml-1"
+            className="text-xs font-black text-[#D30915] hover:text-[#B60711] hover:underline focus:outline-none cursor-pointer ml-1 active:scale-95 transition-all"
           >
             Create Account
           </button>

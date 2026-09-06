@@ -40,7 +40,7 @@ export const accountService = {
   MAX_SAVED_ADDRESSES,
 
   /**
-   * Loads saved addresses from storage (max 3)
+   * Loads saved addresses from storage (max 3) - filters out and removes default saved address
    */
   getSavedAddresses(): SavedAddress[] {
     if (typeof window === 'undefined') return [];
@@ -48,11 +48,17 @@ export const accountService = {
       const stored = localStorage.getItem(ADDRESSES_STORAGE_KEY);
       if (stored) {
         const parsed: SavedAddress[] = JSON.parse(stored);
+        // Filter out default saved addresses and clear default flags
+        const filtered = parsed.filter((a) => !a.isDefault);
+        if (filtered.length !== parsed.length) {
+          localStorage.setItem(ADDRESSES_STORAGE_KEY, JSON.stringify(filtered));
+        }
         // Ensure deduplication & maximum 3 limit
         const uniqueList: SavedAddress[] = [];
-        for (const addr of parsed) {
-          if (!uniqueList.some((u) => isSameAddress(u, addr))) {
-            uniqueList.push(addr);
+        for (const addr of filtered) {
+          const cleanAddr = { ...addr, isDefault: false };
+          if (!uniqueList.some((u) => isSameAddress(u, cleanAddr))) {
+            uniqueList.push(cleanAddr);
           }
           if (uniqueList.length >= MAX_SAVED_ADDRESSES) break;
         }
@@ -92,6 +98,7 @@ export const accountService = {
         phone: shipping.phone.trim() || list[existingIndex].phone,
         addressLine2: shipping.addressLine2?.trim() || list[existingIndex].addressLine2 || '',
         country: shipping.country?.trim() || list[existingIndex].country || 'United States',
+        isDefault: false,
       };
 
       if (typeof window !== 'undefined') {
@@ -113,16 +120,12 @@ export const accountService = {
       state: shipping.state.trim().toUpperCase(),
       zipCode: shipping.zipCode.trim(),
       country: shipping.country?.trim() || 'United States',
-      isDefault: list.length === 0,
+      isDefault: false,
     };
 
     // Add to top and cap at MAX 3 addresses
     list.unshift(newAddress);
     const capped = list.slice(0, MAX_SAVED_ADDRESSES);
-
-    if (!capped.some((a) => a.isDefault) && capped.length > 0) {
-      capped[0].isDefault = true;
-    }
 
     if (typeof window !== 'undefined') {
       localStorage.setItem(ADDRESSES_STORAGE_KEY, JSON.stringify(capped));
@@ -168,7 +171,7 @@ export const accountService = {
           ...list[existingIndex],
           ...data,
           id: list[existingIndex].id,
-          isDefault: data.isDefault ?? list[existingIndex].isDefault,
+          isDefault: data.isDefault ?? list[existingIndex].isDefault ?? false,
         };
         if (data.isDefault) {
           list.forEach((a) => {
@@ -188,7 +191,7 @@ export const accountService = {
         addressLine2: data.addressLine2 || '',
         ...data,
         id: 'addr-' + Date.now(),
-        isDefault: data.isDefault || list.length === 0,
+        isDefault: data.isDefault ?? false,
       };
 
       if (saved.isDefault) {
@@ -199,9 +202,6 @@ export const accountService = {
     }
 
     const cappedList = list.slice(0, MAX_SAVED_ADDRESSES);
-    if (!cappedList.some((a) => a.isDefault) && cappedList.length > 0) {
-      cappedList[0].isDefault = true;
-    }
 
     if (typeof window !== 'undefined') {
       localStorage.setItem(ADDRESSES_STORAGE_KEY, JSON.stringify(cappedList));
@@ -216,13 +216,19 @@ export const accountService = {
    */
   deleteAddress(id: string): void {
     let list = this.getSavedAddresses();
-    const wasDefault = list.find((a) => a.id === id)?.isDefault;
     list = list.filter((a) => a.id !== id);
 
-    if (wasDefault && list.length > 0) {
-      list[0].isDefault = true;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(ADDRESSES_STORAGE_KEY, JSON.stringify(list));
+      window.dispatchEvent(new CustomEvent('ilovesurprises_addresses_updated'));
     }
+  },
 
+  /**
+   * Removes any default address from saved addresses storage
+   */
+  removeDefaultAddress(): void {
+    const list = this.getSavedAddresses().filter((a) => !a.isDefault);
     if (typeof window !== 'undefined') {
       localStorage.setItem(ADDRESSES_STORAGE_KEY, JSON.stringify(list));
       window.dispatchEvent(new CustomEvent('ilovesurprises_addresses_updated'));
@@ -272,6 +278,9 @@ export const accountService = {
         localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
       } else {
         localStorage.removeItem(USER_STORAGE_KEY);
+        localStorage.removeItem('ils_consultant_subscribed');
+        localStorage.removeItem('ils_consultant_username');
+        localStorage.removeItem('ils_consultant_name');
       }
     } catch (err) {
       console.error('Failed to update stored user', err);

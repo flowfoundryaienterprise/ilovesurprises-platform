@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   Clock,
   Filter,
+  RotateCcw,
 } from 'lucide-react';
 import type { CommissionRecord, CommissionTierLevel, CommissionStatus } from '../../types';
 import { AffiliateCustomSelect, type AffiliateSelectOption } from './AffiliateCustomSelect';
@@ -25,10 +26,11 @@ const LEVEL_OPTIONS: AffiliateSelectOption[] = [
 ];
 
 const STATUS_OPTIONS: AffiliateSelectOption[] = [
-  { value: 'all', label: 'All Payout Statuses' },
+  { value: 'all', label: 'All Statuses' },
+  { value: 'pending', label: 'Pending Hold', badge: 'Pending', badgeColor: 'bg-amber-50 text-amber-800 border border-amber-200' },
+  { value: 'approved', label: 'Approved for Payout', badge: 'Approved', badgeColor: 'bg-blue-50 text-blue-800 border border-blue-200' },
   { value: 'paid', label: 'Paid & Transferred', badge: 'Paid', badgeColor: 'bg-emerald-50 text-emerald-800 border border-emerald-200' },
-  { value: 'processing', label: 'Processing Payout', badge: 'Processing', badgeColor: 'bg-blue-50 text-blue-800 border border-blue-200' },
-  { value: 'pending', label: 'Pending Hold', badge: '30-Day Hold', badgeColor: 'bg-amber-50 text-amber-800 border border-amber-200' },
+  { value: 'reversed', label: 'Reversed (Refunded)', badge: 'Reversed', badgeColor: 'bg-rose-50 text-rose-800 border border-rose-200' },
 ];
 
 export const CommissionHistoryTable: React.FC<CommissionHistoryTableProps> = ({
@@ -100,11 +102,25 @@ export const CommissionHistoryTable: React.FC<CommissionHistoryTableProps> = ({
             <span>Paid</span>
           </span>
         );
-      case 'processing':
+      case 'approved':
         return (
           <span className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-black uppercase text-blue-800 bg-blue-50 px-2 sm:px-2.5 py-0.5 rounded-full border border-blue-200">
-            <Clock className="w-3 h-3 text-blue-600 shrink-0" />
+            <CheckCircle2 className="w-3 h-3 text-blue-600 shrink-0" />
+            <span>Approved</span>
+          </span>
+        );
+      case 'processing':
+        return (
+          <span className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-black uppercase text-indigo-800 bg-indigo-50 px-2 sm:px-2.5 py-0.5 rounded-full border border-indigo-200">
+            <Clock className="w-3 h-3 text-indigo-600 shrink-0" />
             <span>Processing</span>
+          </span>
+        );
+      case 'reversed':
+        return (
+          <span className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-black uppercase text-rose-800 bg-rose-50 px-2 sm:px-2.5 py-0.5 rounded-full border border-rose-200">
+            <RotateCcw className="w-3 h-3 text-rose-600 shrink-0" />
+            <span>Reversed</span>
           </span>
         );
       case 'pending':
@@ -112,7 +128,7 @@ export const CommissionHistoryTable: React.FC<CommissionHistoryTableProps> = ({
         return (
           <span className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-black uppercase text-amber-800 bg-amber-50 px-2 sm:px-2.5 py-0.5 rounded-full border border-amber-200">
             <Clock className="w-3 h-3 text-amber-600 shrink-0" />
-            <span>Pending Hold</span>
+            <span>Pending</span>
           </span>
         );
     }

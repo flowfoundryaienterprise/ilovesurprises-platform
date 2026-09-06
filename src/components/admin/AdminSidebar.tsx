@@ -104,7 +104,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           <button
             type="button"
             onClick={onCloseMobile}
-            className="p-1.5 rounded-lg hover:bg-gray-100 text-[#716d77] cursor-pointer"
+            className="p-2 rounded-lg hover:bg-[#fff1f2] hover:text-[#D30915] text-[#716d77] active:scale-90 transition-all cursor-pointer"
             aria-label="Close menu"
           >
             <X className="w-5 h-5" />
@@ -113,7 +113,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           <button
             type="button"
             onClick={onToggleCollapse}
-            className="hidden lg:flex p-1.5 rounded-lg hover:bg-[#fff1f2] hover:text-[#D30915] text-[#716d77] transition-colors cursor-pointer"
+            className="hidden lg:flex p-1.5 rounded-lg hover:bg-[#fff1f2] hover:text-[#D30915] text-[#716d77] active:scale-90 transition-all cursor-pointer"
             title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -151,7 +151,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                 onSelectTab(item.id);
                 if (isMobileOpen) onCloseMobile();
               }}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer relative ${
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold active:scale-[0.98] transition-all cursor-pointer relative ${
                 isActive
                   ? 'bg-[#D30915] text-white shadow-[0_4px_16px_rgba(211, 9, 21,0.25)]'
                   : isAllowed
@@ -210,7 +210,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
         <button
           type="button"
           onClick={onReturnToStore}
-          className={`w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-[#eedbe6] hover:border-[#D30915] bg-white text-xs font-bold text-[#141219] hover:text-[#D30915] transition-all cursor-pointer shadow-2xs ${
+          className={`w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-[#eedbe6] hover:border-[#D30915] bg-white text-xs font-bold text-[#141219] hover:text-[#D30915] shadow-2xs hover:shadow-xs active:scale-95 transition-all cursor-pointer ${
             isCollapsed && !isMobileOpen ? 'px-1' : ''
           }`}
           title="Return to Public Storefront"

@@ -25,21 +25,14 @@ import {
   Mail,
   Mic,
   Volume2,
-  Gift,
-  ShieldCheck,
 } from 'lucide-react';
 import type { UserProfile, Product } from '../../types';
 import { productsData } from '../../data/products';
-import { categoriesData } from '../../data/categories';
-
-const categoryMeta: Record<string, { badge: string; color: string; bg: string; border: string; fromPrice: string }> = {
-  'cat-jewelry-candles': { badge: '★ Best Seller', color: 'text-[#D30915]', bg: 'bg-[#fff0f3]', border: 'border-[#fecdd3]', fromPrice: '$28.99' },
-  'cat-cash-candles': { badge: '💵 Cash Inside', color: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-200', fromPrice: '$29.99' },
-  'cat-wax-melts': { badge: '✨ Hidden Gem', color: 'text-purple-700', bg: 'bg-purple-50', border: 'border-purple-200', fromPrice: '$14.99' },
-  'cat-bath-body': { badge: '🌸 Spa Ritual', color: 'text-pink-700', bg: 'bg-pink-50', border: 'border-pink-200', fromPrice: '$16.99' },
-  'cat-soaps': { badge: '🌿 Organic', color: 'text-amber-700', bg: 'bg-amber-50', border: 'border-amber-200', fromPrice: '$9.99' },
-  'cat-slimes': { badge: '🎉 Surprise Toy', color: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-200', fromPrice: '$12.99' },
-};
+import {
+  NAVIGATION_CATEGORIES,
+  type NavigationCategory,
+  type SubCategoryItem,
+} from '../../data/navigationCategories';
 
 export interface HeaderProps {
   cartCount?: number;
@@ -95,9 +88,28 @@ const POPULAR_TAGS = [
   'Wax Melts',
 ];
 
+export interface SearchTypingSuggestion {
+  prefix: string;
+  highlight: string;
+  query: string;
+}
+
+const SEARCH_SUGGESTIONS: SearchTypingSuggestion[] = [
+  { prefix: 'Search for', highlight: 'Cash Candles ($2-$2,500 Inside)', query: 'Cash Candles' },
+  { prefix: 'Search for', highlight: 'Diamond Ring Reveal Candles', query: 'Diamond Ring Candles' },
+  { prefix: 'Search for', highlight: 'Luxury Fizzy Cash Bath Bombs', query: 'Cash Bath Bombs' },
+  { prefix: 'Search for', highlight: 'Goat Milk Real Cash Soaps', query: 'Goat Milk Cash Money Soaps' },
+  { prefix: 'Search for', highlight: 'Scented Aroma Wax Melts', query: 'Wax Melts' },
+  { prefix: 'Search for', highlight: 'Belgian Chocolates with Cash', query: 'Chocolates' },
+  { prefix: 'Search for', highlight: 'Zodiac Birthdate Candles', query: 'Zodiac Candles' },
+  { prefix: 'Search for', highlight: 'Sensory Gourmet Slimes', query: 'Slimes' },
+  { prefix: 'Search for', highlight: 'Certified Gemstone Jewelry', query: 'Jewelry' },
+  { prefix: 'Search for', highlight: 'Cereal Bowl Scented Candles', query: 'Cereal Bowl Candles' },
+];
+
 export const Header: React.FC<HeaderProps> = ({
   cartCount = 0,
-  cartSubtotal = 0,
+  cartSubtotal: _cartSubtotal = 0,
   user = null,
   activeView,
   onOpenCart,
@@ -114,28 +126,204 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isDesktopSearchFocused, setIsDesktopSearchFocused] = useState(false);
+  const [isMobileSearchFocused, setIsMobileSearchFocused] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [searchPlaceholderIndex, setSearchPlaceholderIndex] = useState(0);
+  const [typedPlaceholderText, setTypedPlaceholderText] = useState('');
+  const [isTypingDeleting, setIsTypingDeleting] = useState(false);
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
-  const [isShopDropdownOpen, setIsShopDropdownOpen] = useState(false);
   const [currentLoc] = useState(availableLocations[0]);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [activeNavId, setActiveNavId] = useState<string>('home');
+  const [_activeNavId, setActiveNavId] = useState<string>('home');
   const [isListening, setIsListening] = useState(false);
   const [voiceFeedback, setVoiceFeedback] = useState<string | null>(null);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [activeMegaCategory, setActiveMegaCategory] = useState<string | null>(null);
+  const [displayedMegaCategory, setDisplayedMegaCategory] = useState<string | null>(null);
+  const megaMenuTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const megaMenuCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [expandedMobileCategory, setExpandedMobileCategory] = useState<string | null>(null);
+
+  // Typewriter Search Bar Animation: Types letters out, holds, then backspaces to next
+  useEffect(() => {
+    if (isDesktopSearchFocused || isMobileSearchFocused || searchQuery.trim().length > 0) return;
+
+    const currentItem = SEARCH_SUGGESTIONS[searchPlaceholderIndex];
+    const targetText = currentItem?.highlight || '';
+
+    let timeout: ReturnType<typeof setTimeout>;
+
+    if (!isTypingDeleting) {
+      if (typedPlaceholderText.length < targetText.length) {
+        timeout = setTimeout(() => {
+          setTypedPlaceholderText(targetText.slice(0, typedPlaceholderText.length + 1));
+        }, 45); // Typing speed
+      } else {
+        timeout = setTimeout(() => {
+          setIsTypingDeleting(true);
+        }, 2200); // Hold time when full word typed
+      }
+    } else {
+      if (typedPlaceholderText.length > 0) {
+        timeout = setTimeout(() => {
+          setTypedPlaceholderText(targetText.slice(0, typedPlaceholderText.length - 1));
+        }, 22); // Fast backspace
+      } else {
+        timeout = setTimeout(() => {
+          setIsTypingDeleting(false);
+          setSearchPlaceholderIndex((prev) => (prev + 1) % SEARCH_SUGGESTIONS.length);
+        }, 150);
+      }
+    }
+
+    return () => clearTimeout(timeout);
+  }, [typedPlaceholderText, isTypingDeleting, searchPlaceholderIndex, isDesktopSearchFocused, isMobileSearchFocused, searchQuery]);
+
+  const handleMegaEnter = (catId: string) => {
+    if (megaMenuTimerRef.current) {
+      clearTimeout(megaMenuTimerRef.current);
+      megaMenuTimerRef.current = null;
+    }
+    if (megaMenuCloseTimerRef.current) {
+      clearTimeout(megaMenuCloseTimerRef.current);
+      megaMenuCloseTimerRef.current = null;
+    }
+    setActiveMegaCategory(catId);
+    setDisplayedMegaCategory(catId);
+  };
+
+  const handleMegaLeave = () => {
+    if (megaMenuTimerRef.current) {
+      clearTimeout(megaMenuTimerRef.current);
+    }
+    megaMenuTimerRef.current = setTimeout(() => {
+      setActiveMegaCategory(null);
+      if (megaMenuCloseTimerRef.current) {
+        clearTimeout(megaMenuCloseTimerRef.current);
+      }
+      megaMenuCloseTimerRef.current = setTimeout(() => {
+        setDisplayedMegaCategory(null);
+      }, 350);
+    }, 100);
+  };
+
+  const handleMegaMenuPanelEnter = () => {
+    if (megaMenuTimerRef.current) {
+      clearTimeout(megaMenuTimerRef.current);
+      megaMenuTimerRef.current = null;
+    }
+    if (megaMenuCloseTimerRef.current) {
+      clearTimeout(megaMenuCloseTimerRef.current);
+      megaMenuCloseTimerRef.current = null;
+    }
+    if (displayedMegaCategory && !activeMegaCategory) {
+      setActiveMegaCategory(displayedMegaCategory);
+    }
+  };
+
+  const handleCategoryClick = (cat: NavigationCategory) => {
+    if (megaMenuTimerRef.current) clearTimeout(megaMenuTimerRef.current);
+    if (megaMenuCloseTimerRef.current) clearTimeout(megaMenuCloseTimerRef.current);
+    setActiveMegaCategory(null);
+    setDisplayedMegaCategory(null);
+    closeMobileMenu();
+    if (cat.isDirectLink) {
+      if (cat.slug === 'home') {
+        onNavigate?.('home');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (cat.slug === 'affiliate') {
+        if (onNavigateToAffiliate) {
+          onNavigateToAffiliate();
+        } else {
+          onNavigate?.('affiliate');
+        }
+      } else if (cat.slug === 'contact') {
+        onNavigate?.('contact');
+      }
+      return;
+    }
+
+    if (onSelectCategory) {
+      onSelectCategory(cat.viewAllCategory || cat.name);
+    } else {
+      onNavigate?.('shop');
+    }
+  };
+
+  const handleSubCategoryClick = (_cat: NavigationCategory, sub: SubCategoryItem) => {
+    if (megaMenuTimerRef.current) clearTimeout(megaMenuTimerRef.current);
+    if (megaMenuCloseTimerRef.current) clearTimeout(megaMenuCloseTimerRef.current);
+    setActiveMegaCategory(null);
+    setDisplayedMegaCategory(null);
+    closeMobileMenu();
+    if (onSelectCategory) {
+      onSelectCategory(sub.name);
+    } else if (onSearch) {
+      onSearch(sub.name);
+    } else {
+      onNavigate?.('shop');
+    }
+  };
+
+  // Unified 144Hz-optimized passive scroll handler with requestAnimationFrame throttling
+  useEffect(() => {
+    let ticking = false;
+    let rafId = 0;
+
+    const updateScroll = () => {
+      const scrollY = window.scrollY;
+      const scrolled = scrollY > 15;
+      setIsScrolled((prev) => (prev !== scrolled ? scrolled : prev));
+
+      const headerOffset = 140;
+      for (let i = NAV_LINKS.length - 1; i >= 0; i--) {
+        const item = NAV_LINKS[i];
+        const el = document.getElementById(item.targetSectionId);
+        if (el) {
+          const top = el.offsetTop - headerOffset;
+          if (scrollY >= top) {
+            setActiveNavId((prev) => (prev !== item.id ? item.id : prev));
+            break;
+          }
+        }
+      }
+      ticking = false;
+    };
+
+    const handleScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        rafId = window.requestAnimationFrame(updateScroll);
+      }
+    };
+
+    updateScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (rafId) window.cancelAnimationFrame(rafId);
+    };
+  }, []);
 
   // Track if current visitor or logged-in user is an active subscribed consultant
   const [isConsultantSubscribed, setIsConsultantSubscribed] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return false;
+    if (typeof window === 'undefined' || !user) return false;
     return (
-      user?.role === 'representative' ||
+      user.role === 'representative' ||
       localStorage.getItem('ils_consultant_subscribed') === 'true'
     );
   });
 
   useEffect(() => {
     const checkStatus = () => {
+      if (!user) {
+        setIsConsultantSubscribed(false);
+        return;
+      }
       const isSub = (
-        user?.role === 'representative' ||
+        user.role === 'representative' ||
         localStorage.getItem('ils_consultant_subscribed') === 'true'
       );
       setIsConsultantSubscribed(isSub);
@@ -163,11 +351,12 @@ export const Header: React.FC<HeaderProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  const desktopNavRef = useRef<HTMLElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
-  const shopDropdownRef = useRef<HTMLDivElement>(null);
-  const searchPopupRef = useRef<HTMLDivElement>(null);
-  const searchButtonRef = useRef<HTMLButtonElement>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
+  const desktopSearchContainerRef = useRef<HTMLDivElement>(null);
+  const mobileSearchContainerRef = useRef<HTMLDivElement>(null);
+  const desktopSearchInputRef = useRef<HTMLInputElement>(null);
+  const mobileSearchInputRef = useRef<HTMLInputElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef = useRef<any>(null);
 
@@ -191,6 +380,8 @@ export const Header: React.FC<HeaderProps> = ({
   // Open Mobile Menu safely
   const openMobileMenu = () => {
     setIsMobileMenuOpen(true);
+    setIsMobileSearchOpen(false);
+    setIsSearchOpen(false);
   };
 
   // Close Mobile Menu safely
@@ -239,16 +430,15 @@ export const Header: React.FC<HeaderProps> = ({
       if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
         setIsUserMenuOpen(false);
       }
-      if (shopDropdownRef.current && !shopDropdownRef.current.contains(e.target as Node)) {
-        setIsShopDropdownOpen(false);
+      if (desktopNavRef.current && !desktopNavRef.current.contains(e.target as Node)) {
+        setActiveMegaCategory(null);
       }
-      if (
-        searchPopupRef.current &&
-        !searchPopupRef.current.contains(e.target as Node) &&
-        searchButtonRef.current &&
-        !searchButtonRef.current.contains(e.target as Node)
-      ) {
+      const isInsideDesktopSearch = desktopSearchContainerRef.current?.contains(e.target as Node);
+      const isInsideMobileSearch = mobileSearchContainerRef.current?.contains(e.target as Node);
+      if (!isInsideDesktopSearch && !isInsideMobileSearch) {
         setIsSearchOpen(false);
+        setIsDesktopSearchFocused(false);
+        setIsMobileSearchFocused(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -263,49 +453,38 @@ export const Header: React.FC<HeaderProps> = ({
         closeVoiceModal();
         closeMobileMenu();
         setIsUserMenuOpen(false);
+        setActiveMegaCategory(null);
       }
       // Quick search shortcut (/)
       if (e.key === '/' && !isSearchOpen && !isVoiceModalOpen && (e.target as HTMLElement).tagName !== 'INPUT') {
         e.preventDefault();
         setIsSearchOpen(true);
+        setTimeout(() => {
+          if (window.innerWidth >= 1024) {
+            desktopSearchInputRef.current?.focus();
+          } else {
+            mobileSearchInputRef.current?.focus();
+          }
+        }, 50);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isListening, isSearchOpen, isVoiceModalOpen]);
 
-  // Auto-focus input when search popup opens
+  // Auto-focus input when search opens
   useEffect(() => {
     if (isSearchOpen) {
       const timer = setTimeout(() => {
-        searchInputRef.current?.focus();
-      }, 80);
+        if (window.innerWidth >= 1024) {
+          desktopSearchInputRef.current?.focus();
+        } else {
+          mobileSearchInputRef.current?.focus();
+        }
+      }, 60);
       return () => clearTimeout(timer);
     }
   }, [isSearchOpen]);
-
-  // Scroll spy to update active navigation state dynamically
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const headerOffset = 140;
-
-      for (let i = NAV_LINKS.length - 1; i >= 0; i--) {
-        const item = NAV_LINKS[i];
-        const el = document.getElementById(item.targetSectionId);
-        if (el) {
-          const top = el.offsetTop - headerOffset;
-          if (scrollY >= top) {
-            setActiveNavId(item.id);
-            break;
-          }
-        }
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   // Helper to scroll to and highlight a product or section
   const scrollToProductOrFeatured = (productId?: string) => {
@@ -341,11 +520,18 @@ export const Header: React.FC<HeaderProps> = ({
 
   // Execute Search action
   const executeSearch = (queryToSearch?: string) => {
-    const q = (queryToSearch !== undefined ? queryToSearch : searchQuery).trim();
-    if (!q) return;
+    let q = (queryToSearch !== undefined ? queryToSearch : searchQuery).trim();
+    if (!q) {
+      // Fallback: If user submits empty search, query current rotating suggestion
+      const currentSuggestion = SEARCH_SUGGESTIONS[searchPlaceholderIndex];
+      q = currentSuggestion?.query || 'Cash Candles';
+      setSearchQuery(q);
+    }
 
     onSearch?.(q);
     setIsSearchOpen(false);
+    setIsDesktopSearchFocused(false);
+    setIsMobileSearchFocused(false);
     closeVoiceModal();
     closeMobileMenu();
 
@@ -457,6 +643,90 @@ export const Header: React.FC<HeaderProps> = ({
     executeSearch(tag);
   };
 
+  const renderSearchDropdown = (isMobileDropdown = false) => (
+    <div
+      className={`absolute top-full left-0 right-0 mt-2 bg-white/98 backdrop-blur-xl rounded-[20px] border border-[#eedfe8] shadow-[0_20px_50px_rgba(50,31,63,0.18)] p-3 sm:p-4 z-50 animate-in fade-in zoom-in-95 duration-150 ease-out isolate ${
+        isMobileDropdown ? 'w-full' : ''
+      }`}
+      role="region"
+      aria-label="Search suggestions"
+    >
+      {/* Quick Trending Searches */}
+      <div className="pt-0.5">
+        <div className="flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-[#8a858f] mb-2">
+          <Sparkles className="w-3 h-3 text-[#D30915]" />
+          <span>Popular Searches:</span>
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {POPULAR_TAGS.map((tag) => (
+            <button
+              key={tag}
+              type="button"
+              onClick={() => handleSelectTag(tag)}
+              className="px-2.5 py-1 rounded-[8px] bg-[#fff1f2] hover:bg-[#D30915] text-[#D30915] hover:text-white border border-[#fecdd3] text-[11px] font-bold transition-all cursor-pointer shadow-2xs"
+            >
+              {tag}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Live Quick Results if search query present */}
+      {searchQuery.trim() && matchingProducts.length > 0 && (
+        <div className="mt-3 pt-2.5 border-t border-[#f4edf2] max-h-[220px] overflow-y-auto space-y-1.5 pr-1">
+          <div className="text-[10px] font-black uppercase tracking-wider text-[#8a858f] mb-1 flex items-center justify-between">
+            <span>Matching Products</span>
+            <span className="text-[#D30915] font-bold">{matchingProducts.length} items</span>
+          </div>
+          {matchingProducts.slice(0, 5).map((p) => (
+            <div
+              key={p.id}
+              role="button"
+              tabIndex={0}
+              onClick={() => handleSelectProduct(p)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleSelectProduct(p);
+                }
+              }}
+              className="p-1.5 sm:p-2 rounded-[10px] hover:bg-[#fff1f2] flex items-center justify-between transition-colors cursor-pointer group"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <img
+                  src={p.image}
+                  alt={p.name}
+                  className="w-9 h-9 rounded-[8px] object-cover shrink-0 border border-[#eee0e8]"
+                />
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-[#141219] group-hover:text-[#D30915] truncate m-0">
+                    {p.name}
+                  </p>
+                  <p className="text-[10px] text-[#716d77] m-0">
+                    ${p.price.toFixed(2)} • {p.category} • {p.surpriseType === 'cash' ? '💵 Cash Reveal' : '💎 Real Jewelry'}
+                  </p>
+                </div>
+              </div>
+              <ArrowRight className="w-3.5 h-3.5 text-[#D30915] opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Close hint */}
+      <div className="mt-2.5 pt-2 border-t border-[#f4edf2] flex items-center justify-between text-[10px] text-[#8a858f]">
+        <span>Press <kbd className="px-1 py-0.5 rounded bg-stone-100 border border-stone-300 font-mono text-[9px]">Esc</kbd> to close</span>
+        <button
+          type="button"
+          onClick={() => setIsSearchOpen(false)}
+          className="text-[#D30915] font-bold hover:underline cursor-pointer"
+        >
+          Close Search
+        </button>
+      </div>
+    </div>
+  );
+
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, item: NavItem) => {
     e.preventDefault();
     setActiveNavId(item.id);
@@ -514,10 +784,9 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full max-w-full bg-white/95 backdrop-blur-xl border-b border-[#eee7ed] shadow-[0_4px_24px_rgba(50,31,63,0.05)] transition-all">
-
+    <>
       {/* 1. Top VIP Announcement Ribbon (Hidden on mobile) */}
-      <div className="hidden md:block bg-gradient-to-r from-[#fff1f6] via-[#fff8fb] to-[#fbf6ff] border-b border-[#f5e8ef] text-[10px] sm:text-[11px] font-bold text-[#716d77] py-1 sm:py-1.5 px-3 sm:px-4">
+      <div className="hidden md:block bg-gradient-to-r from-[#fff1f6] via-[#fff8fb] to-[#fbf6ff] border-b border-[#f5e8ef] text-[10px] sm:text-[11px] font-bold text-[#716d77] py-1 sm:py-1.5 px-3 sm:px-4 relative z-30">
         <div className="max-w-[1460px] mx-auto flex items-center justify-between">
           <div className="flex items-center gap-1.5 sm:gap-2 text-[#141219] truncate">
             <span className="flex h-1.5 w-1.5 sm:h-2 sm:w-2 relative shrink-0">
@@ -546,7 +815,7 @@ export const Header: React.FC<HeaderProps> = ({
               href="/affiliate"
               onClick={(e) => {
                 e.preventDefault();
-                if (isConsultantSubscribed) {
+                if (user && isConsultantSubscribed) {
                   if (onNavigateToAffiliate) {
                     onNavigateToAffiliate();
                   } else {
@@ -574,7 +843,7 @@ export const Header: React.FC<HeaderProps> = ({
               }}
               className="text-[#D30915] hover:underline font-black cursor-pointer inline-flex items-center gap-1"
             >
-              {isConsultantSubscribed ? (
+              {user && isConsultantSubscribed ? (
                 <>
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   <span>My Storefront</span>
@@ -587,12 +856,40 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* 2. Main Brand & Navigation Header Bar */}
-      <div className="relative w-full max-w-[1460px] mx-auto px-2.5 sm:px-4 lg:px-6 py-2 sm:py-2.5">
-        <div className="relative flex items-center justify-between gap-2 xl:gap-3 2xl:gap-6">
+      {/* 2. Flying / Floating Main Brand & Navigation Header Bar */}
+      <header className="sticky top-0 z-40 w-full max-w-full pointer-events-none pt-1.5 sm:pt-2 px-2 sm:px-4 lg:px-6 transition-all duration-300">
+        {/* Top Edge Blur Strip: blurs content in the top gap above the navbar while scrolling */}
+        <div
+          className={`absolute inset-x-0 top-0 h-3 sm:h-4 pointer-events-none -z-10 transition-opacity duration-300 ${
+            isScrolled ? 'opacity-100' : 'opacity-0'
+          }`}
+          style={{
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.85) 0%, transparent 100%)',
+          }}
+        />
 
-          {/* Left Block: Brand Logo + Desktop Delivery Location */}
-          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+        {/* Down Edge Blur Strip: blurs content below the navbar while scrolling */}
+        <div
+          className={`absolute inset-x-0 top-full h-7 sm:h-9 pointer-events-none -z-10 transition-opacity duration-300 ${
+            isScrolled ? 'opacity-100' : 'opacity-0'
+          }`}
+          style={{
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.7) 0%, transparent 100%)',
+            maskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
+          }}
+        />
+
+        {/* Floating Navbar Card (Solid White, No Blur Back) */}
+        <div className="relative pointer-events-auto w-full max-w-[1460px] mx-auto rounded-[20px] sm:rounded-[24px] bg-white border border-[#eedfe8] shadow-[0_16px_40px_-8px_rgba(40,15,30,0.12),0_4px_16px_rgba(211,9,21,0.04),0_1px_3px_rgba(0,0,0,0.04)] px-2.5 sm:px-4 lg:px-6 py-1.5 transition-all">
+          <div className="relative flex items-center justify-between gap-1.5 sm:gap-2 xl:gap-3 2xl:gap-6">
+
+          {/* Left Block: Brand Logo (Moved 7px left on mobile only) */}
+          <div className="flex items-center shrink min-w-0 -ml-[7px] sm:ml-0">
             {/* Brand Logo */}
             <a
               href="/"
@@ -605,341 +902,124 @@ export const Header: React.FC<HeaderProps> = ({
                   icon: HomeIcon,
                 })
               }
-              className="flex items-center shrink-0 group focus:outline-none"
+              className="flex items-center shrink min-w-0 group focus:outline-none"
               aria-label="ILoveSurprises Home"
             >
-              <img
-                src="/assets/ilovesurprises/logo/New logo.jpeg"
-                alt="I Love Surprises Logo"
-                className="h-[44px] sm:h-[50px] md:h-[58px] lg:h-[64px] w-auto max-w-[180px] sm:max-w-[220px] md:max-w-[260px] lg:max-w-[290px] object-contain transition-transform duration-300 group-hover:scale-102"
-                loading="eager"
-              />
+              <picture className="flex items-center shrink min-w-0">
+                <source srcSet="/assets/ilovesurprises/logo/logo.svg" type="image/svg+xml" />
+                <source
+                  srcSet="/assets/ilovesurprises/logo/logo-ultra-hd.png 2x, /assets/ilovesurprises/logo/logo-16k.png 1x"
+                  type="image/png"
+                />
+                <img
+                  src="/assets/ilovesurprises/logo/logo-16k.png"
+                  alt="I Love Surprises Logo"
+                  width={2576}
+                  height={620}
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
+                  className="h-[42px] min-[360px]:h-[46px] min-[390px]:h-[50px] min-[420px]:h-[52px] sm:h-[54px] md:h-[60px] lg:h-[64px] xl:h-[68px] 2xl:h-[72px] w-auto max-w-[170px] min-[360px]:max-w-[195px] min-[390px]:max-w-[215px] min-[420px]:max-w-[230px] sm:max-w-[225px] md:max-w-[250px] lg:max-w-[270px] xl:max-w-[290px] 2xl:max-w-[310px] object-contain transition-transform duration-300 group-hover:scale-102"
+                  style={{
+                    imageRendering: '-webkit-optimize-contrast',
+                    WebkitBackfaceVisibility: 'hidden',
+                    backfaceVisibility: 'hidden',
+                    transform: 'translateZ(0)',
+                  }}
+                />
+              </picture>
             </a>
           </div>
 
-          {/* Center Block: Reference Primary Horizontal Navigation Menu matching Client Reference UI */}
-          <nav
-            className="hidden xl:flex items-center justify-center gap-0.5 2xl:gap-1.5 px-1 py-1 rounded-[16px] z-20 xl:absolute xl:left-1/2 xl:-translate-x-1/2"
-            aria-label="Main Navigation"
-          >
-            {/* Home */}
-            <a
-              href="/"
-              onClick={(e) => {
+          {/* Desktop Center: Large Pill-Shaped Search Bar (flex-1 max-w-2xl) */}
+          <div ref={desktopSearchContainerRef} className="hidden lg:flex flex-1 max-w-2xl mx-3 xl:mx-6 relative">
+            <form
+              onSubmit={(e) => {
                 e.preventDefault();
-                onNavigate?.('home');
+                executeSearch();
               }}
-              className={`px-2 xl:px-2.5 py-1.5 rounded-[12px] text-[12.5px] xl:text-[13px] font-bold transition-colors cursor-pointer select-none whitespace-nowrap ${activeView === 'home'
-                ? 'text-[#D30915]'
-                : 'text-[#141219] hover:text-[#D30915]'
-                }`}
+              className="relative flex items-center w-full h-[42px] xl:h-[44px] rounded-full bg-white border border-[#e5dfe5] hover:border-[#D30915]/50 focus-within:border-[#D30915] focus-within:ring-2 focus-within:ring-[#D30915]/15 transition-all px-4 shadow-2xs overflow-hidden"
             >
-              Home
-            </a>
+              <Search className="w-4 h-4 text-[#716d77] group-focus-within:text-[#D30915] shrink-0 mr-2.5 transition-colors z-10" />
+              <div className="relative flex-1 h-full flex items-center overflow-hidden">
+                <input
+                  ref={desktopSearchInputRef}
+                  type="search"
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  onFocus={() => {
+                    setIsDesktopSearchFocused(true);
+                    setIsSearchOpen(true);
+                  }}
+                  onBlur={() => setIsDesktopSearchFocused(false)}
+                  placeholder={isDesktopSearchFocused ? 'Search candles, jewelry, bath treats...' : ''}
+                  className="w-full h-full text-[13.5px] text-[#141219] placeholder:text-[#8a858f] bg-transparent outline-none border-0 font-medium tracking-tight relative z-10"
+                  aria-label="Search for candles, jewelry, bath bombs..."
+                />
 
-            {/* 1. Shop ∨ Dropdown Trigger */}
-            <div
-              ref={shopDropdownRef}
-              className="relative"
-              onMouseEnter={() => setIsShopDropdownOpen(true)}
-              onMouseLeave={() => setIsShopDropdownOpen(false)}
-            >
-              <button
-                type="button"
-                onClick={() => {
-                  onNavigate?.('shop');
-                  setIsShopDropdownOpen(false);
-                }}
-                className={`group flex items-center gap-1 px-2 xl:px-2.5 py-1.5 rounded-[12px] text-[12.5px] xl:text-[13px] font-bold transition-colors cursor-pointer select-none whitespace-nowrap ${activeView === 'shop' || isShopDropdownOpen
-                  ? 'text-[#D30915]'
-                  : 'text-[#141219] hover:text-[#D30915]'
-                  }`}
-              >
-                <span>Shop</span>
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isShopDropdownOpen ? 'rotate-180 text-[#D30915]' : 'text-[#716d77] group-hover:text-[#D30915]'}`} />
-              </button>
-
-              {/* Luxury Mega Dropdown for Shop */}
-              {isShopDropdownOpen && (
-                <div className="absolute -left-12 lg:-left-20 top-full pt-2 w-[720px] xl:w-[760px] z-50 animate-in fade-in slide-in-from-top-2 duration-200 text-left">
-                  {/* Pointer Beak */}
-                  <div className="absolute top-0.5 left-16 w-3.5 h-3.5 bg-white border-t border-l border-[#f0dae7] rotate-45 z-20" />
-
-                  {/* Dropdown Card */}
-                  <div className="relative p-5 bg-white/98 backdrop-blur-2xl rounded-[26px] border border-[#f0dae7] shadow-[0_24px_65px_rgba(50,20,35,0.15),0_4px_12px_rgba(211,9,21,0.04)] overflow-hidden">
-                    {/* Header Row inside Dropdown */}
-                    <div className="flex items-center justify-between pb-3 mb-3.5 border-b border-[#f4edf2]">
-                      <div className="flex items-center gap-2">
-                        <span className="flex h-2 w-2 relative">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#D30915] opacity-75" />
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-[#D30915]" />
-                        </span>
-                        <span className="text-[11px] font-black uppercase tracking-[0.14em] text-[#D30915]">
-                          Surprise Collections & Reveals
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsShopDropdownOpen(false);
-                          onNavigate?.('shop');
-                        }}
-                        className="group/all text-xs font-bold text-[#716d77] hover:text-[#D30915] flex items-center gap-1.5 transition-colors cursor-pointer"
-                      >
-                        <span>View All 80+ Products</span>
-                        <ArrowRight className="w-3.5 h-3.5 group-hover/all:translate-x-0.5 transition-transform" />
-                      </button>
-                    </div>
-
-                    {/* Content: Balanced Left Grid + Right Editorial Card */}
-                    <div className="grid grid-cols-12 gap-4">
-                      {/* Left Section (7 cols): Neat 2-Column Grid of 6 Categories */}
-                      <div className="col-span-7 flex flex-col justify-between">
-                        <div className="grid grid-cols-2 gap-2">
-                          {categoriesData.map((cat) => {
-                            const meta = categoryMeta[cat.id];
-                            return (
-                              <button
-                                key={cat.id}
-                                type="button"
-                                onClick={() => {
-                                  setIsShopDropdownOpen(false);
-                                  if (onSelectCategory) {
-                                    onSelectCategory(cat.name);
-                                  } else {
-                                    onNavigate?.('shop');
-                                  }
-                                }}
-                                className="group/cat flex items-center gap-2.5 p-2 rounded-[14px] hover:bg-[#fff5f8] border border-transparent hover:border-[#fecdd3] hover:shadow-2xs transition-all cursor-pointer text-left"
-                              >
-                                {/* Category Thumbnail */}
-                                <div className="w-10 h-10 rounded-[11px] bg-[#fffafb] border border-[#f3e1eb] group-hover/cat:border-[#D30915]/30 group-hover/cat:scale-105 p-1 flex items-center justify-center shrink-0 overflow-hidden shadow-2xs transition-all">
-                                  <img
-                                    src={cat.image}
-                                    alt={cat.name}
-                                    className="w-full h-full object-contain rounded-[7px]"
-                                    loading="lazy"
-                                  />
-                                </div>
-
-                                {/* Category Info */}
-                                <div className="min-w-0 flex-1">
-                                  <strong className="block text-[12.5px] font-bold text-[#141219] group-hover/cat:text-[#D30915] leading-tight tracking-tight transition-colors truncate">
-                                    {cat.name}
-                                  </strong>
-                                  <span className="block text-[10.5px] text-[#716d77] group-hover/cat:text-[#454249] leading-tight font-medium truncate mt-0.5">
-                                    {cat.tagline}
-                                  </span>
-                                  <span className="inline-block text-[10px] font-bold text-[#D30915] mt-0.5">
-                                    From {meta?.fromPrice || '$19.99'}
-                                  </span>
-                                </div>
-                              </button>
-                            );
-                          })}
-                        </div>
-
-                        {/* Quick Trending Searches Bar */}
-                        <div className="pt-2.5 mt-2 border-t border-[#f7edf3] flex items-center gap-1.5 text-[10.5px] text-[#716d77]">
-                          <span className="font-bold text-[#D30915] shrink-0">🔥 Trending:</span>
-                          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-                            {['Diamond Rings', 'Soda Pop Cash', 'Figurine Melts', 'Gift Sets'].map((tag) => (
-                              <button
-                                key={tag}
-                                type="button"
-                                onClick={() => {
-                                  setIsShopDropdownOpen(false);
-                                  onSearch?.(tag);
-                                }}
-                                className="px-2 py-0.5 rounded-full bg-[#faf5f8] hover:bg-[#fff0f3] hover:text-[#D30915] border border-[#f0e2eb] text-[9.5px] font-medium transition-colors cursor-pointer whitespace-nowrap"
-                              >
-                                {tag}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Right Section (5 cols): Single High-End Editorial Featured Card */}
-                      <div className="col-span-5 flex flex-col">
-                        <div
-                          onClick={() => {
-                            setIsShopDropdownOpen(false);
-                            if (onSelectCategory) {
-                              onSelectCategory('Surprise Boxes');
-                            } else {
-                              onNavigate?.('shop');
-                            }
-                          }}
-                          className="h-full rounded-[20px] bg-gradient-to-br from-[#fff7f9] via-[#ffedf2] to-[#fde5eb] border border-[#fcd5df] p-3.5 flex flex-col justify-between shadow-2xs hover:shadow-md transition-all cursor-pointer group/spotlight relative overflow-hidden"
-                        >
-                          <div>
-                            {/* Top Badge & Callout */}
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#D30915] text-white text-[9px] font-black uppercase tracking-wider shadow-2xs">
-                                <Sparkles className="w-2.5 h-2.5" />
-                                ★ Top Reveal
-                              </span>
-                              <span className="text-[9.5px] font-black text-[#D30915] bg-white/90 border border-[#fbdde4] px-2 py-0.5 rounded-full">
-                                Win Up to $7,500
-                              </span>
-                            </div>
-
-                            {/* Product Image */}
-                            <div className="w-full h-[110px] rounded-[13px] overflow-hidden mb-2.5 shadow-2xs border border-white/80 bg-white">
-                              <img
-                                src="/assets/ilovesurprises/hero/hero-lifestyle-reveal.jpg"
-                                alt="Mystery Box Spotlight"
-                                className="w-full h-full object-cover group-hover/spotlight:scale-105 transition-transform duration-500"
-                              />
-                            </div>
-
-                            <strong className="block text-[13px] font-black text-[#141219] leading-tight mb-1 group-hover/spotlight:text-[#D30915] transition-colors">
-                              Mystery Jewelry Box
-                            </strong>
-                            <p className="text-[10.5px] text-[#716d77] leading-snug m-0 font-medium line-clamp-2">
-                              Guaranteed genuine diamond or gold jewelry revealed inside every box.
-                            </p>
-                          </div>
-
-                          <div className="mt-3 pt-2.5 border-t border-[#f7d3dd] flex items-center justify-between">
-                            <div>
-                              <span className="block text-[8.5px] font-bold uppercase text-[#9e97a2] tracking-wider leading-none">Starts At</span>
-                              <span className="text-[13px] font-black text-[#D30915] leading-none">$39.99</span>
-                            </div>
-                            <span className="text-[10px] font-bold text-white bg-[#D30915] group-hover/spotlight:bg-[#b60711] group-hover/spotlight:scale-102 px-3 py-1.5 rounded-full shadow-2xs transition-all flex items-center gap-1">
-                              <span>Shop Now</span>
-                              <ArrowRight className="w-3 h-3 group-hover/spotlight:translate-x-0.5 transition-transform" />
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Bottom Strip: 4 Key Guarantees */}
-                    <div className="mt-3.5 pt-2.5 border-t border-[#f4edf2] flex items-center justify-between text-[10.5px] font-bold text-[#635f6a] bg-[#faf5f8] -mx-5 -mb-5 px-5 py-2.5">
-                      <span className="flex items-center gap-1.5">
-                        <span className="text-[#D30915]">💎</span>
-                        <span>Real Jewelry Inside</span>
+                {/* Typing Animated Rotating Placeholder */}
+                {!searchQuery && (
+                  <div
+                    className={`absolute inset-0 flex items-center pointer-events-none select-none transition-opacity duration-200 z-5 ${
+                      isDesktopSearchFocused ? 'opacity-0' : 'opacity-100'
+                    }`}
+                  >
+                    <div className="flex items-center text-[13.5px] truncate text-[#716d77]">
+                      <span className="shrink-0 font-normal mr-1.5">{SEARCH_SUGGESTIONS[searchPlaceholderIndex].prefix}</span>
+                      <span className="font-medium text-[#716d77] tracking-tight truncate">
+                        {typedPlaceholderText}
                       </span>
-                      <span className="flex items-center gap-1.5">
-                        <Truck className="w-3.5 h-3.5 text-[#D30915]" />
-                        <span>Free Shipping $75+</span>
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <Gift className="w-3.5 h-3.5 text-[#D30915]" />
-                        <span>Gift-Ready Box</span>
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <ShieldCheck className="w-3.5 h-3.5 text-[#D30915]" />
-                        <span>100% Guaranteed</span>
-                      </span>
+                      <span className="inline-block w-[1.5px] h-[14px] bg-[#D30915] animate-typing-cursor shrink-0 ml-0.5 self-center" />
                     </div>
                   </div>
-                </div>
+                )}
+              </div>
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="p-1.5 rounded-full text-[#8a858f] hover:text-[#141219] hover:bg-gray-100 active:scale-90 transition-all mr-1 cursor-pointer z-10"
+                  title="Clear search"
+                  aria-label="Clear search"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
               )}
-            </div>
+              <button
+                type="button"
+                onClick={startVoiceSearch}
+                className="p-1.5 rounded-full text-[#8a858f] hover:text-[#D30915] hover:bg-[#fff0f3] active:scale-90 transition-all cursor-pointer z-10"
+                title="Search by voice"
+                aria-label="Search by voice"
+              >
+                <Mic className="w-3.5 h-3.5" />
+              </button>
+            </form>
 
-            {/* 2. Candles */}
-            <button
-              type="button"
-              onClick={() => {
-                if (onSelectCategory) {
-                  onSelectCategory('Jewelry Candles');
-                } else {
-                  onNavigate?.('shop');
-                }
-              }}
-              className="px-2 xl:px-2.5 py-1.5 rounded-[12px] text-[12.5px] xl:text-[13px] font-bold text-[#141219] hover:text-[#D30915] transition-colors cursor-pointer select-none whitespace-nowrap"
-            >
-              Candles
-            </button>
+            {/* Desktop Live Search Dropdown */}
+            {isSearchOpen && renderSearchDropdown(false)}
+          </div>
 
-            {/* 3. Surprise Boxes (placed near Candles) */}
-            <button
-              type="button"
-              onClick={() => {
-                if (onSelectCategory) {
-                  onSelectCategory('Surprise Boxes');
-                } else {
-                  onNavigate?.('shop');
-                }
-              }}
-              className="px-2 xl:px-2.5 py-1.5 rounded-[12px] text-[12.5px] xl:text-[13px] font-bold text-[#141219] hover:text-[#D30915] transition-colors cursor-pointer select-none whitespace-nowrap"
-            >
-              Surprise Boxes
-            </button>
-
-            {/* 4. Mystery Jewelry */}
-            <button
-              type="button"
-              onClick={() => {
-                if (onSelectCategory) {
-                  onSelectCategory('Cash Jewelry');
-                } else {
-                  onNavigate?.('shop');
-                }
-              }}
-              className="px-2 xl:px-2.5 py-1.5 rounded-[12px] text-[12.5px] xl:text-[13px] font-bold text-[#141219] hover:text-[#D30915] transition-colors cursor-pointer select-none whitespace-nowrap"
-            >
-              Mystery Jewelry
-            </button>
-
-            {/* 5. Rewards */}
-            <button
-              type="button"
-              onClick={() => {
-                onNavigate?.('rewards');
-              }}
-              className={`px-2 xl:px-2.5 py-1.5 rounded-[12px] text-[12.5px] xl:text-[13px] font-bold transition-colors cursor-pointer select-none whitespace-nowrap ${activeView === 'rewards'
-                ? 'text-[#D30915] font-black'
-                : 'text-[#141219] hover:text-[#D30915]'
-                }`}
-            >
-              Rewards
-            </button>
-          </nav>
-
-          {/* Right Header Actions: Search, Login, Join for $20/mo Button, Cart & Hamburger */}
+          {/* Right Header Actions: Login, Join for $20/mo Button, Cart & Hamburger */}
           <div className="relative z-30 flex items-center gap-1.5 sm:gap-2 shrink-0">
-
-            {/* Search Icon Trigger Button - High Contrast & Guaranteed Visibility */}
-            <button
-              ref={searchButtonRef}
-              type="button"
-              onClick={() => setIsSearchOpen((prev) => !prev)}
-              className={`flex items-center justify-center w-[36px] sm:w-[38px] h-[36px] sm:h-[38px] rounded-full border transition-all duration-200 cursor-pointer shadow-xs ${isSearchOpen
-                ? 'bg-[#fff1f2] border-[#D30915] text-[#D30915] ring-2 ring-[#D30915]/20'
-                : 'bg-white border-[#e8dfe5] text-[#141219] hover:text-[#D30915] hover:border-[#D30915] hover:bg-[#fff9fb]'
-                }`}
-              title={isSearchOpen ? 'Close search' : 'Search catalog'}
-              aria-label={isSearchOpen ? 'Close search' : 'Open search'}
-              aria-expanded={isSearchOpen}
-            >
-              {isSearchOpen ? (
-                <X className="w-4 h-4 stroke-[2.5]" />
-              ) : (
-                <Search className="w-4 h-4 sm:w-[17px] sm:h-[17px] stroke-[2.5]" />
-              )}
-            </button>
 
             {/* When NOT logged in: Login Button matching Reference */}
             {!user ? (
               <button
                 type="button"
                 onClick={() => onOpenAuth?.('login')}
-                className="hidden sm:flex items-center gap-1.5 h-[36px] sm:h-[38px] px-2.5 sm:px-3 rounded-full hover:bg-[#fff1f2] text-xs sm:text-[13px] font-bold text-[#141219] hover:text-[#D30915] transition-colors cursor-pointer select-none shrink-0"
+                className="hidden sm:flex items-center gap-1.5 h-[36px] sm:h-[38px] px-3.5 sm:px-4 rounded-full hover:bg-[#fff1f2] text-[13.5px] xl:text-[14px] font-bold text-[#141219] hover:text-[#D30915] active:scale-95 transition-all cursor-pointer select-none shrink-0"
               >
-                <User className="w-3.5 h-3.5 text-[#141219]" />
+                <User className="w-4 h-4 text-[#141219]" />
                 <span>Login</span>
               </button>
             ) : (
-              /* When LOGGED IN: User Profile Pill */
-              <div ref={userMenuRef} className="relative shrink-0">
+              /* When LOGGED IN: User Profile Pill (Desktop & Tablet only) */
+              <div ref={userMenuRef} className="hidden sm:block relative shrink-0">
                 <button
                   type="button"
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center gap-1.5 h-[36px] sm:h-[38px] p-1 sm:p-1.5 pr-2 rounded-[13px] sm:rounded-[14px] bg-[#fffafc] border border-[#fecdd3] hover:border-[#D30915] shadow-2xs transition-all cursor-pointer text-left"
+                  className="flex items-center gap-1.5 h-[36px] sm:h-[38px] p-1 sm:p-1.5 pr-2.5 rounded-[13px] sm:rounded-[14px] bg-[#fffafc] border border-[#fecdd3] hover:border-[#D30915] shadow-2xs hover:shadow-[0_2px_8px_rgba(211,9,21,0.12)] active:scale-95 transition-all cursor-pointer text-left"
                   aria-haspopup="true"
                   aria-expanded={isUserMenuOpen}
                 >
@@ -950,7 +1030,7 @@ export const Header: React.FC<HeaderProps> = ({
                   />
 
                   <div className="leading-tight hidden 2xl:block">
-                    <span className="block text-xs font-black text-[#141219] truncate max-w-[85px]">
+                    <span className="block text-[13.5px] xl:text-[14px] font-bold text-[#141219] truncate max-w-[95px]">
                       {user.name.split(' ')[0]}
                     </span>
                   </div>
@@ -988,7 +1068,7 @@ export const Header: React.FC<HeaderProps> = ({
                               icon: Users,
                             });
                           }}
-                          className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff1f2] hover:text-[#D30915] transition-colors"
+                          className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff1f2] hover:text-[#D30915] transition-colors whitespace-nowrap"
                         >
                           <Users className="w-3.5 h-3.5 text-[#D30915]" />
                           <span>Rep Portal Dashboard</span>
@@ -1006,7 +1086,7 @@ export const Header: React.FC<HeaderProps> = ({
                             onNavigate?.('home');
                           }
                         }}
-                        className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff1f2] hover:text-[#D30915] transition-colors"
+                        className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff1f2] hover:text-[#D30915] transition-colors whitespace-nowrap"
                       >
                         <User className="w-3.5 h-3.5 text-[#D30915]" />
                         <span>My Account & Profile</span>
@@ -1023,7 +1103,7 @@ export const Header: React.FC<HeaderProps> = ({
                             onNavigate?.('home');
                           }
                         }}
-                        className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff1f2] hover:text-[#D30915] transition-colors"
+                        className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff1f2] hover:text-[#D30915] transition-colors whitespace-nowrap"
                       >
                         <PackageCheck className="w-3.5 h-3.5 text-emerald-600" />
                         <span>My Surprise Orders</span>
@@ -1040,7 +1120,7 @@ export const Header: React.FC<HeaderProps> = ({
                             onNavigate?.('home');
                           }
                         }}
-                        className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff1f2] hover:text-[#D30915] transition-colors"
+                        className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff1f2] hover:text-[#D30915] transition-colors whitespace-nowrap"
                       >
                         <MapPin className="w-3.5 h-3.5 text-purple-600" />
                         <span>Saved Addresses</span>
@@ -1057,7 +1137,7 @@ export const Header: React.FC<HeaderProps> = ({
                             onNavigate?.('home');
                           }
                         }}
-                        className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff1f2] hover:text-[#D30915] transition-colors"
+                        className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff1f2] hover:text-[#D30915] transition-colors whitespace-nowrap"
                       >
                         <Heart className="w-3.5 h-3.5 text-[#D30915]" />
                         <span>My Wishlist</span>
@@ -1074,7 +1154,7 @@ export const Header: React.FC<HeaderProps> = ({
                             onNavigate?.('home');
                           }
                         }}
-                        className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff1f2] hover:text-[#D30915] transition-colors"
+                        className="flex items-center gap-2 p-2 rounded-[10px] hover:bg-[#fff1f2] hover:text-[#D30915] transition-colors whitespace-nowrap"
                       >
                         <User className="w-3.5 h-3.5 text-stone-500" />
                         <span>Account Settings</span>
@@ -1091,7 +1171,7 @@ export const Header: React.FC<HeaderProps> = ({
                             onNavigate?.('admin');
                           }
                         }}
-                        className="flex items-center gap-2 p-2 rounded-[10px] bg-[#fffbfd] hover:bg-[#fff1f2] text-[#D30915] font-black transition-colors"
+                        className="flex items-center gap-2 p-2 rounded-[10px] bg-[#fffbfd] hover:bg-[#fff1f2] text-[#D30915] font-black transition-colors whitespace-nowrap"
                       >
                         <Sparkles className="w-3.5 h-3.5 text-[#D30915]" />
                         <span>Admin Suite Portal</span>
@@ -1102,6 +1182,13 @@ export const Header: React.FC<HeaderProps> = ({
                           type="button"
                           onClick={() => {
                             setIsUserMenuOpen(false);
+                            try {
+                              localStorage.removeItem('ils_consultant_subscribed');
+                              localStorage.removeItem('ils_consultant_username');
+                              localStorage.removeItem('ils_consultant_name');
+                            } catch {}
+                            setIsConsultantSubscribed(false);
+                            window.dispatchEvent(new CustomEvent('ils_consultant_subscribed', { detail: { subscribed: false } }));
                             onLogout?.();
                           }}
                           className="w-full flex items-center gap-2 p-2 rounded-[10px] text-red-600 hover:bg-red-50 transition-colors cursor-pointer text-left"
@@ -1116,8 +1203,47 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             )}
 
-            {/* Join for $19.99/mo CTA Button OR My Storefront when Subscribed */}
-            {isConsultantSubscribed ? (
+            {/* 1. Mobile Search Icon Button (Mobile Only) */}
+            <button
+              type="button"
+              onClick={() => {
+                setIsMobileSearchOpen((prev) => !prev);
+                if (!isMobileSearchOpen) {
+                  setTimeout(() => mobileSearchInputRef.current?.focus(), 80);
+                }
+              }}
+              className={`lg:hidden w-[40px] h-[40px] rounded-full border transition-all cursor-pointer flex items-center justify-center shadow-2xs shrink-0 active:scale-95 ${
+                isMobileSearchOpen
+                  ? 'bg-[#fff0f3] border-[#D30915] text-[#D30915]'
+                  : 'bg-[#fffafb] border-[#f0e4ec] text-[#141219] hover:text-[#D30915] hover:border-[#D30915]'
+              }`}
+              aria-label="Search products"
+              title="Search"
+            >
+              <Search className="w-5 h-5 stroke-[2.2]" />
+            </button>
+
+            {/* Mobile Only: Top Navbar Cart Icon between Search Icon and Navbar Lines */}
+            <button
+              type="button"
+              onClick={onOpenCart}
+              className="lg:hidden relative w-[40px] h-[40px] rounded-full bg-[#fffafb] hover:bg-[#fff1f2] border border-[#f0e4ec] hover:border-[#D30915] text-[#141219] hover:text-[#D30915] active:scale-95 transition-all cursor-pointer flex items-center justify-center shadow-2xs shrink-0"
+              aria-label={`Shopping cart with ${cartCount} items`}
+              title="Shopping Cart"
+            >
+              <ShoppingBag className="w-5 h-5 text-[#D30915] shrink-0" />
+              {cartCount > 0 && (
+                <span
+                  key={cartCount}
+                  className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#D30915] text-white text-[10px] font-black flex items-center justify-center shadow-xs animate-in zoom-in-75 duration-150"
+                >
+                  {cartCount}
+                </span>
+              )}
+            </button>
+
+            {/* 2. Join $20/month CTA Button OR My Storefront when Subscribed (Desktop sm+ only) */}
+            {user && isConsultantSubscribed ? (
               <button
                 type="button"
                 onClick={() => {
@@ -1127,10 +1253,10 @@ export const Header: React.FC<HeaderProps> = ({
                     onNavigate?.('affiliate');
                   }
                 }}
-                className="hidden sm:inline-flex items-center gap-1.5 h-[36px] sm:h-[38px] px-3 sm:px-3.5 rounded-full bg-[#059669] hover:bg-[#047857] text-white text-xs sm:text-[13px] font-bold shadow-2xs hover:shadow-[0_4px_16px_rgba(5,150,105,0.25)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all cursor-pointer whitespace-nowrap select-none shrink-0"
+                className="hidden sm:inline-flex items-center justify-center gap-1.5 h-[38px] px-3.5 rounded-full bg-[#059669] hover:bg-[#047857] text-white text-[13.5px] xl:text-[14px] font-bold shadow-2xs hover:shadow-[0_4px_16px_rgba(5,150,105,0.25)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all cursor-pointer whitespace-nowrap select-none shrink-0"
                 title="Go to My Consultant Storefront Portal"
               >
-                <Store className="w-3.5 h-3.5" />
+                <Store className="w-4 h-4 shrink-0" />
                 <span>My Storefront</span>
               </button>
             ) : (
@@ -1145,183 +1271,459 @@ export const Header: React.FC<HeaderProps> = ({
                     onNavigate?.('affiliate');
                   }
                 }}
-                className="hidden sm:inline-flex items-center gap-1.5 h-[36px] sm:h-[38px] px-3 sm:px-3.5 rounded-full bg-[#D30915] hover:bg-[#b60711] text-white text-xs sm:text-[13px] font-bold shadow-2xs hover:shadow-[0_6px_20px_rgba(211,9,21,0.28)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all cursor-pointer whitespace-nowrap select-none shrink-0"
-                title="Join for $19.99/month"
+                className="hidden sm:inline-flex items-center justify-center gap-1.5 h-[38px] px-3.5 rounded-full bg-[#D30915] hover:bg-[#b60711] text-white text-[13.5px] xl:text-[14px] font-bold shadow-2xs hover:shadow-[0_6px_20px_rgba(211,9,21,0.28)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all cursor-pointer whitespace-nowrap select-none shrink-0"
+                title="Join $20/month"
               >
-                <span>Join for $19.99/mo</span>
-                <Users className="w-3.5 h-3.5" />
+                <Users className="w-4 h-4 shrink-0" />
+                <span>Join $20/month</span>
               </button>
             )}
 
-            {/* Shopping Cart Button right near Join for $20/month button */}
+            {/* 3. Shopping Cart Button: Hidden on mobile navbar, visible on desktop (lg+) */}
             <button
               type="button"
               onClick={onOpenCart}
-              className="flex items-center justify-center gap-1.5 sm:gap-2 h-[36px] sm:h-[38px] px-3 sm:px-3.5 rounded-full bg-[#fffafc] hover:bg-[#fff0f3] text-[#141219] hover:text-[#D30915] border border-[#fecdd3] hover:border-[#D30915] shadow-2xs hover:shadow-[0_4px_16px_rgba(211,9,21,0.15)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all cursor-pointer select-none shrink-0"
+              className="hidden lg:flex relative items-center justify-center lg:w-auto lg:h-[38px] lg:px-3.5 rounded-full bg-[#fffafc] hover:bg-[#fff0f3] text-[#141219] hover:text-[#D30915] border border-[#fecdd3] hover:border-[#D30915] shadow-2xs hover:shadow-[0_4px_16px_rgba(211,9,21,0.15)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all cursor-pointer select-none shrink-0"
               aria-label={`Shopping cart with ${cartCount} items`}
+              title="Shopping Cart"
             >
-              <ShoppingBag className="w-4 h-4 sm:w-[17px] sm:h-[17px] text-[#D30915] shrink-0" />
-              <span className="text-xs sm:text-[13px] font-extrabold tracking-tight">
+              <ShoppingBag className="w-5 h-5 lg:w-[17px] lg:h-[17px] text-[#D30915] shrink-0" />
+              <span className="inline text-[13.5px] xl:text-[14px] font-bold tracking-tight ml-1.5">
                 Cart
               </span>
               <span
                 key={cartCount}
-                className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-black transition-colors shrink-0 ${cartCount > 0
-                  ? 'bg-[#D30915] text-white shadow-xs'
-                  : 'bg-[#f5e8ef] text-[#716d77]'
-                  }`}
+                className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-black transition-colors shrink-0 ml-1.5 ${
+                  cartCount > 0
+                    ? 'bg-[#D30915] text-white shadow-xs'
+                    : 'bg-[#f5e8ef] text-[#716d77]'
+                }`}
               >
                 {cartCount}
               </span>
             </button>
 
-            {/* Mobile 3-Lines Hamburger Menu Button */}
+            {/* 4. Mobile 3-Lines Hamburger Menu Button */}
             <button
               type="button"
               onClick={openMobileMenu}
-              className="xl:hidden w-[36px] h-[36px] rounded-[11px] bg-[#fffafb] border border-[#f0e4ec] text-[#141219] hover:text-[#D30915] hover:border-[#D30915] active:scale-95 transition-all cursor-pointer focus:outline-none flex items-center justify-center shadow-2xs shrink-0"
+              className="lg:hidden w-[40px] h-[40px] rounded-full bg-[#fffafb] hover:bg-[#fff1f2] border border-[#f0e4ec] hover:border-[#D30915] text-[#141219] hover:text-[#D30915] active:scale-95 transition-all cursor-pointer focus:outline-none flex items-center justify-center shadow-2xs shrink-0"
               aria-label="Open navigation menu"
               aria-expanded={isMobileMenuOpen}
+              title="Menu"
             >
-              <Menu className="w-5 h-5 stroke-[2.5]" />
+              <Menu className="w-5 h-5 sm:w-5.5 sm:h-5.5 stroke-[2.5]" />
             </button>
 
           </div>
         </div>
 
-        {/* Expandable / Popup Search Interface (Opens smoothly when Search icon is clicked) */}
-        {isSearchOpen && (
-          <div
-            ref={searchPopupRef}
-            className="absolute top-full right-2 sm:right-6 lg:right-auto lg:left-1/2 lg:-translate-x-1/2 mt-1.5 w-[calc(100vw-20px)] sm:w-[500px] md:w-[580px] max-w-[620px] bg-white/98 backdrop-blur-xl rounded-[20px] border-2 border-[#fecdd3] shadow-[0_16px_40px_rgba(50,31,63,0.18)] p-3 sm:p-4 z-50 animate-in fade-in zoom-in-95 duration-200 ease-out isolate"
-            role="search"
-            aria-label="Site Search"
+        {/* Row 1.5 (Mobile Only): Expandable Full-Width Search Bar */}
+        {isMobileSearchOpen && (
+          <div ref={mobileSearchContainerRef} className="lg:hidden w-full pt-2 pb-0.5 relative animate-in fade-in slide-in-from-top-1 duration-200">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              executeSearch();
+            }}
+            className="relative flex items-center w-full h-[40px] rounded-full bg-white border border-[#e5dfe5] hover:border-[#D30915]/50 focus-within:border-[#D30915] focus-within:ring-2 focus-within:ring-[#D30915]/15 transition-all px-3.5 shadow-2xs overflow-hidden"
           >
-            {/* Search Input Bar */}
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                executeSearch();
-              }}
-              className="relative flex items-center w-full h-[44px] rounded-[14px] bg-[#fff9fb] border border-[#eedbe6] focus-within:border-[#D30915] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#D30915]/15 transition-all px-3 shadow-2xs"
-            >
-              <Search className="w-4 h-4 text-[#D30915] shrink-0 mr-2" />
+            <Search className="w-4 h-4 text-[#716d77] shrink-0 mr-2 transition-colors z-10" />
+            <div className="relative flex-1 h-full flex items-center overflow-hidden">
               <input
-                ref={searchInputRef}
+                ref={mobileSearchInputRef}
                 type="search"
                 value={searchQuery}
                 onChange={handleSearchChange}
-                placeholder="Search candles, jewelry, cash surprises..."
-                className="w-full text-xs sm:text-sm text-[#141219] placeholder:text-[#8a858f] bg-transparent outline-none border-0 font-bold"
-                aria-label="Search keywords"
+                onFocus={() => {
+                  setIsMobileSearchFocused(true);
+                  setIsSearchOpen(true);
+                }}
+                onBlur={() => setIsMobileSearchFocused(false)}
+                placeholder={isMobileSearchFocused ? 'Search candles, jewelry...' : ''}
+                className="w-full h-full text-xs text-[#141219] placeholder:text-[#8a858f] bg-transparent outline-none border-0 font-medium relative z-10"
+                aria-label="Search for candles, jewelry, bath bombs..."
               />
 
-              {/* Voice Search inside popup */}
-              <button
-                type="button"
-                onClick={startVoiceSearch}
-                title="Search by voice"
-                className="p-1 rounded-full text-[#8a858f] hover:text-[#D30915] hover:bg-[#fff1f2] transition-colors shrink-0 ml-1 cursor-pointer"
-                aria-label="Voice search"
-              >
-                <Mic className="w-3.5 h-3.5" />
-              </button>
-
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={handleClearSearch}
-                  className="p-1 text-[#8a858f] hover:text-[#141219] cursor-pointer shrink-0 ml-0.5"
-                  aria-label="Clear search text"
+              {/* Typing Animated Rotating Placeholder */}
+              {!searchQuery && (
+                <div
+                  className={`absolute inset-0 flex items-center pointer-events-none select-none transition-opacity duration-200 z-5 ${
+                    isMobileSearchFocused ? 'opacity-0' : 'opacity-100'
+                  }`}
                 >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-
-              <button
-                type="submit"
-                className="ml-2 px-3.5 py-1.5 rounded-[10px] bg-[#D30915] hover:bg-[#B60711] text-white text-xs font-black uppercase tracking-wider transition-all cursor-pointer shrink-0 shadow-2xs active:scale-95"
-              >
-                Search
-              </button>
-            </form>
-
-            {/* Quick Trending Searches */}
-            <div className="mt-2.5 pt-2.5 border-t border-[#f4edf2]">
-              <div className="flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-[#8a858f] mb-1.5">
-                <Sparkles className="w-3 h-3 text-[#D30915]" />
-                <span>Popular Searches:</span>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {POPULAR_TAGS.map((tag) => (
-                  <button
-                    key={tag}
-                    type="button"
-                    onClick={() => handleSelectTag(tag)}
-                    className="px-2.5 py-1 rounded-[8px] bg-[#fff1f2] hover:bg-[#D30915] text-[#D30915] hover:text-white border border-[#fecdd3] text-[11px] font-bold transition-all cursor-pointer shadow-2xs"
-                  >
-                    {tag}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Live Quick Results inside popup if search query present */}
-            {searchQuery.trim() && matchingProducts.length > 0 && (
-              <div className="mt-2.5 pt-2.5 border-t border-[#f4edf2] max-h-[220px] overflow-y-auto space-y-1.5 pr-1">
-                <div className="text-[10px] font-black uppercase tracking-wider text-[#8a858f] mb-1 flex items-center justify-between">
-                  <span>Matching Products</span>
-                  <span className="text-[#D30915] font-bold">{matchingProducts.length} items</span>
-                </div>
-                {matchingProducts.slice(0, 4).map((p) => (
-                  <div
-                    key={p.id}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => handleSelectProduct(p)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        handleSelectProduct(p);
-                      }
-                    }}
-                    className="p-1.5 sm:p-2 rounded-[10px] hover:bg-[#fff1f2] flex items-center justify-between transition-colors cursor-pointer group"
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <img
-                        src={p.image}
-                        alt={p.name}
-                        className="w-9 h-9 rounded-[8px] object-cover shrink-0 border border-[#eee0e8]"
-                      />
-                      <div className="min-w-0">
-                        <p className="text-xs font-bold text-[#141219] group-hover:text-[#D30915] truncate m-0">
-                          {p.name}
-                        </p>
-                        <p className="text-[10px] text-[#716d77] m-0">
-                          ${p.price.toFixed(2)} • {p.category} • {p.surpriseType === 'cash' ? '💵 Cash' : '💍 Jewelry'}
-                        </p>
-                      </div>
-                    </div>
-                    <ArrowRight className="w-3.5 h-3.5 text-[#D30915] opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                  <div className="flex items-center text-xs truncate text-[#716d77]">
+                    <span className="shrink-0 font-normal mr-1">{SEARCH_SUGGESTIONS[searchPlaceholderIndex].prefix}</span>
+                    <span className="font-medium text-[#716d77] truncate">
+                      {typedPlaceholderText}
+                    </span>
+                    <span className="inline-block w-[1.5px] h-[12px] bg-[#D30915] animate-typing-cursor shrink-0 ml-0.5 self-center" />
                   </div>
-                ))}
-              </div>
-            )}
-
-            {/* Close hint */}
-            <div className="mt-2 pt-2 border-t border-[#f4edf2] flex items-center justify-between text-[10px] text-[#8a858f]">
-              <span>Press <kbd className="px-1 py-0.5 rounded bg-stone-100 border border-stone-300 font-mono text-[9px]">Esc</kbd> to close</span>
+                </div>
+              )}
+            </div>
+            {searchQuery && (
               <button
                 type="button"
-                onClick={() => setIsSearchOpen(false)}
-                className="text-[#D30915] font-bold hover:underline cursor-pointer"
+                onClick={handleClearSearch}
+                className="p-1.5 rounded-full text-[#8a858f] hover:text-[#141219] hover:bg-gray-100 active:scale-90 transition-all mr-0.5 cursor-pointer z-10"
+                title="Clear search"
+                aria-label="Clear search"
               >
-                Close Search
+                <X className="w-3.5 h-3.5" />
               </button>
-            </div>
-          </div>
+            )}
+            <button
+              type="button"
+              onClick={startVoiceSearch}
+              className="p-1.5 rounded-full text-[#8a858f] hover:text-[#D30915] hover:bg-[#fff0f3] active:scale-90 transition-all cursor-pointer z-10"
+              title="Search by voice"
+              aria-label="Search by voice"
+            >
+              <Mic className="w-3.5 h-3.5" />
+            </button>
+          </form>
+
+          {/* Mobile Live Search Dropdown */}
+          {isSearchOpen && renderSearchDropdown(true)}
+        </div>
         )}
-      </div>
+
+        {/* Row 2: Desktop Horizontal Category Navigation (JewelryCandles-style Information Architecture) */}
+        <nav
+          ref={desktopNavRef}
+          className="hidden lg:flex items-center justify-between border-t border-[#f4edf2] mt-1 sm:mt-1.5 pt-1.5 sm:pt-2 px-1 relative"
+          aria-label="Main Category Navigation"
+        >
+          <div className="w-full flex items-center justify-between gap-1 xl:gap-2">
+            {NAVIGATION_CATEGORIES.map((cat) => {
+              const hasSub = Boolean(cat.columns && cat.columns.length > 0);
+              const isMegaActive = activeMegaCategory === cat.id;
+
+              if (!hasSub) {
+                const isRouteActive =
+                  (cat.slug === 'home' && (activeView === 'home' || !activeView)) ||
+                  (cat.slug === 'affiliate' && activeView === 'affiliate') ||
+                  (cat.slug === 'contact' && activeView === 'contact');
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onMouseEnter={handleMegaLeave}
+                    onClick={() => handleCategoryClick(cat)}
+                    className={`px-1.5 xl:px-2.5 py-1 rounded-full text-[12px] xl:text-[13px] 2xl:text-[13.5px] font-bold transition-all cursor-pointer whitespace-nowrap select-none ${
+                      isRouteActive
+                        ? 'text-[#FF4D6A] bg-[#fff0f3] font-black'
+                        : 'text-[#141219] hover:text-[#FF4D6A] hover:bg-[#fff9fb]'
+                    }`}
+                  >
+                    <span>{cat.name}</span>
+                  </button>
+                );
+              }
+
+              return (
+                <div
+                  key={cat.id}
+                  className="relative group"
+                  onMouseEnter={() => handleMegaEnter(cat.id)}
+                  onMouseLeave={handleMegaLeave}
+                >
+                  <button
+                    type="button"
+                    onClick={() => handleCategoryClick(cat)}
+                    className={`group flex items-center gap-1 px-1.5 xl:px-2.5 py-1 rounded-full text-[12px] xl:text-[13px] 2xl:text-[13.5px] font-bold transition-all cursor-pointer whitespace-nowrap select-none ${
+                      isMegaActive
+                        ? 'text-[#FF4D6A] bg-[#fff0f3] font-black'
+                        : 'text-[#141219] hover:text-[#FF4D6A] hover:bg-[#fff9fb]'
+                    }`}
+                    aria-expanded={isMegaActive}
+                  >
+                    <span>{cat.name}</span>
+                    {cat.badge && (
+                      <span className="text-[8.5px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded-full bg-[#FF4D6A] text-white">
+                        {cat.badge}
+                      </span>
+                    )}
+                    <ChevronDown
+                      className={`w-3 h-3 text-[#7d7683] transition-transform duration-200 group-hover:text-[#FF4D6A] ${
+                        isMegaActive ? 'rotate-180 text-[#FF4D6A]' : ''
+                      }`}
+                    />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop Mega Menu Dropdown */}
+          {displayedMegaCategory && (() => {
+            const cat = NAVIGATION_CATEGORIES.find((c) => c.id === displayedMegaCategory);
+            if (!cat || !cat.columns || cat.columns.length === 0) return null;
+            const isMegaOpen = Boolean(activeMegaCategory);
+
+            return (
+              <div
+                className="absolute left-0 right-0 top-full pt-1.5 z-50 pointer-events-none"
+                style={{
+                  transition: 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+                  opacity: isMegaOpen ? 1 : 0,
+                  transform: isMegaOpen ? 'translateY(0)' : 'translateY(12px)',
+                  pointerEvents: isMegaOpen ? 'auto' : 'none',
+                  overflow: 'visible',
+                  width: '100%',
+                }}
+                onMouseEnter={handleMegaMenuPanelEnter}
+                onMouseLeave={handleMegaLeave}
+              >
+                {/* Parent Mega Menu Container */}
+                <div
+                  className="w-full bg-white rounded-b-[20px] border border-stone-200 border-t-0 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.1)] relative"
+                  style={{
+                    width: '100%',
+                    maxWidth: '1280px',
+                    left: 0,
+                    right: 0,
+                    margin: '0 auto',
+                    padding: '24px 32px',
+                    boxSizing: 'border-box',
+                    overflow: 'hidden',
+                    borderRadius: '0 0 16px 16px',
+                  }}
+                >
+                  {/* Top Bar: Clean, Straight Category Title & View All */}
+                  <div className="flex items-center justify-between gap-4 pb-3 mb-4 border-b border-stone-100">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-[#D30915]" />
+                      <span className="font-extrabold text-xs uppercase tracking-wider text-stone-900 whitespace-nowrap">
+                        {cat.name} Collections
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleCategoryClick(cat)}
+                      className="group/all inline-flex items-center gap-1.5 text-xs font-bold text-[#D30915] hover:text-[#B60711] transition-colors cursor-pointer whitespace-nowrap"
+                    >
+                      <span>{cat.viewAllLabel || `View All ${cat.name}`}</span>
+                      <ArrowRight className="w-3.5 h-3.5 group-hover/all:translate-x-1 transition-transform" />
+                    </button>
+                  </div>
+
+                  {/* Content Grid: 100% straight columns */}
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns:
+                        cat.columns && cat.columns.length === 3
+                          ? 'minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 1fr) 250px'
+                          : 'minmax(0, 1.15fr) minmax(0, 1fr) 250px',
+                      gap: '24px',
+                      alignItems: 'start',
+                    }}
+                  >
+                    {/* Primary Subcategory Columns */}
+                    {cat.columns.map((col, idx) => (
+                      <div key={idx} className="flex flex-col min-w-0">
+                        <div className="flex items-center gap-2 pb-2 mb-2.5 border-b border-stone-100 min-w-0">
+                          <div className="w-1.5 h-3 rounded-full bg-[#D30915] shrink-0" />
+                          <h4 className="text-stone-900 uppercase m-0 text-xs font-bold tracking-wider whitespace-nowrap">
+                            {col.heading}
+                          </h4>
+                        </div>
+                        <ul className="space-y-0.5 p-0 m-0 list-none">
+                          {col.items.map((item) => (
+                            <li key={item.id}>
+                              <button
+                                type="button"
+                                onClick={() => handleSubCategoryClick(cat, item)}
+                                className="w-full text-left group/sub flex items-center justify-between gap-3 py-1 text-[13.5px] font-medium text-stone-700 hover:text-[#D30915] transition-colors cursor-pointer whitespace-nowrap"
+                              >
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-stone-300 group-hover/sub:bg-[#D30915] group-hover/sub:scale-125 transition-all shrink-0" />
+                                  <span className="group-hover/sub:translate-x-0.5 transition-transform whitespace-nowrap">
+                                    {item.name}
+                                  </span>
+                                </div>
+                                {item.badge && (
+                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-700 border border-stone-200 shrink-0 whitespace-nowrap">
+                                    {item.badge}
+                                  </span>
+                                )}
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+
+                    {/* For 1-column categories: Clean straight "Shop by Surprise" column */}
+                    {cat.columns.length === 1 && (
+                      <div className="flex flex-col min-w-0">
+                        <div className="flex items-center gap-2 pb-2 mb-2.5 border-b border-stone-100 min-w-0">
+                          <div className="w-1.5 h-3 rounded-full bg-amber-500 shrink-0" />
+                          <h4 className="text-stone-900 uppercase m-0 text-xs font-bold tracking-wider whitespace-nowrap">
+                            Shop by Surprise
+                          </h4>
+                        </div>
+                        <ul className="space-y-0.5 p-0 m-0 list-none">
+                          <li>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setActiveMegaCategory(null);
+                                setDisplayedMegaCategory(null);
+                                onSearch?.('Cash ' + cat.name);
+                              }}
+                              className="w-full text-left group/sub flex items-center justify-between gap-3 py-1 text-[13.5px] font-medium text-stone-700 hover:text-[#D30915] transition-colors cursor-pointer whitespace-nowrap"
+                            >
+                              <div className="flex items-center gap-2 min-w-0">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 group-hover/sub:scale-125 transition-all shrink-0" />
+                                <span className="group-hover/sub:translate-x-0.5 transition-transform whitespace-nowrap">
+                                  Cash Inside Reveals
+                                </span>
+                              </div>
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0 whitespace-nowrap">
+                                💵 Cash
+                              </span>
+                            </button>
+                          </li>
+                          <li>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setActiveMegaCategory(null);
+                                setDisplayedMegaCategory(null);
+                                onSearch?.('Jewelry ' + cat.name);
+                              }}
+                              className="w-full text-left group/sub flex items-center justify-between gap-3 py-1 text-[13.5px] font-medium text-stone-700 hover:text-[#D30915] transition-colors cursor-pointer whitespace-nowrap"
+                            >
+                              <div className="flex items-center gap-2 min-w-0">
+                                <span className="w-1.5 h-1.5 rounded-full bg-purple-400 group-hover/sub:scale-125 transition-all shrink-0" />
+                                <span className="group-hover/sub:translate-x-0.5 transition-transform whitespace-nowrap">
+                                  Jewelry Inside Reveals
+                                </span>
+                              </div>
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200 shrink-0 whitespace-nowrap">
+                                💎 Jewelry
+                              </span>
+                            </button>
+                          </li>
+                          <li>
+                            <button
+                              type="button"
+                              onClick={() => handleCategoryClick(cat)}
+                              className="w-full text-left group/sub flex items-center justify-between gap-3 py-1 text-[13.5px] font-medium text-stone-700 hover:text-[#D30915] transition-colors cursor-pointer whitespace-nowrap"
+                            >
+                              <div className="flex items-center gap-2 min-w-0">
+                                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 group-hover/sub:scale-125 transition-all shrink-0" />
+                                <span className="group-hover/sub:translate-x-0.5 transition-transform whitespace-nowrap">
+                                  Best Seller Reveals
+                                </span>
+                              </div>
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 shrink-0 whitespace-nowrap">
+                                ★ Popular
+                              </span>
+                            </button>
+                          </li>
+                          <li>
+                            <button
+                              type="button"
+                              onClick={() => handleCategoryClick(cat)}
+                              className="w-full text-left group/sub flex items-center justify-between gap-3 py-1 text-[13.5px] font-medium text-stone-700 hover:text-[#D30915] transition-colors cursor-pointer whitespace-nowrap"
+                            >
+                              <div className="flex items-center gap-2 min-w-0">
+                                <span className="w-1.5 h-1.5 rounded-full bg-rose-400 group-hover/sub:scale-125 transition-all shrink-0" />
+                                <span className="group-hover/sub:translate-x-0.5 transition-transform whitespace-nowrap">
+                                  Gift Sets &amp; Bundles
+                                </span>
+                              </div>
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-700 border border-stone-200 shrink-0 whitespace-nowrap">
+                                🎁 Gift
+                              </span>
+                            </button>
+                          </li>
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Right Spotlight Promo Card (Displays Full Product Image on Clean White Background) */}
+                    {cat.spotlight && (
+                      <div
+                        className="flex flex-col min-w-0 shrink-0"
+                        style={{
+                          width: '250px',
+                          maxWidth: '250px',
+                          flexShrink: 0,
+                        }}
+                      >
+                        <div
+                          onClick={() => {
+                            setActiveMegaCategory(null);
+                            setDisplayedMegaCategory(null);
+                            if (onSelectCategory) {
+                              onSelectCategory(cat.spotlight!.targetCategory);
+                            } else {
+                              onNavigate?.('shop');
+                            }
+                          }}
+                          className="group/promo relative flex flex-col bg-white border border-stone-200 hover:border-stone-400 transition-all duration-300 shadow-xs hover:shadow-md cursor-pointer"
+                          style={{
+                            width: '250px',
+                            maxWidth: '250px',
+                            borderRadius: '12px',
+                            overflow: 'hidden',
+                            boxSizing: 'border-box',
+                          }}
+                        >
+                          {/* Image Container: Pure white background, no pink gradient or overlay badges */}
+                          <div
+                            className="relative w-full flex items-center justify-center bg-white overflow-hidden"
+                            style={{
+                              width: '100%',
+                              height: '190px',
+                              maxHeight: '220px',
+                              borderRadius: '12px 12px 0 0',
+                              overflow: 'hidden',
+                              position: 'relative',
+                            }}
+                          >
+                            <img
+                              src={cat.spotlight.image}
+                              alt={cat.spotlight.title}
+                              className="transition-transform duration-500 group-hover/promo:scale-105"
+                              style={{
+                                width: '100%',
+                                height: '100%',
+                                maxHeight: '190px',
+                                objectFit: 'contain',
+                                objectPosition: 'center',
+                                display: 'block',
+                                padding: '8px',
+                                boxSizing: 'border-box',
+                              }}
+                            />
+                          </div>
+
+                          {/* Details below image: Only clean text */}
+                          <div className="p-2.5 flex items-center justify-between gap-2 bg-white border-t border-stone-100">
+                            <strong className="font-bold text-xs text-stone-900 group-hover/promo:text-[#D30915] transition-colors truncate">
+                              {cat.spotlight.title}
+                            </strong>
+                            <span className="text-[11px] font-bold text-[#D30915] flex items-center gap-1 shrink-0 whitespace-nowrap">
+                              Shop <ArrowRight className="w-3 h-3 group-hover/promo:translate-x-1 transition-transform" />
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+        </nav>
+        </div>
+      </header>
 
       {/* 3. Full-Screen Mobile Navigation Drawer Portal */}
       {typeof document !== 'undefined' && isMobileMenuOpen && createPortal(
@@ -1354,120 +1756,133 @@ export const Header: React.FC<HeaderProps> = ({
                       icon: HomeIcon,
                     })
                   }
-                  className="flex items-center"
+                  className="flex items-center shrink min-w-0"
                   aria-label="Home"
                 >
-                  <img
-                    src="/assets/ilovesurprises/logo/New logo.jpeg"
-                    alt="I Love Surprises Logo"
-                    className="h-[41px] w-auto max-w-[195px] object-contain"
-                  />
+                  <picture className="flex items-center shrink min-w-0">
+                    <source srcSet="/assets/ilovesurprises/logo/logo.svg" type="image/svg+xml" />
+                    <source
+                      srcSet="/assets/ilovesurprises/logo/logo-ultra-hd.png 2x, /assets/ilovesurprises/logo/logo-16k.png 1x"
+                      type="image/png"
+                    />
+                    <img
+                      src="/assets/ilovesurprises/logo/logo-16k.png"
+                      alt="I Love Surprises Logo"
+                      width={2576}
+                      height={620}
+                      loading="lazy"
+                      decoding="async"
+                      className="h-[42px] min-[360px]:h-[46px] min-[390px]:h-[50px] min-[420px]:h-[52px] sm:h-[50px] w-auto max-w-[170px] min-[360px]:max-w-[195px] min-[390px]:max-w-[215px] min-[420px]:max-w-[230px] sm:max-w-[225px] object-contain"
+                      style={{
+                        imageRendering: '-webkit-optimize-contrast',
+                        WebkitBackfaceVisibility: 'hidden',
+                        backfaceVisibility: 'hidden',
+                        transform: 'translateZ(0)',
+                      }}
+                    />
+                  </picture>
                 </a>
 
                 <button
                   type="button"
                   onClick={() => closeMobileMenu()}
-                  className="w-9 h-9 rounded-full bg-white border border-[#ecdbe6] hover:bg-[#fff1f2] hover:text-[#D30915] text-[#716d77] flex items-center justify-center transition-colors cursor-pointer"
+                  className="w-9 h-9 rounded-full bg-white border border-[#ecdbe6] hover:bg-[#fff1f2] hover:text-[#D30915] hover:border-[#fecdd3] text-[#716d77] flex items-center justify-center active:scale-90 transition-all cursor-pointer shadow-2xs"
                   aria-label="Close navigation menu"
                 >
                   <X className="w-4 h-4 stroke-[2.5]" />
                 </button>
               </div>
 
-              {/* Drawer Search Trigger */}
-              <div className="p-3 bg-[#fffafc] border-b border-[#f5e8ef]">
-                <div className="w-full h-[40px] rounded-[13px] bg-white border border-[#ecdbe6] hover:border-[#D30915] flex items-center px-3 shadow-2xs">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      closeMobileMenu();
-                      setIsSearchOpen(true);
-                    }}
-                    className="flex items-center flex-1 min-w-0 text-left cursor-pointer"
-                  >
-                    <Search className="w-4 h-4 text-[#D30915] shrink-0 mr-2" />
-                    <span className="w-full text-xs text-[#817c85] font-medium truncate">
-                      {searchQuery || 'Search all surprise products...'}
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      closeMobileMenu();
-                      startVoiceSearch();
-                    }}
-                    className="p-1 text-[#8a858f] hover:text-[#D30915] cursor-pointer"
-                  >
-                    <Mic className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Drawer Cart Quick Link */}
-              <div className="px-3 pt-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    closeMobileMenu();
-                    onOpenCart?.();
-                  }}
-                  className="w-full min-h-[44px] px-3.5 py-2.5 rounded-[14px] bg-gradient-to-r from-[#D30915] to-[#B60711] hover:from-[#B60711] hover:to-[#96050e] text-white flex items-center justify-between font-bold text-sm shadow-md active:scale-98 transition-all cursor-pointer"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <ShoppingBag className="w-4 h-4" />
-                    <span>Shopping Cart</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="bg-white text-[#D30915] text-xs font-black px-2 py-0.5 rounded-full shadow-xs">
-                      {cartCount} {cartCount === 1 ? 'item' : 'items'}
-                    </span>
-                    {cartSubtotal > 0 && (
-                      <span className="text-white/90 text-xs font-bold">
-                        ${cartSubtotal.toFixed(2)}
-                      </span>
-                    )}
-                  </div>
-                </button>
-              </div>
-
-              {/* Drawer Navigation Links */}
+              {/* Drawer Category Accordion Menu (JewelryCandles-style Mobile Architecture) */}
               <div className="p-3">
-                <span className="block text-[10px] font-black uppercase tracking-wider text-[#8a858f] px-3 mb-2">
-                  Navigation Menu
+                <span className="block text-[10px] font-black uppercase tracking-wider text-[#8a858f] px-2 mb-2">
+                  Categories &amp; Navigation
                 </span>
 
-                <div className="space-y-1">
-                  {NAV_LINKS.map((item) => {
-                    const IconComponent = item.icon;
-                    const isActive = (activeView && activeView === item.id) || (!activeView && activeNavId === item.id);
-                    return (
-                      <a
-                        key={item.id}
-                        href={item.href}
-                        onClick={(e) => handleNavClick(e, item)}
-                        className={`w-full min-h-[48px] px-3.5 py-2.5 rounded-[14px] flex items-center justify-between text-left font-bold text-sm transition-all duration-200 cursor-pointer ${isActive
-                          ? 'bg-[#fff1f2] text-[#D30915] border border-[#fecdd3] shadow-2xs font-black'
-                          : 'hover:bg-[#fff9fb] text-[#141219] border border-transparent'
-                          }`}
-                        aria-current={isActive ? 'page' : undefined}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`w-8 h-8 rounded-[10px] flex items-center justify-center transition-colors ${isActive
-                              ? 'bg-[#D30915] text-white shadow-xs'
-                              : 'bg-[#fff1f2] text-[#D30915]'
-                              }`}
-                          >
-                            <IconComponent className="w-4 h-4" />
-                          </div>
-                          <span>{item.label}</span>
-                        </div>
+                <div className="space-y-1.5">
+                  {NAVIGATION_CATEGORIES.map((cat) => {
+                    const isExpanded = expandedMobileCategory === cat.id;
+                    const hasSub = Boolean(cat.columns && cat.columns.length > 0);
 
-                        <ArrowRight
-                          className={`w-3.5 h-3.5 transition-transform ${isActive ? 'text-[#D30915] translate-x-0.5' : 'text-[#beb8c2]'
+                    if (!hasSub) {
+                      const isRouteActive =
+                        (cat.slug === 'home' && (activeView === 'home' || !activeView)) ||
+                        (cat.slug === 'affiliate' && activeView === 'affiliate') ||
+                        (cat.slug === 'contact' && activeView === 'contact');
+                      return (
+                        <button
+                          key={cat.id}
+                          type="button"
+                          onClick={() => handleCategoryClick(cat)}
+                          className={`w-full min-h-[46px] px-3.5 py-2.5 rounded-[13px] flex items-center justify-between text-left font-bold text-sm transition-all cursor-pointer ${
+                            isRouteActive
+                              ? 'bg-[#fff1f2] text-[#D30915] border border-[#fecdd3] font-black shadow-2xs'
+                              : 'text-[#141219] hover:bg-[#fff9fb] hover:text-[#D30915] border border-transparent'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <span>{cat.name}</span>
+                          </div>
+                          <ArrowRight className="w-3.5 h-3.5 text-[#beb8c2]" />
+                        </button>
+                      );
+                    }
+
+                    return (
+                      <div key={cat.id} className="rounded-[13px] overflow-hidden border border-[#f3e7ee] bg-white transition-all shadow-2xs">
+                        {/* Accordion Trigger */}
+                        <button
+                          type="button"
+                          onClick={() => setExpandedMobileCategory(isExpanded ? null : cat.id)}
+                          className={`w-full min-h-[46px] px-3.5 py-2.5 flex items-center justify-between text-left font-bold text-sm transition-colors cursor-pointer select-none ${
+                            isExpanded ? 'bg-[#fff1f4] text-[#D30915]' : 'text-[#141219] hover:bg-[#fff9fb]'
+                          }`}
+                          aria-expanded={isExpanded}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span>{cat.name}</span>
+                            {cat.badge && (
+                              <span className="text-[8.5px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded-full bg-[#D30915] text-white">
+                                {cat.badge}
+                              </span>
+                            )}
+                          </div>
+                          <ChevronDown
+                            className={`w-4 h-4 text-[#8a858f] transition-transform duration-200 ${
+                              isExpanded ? 'rotate-180 text-[#D30915]' : ''
                             }`}
-                        />
-                      </a>
+                          />
+                        </button>
+
+                        {/* Accordion Expanded Subcategories */}
+                        {isExpanded && (
+                          <div className="px-2.5 py-2 bg-[#fdfafb] border-t border-[#f5e6ee] space-y-1">
+                            {cat.columns?.flatMap((col) => col.items).map((sub) => (
+                              <button
+                                key={sub.id}
+                                type="button"
+                                onClick={() => handleSubCategoryClick(cat, sub)}
+                                className="w-full min-h-[40px] px-3 py-1.5 rounded-[10px] flex items-center justify-between text-left text-xs font-semibold text-[#302936] hover:bg-[#fff0f3] hover:text-[#D30915] transition-colors cursor-pointer"
+                              >
+                                <span className="truncate">{sub.name}</span>
+                                {sub.badge && (
+                                  <span className="text-[8.5px] font-black px-1.5 py-0.2 rounded-full bg-[#fff0f3] text-[#D30915] border border-[#fecdd3] shrink-0 ml-1.5">
+                                    {sub.badge}
+                                  </span>
+                                )}
+                              </button>
+                            ))}
+                            <button
+                              type="button"
+                              onClick={() => handleCategoryClick(cat)}
+                              className="w-full min-h-[40px] mt-1.5 px-3 py-1.5 rounded-[10px] flex items-center justify-center gap-1.5 text-xs font-black text-[#D30915] bg-[#fff0f3] hover:bg-[#fedde4] transition-colors cursor-pointer border border-[#fcd5df]"
+                            >
+                              <span>{cat.viewAllLabel || `View All ${cat.name}`}</span>
+                              <ArrowRight className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     );
                   })}
                 </div>
@@ -1496,17 +1911,36 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="p-4 border-t border-[#f4edf2] bg-gradient-to-b from-[#fffafc] to-[#fff5f5] space-y-3">
               {/* Account Status */}
               {!user ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    closeMobileMenu();
-                    onOpenAuth?.('login');
-                  }}
-                  className="w-full h-[42px] px-3.5 rounded-[12px] bg-[#fff1f2] border border-[#fecdd3] hover:border-[#D30915] hover:bg-[#D30915] hover:text-white text-[#D30915] text-xs font-black shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-2 select-none"
-                >
-                  <User className="w-4 h-4" />
-                  <span>Login</span>
-                </button>
+                <div className="space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      closeMobileMenu();
+                      if (onOpenSubscription) {
+                        onOpenSubscription();
+                      } else if (onNavigateToAffiliate) {
+                        onNavigateToAffiliate();
+                      } else {
+                        onNavigate?.('affiliate');
+                      }
+                    }}
+                    className="w-full h-[42px] px-3.5 rounded-[12px] bg-[#D30915] hover:bg-[#b60711] text-white text-xs font-black shadow-md hover:shadow-lg active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-2 select-none"
+                  >
+                    <Users className="w-4 h-4" />
+                    <span>Join $20/month</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      closeMobileMenu();
+                      onOpenAuth?.('login');
+                    }}
+                    className="w-full h-[38px] px-3.5 rounded-[12px] bg-[#fff1f2] border border-[#fecdd3] hover:border-[#D30915] hover:bg-[#D30915] hover:text-white text-[#D30915] text-xs font-black shadow-2xs hover:shadow-xs active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-2 select-none"
+                  >
+                    <User className="w-4 h-4" />
+                    <span>Login</span>
+                  </button>
+                </div>
               ) : (
                 <div className="p-2.5 bg-white rounded-[14px] border border-[#fecdd3] shadow-2xs space-y-2">
                   <div className="flex items-center justify-between">
@@ -1614,6 +2048,13 @@ export const Header: React.FC<HeaderProps> = ({
                     type="button"
                     onClick={() => {
                       closeMobileMenu();
+                      try {
+                        localStorage.removeItem('ils_consultant_subscribed');
+                        localStorage.removeItem('ils_consultant_username');
+                        localStorage.removeItem('ils_consultant_name');
+                      } catch {}
+                      setIsConsultantSubscribed(false);
+                      window.dispatchEvent(new CustomEvent('ils_consultant_subscribed', { detail: { subscribed: false } }));
                       onLogout?.();
                     }}
                     className="w-full h-[32px] rounded-[10px] bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
@@ -1755,6 +2196,6 @@ export const Header: React.FC<HeaderProps> = ({
         document.body
       )}
 
-    </header>
+    </>
   );
 };

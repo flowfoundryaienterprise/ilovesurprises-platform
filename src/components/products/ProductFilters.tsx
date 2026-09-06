@@ -469,7 +469,7 @@ export const DesktopFilterMegaPanel: React.FC<FilterComponentProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 h-[40px] rounded-[12px] bg-white border border-[#ebdce5] text-[#141219] text-xs font-black hover:border-[#D30915] active:scale-95 transition-all cursor-pointer"
+              className="px-4 h-[40px] rounded-[12px] bg-white border border-[#ebdce5] text-[#141219] text-xs font-black hover:border-[#D30915] hover:text-[#D30915] active:scale-95 transition-all cursor-pointer shadow-2xs"
             >
               Cancel
             </button>
@@ -478,7 +478,7 @@ export const DesktopFilterMegaPanel: React.FC<FilterComponentProps> = ({
           <button
             type="button"
             onClick={onApplyFilters}
-            className="px-6 h-[40px] rounded-[12px] bg-gradient-to-r from-[#D30915] to-[#B60711] hover:from-[#B60711] hover:to-[#c21a57] text-white text-xs font-black uppercase tracking-wider shadow-[0_6px_20px_rgba(211, 9, 21,0.28)] active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+            className="px-6 h-[40px] rounded-[12px] bg-gradient-to-r from-[#D30915] to-[#B60711] hover:from-[#B60711] hover:to-[#96050e] text-white text-xs font-black uppercase tracking-wider shadow-[0_6px_20px_rgba(211,9,21,0.28)] hover:shadow-[0_8px_24px_rgba(211,9,21,0.38)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1.5"
           >
             <Search className="w-3.5 h-3.5" />
             <span>Search by Filter</span>
@@ -931,7 +931,7 @@ export const MobileFilterModal: React.FC<MobileFilterModalProps> = ({
           <button
             type="button"
             onClick={onResetFilters}
-            className="flex-1 h-[44px] rounded-[13px] bg-[#fff1f2] text-[#D30915] text-xs font-black uppercase tracking-wider border border-[#fecdd3] hover:bg-[#ffe5ef] active:scale-95 transition-all cursor-pointer"
+            className="flex-1 h-[44px] rounded-[13px] bg-[#fff1f2] text-[#D30915] text-xs font-black uppercase tracking-wider border border-[#fecdd3] hover:bg-[#ffe5ef] active:scale-95 transition-all cursor-pointer shadow-2xs hover:shadow-xs"
           >
             Clear All
           </button>
@@ -941,7 +941,7 @@ export const MobileFilterModal: React.FC<MobileFilterModalProps> = ({
               onApplyFilters?.();
               handleClose();
             }}
-            className="flex-2 h-[44px] rounded-[13px] bg-gradient-to-r from-[#D30915] to-[#B60711] text-white text-xs font-black uppercase tracking-wider shadow-[0_6px_20px_rgba(211, 9, 21,0.28)] active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1"
+            className="flex-2 h-[44px] rounded-[13px] bg-gradient-to-r from-[#D30915] to-[#B60711] hover:from-[#B60711] hover:to-[#96050e] text-white text-xs font-black uppercase tracking-wider shadow-[0_6px_20px_rgba(211,9,21,0.28)] hover:shadow-[0_8px_24px_rgba(211,9,21,0.38)] active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1"
           >
             <span>Show Results</span>
             <span>({totalResultsCount})</span>

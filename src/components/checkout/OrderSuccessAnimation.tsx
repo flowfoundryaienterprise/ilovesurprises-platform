@@ -70,7 +70,21 @@ export const OrderSuccessAnimation: React.FC<OrderSuccessAnimationProps> = ({
       className="relative w-full max-w-[840px] mx-auto text-center"
     >
       {/* Screen Reader Live Announcement */}
-      <span className="sr-only">
+      <span
+        className="sr-only"
+        style={{
+          position: 'absolute',
+          width: '1px',
+          height: '1px',
+          padding: 0,
+          margin: '-1px',
+          overflow: 'hidden',
+          clip: 'rect(0, 0, 0, 0)',
+          whiteSpace: 'nowrap',
+          border: 0,
+          display: 'none',
+        }}
+      >
         Order Placed Successfully! Your order reference is {order.id}. Total {isCod ? 'due on delivery' : 'paid'}: ${order.total.toFixed(2)}.
       </span>
 

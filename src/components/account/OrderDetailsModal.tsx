@@ -295,6 +295,25 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                         Qty {item.quantity} • ${item.unitPrice.toFixed(2)} ea •{' '}
                         {item.selectedSurpriseOption || (item.product.surpriseType === 'cash' ? '💵 Real Cash' : '💍 Jewelry')}
                       </p>
+                      {(item.selectedRingSize || item.selectedJewelryType || item.selectedSize) && (
+                        <div className="flex flex-wrap items-center gap-1 mt-1">
+                          {item.selectedJewelryType && (
+                            <span className="text-[9px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.2 rounded border border-purple-200">
+                              {item.selectedJewelryType}
+                            </span>
+                          )}
+                          {item.selectedRingSize && (
+                            <span className="text-[9px] font-bold text-[#D30915] bg-[#fff1f2] px-1.5 py-0.2 rounded border border-[#fecdd3]">
+                              Ring Size: {item.selectedRingSize}
+                            </span>
+                          )}
+                          {item.selectedSize && (
+                            <span className="text-[9px] font-medium text-[#716d77] bg-gray-50 px-1.5 py-0.2 rounded border border-gray-200">
+                              {item.selectedSize}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                   <span className="font-black text-[#141219]">${item.totalPrice.toFixed(2)}</span>

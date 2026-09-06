@@ -39,9 +39,12 @@ export const AffiliateSection: React.FC<AffiliateSectionProps> = ({ isLoading = 
                   <Skeleton className="h-6 w-20 rounded-full" />
                 </div>
                 <div className="space-y-3 pt-2">
-                  {Array.from({ length: 6 }).map((_, i) => (
-                    <Skeleton key={i} className="h-8 w-full rounded-[10px]" />
-                  ))}
+                  <Skeleton className="h-14 w-full rounded-[15px]" />
+                  <div className="grid grid-cols-5 gap-2">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Skeleton key={i} className="h-16 w-full rounded-[14px]" />
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -110,19 +113,21 @@ export const AffiliateSection: React.FC<AffiliateSectionProps> = ({ isLoading = 
               </div>
             </div>
 
-            {/* CTAs with Smooth Hover States */}
-            <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+            {/* CTAs with Smooth Hover States: Side-by-side in same line on mobile */}
+            <div className="flex items-center gap-2 min-[375px]:gap-2.5 sm:gap-3 w-full sm:w-auto">
               <a
                 href="/affiliate"
-                className="group inline-flex items-center justify-center gap-2 min-h-[48px] px-7 rounded-[14px] bg-gradient-to-r from-[#D30915] to-[#B60711] hover:from-[#B60711] hover:to-[#96060e] text-white font-black text-xs sm:text-[13px] uppercase tracking-wider shadow-[0_10px_26px_rgba(211, 9, 21,0.28)] hover:shadow-[0_14px_32px_rgba(211, 9, 21,0.40)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 cursor-pointer"
+                role="button"
+                className="group flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 min-h-[44px] sm:min-h-[48px] px-2.5 min-[375px]:px-4 sm:px-7 rounded-[13px] sm:rounded-[14px] bg-gradient-to-r from-[#D30915] to-[#B60711] hover:from-[#B60711] hover:to-[#96060e] text-white font-black text-[11px] min-[375px]:text-xs sm:text-[13px] uppercase tracking-wider shadow-[0_10px_26px_rgba(211,9,21,0.28)] hover:shadow-[0_14px_32px_rgba(211,9,21,0.40)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 cursor-pointer whitespace-nowrap text-center"
               >
                 <span>Join for $19.99/month</span>
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform group-hover:translate-x-1 shrink-0" />
               </a>
 
               <a
                 href="/affiliate"
-                className="inline-flex items-center justify-center min-h-[48px] px-6 rounded-[14px] bg-white hover:bg-[#fff9fb] border border-[#ebdce5] hover:border-[#D30915] text-[#141219] hover:text-[#D30915] font-black text-xs sm:text-[13px] uppercase tracking-wider shadow-2xs hover:shadow-[0_6px_18px_rgba(50,31,63,0.06)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 cursor-pointer"
+                role="button"
+                className="inline-flex items-center justify-center min-h-[44px] sm:min-h-[48px] px-3 min-[375px]:px-4 sm:px-6 rounded-[13px] sm:rounded-[14px] bg-white hover:bg-[#fff9fb] border border-[#ebdce5] hover:border-[#D30915] text-[#141219] hover:text-[#D30915] font-black text-[11px] min-[375px]:text-xs sm:text-[13px] uppercase tracking-wider shadow-2xs hover:shadow-[0_6px_18px_rgba(50,31,63,0.06)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 cursor-pointer whitespace-nowrap shrink-0 text-center"
               >
                 Learn More
               </a>
@@ -149,98 +154,59 @@ export const AffiliateSection: React.FC<AffiliateSectionProps> = ({ isLoading = 
                 </div>
               </div>
 
-              {/* Commission Stack Breakdown Rows */}
-              <div className="space-y-2.5">
+              {/* Commission Stack Breakdown */}
+              <div className="space-y-2.5 sm:space-y-3">
                 
                 {/* Personal Sales Row (Highlight) */}
-                <div className="flex items-center justify-between p-3 rounded-[15px] bg-gradient-to-r from-[#fff1f2] to-[#fff8fb] border border-[#fecdd3] shadow-2xs">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-[10px] bg-[#D30915] text-white flex items-center justify-center font-black text-xs shadow-2xs">
+                <div className="flex items-center justify-between p-3 sm:p-3.5 rounded-[15px] bg-gradient-to-r from-[#fff1f2] via-[#fff7fa] to-[#fffbfd] border border-[#fecdd3] shadow-2xs">
+                  <div className="flex items-center gap-2.5 sm:gap-3">
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-[10px] bg-[#D30915] text-white flex items-center justify-center font-black text-xs shadow-2xs shrink-0">
                       <User className="w-4 h-4" />
                     </div>
                     <div>
-                      <strong className="text-xs sm:text-sm font-black text-[#141219] block">
+                      <strong className="text-xs sm:text-sm font-black text-[#141219] block leading-tight">
                         Personal Sales
                       </strong>
-                      <span className="text-[10px] sm:text-[11px] text-[#716d77] block font-medium">
+                      <span className="text-[10px] sm:text-[11px] text-[#716d77] block font-medium mt-0.5">
                         Your direct retail customer orders
                       </span>
                     </div>
                   </div>
-                  <div className="text-base sm:text-lg font-black text-[#D30915] hero-title-font">
+                  <div className="text-base sm:text-xl font-black text-[#D30915] hero-title-font shrink-0">
                     20%
                   </div>
                 </div>
 
-                {/* Level 1 Referral */}
-                <div className="flex items-center justify-between p-2.5 px-3 rounded-[14px] bg-[#faf6f9] border border-[#f0e4ec] hover:border-[#D30915] transition-colors">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-[8px] bg-purple-100 text-purple-700 flex items-center justify-center font-black text-xs">
-                      1
+                {/* Team Overrides: 5 Levels in a Straight Line on Desktop */}
+                <div className="grid grid-cols-5 gap-1.5 sm:gap-2.5">
+                  {[
+                    { level: 1, rate: '5%' },
+                    { level: 2, rate: '4%' },
+                    { level: 3, rate: '3%' },
+                    { level: 4, rate: '2%' },
+                    { level: 5, rate: '1%' },
+                  ].map((tier) => (
+                    <div
+                      key={tier.level}
+                      className="flex flex-col items-center justify-center p-2 sm:p-3 rounded-[13px] sm:rounded-[15px] bg-[#faf6f9] border border-[#f0e4ec] hover:border-[#D30915] hover:bg-[#fff9fb] transition-all duration-200 hover:-translate-y-0.5 text-center shadow-2xs"
+                    >
+                      <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-[6px] bg-purple-100 text-purple-700 flex items-center justify-center font-black text-[10px] sm:text-xs mb-1 shadow-2xs">
+                        {tier.level}
+                      </div>
+                      <span className="text-[10px] sm:text-xs font-bold text-[#141219] block leading-tight whitespace-nowrap">
+                        Level {tier.level}
+                      </span>
+                      <strong className="text-xs sm:text-sm lg:text-base font-black text-purple-700 block mt-1 leading-tight">
+                        {tier.rate}
+                      </strong>
                     </div>
-                    <span className="text-xs sm:text-[13px] font-bold text-[#141219]">
-                      Level 1
-                    </span>
-                  </div>
-                  <span className="text-xs sm:text-sm font-black text-purple-700">5%</span>
-                </div>
-
-                {/* Level 2 Referral */}
-                <div className="flex items-center justify-between p-2.5 px-3 rounded-[14px] bg-[#faf6f9] border border-[#f0e4ec] hover:border-[#D30915] transition-colors">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-[8px] bg-purple-100 text-purple-700 flex items-center justify-center font-black text-xs">
-                      2
-                    </div>
-                    <span className="text-xs sm:text-[13px] font-bold text-[#141219]">
-                      Level 2
-                    </span>
-                  </div>
-                  <span className="text-xs sm:text-sm font-black text-purple-700">4%</span>
-                </div>
-
-                {/* Level 3 Referral */}
-                <div className="flex items-center justify-between p-2.5 px-3 rounded-[14px] bg-[#faf6f9] border border-[#f0e4ec] hover:border-[#D30915] transition-colors">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-[8px] bg-purple-100 text-purple-700 flex items-center justify-center font-black text-xs">
-                      3
-                    </div>
-                    <span className="text-xs sm:text-[13px] font-bold text-[#141219]">
-                      Level 3
-                    </span>
-                  </div>
-                  <span className="text-xs sm:text-sm font-black text-purple-700">3%</span>
-                </div>
-
-                {/* Level 4 Referral */}
-                <div className="flex items-center justify-between p-2.5 px-3 rounded-[14px] bg-[#faf6f9] border border-[#f0e4ec] hover:border-[#D30915] transition-colors">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-[8px] bg-purple-100 text-purple-700 flex items-center justify-center font-black text-xs">
-                      4
-                    </div>
-                    <span className="text-xs sm:text-[13px] font-bold text-[#141219]">
-                      Level 4
-                    </span>
-                  </div>
-                  <span className="text-xs sm:text-sm font-black text-purple-700">2%</span>
-                </div>
-
-                {/* Level 5 Referral */}
-                <div className="flex items-center justify-between p-2.5 px-3 rounded-[14px] bg-[#faf6f9] border border-[#f0e4ec] hover:border-[#D30915] transition-colors">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-[8px] bg-purple-100 text-purple-700 flex items-center justify-center font-black text-xs">
-                      5
-                    </div>
-                    <span className="text-xs sm:text-[13px] font-bold text-[#141219]">
-                      Level 5
-                    </span>
-                  </div>
-                  <span className="text-xs sm:text-sm font-black text-purple-700">1%</span>
+                  ))}
                 </div>
 
               </div>
 
               {/* Visual Multi-Tier Payout Summary Bar */}
-              <div className="mt-4 pt-3.5 border-t border-[#f4ebf1] flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
+              <div className="mt-3.5 pt-3 border-t border-[#f4ebf1] flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
                 <div>
                   <span className="text-[10px] uppercase font-black tracking-wider text-[#716d77] block">
                     Maximum Total Payout
@@ -250,33 +216,35 @@ export const AffiliateSection: React.FC<AffiliateSectionProps> = ({ isLoading = 
                   </strong>
                 </div>
 
-                {/* Compact Stacked Percent Badges Bar */}
-                <div className="flex items-center gap-1">
-                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-[#D30915] text-white">
+                {/* Compact Stacked Percent Badges Bar in a Straight Line */}
+                <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap justify-center sm:justify-end">
+                  <span className="text-[10px] sm:text-[11px] font-black px-2 py-0.5 rounded-full bg-[#D30915] text-white shadow-2xs">
                     You 20%
                   </span>
-                  <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full bg-purple-600 text-white">
+                  <span className="text-[10px] sm:text-[11px] font-black px-1.5 sm:px-2 py-0.5 rounded-full bg-purple-600 text-white shadow-2xs">
                     5%
                   </span>
-                  <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full bg-purple-500 text-white">
+                  <span className="text-[10px] sm:text-[11px] font-black px-1.5 sm:px-2 py-0.5 rounded-full bg-purple-500 text-white shadow-2xs">
                     4%
                   </span>
-                  <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full bg-purple-400 text-white">
+                  <span className="text-[10px] sm:text-[11px] font-black px-1.5 sm:px-2 py-0.5 rounded-full bg-purple-400 text-white shadow-2xs">
                     3%
                   </span>
-                  <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full bg-purple-300 text-white">
+                  <span className="text-[10px] sm:text-[11px] font-black px-1.5 sm:px-2 py-0.5 rounded-full bg-purple-300 text-white shadow-2xs">
                     2%
                   </span>
-                  <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full bg-purple-200 text-purple-900">
+                  <span className="text-[10px] sm:text-[11px] font-black px-1.5 sm:px-2 py-0.5 rounded-full bg-purple-200 text-purple-900 shadow-2xs">
                     1%
                   </span>
                 </div>
               </div>
 
-              {/* Sponsor Network Advantage Callout */}
-              <div className="mt-3 p-2.5 rounded-[12px] bg-[#fff1f2] border border-[#fecdd3] flex items-center gap-2 text-[11px] font-bold text-[#D30915]">
+              {/* Sponsor Network Advantage Callout (Clean Straight Line on Desktop) */}
+              <div className="mt-3 p-2.5 sm:p-3 rounded-[12px] bg-[#fff1f2] border border-[#fecdd3] flex items-center justify-center sm:justify-start gap-2 text-[11px] sm:text-xs font-bold text-[#D30915]">
                 <ShieldCheck className="w-4 h-4 text-[#D30915] shrink-0" />
-                <span><strong>5-Tier Sponsor Network</strong> — Earn overrides on every team sale with weekly payouts</span>
+                <span className="leading-snug">
+                  <strong>5-Tier Sponsor Network</strong> — Earn overrides on every team sale with weekly payouts
+                </span>
               </div>
 
             </div>

@@ -1,6 +1,6 @@
 export type CommissionTierLevel = 'personal' | 1 | 2 | 3 | 4 | 5;
 
-export type CommissionStatus = 'paid' | 'pending' | 'processing';
+export type CommissionStatus = 'paid' | 'pending' | 'processing' | 'approved' | 'reversed';
 
 export interface CommissionRecord {
   id: string;

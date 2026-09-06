@@ -40,7 +40,9 @@ export const ShoppingWithRepBanner: React.FC<ShoppingWithRepBannerProps> = ({
       const repParam = params.get('rep') || params.get('consultant');
       if (repParam) {
         const updated = representativeService.setAttributedRepresentative(repParam);
-        if (updated) setRep(updated);
+        if (updated) {
+          setTimeout(() => setRep(updated), 0);
+        }
       }
     }
   }, []);
@@ -65,52 +67,84 @@ export const ShoppingWithRepBanner: React.FC<ShoppingWithRepBannerProps> = ({
       {/* Persistent Top Shopping-With Banner */}
       <aside 
         aria-label="Representative attribution banner"
-        className="w-full bg-gradient-to-r from-[#fff5f6] via-[#fff9fa] to-[#fff0f2] border-b border-[#ffd8dc] py-1.5 px-3 sm:px-6 relative z-30 transition-all duration-300"
+        className={`w-full border-b py-1.5 px-3 sm:px-6 relative z-30 transition-all duration-300 ${
+          rep.isSuspended
+            ? 'bg-gradient-to-r from-[#fffbeb] via-[#fffdf5] to-[#fef3c7] border-amber-200'
+            : 'bg-gradient-to-r from-[#fff5f6] via-[#fff9fa] to-[#fff0f2] border-[#ffd8dc]'
+        }`}
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 text-xs sm:text-sm">
-          {/* Left: Rep Photo & Headline */}
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <div className="relative flex-shrink-0">
-              <img
-                src={rep.avatar}
-                alt={rep.name}
-                className="w-6 h-6 sm:w-7 sm:h-7 rounded-full object-cover ring-2 ring-[#D30915]/30 shadow-sm"
-              />
-              <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full" />
-            </div>
-
-            <div className="flex items-center gap-1.5 min-w-0">
-              <span className="text-[#645c68] text-[11px] sm:text-xs whitespace-nowrap">
-                You are shopping with
+          {rep.isSuspended ? (
+            /* Inactive Representative Banner */
+            <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black uppercase tracking-wider shrink-0">
+                Inactive
               </span>
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(true)}
-                className="font-semibold text-[#141219] hover:text-[#D30915] transition-colors truncate max-w-[140px] sm:max-w-none flex items-center gap-1 group text-[12px] sm:text-xs"
-              >
-                <span>{rep.name}</span>
-                <span className="inline-flex items-center px-1.5 py-0.2 text-[9px] font-bold rounded-full bg-[#D30915]/10 text-[#D30915] ml-1">
-                  {rep.rank}
-                </span>
-              </button>
+              <span className="text-[#92400e] text-[11px] sm:text-xs font-bold truncate">
+                Consultant Storefront Temporarily Inactive ({rep.name})
+              </span>
+              <span className="hidden md:inline text-[11px] text-[#b45309]">
+                • Orders are currently not credited to this consultant.
+              </span>
             </div>
-          </div>
+          ) : (
+            /* Active Representative Banner */
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <div className="relative flex-shrink-0">
+                <img
+                  src={rep.avatar}
+                  alt={rep.name}
+                  className="w-6 h-6 sm:w-7 sm:h-7 rounded-full object-cover ring-2 ring-[#D30915]/30 shadow-sm"
+                />
+                <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full" />
+              </div>
+
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="text-[#645c68] text-[11px] sm:text-xs whitespace-nowrap">
+                  You are shopping with
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(true)}
+                  className="font-semibold text-[#141219] hover:text-[#D30915] transition-colors truncate max-w-[140px] sm:max-w-none flex items-center gap-1 group text-[12px] sm:text-xs"
+                >
+                  <span>{rep.name}</span>
+                  <span className="inline-flex items-center px-1.5 py-0.2 text-[9px] font-bold rounded-full bg-[#D30915]/10 text-[#D30915] ml-1">
+                    {rep.rank}
+                  </span>
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Right: Actions */}
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-            <button
-              type="button"
-              onClick={() => setIsModalOpen(true)}
-              className="text-[11px] font-medium text-[#D30915] hover:underline flex items-center gap-1"
-            >
-              <span>View Profile</span>
-            </button>
+            {rep.isSuspended ? (
+              <button
+                type="button"
+                onClick={() => {
+                  representativeService.clearAttributedRepresentative();
+                  setRep(representativeService.getAttributedRepresentative());
+                }}
+                className="text-[11px] font-bold text-amber-900 bg-amber-200/80 hover:bg-amber-300 px-2.5 py-1 rounded-md transition-colors cursor-pointer"
+              >
+                Shop Direct
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(true)}
+                className="text-[11px] font-medium text-[#D30915] hover:underline flex items-center gap-1 cursor-pointer"
+              >
+                <span>View Profile</span>
+              </button>
+            )}
 
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setIsChangeMenuOpen((prev) => !prev)}
-                className="text-[11px] text-[#645c68] hover:text-[#141219] font-medium flex items-center gap-0.5 bg-white/80 hover:bg-white px-2 py-0.5 rounded-md border border-[#ecdfe2] transition-colors"
+                className="text-[11px] text-[#645c68] hover:text-[#141219] font-medium flex items-center gap-0.5 bg-white/80 hover:bg-white active:scale-95 px-2 py-0.5 rounded-md border border-[#ecdfe2] hover:border-[#D30915] transition-all cursor-pointer shadow-2xs"
                 title="Change Consultant"
               >
                 <span className="hidden sm:inline">Change</span>

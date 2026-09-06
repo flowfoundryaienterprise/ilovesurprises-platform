@@ -50,7 +50,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
         <img
           src="/assets/ilovesurprises/logo/New logo.jpeg"
           alt="I Love Surprises Logo"
-          className="h-[49px] sm:h-[57px] w-auto max-w-[225px] sm:max-w-[265px] mx-auto object-contain mb-3"
+          className="h-[42px] min-[360px]:h-[46px] min-[390px]:h-[50px] min-[420px]:h-[52px] sm:h-[57px] w-auto max-w-[170px] min-[360px]:max-w-[195px] min-[390px]:max-w-[215px] min-[420px]:max-w-[230px] sm:max-w-[265px] mx-auto object-contain mb-3"
           loading="eager"
         />
         <h2 className="text-xl sm:text-2xl font-black text-[#141219] tracking-tight m-0 font-display">
@@ -86,7 +86,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
           <button
             type="button"
             onClick={onSwitchToLogin}
-            className="w-full h-[44px] rounded-[13px] bg-[#D30915] hover:bg-[#B60711] text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-[0_8px_20px_rgba(211, 9, 21,0.28)] active:scale-97 transition-all cursor-pointer flex items-center justify-center gap-2"
+            className="w-full h-[44px] rounded-[13px] bg-[#D30915] hover:bg-[#B60711] text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-[0_8px_20px_rgba(211,9,21,0.28)] hover:shadow-[0_12px_28px_rgba(211,9,21,0.38)] hover:-translate-y-0.5 active:translate-y-0 active:scale-97 transition-all cursor-pointer flex items-center justify-center gap-2"
           >
             <span>Back to Login</span>
             <ArrowRight className="w-4 h-4" />
@@ -122,8 +122,8 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
                   if (error) setError(null);
                 }}
                 className={`w-full h-[42px] sm:h-[44px] pl-10 pr-3 rounded-[13px] bg-[#fffafb] border text-xs sm:text-sm font-medium text-[#141219] placeholder:text-[#9c95a0] transition-all outline-none disabled:opacity-50 ${error
-                    ? 'border-red-400 focus:border-red-500 focus:bg-white focus:ring-2 focus:ring-red-100'
-                    : 'border-[#ebdce5] hover:border-[#f1b8cb] focus:border-[#D30915] focus:bg-white focus:ring-2 focus:ring-[#D30915]/10'
+                  ? 'border-red-400 focus:border-red-500 focus:bg-white focus:ring-2 focus:ring-red-100'
+                  : 'border-[#ebdce5] hover:border-[#f1b8cb] focus:border-[#D30915] focus:bg-white focus:ring-2 focus:ring-[#D30915]/10'
                   }`}
               />
             </div>
@@ -132,7 +132,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full h-[44px] sm:h-[46px] rounded-[14px] bg-gradient-to-r from-[#D30915] to-[#B60711] hover:from-[#B60711] hover:to-[#c21a57] text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-[0_8px_22px_rgba(211, 9, 21,0.28)] hover:shadow-[0_12px_28px_rgba(211, 9, 21,0.38)] active:scale-97 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer flex items-center justify-center gap-2"
+            className="w-full h-[44px] sm:h-[46px] rounded-[14px] bg-gradient-to-r from-[#D30915] to-[#B60711] hover:from-[#B60711] hover:to-[#96050e] text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-[0_8px_22px_rgba(211,9,21,0.28)] hover:shadow-[0_12px_28px_rgba(211,9,21,0.38)] hover:-translate-y-0.5 active:translate-y-0 active:scale-97 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer flex items-center justify-center gap-2"
           >
             {isLoading ? (
               <div className="flex items-center gap-2">

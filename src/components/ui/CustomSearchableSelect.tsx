@@ -86,25 +86,31 @@ export const CustomSearchableSelect: React.FC<CustomSearchableSelectProps> = ({
   // Focus search when dropdown/sheet opens
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => {
+      const focusTimer = setTimeout(() => {
         if (isMobile) {
           mobileSearchInputRef.current?.focus();
         } else {
           searchInputRef.current?.focus();
         }
       }, 60);
+      return () => clearTimeout(focusTimer);
     } else {
-      setSearchQuery('');
+      const resetTimer = setTimeout(() => {
+        setSearchQuery('');
+      }, 0);
+      return () => clearTimeout(resetTimer);
     }
   }, [isOpen, isMobile]);
 
   // Filtered options based on search query
-  const filteredOptions = options.filter(
-    (opt) =>
-      opt.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (opt.subLabel && opt.subLabel.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (opt.badge && opt.badge.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const filteredOptions = React.useMemo(() => {
+    return options.filter(
+      (opt) =>
+        opt.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (opt.subLabel && opt.subLabel.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (opt.badge && opt.badge.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+  }, [options, searchQuery]);
 
   const handleSelect = (optionValue: string) => {
     onChange(optionValue);

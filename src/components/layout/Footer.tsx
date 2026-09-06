@@ -60,7 +60,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <button
                 type="submit"
                 disabled={subscribed}
-                className="h-[44px] sm:h-[48px] px-6 rounded-[12px] sm:rounded-[14px] bg-[#D30915] hover:bg-[#B60711] text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-[0_6px_20px_rgba(211, 9, 21,0.28)] hover:shadow-[0_10px_24px_rgba(211, 9, 21,0.38)] active:scale-95 transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5 shrink-0 w-full sm:w-auto"
+                className="h-[44px] sm:h-[48px] px-6 rounded-[12px] sm:rounded-[14px] bg-[#D30915] hover:bg-[#B60711] text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-[0_6px_20px_rgba(211,9,21,0.28)] hover:shadow-[0_10px_24px_rgba(211,9,21,0.38)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5 shrink-0 w-full sm:w-auto"
               >
                 {subscribed ? (
                   <>
@@ -134,12 +134,28 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           <div className="sm:col-span-2 lg:col-span-4 flex flex-col justify-between">
             <div>
               <a href="#hero" className="inline-block mb-3 group focus:outline-none">
-                <img
-                  src="/assets/ilovesurprises/logo/New logo.jpeg"
-                  alt="I Love Surprises Logo"
-                  className="h-[49px] sm:h-[61px] md:h-[65px] w-auto max-w-[215px] sm:max-w-[265px] object-contain transition-transform duration-300 group-hover:scale-103"
-                  loading="lazy"
-                />
+                <picture className="inline-block">
+                  <source srcSet="/assets/ilovesurprises/logo/logo.svg" type="image/svg+xml" />
+                  <source
+                    srcSet="/assets/ilovesurprises/logo/logo-ultra-hd.png 2x, /assets/ilovesurprises/logo/logo-16k.png 1x"
+                    type="image/png"
+                  />
+                  <img
+                    src="/assets/ilovesurprises/logo/logo-16k.png"
+                    alt="I Love Surprises Logo"
+                    width={2576}
+                    height={620}
+                    className="h-[42px] min-[360px]:h-[46px] min-[390px]:h-[50px] min-[420px]:h-[52px] sm:h-[61px] md:h-[65px] w-auto max-w-[170px] min-[360px]:max-w-[195px] min-[390px]:max-w-[215px] min-[420px]:max-w-[230px] sm:max-w-[265px] object-contain transition-transform duration-300 group-hover:scale-103"
+                    loading="lazy"
+                    decoding="async"
+                    style={{
+                      imageRendering: '-webkit-optimize-contrast',
+                      WebkitBackfaceVisibility: 'hidden',
+                      backfaceVisibility: 'hidden',
+                      transform: 'translateZ(0)',
+                    }}
+                  />
+                </picture>
               </a>
 
               <p className="text-xs text-[#55505a] leading-relaxed max-w-sm m-0 mb-3.5 font-medium">

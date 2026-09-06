@@ -275,14 +275,14 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="h-[38px] sm:h-[40px] px-4 rounded-[12px] border border-[#e8dfe5] text-xs font-bold text-[#716d77] cursor-pointer"
+                  className="h-[38px] sm:h-[40px] px-4 rounded-[12px] border border-[#e8dfe5] hover:border-[#D30915] hover:text-[#D30915] active:scale-95 text-xs font-bold text-[#716d77] cursor-pointer transition-all shadow-2xs"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={!isEligible || isSubmitting}
-                  className="h-[38px] sm:h-[40px] px-5 sm:px-6 rounded-[12px] bg-[#D30915] hover:bg-[#B60711] disabled:opacity-50 text-white font-black text-xs uppercase tracking-wider shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
+                  className="h-[38px] sm:h-[40px] px-5 sm:px-6 rounded-[12px] bg-[#D30915] hover:bg-[#B60711] disabled:opacity-50 text-white font-black text-xs uppercase tracking-wider shadow-[0_4px_14px_rgba(211,9,21,0.25)] hover:shadow-[0_6px_18px_rgba(211,9,21,0.35)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 transition-all"
                 >
                   {isSubmitting ? (
                     <span>Processing...</span>

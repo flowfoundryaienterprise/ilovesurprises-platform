@@ -2,6 +2,7 @@
  * Representative & Consultant Attribution Service
  * Manages active consultant attribution across products, collections, cart, and checkout.
  * Strict Privacy: Never stores or exposes representative phone numbers publicly.
+ * Inactive Handling: Suspended representative storefronts do NOT create or continue commission attribution.
  */
 
 export interface PublicRepresentative {
@@ -14,6 +15,7 @@ export interface PublicRepresentative {
   joinedYear: string;
   storeUrl: string;
   favoriteProduct: string;
+  isSuspended?: boolean;
 }
 
 const ATTRIBUTION_STORAGE_KEY = 'ilovesurprises_attributed_rep_v1';
@@ -31,6 +33,7 @@ export const DEFAULT_REPRESENTATIVES: PublicRepresentative[] = [
     joinedYear: '2025',
     storeUrl: 'https://ilovesurprises.com/emily_sparkles',
     favoriteProduct: 'Tahitian Vanilla & Gold Cash Candle',
+    isSuspended: false,
   },
   {
     id: 'rep-02',
@@ -42,6 +45,7 @@ export const DEFAULT_REPRESENTATIVES: PublicRepresentative[] = [
     joinedYear: '2025',
     storeUrl: 'https://ilovesurprises.com/jess_candles',
     favoriteProduct: 'Midnight Amber Diamond Ring Candle',
+    isSuspended: false,
   },
   {
     id: 'rep-03',
@@ -53,10 +57,51 @@ export const DEFAULT_REPRESENTATIVES: PublicRepresentative[] = [
     joinedYear: '2025',
     storeUrl: 'https://ilovesurprises.com/marcus_vip',
     favoriteProduct: 'Lavender Dream Real Cash Bath Bomb',
+    isSuspended: false,
   },
 ];
 
 export const representativeService = {
+  /**
+   * Checks whether a representative is currently suspended in admin memberships or records
+   */
+  isRepresentativeSuspended(usernameOrId: string): boolean {
+    if (!usernameOrId) return false;
+    const clean = usernameOrId.toLowerCase().trim().replace(/^@/, '');
+    try {
+      if (typeof window !== 'undefined') {
+        const storedMems = localStorage.getItem('ils_admin_memberships_v1');
+        if (storedMems) {
+          const mems = JSON.parse(storedMems);
+          const match = mems.find(
+            (m: { repUsername?: string; representativeId?: string; status?: string }) =>
+              m.repUsername?.toLowerCase() === clean ||
+              m.representativeId?.toLowerCase() === clean
+          );
+          if (match && (match.status === 'suspended' || match.status === 'cancelled')) {
+            return true;
+          }
+        }
+
+        const storedReps = localStorage.getItem('ils_admin_representatives_v1');
+        if (storedReps) {
+          const reps = JSON.parse(storedReps);
+          const match = reps.find(
+            (r: { repUsername?: string; id?: string; status?: string }) =>
+              r.repUsername?.toLowerCase() === clean ||
+              r.id?.toLowerCase() === clean
+          );
+          if (match && match.status === 'suspended') {
+            return true;
+          }
+        }
+      }
+    } catch {
+      // fallback
+    }
+    return false;
+  },
+
   /**
    * Retrieves currently attributed representative from localStorage (if still within attribution window)
    */
@@ -79,14 +124,18 @@ export const representativeService = {
 
       const stored = localStorage.getItem(ATTRIBUTION_STORAGE_KEY);
       if (stored) {
-        return JSON.parse(stored);
+        const parsed: PublicRepresentative = JSON.parse(stored);
+        parsed.isSuspended = this.isRepresentativeSuspended(parsed.repUsername);
+        return parsed;
       }
     } catch {
       // Fallback
     }
 
     // Default friendly representative for active customer shopping experience
-    return DEFAULT_REPRESENTATIVES[0];
+    const defaultRep = { ...DEFAULT_REPRESENTATIVES[0] };
+    defaultRep.isSuspended = this.isRepresentativeSuspended(defaultRep.repUsername);
+    return defaultRep;
   },
 
   /**
@@ -108,7 +157,11 @@ export const representativeService = {
         favoriteProduct: 'Tahitian Vanilla & Gold Cash Candle',
       };
     } else {
-      targetRep = repOrUsername;
+      targetRep = { ...repOrUsername };
+    }
+
+    if (targetRep) {
+      targetRep.isSuspended = this.isRepresentativeSuspended(targetRep.repUsername);
     }
 
     if (typeof window !== 'undefined' && targetRep) {
@@ -141,13 +194,21 @@ export const representativeService = {
   lookupRepresentative(username: string): PublicRepresentative | null {
     if (!username) return null;
     const clean = username.toLowerCase().trim().replace(/^@/, '');
-    return DEFAULT_REPRESENTATIVES.find((r) => r.repUsername.toLowerCase() === clean) || null;
+    const found = DEFAULT_REPRESENTATIVES.find((r) => r.repUsername.toLowerCase() === clean);
+    if (!found) return null;
+    return {
+      ...found,
+      isSuspended: this.isRepresentativeSuspended(found.repUsername),
+    };
   },
 
   /**
    * Returns list of default verified consultants
    */
   getAllActiveRepresentatives(): PublicRepresentative[] {
-    return DEFAULT_REPRESENTATIVES;
+    return DEFAULT_REPRESENTATIVES.map((r) => ({
+      ...r,
+      isSuspended: this.isRepresentativeSuspended(r.repUsername),
+    }));
   },
 };

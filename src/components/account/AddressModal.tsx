@@ -44,34 +44,37 @@ export const AddressModal: React.FC<AddressModalProps> = ({
   const [selectedDistrict, setSelectedDistrict] = useState('');
 
   useEffect(() => {
-    if (editingAddress) {
-      setForm({
-        fullName: editingAddress.fullName,
-        phone: editingAddress.phone,
-        addressLine1: editingAddress.addressLine1,
-        addressLine2: editingAddress.addressLine2 || '',
-        city: editingAddress.city,
-        state: editingAddress.state,
-        zipCode: editingAddress.zipCode,
-        country: editingAddress.country || 'United States',
-        label: editingAddress.label || 'Home',
-        isDefault: editingAddress.isDefault,
-      });
-    } else {
-      setForm({
-        fullName: '',
-        phone: '',
-        addressLine1: '',
-        addressLine2: '',
-        city: '',
-        state: 'NY',
-        zipCode: '',
-        country: 'United States',
-        label: 'Home',
-        isDefault: false,
-      });
-    }
-    setErrors({});
+    const timer = setTimeout(() => {
+      if (editingAddress) {
+        setForm({
+          fullName: editingAddress.fullName,
+          phone: editingAddress.phone,
+          addressLine1: editingAddress.addressLine1,
+          addressLine2: editingAddress.addressLine2 || '',
+          city: editingAddress.city,
+          state: editingAddress.state,
+          zipCode: editingAddress.zipCode,
+          country: editingAddress.country || 'United States',
+          label: editingAddress.label || 'Home',
+          isDefault: editingAddress.isDefault,
+        });
+      } else {
+        setForm({
+          fullName: '',
+          phone: '',
+          addressLine1: '',
+          addressLine2: '',
+          city: '',
+          state: 'NY',
+          zipCode: '',
+          country: 'United States',
+          label: 'Home',
+          isDefault: false,
+        });
+      }
+      setErrors({});
+    }, 0);
+    return () => clearTimeout(timer);
   }, [editingAddress, isOpen]);
 
   // Geographical cascading datasets

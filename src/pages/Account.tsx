@@ -106,7 +106,10 @@ export const Account: React.FC<AccountProps> = ({
     if (highlightOrderId) {
       const found = orderService.getOrderById(highlightOrderId);
       if (found) {
-        setSelectedOrderDetails(found);
+        const timer = setTimeout(() => {
+          setSelectedOrderDetails(found);
+        }, 0);
+        return () => clearTimeout(timer);
       }
     }
   }, [highlightOrderId]);

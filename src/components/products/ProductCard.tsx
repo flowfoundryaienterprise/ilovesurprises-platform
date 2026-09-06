@@ -12,7 +12,7 @@ interface ProductCardProps {
   isWishlisted?: boolean;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({
+export const ProductCard: React.FC<ProductCardProps> = React.memo(({
   product,
   cartQuantity = 0,
   onAddToCart,
@@ -61,8 +61,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         <img
           src={product.image}
           alt={product.name}
-          className="w-full h-full max-w-full object-contain p-1.5 transition-transform duration-500 ease-out group-hover:scale-105 will-change-transform"
+          width={400}
+          height={400}
+          className="w-full h-full max-w-full object-contain p-1.5 transition-transform duration-500 ease-out group-hover:scale-105"
           loading="lazy"
+          decoding="async"
         />
 
         {/* Top-Left Badges Stack with Proper Flex Spacing & No Overlap */}
@@ -84,10 +87,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         <button
           type="button"
           onClick={handleWishlist}
-          aria-label={isWishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
-          className={`absolute top-1.5 right-1.5 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer shadow-xs active:scale-90 z-20 ${
+          aria-label={isWishlisted ? `Remove ${product.name} from wishlist` : `Save ${product.name} to wishlist`}
+          className={`absolute top-1.5 right-1.5 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer shadow-xs active:scale-90 z-20 focus-visible:ring-2 focus-visible:ring-[#D30915]/50 focus-visible:outline-none ${
             isWishlisted
-              ? 'bg-[#D30915] text-white shadow-[0_4px_12px_rgba(211, 9, 21,0.3)]'
+              ? 'bg-[#D30915] text-white shadow-[0_4px_12px_rgba(211, 9, 21,0.3)] hover:scale-105'
               : 'bg-white/90 hover:bg-white text-[#716d77] hover:text-[#D30915] hover:shadow-[0_4px_12px_rgba(211, 9, 21,0.2)] hover:scale-110'
           }`}
         >
@@ -105,8 +108,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         )}
       </div>
 
-      {/* Product Information */}
-      <div className="flex flex-col flex-1 justify-between">
+      {/* Content Container */}
+      <div className="p-2 sm:p-3 flex-1 flex flex-col justify-between">
         <div>
           {/* Rating & Category */}
           <div className="flex items-center justify-between gap-1 text-[10px] mb-1">
@@ -144,7 +147,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <button
               type="button"
               onClick={handleAdd}
-              className="h-[32px] sm:h-[34px] px-3.5 rounded-[10px] bg-[#fff5f5] hover:bg-[#D30915] text-[#D30915] hover:text-white border border-[#fecdd3] hover:border-[#D30915] text-xs font-black uppercase tracking-wider flex items-center gap-1 shadow-2xs hover:shadow-[0_6px_20px_rgba(211, 9, 21,0.32)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 cursor-pointer"
+              className="h-[32px] sm:h-[34px] px-3.5 rounded-[10px] bg-[#fff5f5] hover:bg-[#D30915] text-[#D30915] hover:text-white border border-[#fecdd3] hover:border-[#D30915] text-xs font-black uppercase tracking-wider flex items-center gap-1 shadow-2xs hover:shadow-[0_6px_20px_rgba(211, 9, 21,0.32)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D30915]/50"
               aria-label={`Add ${product.name} to cart`}
             >
               <Plus className="w-3.5 h-3.5 stroke-[3]" />
@@ -155,8 +158,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               <button
                 type="button"
                 onClick={handleDecrement}
-                className="w-6 h-6 rounded-[7px] flex items-center justify-center hover:bg-black/15 active:scale-90 transition-all cursor-pointer"
-                aria-label="Decrease quantity"
+                className="w-6 h-6 rounded-[7px] flex items-center justify-center hover:bg-black/15 active:scale-90 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white"
+                aria-label={`Decrease ${product.name} quantity`}
               >
                 <Minus className="w-3.5 h-3.5 stroke-[3]" />
               </button>
@@ -168,8 +171,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               <button
                 type="button"
                 onClick={handleIncrement}
-                className="w-6 h-6 rounded-[7px] flex items-center justify-center hover:bg-black/15 active:scale-90 transition-all cursor-pointer"
-                aria-label="Increase quantity"
+                className="w-6 h-6 rounded-[7px] flex items-center justify-center hover:bg-black/15 active:scale-90 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white"
+                aria-label={`Increase ${product.name} quantity`}
               >
                 <Plus className="w-3.5 h-3.5 stroke-[3]" />
               </button>
@@ -179,4 +182,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       </div>
     </div>
   );
-};
+});
+
+ProductCard.displayName = 'ProductCard';

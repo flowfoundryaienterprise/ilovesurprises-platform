@@ -37,8 +37,10 @@ export const ToastNotification: React.FC<ToastNotificationProps> = ({
   useEffect(() => {
     if (!toast) return;
 
-    setIsExiting(false);
-    setProgress(100);
+    const initTimer = setTimeout(() => {
+      setIsExiting(false);
+      setProgress(100);
+    }, 0);
 
     const duration = toast.duration || 3200;
     const interval = 25;
@@ -56,6 +58,7 @@ export const ToastNotification: React.FC<ToastNotificationProps> = ({
     }, duration);
 
     return () => {
+      clearTimeout(initTimer);
       clearInterval(progressTimer);
       clearTimeout(dismissTimer);
     };

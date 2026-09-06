@@ -1,30 +1,68 @@
 # I Love Surprises Platform
 
-A modern direct-to-consumer (DTC) e-commerce storefront for surprise reveal products, featuring cash and fine jewelry reveal candles, bath products, interactive shopping cart, voice search, and affiliate representative tools.
+A modern direct-to-consumer (DTC) e-commerce storefront for surprise reveal products—featuring cash and fine jewelry reveal candles, bath treats, interactive shopping bag, affiliate representative tools, and administrative management.
 
-## Features
+## ✨ Features
 
-- **Product Catalog & Details**: Browse luxury candles, bath bombs, wax melts, soaps, and slimes with interactive image zoom and scent profile breakdowns.
-- **Faceted Search & Filtering**: Multi-attribute filtering by category, price, customer rating, and prize reveal type with real-time sorting.
-- **Voice Search**: Hands-free search powered by the Web Speech API.
-- **Cart & Checkout**: Slide-over shopping bag with dynamic free shipping progress tracking and promo code discounts.
-- **Authentication**: Role-based authentication modal supporting both retail customers and 20% commission brand representatives.
-- **Responsive UI**: Fully responsive, accessible interface with smooth transitions across mobile, tablet, and desktop devices.
+- **Product Catalog & Discovery**: Browse luxury candles, bath bombs, wax melts, and soaps with scent profile breakdowns, burn times, wax blend details, and reveal tier information.
+- **Interactive Shopping Bag**: Slide-over cart drawer with dynamic free shipping progress tracking, promotional discount code application, and real-time item updates.
+- **Faceted Search & Voice Search**: Filter by category, price, customer rating, and prize reveal tier, plus hands-free search powered by the Web Speech API.
+- **Multistep Checkout**: Complete checkout workflow featuring guest/account checkout options, order summary, and interactive Leaflet map address location picker.
+- **Affiliate & Brand Rep Portal**: Dedicated brand representative dashboard with referral code tracking, commission statistics, and personalized shopping banners.
+- **Admin Dashboard**: Comprehensive management interface for inventory levels, order processing status, promo codes, and customer reports.
+- **Customer Rewards & Accounts**: Account hub for tracking order history, saved addresses, and loyalty rewards points.
+- **High-Refresh & Mobile Optimization**: Smooth 60/120/144Hz animation performance, GPU-accelerated transforms, and responsive mobile-first layouts.
 
-## Tech Stack
+## 🛠️ Tech Stack
 
-- **Frontend**: React 19, TypeScript
-- **Styling**: Tailwind CSS v4
+- **Core**: React 19, TypeScript
+- **Styling**: Tailwind CSS v4, Vanilla CSS
 - **Icons**: Lucide React
-- **Build Tool**: Vite
+- **Maps**: Leaflet (`leaflet`, `@types/leaflet`)
+- **Animation**: Framer Motion
+- **Tooling & Build**: Vite 8, Oxlint
 
-## Installation / Run
+## 📁 Project Structure
+
+```text
+ilovesurprises-platform/
+├── public/              # Static assets, logo, favicon, robots.txt, sitemap.xml
+├── src/
+│   ├── components/      # UI components organized by domain
+│   │   ├── account/     # Customer profile, order history, addresses
+│   │   ├── admin/       # Admin management, inventory, orders, analytics
+│   │   ├── affiliate/   # Representative dashboard and referral tools
+│   │   ├── auth/        # Login, registration, role switcher modal
+│   │   ├── cart/        # Slide-over shopping bag and shipping tracker
+│   │   ├── checkout/    # Checkout flow and Leaflet map address picker
+│   │   ├── home/        # Hero section, product categories, reveal banner
+│   │   ├── layout/      # Navbar, footer, announcement banners
+│   │   ├── products/    # Product cards, catalog grid, filtering, quick view
+│   │   ├── seo/         # Dynamic metadata, OpenGraph, JSON-LD tags
+│   │   └── ui/          # Reusable UI primitives (modals, badges, buttons)
+│   ├── constants/       # Site constants, routes, navigation configuration
+│   ├── data/            # Mock products, categories, coupons, reviews
+│   ├── hooks/           # Custom React hooks (cart, auth, viewport, voice)
+│   ├── pages/           # Top-level page views (Home, Shop, Checkout, Admin, etc.)
+│   ├── services/        # State management, local storage, mock service layer
+│   ├── types/           # TypeScript interfaces and data models
+│   ├── utils/           # Helper functions, formatters, calculations
+│   ├── App.tsx          # Application shell, router, and context providers
+│   ├── index.css        # Design tokens, theme variables, and global CSS
+│   └── main.tsx         # React root entry point
+├── package.json         # Project metadata, scripts, and dependencies
+├── tsconfig.json        # TypeScript compiler configuration
+└── vite.config.ts       # Vite build configuration
+```
+
+## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js (v18 or higher)
+
+- [Node.js](https://nodejs.org/) (version 18 or higher)
 - npm
 
-### Steps
+### Installation
 
 1. Clone the repository:
    ```bash
@@ -42,15 +80,37 @@ A modern direct-to-consumer (DTC) e-commerce storefront for surprise reveal prod
    npm run dev
    ```
 
-4. Build for production:
-   ```bash
-   npm run build
-   ```
+The application will be available at `http://localhost:5173`.
 
-## Live Demo
+## 🌐 Live Demo
 
-[Live Demo](https://ilovesurprises.com)
+The production application is live at:
+[https://ilovesurprises.com](https://ilovesurprises.com)
 
-## Author
+## 📦 Build
 
-- **Janarthanan** ([FlowFoundry AI Enterprise](https://github.com/flowfoundryaienterprise))
+To create an optimized production build:
+
+```bash
+npm run build
+```
+
+To preview the production build locally:
+
+```bash
+npm run preview
+```
+
+To run the linter:
+
+```bash
+npm run lint
+```
+
+## 👨‍💻 Author
+
+- **Janarthanan** — [FlowFoundry AI Enterprise](https://github.com/flowfoundryaienterprise)
+
+## 📄 License
+
+This project is private and proprietary. All rights reserved.

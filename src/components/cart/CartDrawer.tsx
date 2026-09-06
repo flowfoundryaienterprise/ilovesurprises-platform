@@ -128,7 +128,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               <button
                 type="button"
                 onClick={handleTriggerClose}
-                className="w-8 h-8 rounded-full bg-stone-100 hover:bg-[#fff1f2] text-[#716d77] hover:text-[#D30915] flex items-center justify-center transition-all cursor-pointer shadow-2xs active:scale-90"
+                className="w-8 h-8 rounded-full bg-stone-100 hover:bg-[#fff1f2] text-[#716d77] hover:text-[#D30915] flex items-center justify-center transition-all cursor-pointer shadow-2xs active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D30915]/50"
                 aria-label="Close cart"
               >
                 <X className="w-4 h-4 stroke-[2.5]" />
@@ -198,7 +198,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           )}
 
           {/* 3. Scrollable Cart Items List */}
-          <div className="flex-1 overflow-y-auto p-3.5 sm:p-5 space-y-2.5 sm:space-y-3">
+          <div className="flex-1 overflow-y-auto pt-4 pb-3.5 px-3.5 sm:pt-5 sm:pb-5 sm:px-5 space-y-3">
             {cart.length === 0 ? (
               <div className="text-center py-12 px-4">
                 <div className="w-16 h-16 rounded-full bg-[#fff1f2] border border-[#fecdd3] text-[#D30915] flex items-center justify-center mx-auto mb-3 shadow-xs">
@@ -221,20 +221,43 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               cart.map((item) => (
                 <div
                   key={item.product.id}
-                  className="flex gap-2.5 sm:gap-3.5 p-2.5 sm:p-3 rounded-[18px] bg-[#fffafc] border border-[#eee2eb] hover:border-[#fecdd3] transition-all shadow-2xs group w-full max-w-full overflow-hidden"
+                  className="flex gap-2.5 sm:gap-3.5 p-2.5 sm:p-3 rounded-[18px] bg-[#fffafc] border border-[#eee2eb] hover:border-[#fecdd3] transition-all shadow-2xs group w-full max-w-full overflow-visible"
                 >
                   {/* Product Thumbnail */}
-                  <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-[14px] bg-white border border-[#f0e4ec] overflow-hidden shrink-0 flex items-center justify-center p-1">
-                    <img
-                      src={item.product.image}
-                      alt={item.product.name}
-                      className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
-                      loading="lazy"
-                    />
+                  <div className="relative shrink-0 overflow-visible" style={{ overflow: 'visible' }}>
+                    <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-[14px] bg-white border border-[#f0e4ec] overflow-hidden flex items-center justify-center p-1 shadow-2xs">
+                      <img
+                        src={item.product.image}
+                        alt={item.product.name}
+                        className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                        loading="lazy"
+                      />
 
-                    {/* Tiny Surprise Type Chip */}
-                    <span className="absolute bottom-1 left-1 right-1 text-[8px] font-black uppercase text-center py-0.5 rounded-[6px] bg-[#141219]/80 text-white backdrop-blur-2xs truncate">
-                      {item.product.surpriseType === 'cash' ? '💵 Cash Win' : '💍 Jewelry'}
+                      {/* Tiny Surprise Type Chip */}
+                      <span className="absolute bottom-1 left-1 right-1 text-[8px] font-black uppercase text-center py-0.5 rounded-[6px] bg-[#141219]/80 text-white backdrop-blur-2xs truncate">
+                        {item.product.surpriseType === 'cash' ? '💵 Cash Win' : '💍 Jewelry'}
+                      </span>
+                    </div>
+                    <span
+                      className="absolute rounded-full bg-[#141219] text-white font-bold flex items-center justify-center border-2 border-white shadow-xs z-20 leading-none select-none pointer-events-none"
+                      style={{
+                        top: '-8px',
+                        right: '-8px',
+                        width: '20px',
+                        height: '20px',
+                        fontSize: '12px',
+                        lineHeight: '1',
+                        backgroundColor: '#141219',
+                        color: '#ffffff',
+                        border: '2px solid #ffffff',
+                        borderRadius: '9999px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxSizing: 'border-box',
+                      }}
+                    >
+                      {item.quantity}
                     </span>
                   </div>
 
@@ -255,6 +278,26 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
+
+                      {(item.selectedRingSize || item.selectedJewelryType || item.selectedSize) && (
+                        <div className="flex flex-wrap items-center gap-1 mt-1">
+                          {item.selectedJewelryType && (
+                            <span className="text-[9.5px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.2 rounded border border-purple-200">
+                              Type: {item.selectedJewelryType}
+                            </span>
+                          )}
+                          {item.selectedRingSize && (
+                            <span className="text-[9.5px] font-bold text-[#D30915] bg-[#fff1f2] px-1.5 py-0.2 rounded border border-[#fecdd3]">
+                              Ring Size: {item.selectedRingSize}
+                            </span>
+                          )}
+                          {item.selectedSize && (
+                            <span className="text-[9.5px] font-medium text-[#716d77] bg-gray-50 px-1.5 py-0.2 rounded border border-gray-200">
+                              {item.selectedSize}
+                            </span>
+                          )}
+                        </div>
+                      )}
 
                       <div className="flex items-center gap-1.5 mt-0.5 overflow-hidden">
                         <span className="text-[10px] text-[#716d77] font-medium shrink-0">
@@ -337,7 +380,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     </div>
                     <button
                       type="submit"
-                      className="h-[36px] px-3.5 rounded-[11px] bg-white border border-[#e8dfe5] hover:border-[#D30915] hover:text-[#D30915] text-xs font-bold text-[#141219] shadow-2xs transition-colors cursor-pointer"
+                      className="h-[36px] px-3.5 rounded-[11px] bg-white border border-[#e8dfe5] hover:border-[#D30915] hover:text-[#D30915] text-xs font-bold text-[#141219] shadow-2xs transition-all cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D30915]/50"
                     >
                       Apply
                     </button>
@@ -388,7 +431,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               <button
                 type="button"
                 onClick={() => onCheckout(appliedPromo?.code)}
-                className="w-full h-[46px] sm:h-[48px] rounded-[14px] bg-[#D30915] hover:bg-[#B60711] text-white font-black text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_8px_22px_rgba(211, 9, 21,0.3)] hover:shadow-[0_12px_28px_rgba(211, 9, 21,0.42)] active:scale-97 transition-all cursor-pointer"
+                className="w-full h-[46px] sm:h-[48px] rounded-[14px] bg-[#D30915] hover:bg-[#B60711] text-white font-black text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_8px_22px_rgba(211, 9, 21,0.3)] hover:shadow-[0_12px_28px_rgba(211, 9, 21,0.42)] active:scale-97 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D30915]/50 focus-visible:ring-offset-2"
               >
                 <Lock className="w-4 h-4" />
                 <span>Secure Checkout • ${(finalSubtotal + (isFreeShipping ? 0 : 4.99)).toFixed(2)}</span>

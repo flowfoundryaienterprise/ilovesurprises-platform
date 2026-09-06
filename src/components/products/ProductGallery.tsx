@@ -34,10 +34,20 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
   const [lightboxScale, setLightboxScale] = useState(1);
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
 
   // Reset index to 0 whenever the selected product or mainImage changes
   useEffect(() => {
-    setCurrentIndex(0);
+    const timer = setTimeout(() => {
+      setCurrentIndex(0);
+    }, 0);
+    return () => clearTimeout(timer);
   }, [mainImage]);
 
   const currentImage = allImages[currentIndex] || mainImage;
@@ -54,14 +64,22 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
     };
   }, [isLightboxOpen]);
 
-  // Handle Mouse Move for Dynamic Pan-Zoom Lens (only on hover-capable pointer devices)
+  // Handle Mouse Move for Dynamic Pan-Zoom Lens (only on hover-capable pointer devices) - rAF throttled
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (typeof window !== 'undefined' && !window.matchMedia('(hover: hover)').matches) return;
     if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const x = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
-    const y = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100));
-    setZoomOrigin({ x, y });
+    const clientX = e.clientX;
+    const clientY = e.clientY;
+
+    if (rafRef.current) return;
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null;
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const x = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
+      const y = Math.max(0, Math.min(100, ((clientY - rect.top) / rect.height) * 100));
+      setZoomOrigin({ x, y });
+    });
   };
 
   const handleNext = React.useCallback(() => {
@@ -104,12 +122,15 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
         <img
           src={currentImage}
           alt={productName}
+          width={600}
+          height={600}
           style={{
             transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`,
           }}
-          className={`w-full h-full max-h-[480px] object-contain mx-auto transition-transform duration-200 ease-out will-change-transform ${isHoverZooming ? 'scale-[2.1]' : 'scale-100 group-hover:scale-102'
+          className={`w-full h-full max-h-[480px] object-contain mx-auto transition-transform duration-200 ease-out ${isHoverZooming ? 'scale-[2.1]' : 'scale-100 group-hover:scale-102'
             }`}
           loading="eager"
+          decoding="async"
         />
 
         {/* Top Badges */}
@@ -180,6 +201,10 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                 <img
                   src={img}
                   alt={`${productName} view ${idx + 1}`}
+                  width={80}
+                  height={80}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-contain rounded-[10px]"
                 />
               </button>

@@ -70,7 +70,7 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
           type="button"
           disabled={disabled}
           onClick={() => setShowPassword((prev) => !prev)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#8a858f] hover:text-[#D30915] focus:text-[#D30915] focus:outline-none transition-colors cursor-pointer rounded"
+          className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 text-[#8a858f] hover:text-[#D30915] active:scale-90 transition-all cursor-pointer rounded-lg hover:bg-[#fff1f2]"
           aria-label={showPassword ? 'Hide password' : 'Show password'}
         >
           {showPassword ? (

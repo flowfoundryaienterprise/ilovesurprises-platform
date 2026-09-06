@@ -6,6 +6,9 @@ export interface OrderItem {
   product: Product;
   quantity: number;
   selectedSurpriseOption?: string;
+  selectedRingSize?: number;
+  selectedJewelryType?: string;
+  selectedSize?: string;
   unitPrice: number;
   totalPrice: number;
 }

@@ -6,6 +6,9 @@ import {
   XCircle,
   X,
   Check,
+  Sliders,
+  Sparkles,
+  ShieldAlert,
 } from 'lucide-react';
 import type { MembershipAdminRecord, MembershipPlanType } from '../../types/admin';
 
@@ -14,6 +17,20 @@ interface AdminMembershipsProps {
   onUpdateStatus: (id: string, status: 'active' | 'past_due' | 'suspended' | 'cancelled') => void;
   onShowToast: (message: string, options?: { title?: string; type?: 'success' | 'info' }) => void;
 }
+
+export interface MembershipPricingConfig {
+  monthlyPrice: number;
+  sixMonthDiscount: number;
+  twelveMonthDiscount: number;
+}
+
+const DEFAULT_MEMBERSHIP_PRICING: MembershipPricingConfig = {
+  monthlyPrice: 19.99,
+  sixMonthDiscount: 10,
+  twelveMonthDiscount: 15,
+};
+
+const MEMBERSHIP_PRICING_KEY = 'ils_admin_membership_pricing_v1';
 
 export const AdminMemberships: React.FC<AdminMembershipsProps> = ({
   memberships,
@@ -24,6 +41,67 @@ export const AdminMemberships: React.FC<AdminMembershipsProps> = ({
   const [planFilter, setPlanFilter] = useState<'all' | MembershipPlanType>('all');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'past_due' | 'suspended' | 'cancelled'>('all');
   const [selectedMembership, setSelectedMembership] = useState<MembershipAdminRecord | null>(null);
+
+  // Membership Pricing Configuration
+  const [pricing, setPricing] = useState<MembershipPricingConfig>(() => {
+    try {
+      const saved = localStorage.getItem(MEMBERSHIP_PRICING_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch {
+      // fallback
+    }
+    return DEFAULT_MEMBERSHIP_PRICING;
+  });
+
+  const [isEditingPricing, setIsEditingPricing] = useState(false);
+  const [tempPricing, setTempPricing] = useState<MembershipPricingConfig>(pricing);
+  const [pricingError, setPricingError] = useState<string | null>(null);
+
+  // Dynamic calculated prices
+  const calculatedSixMonthPrice = Number((pricing.monthlyPrice * 6 * (1 - pricing.sixMonthDiscount / 100)).toFixed(2));
+  const calculatedTwelveMonthPrice = Number((pricing.monthlyPrice * 12 * (1 - pricing.twelveMonthDiscount / 100)).toFixed(2));
+  const sixMonthSavings = Number((pricing.monthlyPrice * 6 - calculatedSixMonthPrice).toFixed(2));
+  const twelveMonthSavings = Number((pricing.monthlyPrice * 12 - calculatedTwelveMonthPrice).toFixed(2));
+
+  // Temp previews in modal
+  const tempSixMonthPrice = Number(((Number(tempPricing.monthlyPrice) || 0) * 6 * (1 - (Number(tempPricing.sixMonthDiscount) || 0) / 100)).toFixed(2));
+  const tempTwelveMonthPrice = Number(((Number(tempPricing.monthlyPrice) || 0) * 12 * (1 - (Number(tempPricing.twelveMonthDiscount) || 0) / 100)).toFixed(2));
+
+  const handleOpenEditPricing = () => {
+    setTempPricing(pricing);
+    setPricingError(null);
+    setIsEditingPricing(true);
+  };
+
+  const handleSavePricing = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (tempPricing.monthlyPrice <= 0) {
+      setPricingError('Monthly base price must be greater than $0.00.');
+      return;
+    }
+    if (tempPricing.sixMonthDiscount < 0 || tempPricing.sixMonthDiscount > 80) {
+      setPricingError('6-Month discount must be between 0% and 80%.');
+      return;
+    }
+    if (tempPricing.twelveMonthDiscount < 0 || tempPricing.twelveMonthDiscount > 80) {
+      setPricingError('12-Month discount must be between 0% and 80%.');
+      return;
+    }
+
+    const updated: MembershipPricingConfig = {
+      monthlyPrice: Number(tempPricing.monthlyPrice),
+      sixMonthDiscount: Number(tempPricing.sixMonthDiscount),
+      twelveMonthDiscount: Number(tempPricing.twelveMonthDiscount),
+    };
+
+    setPricing(updated);
+    localStorage.setItem(MEMBERSHIP_PRICING_KEY, JSON.stringify(updated));
+    setIsEditingPricing(false);
+    onShowToast(`Membership pricing updated: $${updated.monthlyPrice.toFixed(2)}/mo (${updated.sixMonthDiscount}% & ${updated.twelveMonthDiscount}% prepaid discounts).`, {
+      title: 'Pricing Updated',
+      type: 'success',
+    });
+  };
 
   // Filter list
   const filtered = useMemo(() => {
@@ -98,6 +176,17 @@ export const AdminMemberships: React.FC<AdminMembershipsProps> = ({
               Approved subscription billing tiers, renewal cycles, payment health, and grace period controls.
             </p>
           </div>
+
+          <div>
+            <button
+              type="button"
+              onClick={handleOpenEditPricing}
+              className="px-3.5 py-2 rounded-xl bg-[#D30915] hover:bg-[#b00711] text-white text-xs font-black transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+            >
+              <Sliders className="w-3.5 h-3.5" />
+              <span>Configure Pricing</span>
+            </button>
+          </div>
         </div>
 
         {/* Approved Business Pricing Callout Cards */}
@@ -108,7 +197,7 @@ export const AdminMemberships: React.FC<AdminMembershipsProps> = ({
               <span className="text-[10px] font-bold text-gray-500 uppercase">Standard</span>
             </div>
             <div className="text-xl font-black text-[#D30915] hero-title-font">
-              $19.99 <span className="text-xs font-medium text-[#716d77]">/month</span>
+              ${pricing.monthlyPrice.toFixed(2)} <span className="text-xs font-medium text-[#716d77]">/month</span>
             </div>
             <p className="text-[11px] text-[#716d77] m-0">Standard monthly rep access & back-office privileges.</p>
           </div>
@@ -117,26 +206,26 @@ export const AdminMemberships: React.FC<AdminMembershipsProps> = ({
             <div className="flex items-center justify-between">
               <span className="text-xs font-black text-[#141219]">6-Month Prepaid</span>
               <span className="text-[10px] font-black text-purple-700 bg-purple-50 px-1.5 py-0.2 rounded">
-                10% OFF
+                {pricing.sixMonthDiscount}% OFF
               </span>
             </div>
             <div className="text-xl font-black text-[#54217f] hero-title-font">
-              $107.95 <span className="text-xs font-medium text-[#716d77]">/6 mos</span>
+              ${calculatedSixMonthPrice.toFixed(2)} <span className="text-xs font-medium text-[#716d77]">/6 mos</span>
             </div>
-            <p className="text-[11px] text-[#716d77] m-0">Save $11.99 upfront compared to monthly billing.</p>
+            <p className="text-[11px] text-[#716d77] m-0">Save ${sixMonthSavings.toFixed(2)} upfront compared to monthly billing.</p>
           </div>
 
           <div className="p-3 rounded-xl bg-gradient-to-br from-[#fff1f2] to-white border border-[#D30915]/30 space-y-1 relative overflow-hidden shadow-2xs">
             <div className="flex items-center justify-between">
               <span className="text-xs font-black text-[#141219]">12-Month Annual VIP</span>
               <span className="text-[10px] font-black text-[#D30915] bg-[#fff1f2] px-1.5 py-0.2 rounded border border-[#D30915]/20">
-                15% OFF
+                {pricing.twelveMonthDiscount}% OFF
               </span>
             </div>
             <div className="text-xl font-black text-[#D30915] hero-title-font">
-              $203.90 <span className="text-xs font-medium text-[#716d77]">/year</span>
+              ${calculatedTwelveMonthPrice.toFixed(2)} <span className="text-xs font-medium text-[#716d77]">/year</span>
             </div>
-            <p className="text-[11px] text-[#716d77] m-0">Best value. Save $35.98 upfront with year-round perks.</p>
+            <p className="text-[11px] text-[#716d77] m-0">Best value. Save ${twelveMonthSavings.toFixed(2)} upfront with year-round perks.</p>
           </div>
         </div>
       </div>
@@ -161,9 +250,9 @@ export const AdminMemberships: React.FC<AdminMembershipsProps> = ({
             className="w-full h-10 px-3 rounded-xl bg-[#faf7f9] border border-[#eedbe6] text-xs text-[#141219] font-medium focus:outline-none focus:border-[#D30915] cursor-pointer"
           >
             <option value="all">All Plans (Monthly / 6-Mo / 12-Mo)</option>
-            <option value="monthly">Monthly Active ($19.99/mo)</option>
-            <option value="six_month">6-Month Prepaid ($107.95)</option>
-            <option value="twelve_month">12-Month Prepaid ($203.90)</option>
+            <option value="monthly">Monthly Active (${pricing.monthlyPrice.toFixed(2)}/mo)</option>
+            <option value="six_month">6-Month Prepaid (${calculatedSixMonthPrice.toFixed(2)})</option>
+            <option value="twelve_month">12-Month Prepaid (${calculatedTwelveMonthPrice.toFixed(2)})</option>
           </select>
         </div>
 
@@ -435,6 +524,144 @@ export const AdminMemberships: React.FC<AdminMembershipsProps> = ({
             >
               Close
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* 4. Edit Membership Pricing Configuration Modal */}
+      {isEditingPricing && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl border border-[#eedbe6] shadow-2xl max-w-md w-full p-5 sm:p-7 space-y-5 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between pb-3 border-b border-[#f5eaf1]">
+              <div className="flex items-center gap-2">
+                <Sliders className="w-5 h-5 text-[#D30915]" />
+                <h3 className="text-lg font-black text-[#141219] m-0">
+                  Configure Membership Pricing
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsEditingPricing(false)}
+                className="p-1 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSavePricing} className="space-y-4">
+              <p className="text-xs text-[#716d77] m-0">
+                Update representative recurring membership fees and prepaid volume discount percentages.
+              </p>
+
+              {/* Monthly Base Price */}
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-[#141219]">
+                  Base Monthly Subscription ($)
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-2 text-xs font-bold text-gray-400">$</span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="1"
+                    max="999"
+                    value={tempPricing.monthlyPrice}
+                    onChange={(e) => setTempPricing({ ...tempPricing, monthlyPrice: parseFloat(e.target.value) || 0 })}
+                    className="w-full pl-7 pr-3 py-2 rounded-xl border border-[#eedbe6] text-sm font-bold text-[#141219] focus:outline-hidden focus:border-[#D30915]"
+                  />
+                  <span className="absolute right-3 top-2 text-xs font-bold text-gray-400">/mo</span>
+                </div>
+                <span className="text-[10px] text-gray-500">Default: $19.99 / month</span>
+              </div>
+
+              {/* 6-Month Prepaid Discount */}
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-[#141219]">
+                  6-Month Prepaid Discount (%)
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    step="1"
+                    min="0"
+                    max="80"
+                    value={tempPricing.sixMonthDiscount}
+                    onChange={(e) => setTempPricing({ ...tempPricing, sixMonthDiscount: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 rounded-xl border border-[#eedbe6] text-sm font-bold text-[#141219] focus:outline-hidden focus:border-[#D30915]"
+                  />
+                  <span className="absolute right-3 top-2 text-xs font-bold text-gray-400">%</span>
+                </div>
+                <span className="text-[10px] text-gray-500">Default: 10% discount</span>
+              </div>
+
+              {/* 12-Month Annual Discount */}
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-[#141219]">
+                  12-Month Annual Prepaid Discount (%)
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    step="1"
+                    min="0"
+                    max="80"
+                    value={tempPricing.twelveMonthDiscount}
+                    onChange={(e) => setTempPricing({ ...tempPricing, twelveMonthDiscount: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 rounded-xl border border-[#eedbe6] text-sm font-bold text-[#141219] focus:outline-hidden focus:border-[#D30915]"
+                  />
+                  <span className="absolute right-3 top-2 text-xs font-bold text-gray-400">%</span>
+                </div>
+                <span className="text-[10px] text-gray-500">Default: 15% discount</span>
+              </div>
+
+              {/* Live Preview Card */}
+              <div className="p-3.5 rounded-2xl bg-[#faf7f9] border border-[#eedbe6] space-y-2">
+                <span className="text-[10px] font-black uppercase tracking-wider text-[#D30915] flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" />
+                  <span>Calculated Billing Previews</span>
+                </span>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="p-2 rounded-xl bg-white border border-[#f0d0e2]">
+                    <span className="block text-[10px] font-extrabold text-[#716d77] uppercase">6-Month Price</span>
+                    <span className="font-black text-sm text-[#54217f]">${tempSixMonthPrice.toFixed(2)}</span>
+                    <span className="block text-[10px] text-emerald-700 font-bold">
+                      Save ${((Number(tempPricing.monthlyPrice) || 0) * 6 - tempSixMonthPrice).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-white border border-[#D30915]/30">
+                    <span className="block text-[10px] font-extrabold text-[#716d77] uppercase">12-Month Annual</span>
+                    <span className="font-black text-sm text-[#D30915]">${tempTwelveMonthPrice.toFixed(2)}</span>
+                    <span className="block text-[10px] text-emerald-700 font-bold">
+                      Save ${((Number(tempPricing.monthlyPrice) || 0) * 12 - tempTwelveMonthPrice).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {pricingError && (
+                <div className="p-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold flex items-center gap-1.5">
+                  <ShieldAlert className="w-4 h-4 shrink-0 text-red-600" />
+                  <span>{pricingError}</span>
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#f5eaf1]">
+                <button
+                  type="button"
+                  onClick={() => setIsEditingPricing(false)}
+                  className="px-4 py-2 rounded-xl border border-gray-200 text-[#716d77] hover:text-[#141219] hover:bg-gray-50 text-xs font-bold transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-[#D30915] hover:bg-[#b00711] text-white text-xs font-black transition-all cursor-pointer shadow-xs"
+                >
+                  Save Pricing
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

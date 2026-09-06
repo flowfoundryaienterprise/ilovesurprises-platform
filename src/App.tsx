@@ -1,27 +1,47 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
+import { MinimalCheckoutHeader } from './components/layout/MinimalCheckoutHeader';
+import { usePathname, isCheckoutRoute } from './hooks/usePathname';
 import { AuthModal } from './components/auth/AuthModal';
 import { CartDrawer } from './components/cart/CartDrawer';
-import { RepresentativeSubscriptionModal } from './components/affiliate/RepresentativeSubscriptionModal';
 import { ToastNotification, type ToastData } from './components/ui/ToastNotification';
 import { Home } from './pages/Home';
 import { Shop } from './pages/Shop';
-import { Categories } from './pages/Categories';
 import { ProductDetails } from './pages/ProductDetails';
-import { Checkout } from './pages/Checkout';
-import { OrderConfirmation } from './pages/OrderConfirmation';
-import { Account, type AccountTab } from './pages/Account';
-import { AffiliateDashboard } from './pages/AffiliateDashboard';
-import { About } from './pages/About';
-import { Contact } from './pages/Contact';
-import { Rewards } from './pages/Rewards';
-import { AdminDashboard } from './pages/AdminDashboard';
+import type { AccountTab } from './pages/Account';
 import type { Product, CartItem, UserProfile, Order } from './types';
 import type { AdminTab } from './types/admin';
 import { productsData } from './data/products';
 import { accountService } from './services/accountService';
 import { representativeService } from './services/representativeService';
+import { SEOHead } from './components/seo/SEOHead';
+
+// Route-level code splitting for rapid initial load and 144Hz responsiveness
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard').then((m) => ({ default: m.AdminDashboard })));
+const AffiliateDashboard = lazy(() => import('./pages/AffiliateDashboard').then((m) => ({ default: m.AffiliateDashboard })));
+const Account = lazy(() => import('./pages/Account').then((m) => ({ default: m.Account })));
+const Checkout = lazy(() => import('./pages/Checkout').then((m) => ({ default: m.Checkout })));
+const OrderConfirmation = lazy(() => import('./pages/OrderConfirmation').then((m) => ({ default: m.OrderConfirmation })));
+const Categories = lazy(() => import('./pages/Categories').then((m) => ({ default: m.Categories })));
+const About = lazy(() => import('./pages/About').then((m) => ({ default: m.About })));
+const Contact = lazy(() => import('./pages/Contact').then((m) => ({ default: m.Contact })));
+const Rewards = lazy(() => import('./pages/Rewards').then((m) => ({ default: m.Rewards })));
+const RepresentativeSubscriptionModal = lazy(() =>
+  import('./components/affiliate/RepresentativeSubscriptionModal').then((m) => ({
+    default: m.RepresentativeSubscriptionModal,
+  }))
+);
+
+function PageLoadingFallback() {
+  return (
+    <div className="w-full max-w-[1460px] mx-auto px-4 py-8 animate-pulse" role="status" aria-label="Loading page">
+      <div className="h-8 w-48 bg-stone-200/70 rounded-xl mb-3" />
+      <div className="h-4 w-72 bg-stone-100 rounded-lg mb-6" />
+      <div className="h-64 w-full bg-stone-100/60 rounded-2xl border border-stone-200/40" />
+    </div>
+  );
+}
 
 export type AppView =
   | 'home'
@@ -38,6 +58,8 @@ export type AppView =
   | 'admin';
 
 export function App() {
+  const pathname = usePathname();
+
   const [currentView, setCurrentView] = useState<AppView>(() => {
     if (typeof window === 'undefined') return 'home';
     const path = window.location.pathname;
@@ -45,8 +67,22 @@ export function App() {
     if (path === '/shop') return 'shop';
     if (path === '/categories') return 'categories';
     if (path.startsWith('/product/')) return 'product-details';
-    if (path === '/checkout') return 'checkout';
-    if (path.startsWith('/order-confirmation/')) return 'order-confirmation';
+    if (
+      path === '/checkout' ||
+      path.startsWith('/checkout/') ||
+      path === '/shipping' ||
+      path === '/payment' ||
+      path === '/buy-now'
+    ) {
+      return 'checkout';
+    }
+    if (
+      path.startsWith('/order-confirmation/') ||
+      path === '/thank-you' ||
+      path === '/order-success'
+    ) {
+      return 'order-confirmation';
+    }
     if (path === '/account') return 'account';
     if (path === '/affiliate') return 'affiliate';
     if (path === '/about') return 'about';
@@ -57,9 +93,23 @@ export function App() {
     const trimmedPath = path.startsWith('/rep/') ? path.replace('/rep/', '') : path.slice(1);
     if (
       trimmedPath &&
-      !['admin', 'shop', 'categories', 'checkout', 'order-confirmation', 'account', 'affiliate', 'about', 'contact', 'rewards'].includes(
-        trimmedPath
-      ) &&
+      ![
+        'admin',
+        'shop',
+        'categories',
+        'checkout',
+        'shipping',
+        'payment',
+        'buy-now',
+        'order-confirmation',
+        'thank-you',
+        'order-success',
+        'account',
+        'affiliate',
+        'about',
+        'contact',
+        'rewards',
+      ].includes(trimmedPath) &&
       !trimmedPath.includes('/')
     ) {
       representativeService.setAttributedRepresentative(trimmedPath);
@@ -130,9 +180,7 @@ export function App() {
   useEffect(() => {
     const handleUserUpdated = () => {
       const stored = accountService.getStoredUser();
-      if (stored) {
-        setUser(stored);
-      }
+      setUser(stored);
     };
     window.addEventListener('ilovesurprises_user_updated', handleUserUpdated);
     window.addEventListener('ils_consultant_subscribed', handleUserUpdated);
@@ -218,6 +266,68 @@ export function App() {
     canonical.setAttribute('href', `${currentOrigin}${window.location.pathname}`);
   }, [currentView, selectedProduct]);
 
+  // Synchronize route changes from pathname with currentView and enforce AuthGuard on checkout
+  useEffect(() => {
+    const clean = (pathname || '').split('?')[0].split('#')[0];
+    const isProtectedCheckout =
+      clean === '/checkout' ||
+      clean.startsWith('/checkout/') ||
+      clean === '/shipping' ||
+      clean === '/payment' ||
+      clean === '/buy-now';
+
+    if (isProtectedCheckout) {
+      if (!user) {
+        // Intercept unauthenticated access to checkout flow
+        try {
+          localStorage.setItem(
+            'ils_intended_checkout',
+            JSON.stringify({ action: 'route', path: clean })
+          );
+        } catch {
+          // ignore
+        }
+        setTimeout(() => {
+          setAuthMode('login');
+          setIsAuthOpen(true);
+        }, 0);
+        if (window.history.replaceState) {
+          window.history.replaceState(
+            { view: 'home', redirect: clean },
+            '',
+            `/login?redirect=${encodeURIComponent(clean)}`
+          );
+        }
+        return;
+      }
+
+      if (currentView !== 'checkout') {
+        setTimeout(() => setCurrentView('checkout'), 0);
+      }
+    } else if (
+      clean.startsWith('/order-confirmation') ||
+      clean === '/thank-you' ||
+      clean === '/order-success'
+    ) {
+      if (currentView !== 'order-confirmation') {
+        setTimeout(() => setCurrentView('order-confirmation'), 0);
+      }
+    }
+  }, [pathname, currentView, user]);
+
+  // Handle direct /login route with redirect param on initial mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname;
+      if (path === '/login') {
+        setTimeout(() => {
+          setAuthMode('login');
+          setIsAuthOpen(true);
+        }, 0);
+      }
+    }
+  }, []);
+
   // Browser history popstate handler with back detection & drawer interception
   useEffect(() => {
     const handlePopState = (e: PopStateEvent) => {
@@ -279,12 +389,28 @@ export function App() {
         } else if (path === '/categories') {
           setCurrentView('categories');
           window.scrollTo({ top: scrollPositions.current['categories'] || 0, behavior: 'smooth' });
-        } else if (path === '/checkout') {
+        } else if (
+          path === '/checkout' ||
+          path.startsWith('/checkout/') ||
+          path === '/shipping' ||
+          path === '/payment' ||
+          path === '/buy-now'
+        ) {
           setCurrentView('checkout');
           window.scrollTo({ top: 0, behavior: 'smooth' });
-        } else if (path.startsWith('/order-confirmation/')) {
-          const id = path.replace('/order-confirmation/', '');
-          setConfirmedOrderId(id);
+        } else if (
+          path.startsWith('/order-confirmation/') ||
+          path === '/thank-you' ||
+          path === '/order-success'
+        ) {
+          const id = path.startsWith('/order-confirmation/')
+            ? path.replace('/order-confirmation/', '')
+            : path.startsWith('/thank-you/')
+            ? path.replace('/thank-you/', '')
+            : path.startsWith('/order-success/')
+            ? path.replace('/order-success/', '')
+            : null;
+          if (id) setConfirmedOrderId(id);
           setCurrentView('order-confirmation');
           window.scrollTo({ top: 0, behavior: 'smooth' });
         } else if (path === '/account') {
@@ -322,6 +448,13 @@ export function App() {
     setIsAuthOpen(true);
   };
 
+  const handleCloseAuth = () => {
+    setIsAuthOpen(false);
+    if (typeof window !== 'undefined' && window.location.pathname === '/login') {
+      window.history.replaceState({ view: 'home' }, '', '/');
+    }
+  };
+
   const handleAuthSuccess = (authenticatedUser: UserProfile) => {
     setUser(authenticatedUser);
     accountService.updateStoredUser(authenticatedUser);
@@ -329,26 +462,110 @@ export function App() {
       title: 'Signed In',
       type: 'success',
     });
+
+    // Check for intended checkout restoration after login
+    try {
+      const storedIntended = localStorage.getItem('ils_intended_checkout');
+      if (storedIntended) {
+        localStorage.removeItem('ils_intended_checkout');
+        const parsed = JSON.parse(storedIntended);
+
+        if (parsed.action === 'buy-now' && parsed.product) {
+          // Add product to cart if not already present, then proceed to checkout
+          setCart((prev) => {
+            const existing = prev.find((item) => item.product.id === parsed.product.id);
+            if (existing) {
+              return prev.map((item) =>
+                item.product.id === parsed.product.id
+                  ? { ...item, quantity: item.quantity + (parsed.quantity || 1) }
+                  : item
+              );
+            }
+            return [...prev, { product: parsed.product, quantity: parsed.quantity || 1 }];
+          });
+          setNavDirection('forward');
+          setCurrentView('checkout');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          if (window.history.pushState) {
+            window.history.pushState({ view: 'checkout' }, '', '/checkout');
+          }
+          return;
+        }
+
+        if (parsed.action === 'checkout') {
+          if (parsed.promoCode) {
+            setAppliedCheckoutPromo(parsed.promoCode);
+          }
+          setNavDirection('forward');
+          setCurrentView('checkout');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          if (window.history.pushState) {
+            window.history.pushState({ view: 'checkout' }, '', '/checkout');
+          }
+          return;
+        }
+
+        if (parsed.action === 'route' && parsed.path) {
+          setNavDirection('forward');
+          setCurrentView('checkout');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          if (window.history.pushState) {
+            window.history.pushState({ view: 'checkout' }, '', parsed.path);
+          }
+          return;
+        }
+      }
+    } catch (err) {
+      console.error('Failed to restore intended checkout', err);
+    }
   };
 
   const handleLogout = () => {
+    try {
+      localStorage.removeItem('ils_consultant_subscribed');
+      localStorage.removeItem('ils_consultant_username');
+      localStorage.removeItem('ils_consultant_name');
+    } catch {
+      // ignore
+    }
     setUser(null);
     accountService.updateStoredUser(null);
+    window.dispatchEvent(new CustomEvent('ils_consultant_subscribed', { detail: { subscribed: false } }));
+    window.dispatchEvent(new CustomEvent('ilovesurprises_user_updated'));
     showToast('You have signed out successfully.', {
       title: 'Signed Out',
       type: 'info',
     });
   };
 
-  const handleAddToCart = (product: Product, quantity: number = 1) => {
+  const handleAddToCart = (
+    product: Product,
+    quantity: number = 1,
+    options?: { selectedRingSize?: number; selectedJewelryType?: string; selectedSize?: string }
+  ) => {
     setCart((prev) => {
-      const existing = prev.find((item) => item.product.id === product.id);
+      const existing = prev.find(
+        (item) =>
+          item.product.id === product.id &&
+          item.selectedRingSize === options?.selectedRingSize &&
+          item.selectedJewelryType === options?.selectedJewelryType &&
+          item.selectedSize === options?.selectedSize
+      );
       if (existing) {
         return prev.map((item) =>
-          item.product.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
+          item === existing ? { ...item, quantity: item.quantity + quantity } : item
         );
       }
-      return [...prev, { product, quantity }];
+      return [
+        ...prev,
+        {
+          product,
+          quantity,
+          selectedRingSize: options?.selectedRingSize,
+          selectedJewelryType: options?.selectedJewelryType,
+          selectedSize: options?.selectedSize,
+        },
+      ];
     });
     showToast(`Added ${quantity > 1 ? `${quantity}x ` : ''}"${product.name}" to your bag`, {
       title: 'Added to Bag',
@@ -382,6 +599,29 @@ export function App() {
 
   const handleTriggerCheckout = (promoCode?: string) => {
     setIsCartOpen(false);
+
+    // Auth Guard: If user is not authenticated, require sign in before entering checkout
+    if (!user) {
+      try {
+        localStorage.setItem(
+          'ils_intended_checkout',
+          JSON.stringify({ action: 'checkout', promoCode: promoCode || null })
+        );
+      } catch {
+        // ignore
+      }
+      setAuthMode('login');
+      setIsAuthOpen(true);
+      if (window.history.pushState) {
+        window.history.pushState({ view: 'home' }, '', '/login?redirect=/checkout');
+      }
+      showToast('Please sign in or create an account to proceed to checkout.', {
+        title: 'Sign In Required',
+        type: 'info',
+      });
+      return;
+    }
+
     setAppliedCheckoutPromo(promoCode || null);
     scrollPositions.current[currentView] = window.scrollY;
     setNavDirection('forward');
@@ -390,6 +630,37 @@ export function App() {
     if (window.history.pushState) {
       window.history.pushState({ view: 'checkout' }, '', '/checkout');
     }
+  };
+
+  const handleBuyNow = (
+    product: Product,
+    quantity: number = 1,
+    options?: { selectedRingSize?: number; selectedJewelryType?: string; selectedSize?: string }
+  ) => {
+    // Auth Guard: If user is not authenticated, intercept before adding & checking out
+    if (!user) {
+      try {
+        localStorage.setItem(
+          'ils_intended_checkout',
+          JSON.stringify({ action: 'buy-now', product, quantity, options })
+        );
+      } catch {
+        // ignore
+      }
+      setAuthMode('login');
+      setIsAuthOpen(true);
+      if (window.history.pushState) {
+        window.history.pushState({ view: 'home' }, '', '/login?redirect=/checkout');
+      }
+      showToast('Please sign in or create an account to complete your purchase.', {
+        title: 'Sign In Required',
+        type: 'info',
+      });
+      return;
+    }
+
+    handleAddToCart(product, quantity, options);
+    handleTriggerCheckout();
   };
 
   const handleOrderCompleted = (createdOrder: Order) => {
@@ -573,20 +844,107 @@ export function App() {
   };
 
   const transitionClass = navDirection === 'backward' ? 'page-transition-backward' : 'page-transition-forward';
+  const isCheckoutFlow = isCheckoutRoute(pathname, currentView);
+
+  const cleanPath = (pathname || '').split('?')[0].split('#')[0];
+  const isExplicitOrderSuccessPath =
+    cleanPath.startsWith('/order-confirmation') ||
+    cleanPath === '/thank-you' ||
+    cleanPath === '/order-success';
+
+  const isExplicitCheckoutStepPath =
+    cleanPath === '/checkout' ||
+    cleanPath.startsWith('/checkout/') ||
+    cleanPath === '/shipping' ||
+    cleanPath === '/payment' ||
+    cleanPath === '/buy-now';
+
+  // Shipping, delivery, payment, and checkout steps MUST ALWAYS render the Checkout page, NEVER OrderConfirmation!
+  const isOrderConfirmation =
+    isExplicitOrderSuccessPath ||
+    (currentView === 'order-confirmation' && !isExplicitCheckoutStepPath);
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-[#141219]">
+      <SEOHead
+        view={currentView}
+        product={selectedProduct}
+        category={selectedCategory}
+        accountTab={accountActiveTab}
+      />
       {currentView === 'admin' ? (
         <div key="page-admin" className="flex-1 w-full min-h-screen bg-[#fcf9fb]">
-          <AdminDashboard
-            initialTab={adminActiveTab}
-            onNavigateToHome={() => handleNavigateToHome('backward')}
-            onShowToast={showToast}
-          />
+          <Suspense fallback={<PageLoadingFallback />}>
+            <AdminDashboard
+              initialTab={adminActiveTab}
+              onNavigateToHome={() => handleNavigateToHome('backward')}
+              onShowToast={showToast}
+            />
+          </Suspense>
         </div>
+      ) : isCheckoutFlow ? (
+        <>
+          {/* Minimal Checkout Header: Hidden on shipping, delivery, and payment pages (only page heading shown) */}
+          {isOrderConfirmation && (
+            <MinimalCheckoutHeader
+              onNavigateHome={() => handleNavigateToHome('backward')}
+              onBackToShop={() => handleNavigateToShop(undefined, 'backward')}
+            />
+          )}
+
+          {/* Checkout & Order Confirmation View with zero distractions */}
+          <main className="flex-1 w-full overflow-hidden">
+            {isOrderConfirmation ? (
+              <div key={`page-order-confirmation-${confirmedOrderId || 'latest'}`} className={transitionClass}>
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <OrderConfirmation
+                    orderId={confirmedOrderId || undefined}
+                    latestOrder={latestPlacedOrder}
+                    onNavigateToShop={() => handleNavigateToShop(undefined, 'forward')}
+                    onNavigateToAccountOrders={(orderId) => handleNavigateToAccount('orders', orderId)}
+                  />
+                </Suspense>
+              </div>
+            ) : user ? (
+              <div key="page-checkout" className={transitionClass}>
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <Checkout
+                    cart={cart}
+                    user={user}
+                    appliedPromoCode={appliedCheckoutPromo}
+                    onOrderCompleted={handleOrderCompleted}
+                    onNavigateToShop={() => handleNavigateToShop(undefined, 'forward')}
+                    onBackToCart={() => setIsCartOpen(true)}
+                  />
+                </Suspense>
+              </div>
+            ) : (
+              <div key="page-checkout-auth-guard" className="min-h-[60vh] flex items-center justify-center p-6 text-center">
+                <div className="max-w-md mx-auto space-y-4">
+                  <div className="w-16 h-16 rounded-full bg-[#fff1f2] border-2 border-[#fecdd3] text-[#D30915] flex items-center justify-center mx-auto shadow-xs">
+                    <span className="text-2xl">🔒</span>
+                  </div>
+                  <h2 className="text-xl font-black text-[#141219]">Authentication Required</h2>
+                  <p className="text-sm text-[#716d77]">
+                    Please sign in or create an account to securely access checkout and shipping details.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => handleOpenAuth('login')}
+                    className="h-[44px] px-6 rounded-[14px] bg-[#D30915] text-white font-black text-xs uppercase tracking-wider cursor-pointer shadow-xs active:scale-95"
+                  >
+                    Sign In / Register
+                  </button>
+                </div>
+              </div>
+            )}
+          </main>
+
+          {/* Footer is COMPLETELY HIDDEN on checkout flow */}
+        </>
       ) : (
         <>
-          {/* 1. Header / Navbar with Active Highlighting, Search, Location, User Menu & Cart */}
+          {/* Main Header / Navbar ONLY on Shopping Pages & Content Pages */}
           <Header
             cartCount={totalCartCount}
             cartSubtotal={cartSubtotal}
@@ -610,7 +968,7 @@ export function App() {
             onSelectCategory={(category) => handleNavigateToShop(category)}
           />
 
-          {/* Main Dynamic View: Home | Shop | Categories | Product Details | Checkout | Order Confirmation | Account | Affiliate */}
+          {/* Main Dynamic View: Shopping pages (Home, Categories, Shop, Product Details, Account, etc.) */}
           <main className="flex-1 w-full overflow-hidden">
             {currentView === 'home' && (
               <div key="page-home" className={transitionClass}>
@@ -630,10 +988,12 @@ export function App() {
 
             {currentView === 'categories' && (
               <div key="page-categories" className={transitionClass}>
-                <Categories
-                  onSelectCategory={(cat) => handleNavigateToShop(cat, 'forward')}
-                  onBackToHome={() => handleNavigateToHome('backward')}
-                />
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <Categories
+                    onSelectCategory={(cat) => handleNavigateToShop(cat, 'forward')}
+                    onBackToHome={() => handleNavigateToHome('backward')}
+                  />
+                </Suspense>
               </div>
             )}
 
@@ -664,92 +1024,79 @@ export function App() {
                   onWishlistToggle={handleWishlistToggle}
                   onSelectProduct={handleSelectProduct}
                   onOpenCart={() => setIsCartOpen(true)}
-                />
-              </div>
-            )}
-
-            {currentView === 'checkout' && (
-              <div key="page-checkout" className={transitionClass}>
-                <Checkout
-                  cart={cart}
-                  user={user}
-                  appliedPromoCode={appliedCheckoutPromo}
-                  onOrderCompleted={handleOrderCompleted}
-                  onNavigateToShop={() => handleNavigateToShop(undefined, 'forward')}
-                  onBackToCart={() => setIsCartOpen(true)}
-                />
-              </div>
-            )}
-
-            {currentView === 'order-confirmation' && (
-              <div key={`page-order-confirmation-${confirmedOrderId || 'latest'}`} className={transitionClass}>
-                <OrderConfirmation
-                  orderId={confirmedOrderId || undefined}
-                  latestOrder={latestPlacedOrder}
-                  onNavigateToShop={() => handleNavigateToShop(undefined, 'forward')}
-                  onNavigateToAccountOrders={(orderId) => handleNavigateToAccount('orders', orderId)}
+                  onBuyNow={handleBuyNow}
                 />
               </div>
             )}
 
             {currentView === 'account' && (
               <div key={`page-account-${accountActiveTab}`} className={transitionClass}>
-                <Account
-                  user={user}
-                  activeTab={accountActiveTab}
-                  highlightOrderId={highlightOrderId}
-                  wishlistIds={wishlistIds}
-                  onOpenAuth={handleOpenAuth}
-                  onLogout={handleLogout}
-                  onNavigateToShop={() => handleNavigateToShop(undefined, 'forward')}
-                  onSelectProduct={handleSelectProduct}
-                  onAddToCart={handleAddToCart}
-                  onWishlistToggle={handleWishlistToggle}
-                  onTabChange={(tab) => setAccountActiveTab(tab)}
-                  onNavigateToAffiliate={handleNavigateToAffiliate}
-                />
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <Account
+                    user={user}
+                    activeTab={accountActiveTab}
+                    highlightOrderId={highlightOrderId}
+                    wishlistIds={wishlistIds}
+                    onOpenAuth={handleOpenAuth}
+                    onLogout={handleLogout}
+                    onNavigateToShop={() => handleNavigateToShop(undefined, 'forward')}
+                    onSelectProduct={handleSelectProduct}
+                    onAddToCart={handleAddToCart}
+                    onWishlistToggle={handleWishlistToggle}
+                    onTabChange={(tab) => setAccountActiveTab(tab)}
+                    onNavigateToAffiliate={handleNavigateToAffiliate}
+                  />
+                </Suspense>
               </div>
             )}
 
             {currentView === 'affiliate' && (
               <div key="page-affiliate" className={transitionClass}>
-                <AffiliateDashboard
-                  user={user}
-                  onNavigateToHome={() => handleNavigateToHome('backward')}
-                  onNavigateToAccount={() => handleNavigateToAccount('profile')}
-                  onShowToast={showToast}
-                />
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <AffiliateDashboard
+                    user={user}
+                    onNavigateToHome={() => handleNavigateToHome('backward')}
+                    onNavigateToAccount={() => handleNavigateToAccount('profile')}
+                    onShowToast={showToast}
+                  />
+                </Suspense>
               </div>
             )}
 
             {currentView === 'about' && (
               <div key="page-about" className={transitionClass}>
-                <About
-                  onNavigateToShop={() => handleNavigateToShop(undefined, 'forward')}
-                  onNavigateToAffiliate={() => handleNavigateToAffiliate('forward')}
-                />
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <About
+                    onNavigateToShop={() => handleNavigateToShop(undefined, 'forward')}
+                    onNavigateToAffiliate={() => handleNavigateToAffiliate('forward')}
+                  />
+                </Suspense>
               </div>
             )}
 
             {currentView === 'contact' && (
               <div key="page-contact" className={transitionClass}>
-                <Contact />
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <Contact />
+                </Suspense>
               </div>
             )}
 
             {currentView === 'rewards' && (
               <div key="page-rewards" className={transitionClass}>
-                <Rewards
-                  user={user}
-                  onNavigateToShop={() => handleNavigateToShop(undefined, 'forward')}
-                  onOpenAuth={handleOpenAuth}
-                  onShowToast={showToast}
-                />
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <Rewards
+                    user={user}
+                    onNavigateToShop={() => handleNavigateToShop(undefined, 'forward')}
+                    onOpenAuth={handleOpenAuth}
+                    onShowToast={showToast}
+                  />
+                </Suspense>
               </div>
             )}
           </main>
 
-          {/* Footer */}
+          {/* Main Footer ONLY on Shopping Pages */}
           <Footer onNavigate={handleNavigate} />
         </>
       )}
@@ -758,7 +1105,7 @@ export function App() {
       <AuthModal
         isOpen={isAuthOpen}
         initialMode={authMode}
-        onClose={() => setIsAuthOpen(false)}
+        onClose={handleCloseAuth}
         onSuccess={handleAuthSuccess}
       />
 
@@ -773,17 +1120,21 @@ export function App() {
       />
 
       {/* Representative Consultant Subscription & Enrollment Modal */}
-      <RepresentativeSubscriptionModal
-        isOpen={isSubscriptionModalOpen}
-        user={user}
-        onClose={() => setIsSubscriptionModalOpen(false)}
-        onSuccess={() => {
-          const fresh = accountService.getStoredUser();
-          if (fresh) setUser(fresh);
-          handleNavigateToAffiliate('forward');
-        }}
-        onShowToast={showToast}
-      />
+      {isSubscriptionModalOpen && (
+        <Suspense fallback={null}>
+          <RepresentativeSubscriptionModal
+            isOpen={isSubscriptionModalOpen}
+            user={user}
+            onClose={() => setIsSubscriptionModalOpen(false)}
+            onSuccess={() => {
+              const fresh = accountService.getStoredUser();
+              if (fresh) setUser(fresh);
+              handleNavigateToAffiliate('forward');
+            }}
+            onShowToast={showToast}
+          />
+        </Suspense>
+      )}
 
       {/* State-of-the-Art Luxury Toast Notification (Dynamic Top Island & Glow) */}
       <ToastNotification

@@ -30,10 +30,14 @@ export interface Product {
   inStock: boolean;
   scentNotes?: string[];
   description?: string;
+  sku?: string;
+  ringSizes?: number[];
+  jewelryTypes?: string[];
 }
 
 export interface Review {
   id: string;
+  productId?: string;
   author: string;
   location?: string;
   rating: number;
@@ -57,6 +61,9 @@ export interface CartItem {
   product: Product;
   quantity: number;
   selectedSurpriseOption?: string;
+  selectedRingSize?: number;
+  selectedJewelryType?: string;
+  selectedSize?: string;
 }
 
 export interface UserProfile {
@@ -64,6 +71,14 @@ export interface UserProfile {
   name: string;
   email: string;
   mobile?: string;
+  phone?: string;
+  address?: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  country?: string;
   role: 'customer' | 'representative' | 'admin';
   repUsername?: string;
   avatar?: string;

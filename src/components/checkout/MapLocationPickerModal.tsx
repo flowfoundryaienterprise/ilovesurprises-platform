@@ -266,6 +266,8 @@ export const MapLocationPickerModal: React.FC<MapLocationPickerModalProps> = ({
       map.remove();
       mapInstanceRef.current = null;
     };
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   // Update Tile Layer on style toggle
@@ -278,9 +280,11 @@ export const MapLocationPickerModal: React.FC<MapLocationPickerModalProps> = ({
   // Search places with debounce
   useEffect(() => {
     if (!searchQuery.trim() || searchQuery.length < 3) {
-      setSearchResults([]);
-      setIsSearching(false);
-      return;
+      const resetTimer = setTimeout(() => {
+        setSearchResults([]);
+        setIsSearching(false);
+      }, 0);
+      return () => clearTimeout(resetTimer);
     }
 
     const timeout = setTimeout(async () => {

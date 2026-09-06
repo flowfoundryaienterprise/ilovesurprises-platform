@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   X,
   Check,
@@ -20,6 +20,9 @@ import {
   Copy,
   ExternalLink,
   Sparkles,
+  Upload,
+  Camera,
+  Trash2,
 } from 'lucide-react';
 import type { UserProfile } from '../../types';
 import { representativeService } from '../../services/representativeService';
@@ -176,22 +179,69 @@ export const RepresentativeSubscriptionModal: React.FC<RepresentativeSubscriptio
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
 
+  // Profile Photo Upload States (Section 3 Requirement)
+  const [avatarUrl, setAvatarUrl] = useState<string>(
+    user?.avatar || '/assets/ilovesurprises/Profile/profile%20image.webp'
+  );
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const [isPhotoCustom, setIsPhotoCustom] = useState<boolean>(Boolean(user?.avatar));
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setPhotoError('Please select a valid image file (JPG, PNG, WebP).');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setPhotoError('Image size exceeds 5MB limit. Please choose a smaller photo.');
+      return;
+    }
+
+    setPhotoError(null);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        setAvatarUrl(event.target.result as string);
+        setIsPhotoCustom(true);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemovePhoto = () => {
+    setAvatarUrl('/assets/ilovesurprises/Profile/profile%20image.webp');
+    setIsPhotoCustom(false);
+    setPhotoError(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   // Reset step when modal opens
   useEffect(() => {
     if (isOpen) {
-      setStep('configure');
+      const timer = setTimeout(() => {
+        setStep('configure');
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [isOpen]);
 
   // Sync user details if user prop changes
   useEffect(() => {
     if (user?.name) {
-      setFullName((prev) => prev || user.name);
-      setCardholderName((prev) => prev || user.name);
-      setEmail((prev) => prev || user.email);
-      setUsername((prev) =>
-        prev === 'my_surprise_store' ? user.name.toLowerCase().replace(/[^a-z0-9]/g, '_') : prev
-      );
+      const timer = setTimeout(() => {
+        setFullName((prev) => prev || user.name);
+        setCardholderName((prev) => prev || user.name);
+        setEmail((prev) => prev || user.email);
+        setUsername((prev) =>
+          prev === 'my_surprise_store' ? user.name.toLowerCase().replace(/[^a-z0-9]/g, '_') : prev
+        );
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [user]);
 
@@ -265,7 +315,7 @@ export const RepresentativeSubscriptionModal: React.FC<RepresentativeSubscriptio
         id: `rep-custom-${Date.now()}`,
         name: fullName,
         repUsername: username.toLowerCase().trim(),
-        avatar: user?.avatar || '/assets/ilovesurprises/Profile/profile%20image.webp',
+        avatar: avatarUrl || '/assets/ilovesurprises/Profile/profile%20image.webp',
         tagline: 'Your Independent Surprise Consultant ✨',
         rank: 'VIP Partner',
         joinedYear: '2026',
@@ -281,7 +331,7 @@ export const RepresentativeSubscriptionModal: React.FC<RepresentativeSubscriptio
           representativeId: `rep-${Date.now()}`,
           repName: fullName,
           repUsername: username.toLowerCase().trim(),
-          repAvatar: user?.avatar || '/assets/ilovesurprises/Profile/profile%20image.webp',
+          repAvatar: avatarUrl || '/assets/ilovesurprises/Profile/profile%20image.webp',
           plan: selectedPlan,
           planName: currentPlan.name,
           price: currentPlan.price,
@@ -358,7 +408,7 @@ export const RepresentativeSubscriptionModal: React.FC<RepresentativeSubscriptio
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 bg-black/60 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200">
-      <div className={`relative w-full ${step === 'success' ? 'max-w-lg sm:max-w-xl' : 'max-w-5xl xl:max-w-6xl'} my-auto bg-white rounded-[24px] shadow-[0_24px_70px_rgba(0,0,0,0.32)] border border-stone-200 overflow-hidden flex flex-col max-h-[92vh] transition-all duration-300`}>
+      <div className={`relative w-full ${step === 'success' ? 'max-w-lg sm:max-w-xl' : 'max-w-5xl lg:max-w-6xl xl:max-w-7xl'} my-auto bg-white rounded-[24px] shadow-[0_24px_70px_rgba(0,0,0,0.32)] border border-stone-200 overflow-hidden flex flex-col max-h-[92vh] transition-all duration-300`}>
         
         {/* Simple, Clean & Elegant Header (Only shown during configuration and payment) */}
         {step !== 'success' && (
@@ -400,35 +450,35 @@ export const RepresentativeSubscriptionModal: React.FC<RepresentativeSubscriptio
         {/* STEP 1: CONFIGURE PLAN, KIT & PROFILE */}
         {step === 'configure' && (
           <form onSubmit={handleProceedToPayment} className="overflow-y-auto flex-1">
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 p-5 sm:p-7 lg:p-8 items-stretch">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 p-5 sm:p-7 lg:p-8 items-stretch">
               
               {/* LEFT COLUMN: Configuration Steps */}
-              <div className="md:col-span-6 space-y-6 flex flex-col justify-between">
+              <div className="lg:col-span-7 xl:col-span-7 space-y-6 flex flex-col justify-between">
                 
                 {/* Consultant Advantage Highlights Bar */}
-                <div className="grid grid-cols-3 gap-2 p-3 rounded-2xl bg-[#fff8f9] border border-[#fecdd3]/70 text-center">
-                  <div className="flex flex-col items-center justify-center p-1.5">
-                    <div className="w-7 h-7 rounded-full bg-white text-[#D30915] shadow-2xs flex items-center justify-center mb-1 border border-rose-100">
+                <div className="grid grid-cols-3 gap-2 sm:gap-3 p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-rose-50/70 to-[#fff5f6] border border-rose-200/70 text-center">
+                  <div className="flex flex-col items-center justify-center p-1">
+                    <div className="w-8 h-8 rounded-full bg-white text-[#D30915] shadow-xs flex items-center justify-center mb-1.5 border border-rose-100">
                       <DollarSign className="w-4 h-4" />
                     </div>
-                    <span className="text-[11px] font-black text-stone-900 leading-tight">20% Direct Sales</span>
-                    <span className="text-[9.5px] text-stone-500 font-medium">Instant profit per order</span>
+                    <span className="text-xs sm:text-[13px] font-black text-stone-900 leading-tight">20% Direct Sales</span>
+                    <span className="text-[10px] sm:text-[11px] text-stone-500 font-medium mt-0.5 whitespace-nowrap">Instant profit per order</span>
                   </div>
 
-                  <div className="flex flex-col items-center justify-center p-1.5 border-x border-rose-200/60">
-                    <div className="w-7 h-7 rounded-full bg-white text-purple-700 shadow-2xs flex items-center justify-center mb-1 border border-purple-100">
+                  <div className="flex flex-col items-center justify-center p-1 border-x border-rose-200/70">
+                    <div className="w-8 h-8 rounded-full bg-white text-purple-700 shadow-xs flex items-center justify-center mb-1.5 border border-purple-100">
                       <TrendingUp className="w-4 h-4" />
                     </div>
-                    <span className="text-[11px] font-black text-stone-900 leading-tight">5-Tier Overrides</span>
-                    <span className="text-[9.5px] text-stone-500 font-medium">Up to 35% total payout</span>
+                    <span className="text-xs sm:text-[13px] font-black text-stone-900 leading-tight">5-Tier Overrides</span>
+                    <span className="text-[10px] sm:text-[11px] text-stone-500 font-medium mt-0.5 whitespace-nowrap">Up to 35% total payout</span>
                   </div>
 
-                  <div className="flex flex-col items-center justify-center p-1.5">
-                    <div className="w-7 h-7 rounded-full bg-white text-emerald-600 shadow-2xs flex items-center justify-center mb-1 border border-emerald-100">
+                  <div className="flex flex-col items-center justify-center p-1">
+                    <div className="w-8 h-8 rounded-full bg-white text-emerald-600 shadow-xs flex items-center justify-center mb-1.5 border border-emerald-100">
                       <Zap className="w-4 h-4" />
                     </div>
-                    <span className="text-[11px] font-black text-stone-900 leading-tight">100% Drop-Shipped</span>
-                    <span className="text-[9.5px] text-stone-500 font-medium">Zero inventory needed</span>
+                    <span className="text-xs sm:text-[13px] font-black text-stone-900 leading-tight">100% Drop-Shipped</span>
+                    <span className="text-[10px] sm:text-[11px] text-stone-500 font-medium mt-0.5 whitespace-nowrap">Zero inventory needed</span>
                   </div>
                 </div>
 
@@ -448,28 +498,34 @@ export const RepresentativeSubscriptionModal: React.FC<RepresentativeSubscriptio
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-stretch">
                     {MEMBERSHIP_PLANS.map((plan) => {
                       const isSelected = selectedPlan === plan.id;
                       return (
                         <div
                           key={plan.id}
                           onClick={() => setSelectedPlan(plan.id)}
-                          className={`relative rounded-2xl p-3.5 border-2 transition-all cursor-pointer flex flex-col justify-between ${
+                          className={`relative rounded-2xl p-4 border-2 transition-all cursor-pointer flex flex-col justify-between ${
                             isSelected
                               ? 'border-[#D30915] bg-[#fffafb] ring-2 ring-[#D30915]/15 shadow-sm'
                               : 'border-stone-200 hover:border-rose-300 bg-white hover:bg-stone-50/50'
                           }`}
                         >
-                          {plan.discountBadge && (
-                            <span className="absolute -top-2.5 right-2 px-2 py-0.5 rounded-full bg-[#D30915] text-white text-[9px] font-black tracking-wider uppercase shadow-xs">
-                              {plan.discountBadge}
-                            </span>
-                          )}
+                          <div className="flex flex-col flex-1">
+                            {/* Uniform Badge Header Row */}
+                            <div className="flex items-center justify-between gap-1.5 mb-2 h-6">
+                              {plan.discountBadge ? (
+                                <span className={`px-2 py-0.5 rounded-full text-[9.5px] font-black tracking-wider uppercase shadow-xs ${
+                                  plan.popular ? 'bg-[#D30915] text-white' : 'bg-rose-100 text-[#D30915] border border-rose-200'
+                                }`}>
+                                  {plan.discountBadge}
+                                </span>
+                              ) : (
+                                <span className="px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 text-[9.5px] font-bold tracking-wider uppercase">
+                                  Standard Tier
+                                </span>
+                              )}
 
-                          <div>
-                            <div className="flex items-center justify-between gap-1 mb-1">
-                              <span className="text-xs font-bold text-stone-900">{plan.name}</span>
                               <div
                                 className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors shrink-0 ${
                                   isSelected ? 'border-[#D30915] bg-[#D30915]' : 'border-stone-300'
@@ -479,30 +535,39 @@ export const RepresentativeSubscriptionModal: React.FC<RepresentativeSubscriptio
                               </div>
                             </div>
 
-                            <div className="flex items-baseline gap-1 my-1">
-                              <span className="text-xl font-black text-[#D30915]">
+                            {/* Plan Name */}
+                            <h4 className="text-sm font-black text-stone-900 leading-tight m-0">
+                              {plan.name}
+                            </h4>
+
+                            {/* Monthly Price */}
+                            <div className="flex items-baseline gap-1 my-2">
+                              <span className="text-2xl font-black text-[#D30915] tracking-tight">
                                 ${plan.monthlyEquivalent.toFixed(2)}
                               </span>
                               <span className="text-xs text-stone-500 font-bold">/mo</span>
                             </div>
 
-                            <p className="text-[10.5px] text-stone-600 leading-snug font-medium mb-2.5">
+                            {/* Plan Description with uniform min-height */}
+                            <p className="text-[11px] text-stone-600 leading-snug font-medium min-h-[34px] mb-3 m-0">
                               {plan.description}
                             </p>
 
-                            <div className="space-y-1 mb-2.5 pt-2 border-t border-stone-100">
+                            {/* Perks list: clean, straight, un-truncated with emerald check icons */}
+                            <div className="space-y-1.5 pt-2.5 border-t border-stone-100 flex-1">
                               {plan.perks.map((perk) => (
-                                <div key={perk} className="flex items-center gap-1.5 text-[10px] text-stone-700 font-medium">
-                                  <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
-                                  <span className="truncate">{perk}</span>
+                                <div key={perk} className="flex items-start gap-1.5 text-[11px] text-stone-700 font-medium leading-tight">
+                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                                  <span>{perk}</span>
                                 </div>
                               ))}
                             </div>
                           </div>
 
-                          <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-[10px]">
-                            <span className="text-stone-500 font-medium truncate pr-1">{plan.billingFrequency}</span>
-                            <span className="text-stone-900 font-black shrink-0">${plan.price.toFixed(2)}</span>
+                          {/* Footer: Billed terms and total */}
+                          <div className="pt-2.5 mt-3 border-t border-stone-100 flex items-center justify-between text-[11px]">
+                            <span className="text-stone-500 font-medium">{plan.billingFrequency}</span>
+                            <span className="text-stone-900 font-black shrink-0 text-xs">${plan.price.toFixed(2)}</span>
                           </div>
                         </div>
                       );
@@ -531,89 +596,89 @@ export const RepresentativeSubscriptionModal: React.FC<RepresentativeSubscriptio
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div className="grid grid-cols-1 gap-3.5">
                     {STARTER_KITS.map((kit) => {
                       const isSelected = selectedKit === kit.id;
                       return (
                         <div
                           key={kit.id}
                           onClick={() => setSelectedKit(kit.id)}
-                          className={`relative rounded-2xl p-4 border-2 transition-all cursor-pointer flex flex-col justify-between ${
+                          className={`relative rounded-2xl p-4 sm:p-5 border-2 transition-all cursor-pointer flex flex-col justify-between ${
                             isSelected
                               ? 'border-[#D30915] bg-[#fffafb] ring-2 ring-[#D30915]/15 shadow-sm'
                               : 'border-stone-200 hover:border-rose-300 bg-white hover:bg-stone-50/50'
                           }`}
                         >
-                          <div className="space-y-2">
-                            {/* Top Badges & Select Indicator in one neat row */}
-                            <div className="flex items-center justify-between gap-2">
-                              <div className="flex items-center gap-1.5 flex-wrap">
-                                <span className="inline-block text-[9.5px] font-black uppercase tracking-wider text-[#D30915] bg-rose-50 border border-rose-200/80 px-2 py-0.5 rounded-md whitespace-nowrap">
-                                  {kit.badge}
-                                </span>
-                                <span className="text-[9.5px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 whitespace-nowrap">
-                                  {kit.savingsBadge}
-                                </span>
+                          <div className="space-y-3">
+                            {/* Top Header Row: Badges, Name, Price & Radio Indicator all straight */}
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="space-y-1 flex-1 min-w-0">
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="inline-block text-[9.5px] font-black uppercase tracking-wider text-[#D30915] bg-rose-50 border border-rose-200/80 px-2 py-0.5 rounded-md whitespace-nowrap">
+                                    {kit.badge}
+                                  </span>
+                                  <span className="text-[9.5px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 whitespace-nowrap">
+                                    {kit.savingsBadge}
+                                  </span>
+                                </div>
+                                <h4 className="text-sm sm:text-base font-black text-stone-900 m-0 leading-tight">
+                                  {kit.name}
+                                </h4>
                               </div>
 
-                              <div
-                                className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-                                  isSelected ? 'border-[#D30915] bg-[#D30915]' : 'border-stone-300'
-                                }`}
-                              >
-                                {isSelected && <Check className="w-2.5 h-2.5 text-white stroke-[3]" />}
+                              <div className="flex items-center gap-3 shrink-0">
+                                <div className="text-right flex items-baseline gap-1.5">
+                                  <span className="text-lg sm:text-xl font-black text-[#D30915]">
+                                    ${kit.price.toFixed(2)}
+                                  </span>
+                                  <span className="text-xs text-stone-400 line-through font-semibold">
+                                    ${kit.retailValue.toFixed(2)}
+                                  </span>
+                                </div>
+
+                                <div
+                                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                                    isSelected ? 'border-[#D30915] bg-[#D30915]' : 'border-stone-300'
+                                  }`}
+                                >
+                                  {isSelected && <Check className="w-3 h-3 text-white stroke-[3]" />}
+                                </div>
                               </div>
                             </div>
 
-                            {/* Kit Name & Price in one neat straight horizontal row */}
-                            <div className="flex items-baseline justify-between gap-2 pt-0.5">
-                              <h4 className="text-sm font-black text-stone-900 m-0 leading-tight">
-                                {kit.name}
-                              </h4>
-                              <div className="text-right shrink-0 flex items-baseline gap-1.5">
-                                <span className="text-lg font-black text-[#D30915]">
-                                  ${kit.price.toFixed(2)}
-                                </span>
-                                <span className="text-[10px] text-stone-400 line-through font-semibold">
-                                  ${kit.retailValue.toFixed(2)}
-                                </span>
-                              </div>
-                            </div>
-
-                            <p className="text-xs text-stone-600 leading-relaxed m-0 font-medium">
+                            <p className="text-xs text-stone-600 leading-normal m-0 font-medium">
                               {kit.description}
                             </p>
-                          </div>
 
-                          {/* Included Items: Neat straight single-line rows */}
-                          <div className="pt-2.5 mt-3 border-t border-stone-100 space-y-1.5">
-                            <div className="flex items-center justify-between text-[10px] font-bold">
-                              <span className="uppercase text-stone-400 tracking-wider">
-                                Included in box:
-                              </span>
-                              <span className="text-emerald-600 flex items-center gap-1">
-                                <Truck className="w-3 h-3" />
-                                Priority Tracked
-                              </span>
-                            </div>
+                            {/* Included Items: Clean Single Straight Lines */}
+                            <div className="pt-2.5 border-t border-stone-100 space-y-1.5">
+                              <div className="flex items-center justify-between text-[10.5px] font-bold pb-0.5">
+                                <span className="uppercase text-stone-400 tracking-wider">
+                                  Included in box:
+                                </span>
+                                <span className="text-emerald-600 flex items-center gap-1 font-semibold">
+                                  <Truck className="w-3 h-3" />
+                                  Priority Tracked
+                                </span>
+                              </div>
 
-                            <div className="space-y-1">
-                              {kit.items.map((it) => (
-                                <div
-                                  key={it.name}
-                                  className="flex items-center gap-1.5 text-[11px] leading-snug py-0.5"
-                                >
-                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                                  <div className="flex items-center gap-1.5 min-w-0 truncate">
-                                    <span className="font-bold text-stone-900 shrink-0">
+                              <div className="space-y-1.5">
+                                {kit.items.map((it) => (
+                                  <div
+                                    key={it.name}
+                                    className="flex items-center gap-2 py-1.5 px-3 rounded-xl bg-stone-50/90 border border-stone-200/70 hover:bg-stone-100/70 transition-colors text-[11.5px] sm:text-xs"
+                                  >
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                                    <span className="font-bold text-stone-900 whitespace-nowrap shrink-0">
                                       {it.name}
                                     </span>
-                                    <span className="text-[10.5px] text-stone-500 font-normal truncate">
-                                      — {it.desc}
+                                    <span className="text-stone-400 font-normal shrink-0">—</span>
+                                    <span className="text-stone-600 font-medium truncate sm:whitespace-nowrap">
+                                      {it.desc}
                                     </span>
                                   </div>
-                                </div>
-                              ))}
+                                ))}
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -640,6 +705,70 @@ export const RepresentativeSubscriptionModal: React.FC<RepresentativeSubscriptio
                   </div>
 
                   <div className="p-4 sm:p-5 rounded-2xl bg-stone-50/80 border border-stone-200 space-y-4">
+                    {/* SECTION 3 REQUIREMENT: PROFILE PHOTO UPLOAD WITH PREVIEW */}
+                    <div className="p-3.5 rounded-xl bg-white border border-stone-200/80 space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-bold text-stone-800 flex items-center gap-1.5 m-0">
+                          <Camera className="w-3.5 h-3.5 text-[#D30915]" />
+                          <span>Representative Profile Photo *</span>
+                        </label>
+                        <span className="text-[10px] text-stone-400">JPG, PNG, WebP (Max 5MB)</span>
+                      </div>
+
+                      <div className="flex items-center gap-4">
+                        <div className="relative shrink-0">
+                          <img
+                            src={avatarUrl}
+                            alt="Representative Preview"
+                            className="w-16 h-16 rounded-2xl object-cover ring-2 ring-[#D30915]/30 shadow-xs border border-stone-200"
+                          />
+                          <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full" />
+                        </div>
+
+                        <div className="flex-1 min-w-0 space-y-1.5">
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp,image/jpg"
+                            onChange={handlePhotoUpload}
+                            className="hidden"
+                            id="rep-photo-file-input"
+                          />
+
+                          <div className="flex flex-wrap items-center gap-2">
+                            <label
+                              htmlFor="rep-photo-file-input"
+                              className="px-3 py-1.5 rounded-xl bg-[#fff1f2] hover:bg-[#D30915] text-[#D30915] hover:text-white border border-[#fecdd3] text-xs font-bold transition-all cursor-pointer inline-flex items-center gap-1.5 active:scale-95 shadow-2xs"
+                            >
+                              <Upload className="w-3.5 h-3.5" />
+                              <span>{isPhotoCustom ? 'Change Photo' : 'Upload Photo'}</span>
+                            </label>
+
+                            {isPhotoCustom && (
+                              <button
+                                type="button"
+                                onClick={handleRemovePhoto}
+                                className="px-2.5 py-1.5 rounded-xl bg-stone-100 hover:bg-rose-50 text-stone-600 hover:text-rose-700 text-xs font-semibold transition-all cursor-pointer inline-flex items-center gap-1"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                                <span>Remove</span>
+                              </button>
+                            )}
+                          </div>
+
+                          <p className="text-[10.5px] text-stone-500 m-0">
+                            Your photo will be displayed prominently on your personal storefront banner.
+                          </p>
+                        </div>
+                      </div>
+
+                      {photoError && (
+                        <div className="p-2 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-700 font-medium">
+                          {photoError}
+                        </div>
+                      )}
+                    </div>
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                       <div>
                         <label className="text-xs font-bold text-stone-700 block mb-1">
@@ -714,7 +843,7 @@ export const RepresentativeSubscriptionModal: React.FC<RepresentativeSubscriptio
               </div>
 
               {/* RIGHT COLUMN: Order Summary & Proceed Button */}
-              <div className="md:col-span-6 flex flex-col justify-between h-full space-y-4">
+              <div className="lg:col-span-5 xl:col-span-5 flex flex-col justify-between h-full space-y-4">
                 <div className="rounded-2xl bg-[#faf9fa] border border-stone-200 p-5 sm:p-6 shadow-sm flex flex-col justify-between flex-1 space-y-4">
                   
                   {/* Header */}

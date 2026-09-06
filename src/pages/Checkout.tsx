@@ -67,35 +67,79 @@ export const Checkout: React.FC<CheckoutProps> = ({
     return () => window.removeEventListener('ils_representative_attributed', handleAttribution);
   }, []);
 
-  const [currentStep, setCurrentStep] = useState<CheckoutStep>('shipping');
+  const [currentStep, setCurrentStep] = useState<CheckoutStep>(() => {
+    if (typeof window !== 'undefined') {
+      const p = window.location.pathname;
+      if (p === '/payment' || p === '/checkout/payment') return 'payment';
+      if (p === '/checkout/delivery') return 'delivery';
+      if (p === '/shipping' || p === '/checkout/shipping' || p === '/checkout') return 'shipping';
+    }
+    return 'shipping';
+  });
+
+  useEffect(() => {
+    const handlePopStep = () => {
+      if (typeof window !== 'undefined') {
+        const p = window.location.pathname;
+        if (p === '/payment' || p === '/checkout/payment') {
+          setCurrentStep('payment');
+        } else if (p === '/checkout/delivery') {
+          setCurrentStep('delivery');
+        } else if (p === '/shipping' || p === '/checkout/shipping' || p === '/checkout') {
+          setCurrentStep('shipping');
+        }
+      }
+    };
+    window.addEventListener('popstate', handlePopStep);
+    return () => window.removeEventListener('popstate', handlePopStep);
+  }, []);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
   const [isMobileSummaryOpen, setIsMobileSummaryOpen] = useState(false);
+  const [marketingConsent, setMarketingConsent] = useState(false);
 
   // Saved addresses for logged-in / local state
   const savedAddresses = useMemo(() => accountService.getSavedAddresses(), []);
-  const defaultSaved = savedAddresses.find((a) => a.isDefault) || savedAddresses[0];
 
-  const [isAddingNewAddress, setIsAddingNewAddress] = useState<boolean>(() => {
-    return savedAddresses.length === 0;
-  });
+  // Default to clean address entry form (no default saved address pre-selected)
+  const [isAddingNewAddress, setIsAddingNewAddress] = useState<boolean>(true);
 
-  const [selectedSavedId, setSelectedSavedId] = useState<string>(() => {
-    return defaultSaved?.id || savedAddresses[0]?.id || '';
-  });
+  const [selectedSavedId, setSelectedSavedId] = useState<string>('');
 
-  // Shipping Form State
-  const [shippingForm, setShippingForm] = useState<ShippingAddress>({
-    fullName: user?.name || defaultSaved?.fullName || '',
+  // Shipping Form State with automatic user profile pre-population (no default saved address pre-fill)
+  const [shippingForm, setShippingForm] = useState<ShippingAddress>(() => ({
+    fullName: user?.name || '',
     email: user?.email || '',
-    phone: user?.mobile || defaultSaved?.phone || '',
-    addressLine1: defaultSaved?.addressLine1 || '',
-    addressLine2: defaultSaved?.addressLine2 || '',
-    city: defaultSaved?.city || '',
-    state: defaultSaved?.state || '',
-    zipCode: defaultSaved?.zipCode || '',
-    country: defaultSaved?.country || 'United States',
-  });
+    phone: user?.mobile || user?.phone || '',
+    addressLine1: user?.addressLine1 || user?.address || '',
+    addressLine2: user?.addressLine2 || '',
+    city: user?.city || '',
+    state: user?.state || '',
+    zipCode: user?.zipCode || '',
+    country: user?.country || 'United States',
+  }));
+
+  // Reactively auto-fill shipping fields if user authenticates or updates profile (no default saved address fallback)
+  useEffect(() => {
+    if (user) {
+      const timer = setTimeout(() => {
+        setShippingForm((prev) => ({
+          ...prev,
+          fullName: prev.fullName || user.name || '',
+          email: prev.email || user.email || '',
+          phone: prev.phone || user.mobile || user.phone || '',
+          addressLine1: prev.addressLine1 || user.addressLine1 || user.address || '',
+          addressLine2: prev.addressLine2 || user.addressLine2 || '',
+          city: prev.city || user.city || '',
+          state: prev.state || user.state || '',
+          zipCode: prev.zipCode || user.zipCode || '',
+          country: prev.country || user.country || 'United States',
+        }));
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [user]);
 
   // Dynamic Country / State / District dropdown lists
   const availableStates = useMemo(() => {
@@ -351,7 +395,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
     setShippingForm({
       fullName: user?.name || '',
       email: user?.email || shippingForm.email,
-      phone: user?.mobile || '',
+      phone: user?.mobile || user?.phone || '',
       addressLine1: '',
       addressLine2: '',
       city: availableDistricts[0]?.majorCities?.[0] || '',
@@ -380,11 +424,14 @@ export const Checkout: React.FC<CheckoutProps> = ({
   };
 
   const handleDeliverToSelectedSavedAddress = () => {
-    const selected = savedAddresses.find((a) => a.id === selectedSavedId) || defaultSaved || savedAddresses[0];
+    const selected = savedAddresses.find((a) => a.id === selectedSavedId) || savedAddresses[0];
     if (selected) {
       handleSelectSavedAddress(selected);
     }
     setCurrentStep('delivery');
+    if (window.history.pushState) {
+      window.history.pushState({ view: 'checkout', step: 'delivery' }, '', '/checkout/delivery');
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -460,11 +507,19 @@ export const Checkout: React.FC<CheckoutProps> = ({
         });
       }
       setCurrentStep('delivery');
+      if (window.history.pushState) {
+        window.history.pushState({ view: 'checkout', step: 'delivery' }, '', '/checkout/delivery');
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
   const handleProceedToPayment = () => {
     setCurrentStep('payment');
+    if (window.history.pushState) {
+      window.history.pushState({ view: 'checkout', step: 'payment' }, '', '/payment');
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Place Mock Order
@@ -490,9 +545,17 @@ export const Checkout: React.FC<CheckoutProps> = ({
         product: item.product,
         quantity: item.quantity,
         selectedSurpriseOption: item.selectedSurpriseOption || (item.product.surpriseType === 'cash' ? 'Real Cash $2 - $2,500 Inside' : 'Guaranteed Jewelry Inside'),
+        selectedRingSize: item.selectedRingSize,
+        selectedJewelryType: item.selectedJewelryType,
+        selectedSize: item.selectedSize,
         unitPrice: item.product.price,
         totalPrice: item.product.price * item.quantity,
       }));
+
+      // If user provided marketing consent, record in user settings
+      if (marketingConsent) {
+        accountService.updateUserSettings({ marketingEmails: true });
+      }
 
       const createdOrder = await orderService.createOrder({
         items: orderItems,
@@ -504,7 +567,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
         promoCode: appliedPromo?.code,
         shippingFee,
         total: finalTotal,
-        attributedRep: attributedRep ? {
+        attributedRep: attributedRep && !attributedRep.isSuspended && !representativeService.isRepresentativeSuspended(attributedRep.repUsername) ? {
           name: attributedRep.name,
           repUsername: attributedRep.repUsername,
         } : undefined,
@@ -548,7 +611,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-[#fcf9fb] pt-3 pb-28 sm:py-8 md:py-10">
+    <div className="min-h-screen bg-[#fcf9fb] pt-4 sm:pt-6 md:pt-8 pb-28 sm:pb-12 md:pb-16">
       <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
 
         {/* 1. REAL APP MOBILE HEADER & STEP TRACKER */}
@@ -561,9 +624,15 @@ export const Checkout: React.FC<CheckoutProps> = ({
               <button
                 type="button"
                 onClick={() => {
-                  if (currentStep === 'payment') setCurrentStep('delivery');
-                  else if (currentStep === 'delivery') setCurrentStep('shipping');
-                  else onNavigateToShop();
+                  if (currentStep === 'payment') {
+                    setCurrentStep('delivery');
+                    if (window.history.pushState) window.history.pushState({ view: 'checkout', step: 'delivery' }, '', '/checkout/delivery');
+                  } else if (currentStep === 'delivery') {
+                    setCurrentStep('shipping');
+                    if (window.history.pushState) window.history.pushState({ view: 'checkout', step: 'shipping' }, '', '/shipping');
+                  } else {
+                    onNavigateToShop();
+                  }
                 }}
                 aria-label="Go Back"
                 className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white hover:bg-[#fff1f2] border border-[#e8dfe5] hover:border-[#D30915] text-[#141219] hover:text-[#D30915] flex items-center justify-center transition-all cursor-pointer shadow-2xs active:scale-90 shrink-0"
@@ -753,11 +822,35 @@ export const Checkout: React.FC<CheckoutProps> = ({
             {/* Expandable Order Details Panel */}
             {isMobileSummaryOpen && (
               <div className="p-3.5 border-t border-[#f5eaf1] bg-[#fffcfd] space-y-3.5 animate-in fade-in duration-200">
+                {/* Dynamic User / Consultant Attribution Badge */}
+                {(user || attributedRep) && (
+                  <div className="p-2.5 rounded-xl bg-gradient-to-r from-[#fff5f6] to-[#fff9fa] border border-[#ffd8dc] flex items-center justify-between gap-2.5 shadow-2xs">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <img
+                        src={user?.avatar || attributedRep?.avatar || '/assets/ilovesurprises/Profile/profile%20image.webp'}
+                        alt={user?.name || attributedRep?.name || 'Customer'}
+                        className="w-7 h-7 rounded-full object-cover ring-2 ring-[#D30915]/30 shrink-0"
+                      />
+                      <div className="min-w-0">
+                        <p className="text-[10px] text-[#645c68] font-medium leading-none mb-0.5">
+                          Shopping with
+                        </p>
+                        <p className="text-xs font-bold text-[#141219] truncate">
+                          {user?.name || attributedRep?.name}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 shrink-0">
+                      Credited
+                    </span>
+                  </div>
+                )}
+
                 {/* Product Items List */}
-                <div className="space-y-2.5 max-h-[220px] overflow-y-auto divide-y divide-[#f7eff4] pr-1">
+                <div className="space-y-3 max-h-[240px] overflow-y-auto pt-2.5 pb-1.5 px-2 divide-y divide-[#f7eff4]">
                   {cart.map((item) => (
-                    <div key={item.product.id} className="pt-2.5 first:pt-0 flex items-center justify-between gap-3">
-                      <div className="relative shrink-0">
+                    <div key={item.product.id} className="pt-3 first:pt-1 flex items-center justify-between gap-3 overflow-visible">
+                      <div className="relative shrink-0 overflow-visible" style={{ overflow: 'visible' }}>
                         <div className="w-12 h-12 rounded-[10px] bg-white border border-[#ecdbe6] flex items-center justify-center p-1 shadow-2xs overflow-hidden">
                           <img
                             src={item.product.image}
@@ -765,7 +858,25 @@ export const Checkout: React.FC<CheckoutProps> = ({
                             className="w-full h-full object-contain"
                           />
                         </div>
-                        <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-4.5 px-1 rounded-full bg-[#141219] text-white text-[9px] font-black flex items-center justify-center border border-white shadow-xs z-10">
+                        <span
+                          className="absolute rounded-full bg-[#141219] text-white font-bold flex items-center justify-center border-2 border-white shadow-xs z-20 leading-none select-none pointer-events-none"
+                          style={{
+                            top: '-8px',
+                            right: '-8px',
+                            width: '20px',
+                            height: '20px',
+                            fontSize: '12px',
+                            lineHeight: '1',
+                            backgroundColor: '#141219',
+                            color: '#ffffff',
+                            border: '2px solid #ffffff',
+                            borderRadius: '9999px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            boxSizing: 'border-box',
+                          }}
+                        >
                           {item.quantity}
                         </span>
                       </div>
@@ -1135,8 +1246,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
                           <button
                             type="button"
                             onClick={() => {
-                              if (defaultSaved) handleSelectSavedAddress(defaultSaved);
-                              else setIsAddingNewAddress(false);
+                              setIsAddingNewAddress(false);
                             }}
                             className="h-[36px] px-3 rounded-[11px] bg-white text-[#716d77] hover:text-[#D30915] border border-[#e8dfe5] text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer"
                           >
@@ -1210,6 +1320,23 @@ export const Checkout: React.FC<CheckoutProps> = ({
                             <p className="text-[11px] text-red-600 mt-1 font-semibold">{shippingErrors.email}</p>
                           )}
                         </div>
+                      </div>
+
+                      {/* Explicit Marketing Consent Checkbox (Section 14 requirement, unchecked by default) */}
+                      <div className="flex items-start gap-2.5 p-3 rounded-[14px] bg-[#fffbfd] border border-[#f2e2ec] mb-4">
+                        <input
+                          type="checkbox"
+                          id="marketing-consent-checkbox"
+                          checked={marketingConsent}
+                          onChange={(e) => setMarketingConsent(e.target.checked)}
+                          className="mt-0.5 w-4 h-4 rounded border-gray-300 text-[#D30915] focus:ring-[#D30915] cursor-pointer"
+                        />
+                        <label
+                          htmlFor="marketing-consent-checkbox"
+                          className="text-xs text-[#55505a] leading-relaxed cursor-pointer select-none"
+                        >
+                          Keep me updated with secret unboxings, cash reveals, and special promotions
+                        </label>
                       </div>
 
                       {/* Phone & Street Address */}
@@ -1813,7 +1940,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
                   <button
                     type="button"
                     onClick={() => setCurrentStep('delivery')}
-                    className="h-[40px] px-4 rounded-[11px] border border-[#e8dfe5] hover:border-[#D30915] hover:text-[#D30915] text-xs font-bold text-[#55505a] flex items-center gap-1.5 transition-colors cursor-pointer bg-white"
+                    className="h-[40px] px-4 rounded-[11px] border border-[#e8dfe5] hover:border-[#D30915] hover:text-[#D30915] text-xs font-bold text-[#55505a] flex items-center gap-1.5 transition-all cursor-pointer bg-white active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D30915]/50"
                   >
                     <ArrowLeft className="w-3.5 h-3.5" />
                     <span>Back</span>
@@ -1823,9 +1950,9 @@ export const Checkout: React.FC<CheckoutProps> = ({
                     type="button"
                     disabled={isSubmitting}
                     onClick={handlePlaceOrder}
-                    className={`h-[44px] px-7 rounded-[12px] font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(211, 9, 21,0.3)] active:scale-98 transition-all cursor-pointer ${isSubmitting
+                    className={`h-[44px] px-7 rounded-[12px] font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(211, 9, 21,0.3)] active:scale-97 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D30915]/50 focus-visible:ring-offset-2 ${isSubmitting
                         ? 'bg-[#B60711] text-white opacity-80 cursor-wait'
-                        : 'bg-gradient-to-r from-[#D30915] via-[#ff3b81] to-[#B60711] hover:from-[#B60711] text-white'
+                        : 'bg-gradient-to-r from-[#D30915] via-[#ff3b81] to-[#B60711] hover:from-[#B60711] text-white hover:shadow-[0_6px_20px_rgba(211, 9, 21,0.45)] hover:-translate-y-0.5'
                       }`}
                   >
                     {isSubmitting ? (
@@ -1848,9 +1975,9 @@ export const Checkout: React.FC<CheckoutProps> = ({
           </div>
 
           {/* Right Column: Desktop Order Summary (Fixed 380px sidebar, visible on lg screens) */}
-          <div className="hidden lg:block w-full max-w-[380px] overflow-hidden space-y-5 sticky top-24">
+          <div className="hidden lg:block w-full max-w-[380px] overflow-visible space-y-5 sticky top-24">
 
-            <div className="w-full rounded-[20px] border border-[#eedbe6] bg-white p-5 shadow-[0_10px_30px_rgba(50,31,63,0.04)]">
+            <div className="w-full rounded-[20px] border border-[#eedbe6] bg-white p-5 shadow-[0_10px_30px_rgba(50,31,63,0.04)] overflow-visible">
               {/* Header */}
               <div className="flex items-center justify-between pb-3 border-b border-[#f5eaf1] mb-4 gap-2">
                 <div className="flex items-center gap-2 min-w-0">
@@ -1862,20 +1989,22 @@ export const Checkout: React.FC<CheckoutProps> = ({
                 <span className="text-xs font-black text-[#D30915] shrink-0 whitespace-nowrap">100% Win Guarantee</span>
               </div>
 
-              {/* Representative Attribution Badge */}
-              {attributedRep && (
-                <div className="mb-4 p-2.5 rounded-xl bg-gradient-to-r from-[#fff5f6] to-[#fff9fa] border border-[#ffd8dc] flex items-center justify-between gap-2.5">
+              {/* Dynamic User / Consultant Attribution Badge */}
+              {(user || attributedRep) && (
+                <div className="mb-4 p-2.5 rounded-xl bg-gradient-to-r from-[#fff5f6] to-[#fff9fa] border border-[#ffd8dc] flex items-center justify-between gap-2.5 shadow-2xs">
                   <div className="flex items-center gap-2 min-w-0">
                     <img
-                      src={attributedRep.avatar}
-                      alt={attributedRep.name}
+                      src={user?.avatar || attributedRep?.avatar || '/assets/ilovesurprises/Profile/profile%20image.webp'}
+                      alt={user?.name || attributedRep?.name || 'Customer'}
                       className="w-7 h-7 rounded-full object-cover ring-2 ring-[#D30915]/30 shrink-0"
                     />
                     <div className="min-w-0">
                       <p className="text-[10px] text-[#645c68] font-medium leading-none mb-0.5">
                         Shopping with
                       </p>
-                      <p className="text-xs font-bold text-[#141219] truncate">{attributedRep.name}</p>
+                      <p className="text-xs font-bold text-[#141219] truncate">
+                        {user?.name || attributedRep?.name}
+                      </p>
                     </div>
                   </div>
                   <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 shrink-0">
@@ -1885,10 +2014,10 @@ export const Checkout: React.FC<CheckoutProps> = ({
               )}
 
               {/* Items List */}
-              <div className="max-h-[280px] overflow-y-auto space-y-3 pr-1 divide-y divide-[#f7eff4]">
+              <div className="max-h-[300px] overflow-y-auto space-y-3 pt-2.5 pb-1.5 px-2.5 divide-y divide-[#f7eff4]">
                 {cart.map((item) => (
-                  <div key={item.product.id} className="pt-3 first:pt-0 flex items-center justify-between gap-3">
-                    <div className="relative shrink-0">
+                  <div key={item.product.id} className="pt-3 first:pt-1 flex items-center justify-between gap-3 overflow-visible">
+                    <div className="relative shrink-0 overflow-visible" style={{ overflow: 'visible' }}>
                       <div className="w-13 h-13 rounded-[12px] bg-[#faf5f8] border border-[#ecdbe6] flex items-center justify-center p-1 shadow-2xs overflow-hidden">
                         <img
                           src={item.product.image}
@@ -1896,7 +2025,25 @@ export const Checkout: React.FC<CheckoutProps> = ({
                           className="w-full h-full object-contain"
                         />
                       </div>
-                      <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 rounded-full bg-[#141219] text-white text-[10px] font-black flex items-center justify-center border-2 border-white shadow-xs z-10">
+                      <span
+                        className="absolute rounded-full bg-[#141219] text-white font-bold flex items-center justify-center border-2 border-white shadow-xs z-20 leading-none select-none pointer-events-none"
+                        style={{
+                          top: '-8px',
+                          right: '-8px',
+                          width: '20px',
+                          height: '20px',
+                          fontSize: '12px',
+                          lineHeight: '1',
+                          backgroundColor: '#141219',
+                          color: '#ffffff',
+                          border: '2px solid #ffffff',
+                          borderRadius: '9999px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          boxSizing: 'border-box',
+                        }}
+                      >
                         {item.quantity}
                       </span>
                     </div>
@@ -1914,6 +2061,25 @@ export const Checkout: React.FC<CheckoutProps> = ({
                           ${item.product.price.toFixed(2)} ea
                         </span>
                       </div>
+                      {(item.selectedRingSize || item.selectedJewelryType || item.selectedSize) && (
+                        <div className="flex flex-wrap items-center gap-1 mt-1">
+                          {item.selectedJewelryType && (
+                            <span className="text-[9px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.2 rounded border border-purple-200">
+                              {item.selectedJewelryType}
+                            </span>
+                          )}
+                          {item.selectedRingSize && (
+                            <span className="text-[9px] font-bold text-[#D30915] bg-[#fff1f2] px-1.5 py-0.2 rounded border border-[#fecdd3]">
+                              Size {item.selectedRingSize}
+                            </span>
+                          )}
+                          {item.selectedSize && (
+                            <span className="text-[9px] font-medium text-[#716d77] bg-gray-50 px-1.5 py-0.2 rounded border border-gray-200">
+                              {item.selectedSize}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     <div className="text-right shrink-0">
@@ -2055,7 +2221,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
                 <button
                   type="button"
                   onClick={handleDeliverToSelectedSavedAddress}
-                  className="w-full h-[46px] px-4 rounded-[14px] bg-gradient-to-r from-[#D30915] via-[#ff3b81] to-[#B60711] text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-[0_4px_16px_rgba(211, 9, 21,0.35)] active:scale-95 transition-all cursor-pointer whitespace-nowrap"
+                  className="w-full h-[46px] px-4 rounded-[14px] bg-gradient-to-r from-[#D30915] via-[#ff3b81] to-[#B60711] hover:brightness-105 active:scale-95 transition-all cursor-pointer whitespace-nowrap text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-[0_4px_16px_rgba(211,9,21,0.35)] hover:shadow-[0_6px_20px_rgba(211,9,21,0.45)]"
                 >
                   <span>Deliver to this Address</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -2066,7 +2232,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
                   onClick={(e) => {
                     handleProceedToDelivery(e);
                   }}
-                  className="w-full h-[46px] px-4 rounded-[14px] bg-gradient-to-r from-[#D30915] via-[#ff3b81] to-[#B60711] text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-[0_4px_16px_rgba(211, 9, 21,0.35)] active:scale-95 transition-all cursor-pointer whitespace-nowrap"
+                  className="w-full h-[46px] px-4 rounded-[14px] bg-gradient-to-r from-[#D30915] via-[#ff3b81] to-[#B60711] hover:brightness-105 active:scale-95 transition-all cursor-pointer whitespace-nowrap text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-[0_4px_16px_rgba(211,9,21,0.35)] hover:shadow-[0_6px_20px_rgba(211,9,21,0.45)]"
                 >
                   <span>Continue to Delivery</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -2078,7 +2244,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
               <button
                 type="button"
                 onClick={handleProceedToPayment}
-                className="w-full h-[46px] px-4 rounded-[14px] bg-gradient-to-r from-[#D30915] via-[#ff3b81] to-[#B60711] text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-[0_4px_16px_rgba(211, 9, 21,0.35)] active:scale-95 transition-all cursor-pointer whitespace-nowrap"
+                className="w-full h-[46px] px-4 rounded-[14px] bg-gradient-to-r from-[#D30915] via-[#ff3b81] to-[#B60711] hover:brightness-105 active:scale-95 transition-all cursor-pointer whitespace-nowrap text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-[0_4px_16px_rgba(211,9,21,0.35)] hover:shadow-[0_6px_20px_rgba(211,9,21,0.45)]"
               >
                 <span>Continue to Payment</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -2090,9 +2256,9 @@ export const Checkout: React.FC<CheckoutProps> = ({
                 type="button"
                 disabled={isSubmitting}
                 onClick={handlePlaceOrder}
-                className={`w-full h-[46px] px-4 rounded-[14px] font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-[0_4px_16px_rgba(211, 9, 21,0.35)] active:scale-95 transition-all cursor-pointer whitespace-nowrap ${isSubmitting
+                className={`w-full h-[46px] px-4 rounded-[14px] font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-[0_4px_16px_rgba(211,9,21,0.35)] active:scale-95 transition-all cursor-pointer whitespace-nowrap ${isSubmitting
                     ? 'bg-[#B60711] text-white opacity-80 cursor-wait'
-                    : 'bg-gradient-to-r from-[#D30915] via-[#ff3b81] to-[#B60711] text-white'
+                    : 'bg-gradient-to-r from-[#D30915] via-[#ff3b81] to-[#B60711] hover:brightness-105 hover:shadow-[0_6px_20px_rgba(211,9,21,0.45)] text-white'
                   }`}
               >
                 {isSubmitting ? (

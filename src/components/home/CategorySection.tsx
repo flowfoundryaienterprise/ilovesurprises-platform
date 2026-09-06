@@ -10,18 +10,18 @@ interface CategorySectionProps {
   onViewAllCategories?: () => void;
 }
 
-export const CategorySection: React.FC<CategorySectionProps> = ({
+export const CategorySection: React.FC<CategorySectionProps> = React.memo(({
   selectedCategory,
   isLoading = false,
   onSelectCategory,
   onViewAllCategories,
 }) => {
   return (
-    <section id="categories" className="max-w-[1460px] mx-auto px-3 sm:px-6 py-6 sm:py-8">
+    <section id="categories" className="max-w-[1460px] mx-auto px-3 sm:px-6 pt-3 pb-6 sm:py-8">
 
       {/* Section Header Matching Screenshot */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-6">
-        <div>
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2.5 sm:gap-2 mb-5 sm:mb-6">
+        <div className="text-center sm:text-left w-full sm:w-auto">
           <span className="block text-[10px] sm:text-[11px] font-black uppercase tracking-[0.18em] text-[#D30915] mb-1">
             Explore
           </span>
@@ -36,16 +36,16 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
         <button
           type="button"
           onClick={() => onViewAllCategories ? onViewAllCategories() : onSelectCategory?.('All Surprises')}
-          className="text-xs sm:text-sm font-bold text-[#D30915] hover:underline self-start sm:self-end cursor-pointer"
+          className="text-xs sm:text-sm font-bold text-[#D30915] hover:text-[#B60711] hover:underline active:scale-95 transition-all self-center sm:self-end cursor-pointer"
         >
           View all collections →
         </button>
       </div>
 
-      {/* 6 Category Cards Grid */}
+      {/* 6 Category Cards Grid (3 per line on mobile, 6 on desktop) */}
       {isLoading ? (
         <div
-          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-8"
+          className="grid grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4 mb-6 sm:mb-8"
           role="status"
           aria-label="Loading categories"
         >
@@ -54,7 +54,7 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-8">
+        <div className="grid grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4 mb-6 sm:mb-8">
           {categoriesData.map((category) => {
             const isSelected = selectedCategory === category.name || selectedCategory === category.id;
             return (
@@ -62,29 +62,32 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
                 key={category.id}
                 type="button"
                 onClick={() => onSelectCategory?.(category.name)}
-                className={`p-3.5 sm:p-4 rounded-[20px] border transition-all duration-300 flex flex-col items-center text-center cursor-pointer group hover:-translate-y-1.5 active:translate-y-0 active:scale-95 ${isSelected
+                className={`p-2 min-[375px]:p-2.5 sm:p-4 rounded-[16px] sm:rounded-[20px] border transition-all duration-300 flex flex-col items-center text-center cursor-pointer group hover:-translate-y-1.5 active:translate-y-0 active:scale-95 ${isSelected
                   ? 'border-[#D30915] bg-[#fff1f2] shadow-[0_8px_24px_rgba(211, 9, 21,0.18)]'
                   : 'border-[#eee7ed] bg-white hover:border-[#f1b8cb] hover:bg-[#fff9fb] shadow-[0_4px_16px_rgba(50,31,63,0.03)] hover:shadow-[0_12px_28px_rgba(50,31,63,0.08)]'
                   }`}
               >
                 {/* Category Image */}
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-[16px] overflow-hidden bg-gradient-to-b from-[#fffafb] to-[#fff1f6] p-1 flex items-center justify-center mb-3 shadow-2xs isolate">
+                <div className="w-13 h-13 min-[375px]:w-15 min-[375px]:h-15 sm:w-20 sm:h-20 rounded-[14px] sm:rounded-[16px] overflow-hidden bg-gradient-to-b from-[#fffafb] to-[#fff1f6] p-1 flex items-center justify-center mb-1.5 sm:mb-3 shadow-2xs isolate">
                   <img
                     src={category.image}
                     alt={category.name}
+                    width={80}
+                    height={80}
                     loading="lazy"
-                    className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110 will-change-transform"
+                    decoding="async"
+                    className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
                   />
                 </div>
 
                 {/* Title */}
-                <strong className={`block text-xs sm:text-[13px] font-black leading-tight mb-1 ${isSelected ? 'text-[#D30915]' : 'text-[#141219] group-hover:text-[#D30915]'
+                <strong className={`block text-[11px] min-[375px]:text-xs sm:text-[13px] font-black leading-tight mb-0.5 sm:mb-1 truncate w-full ${isSelected ? 'text-[#D30915]' : 'text-[#141219] group-hover:text-[#D30915]'
                   }`}>
                   {category.name}
                 </strong>
 
                 {/* Tagline */}
-                <span className="text-[10px] sm:text-[11px] text-[#716d77] leading-tight line-clamp-2 font-medium">
+                <span className="text-[9px] min-[375px]:text-[10px] sm:text-[11px] text-[#716d77] leading-tight line-clamp-2 font-medium">
                   {category.tagline}
                 </span>
               </button>
@@ -158,4 +161,6 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
 
     </section>
   );
-};
+});
+
+CategorySection.displayName = 'CategorySection';

@@ -38,6 +38,10 @@ export const OrderConfirmation: React.FC<OrderConfirmationProps> = ({
     return allOrders.length > 0 ? allOrders[0] : null;
   }, [orderId, latestOrder]);
 
+  const totalItemsPurchased = React.useMemo(() => {
+    return order ? order.items.reduce((sum, item) => sum + item.quantity, 0) : 0;
+  }, [order]);
+
   const handlePrint = () => {
     if (typeof window !== 'undefined') {
       window.print();
@@ -152,7 +156,7 @@ export const OrderConfirmation: React.FC<OrderConfirmationProps> = ({
             <div className="flex items-center justify-between pb-3 border-b border-[#f5eaf1] mb-4">
               <h3 className="text-sm font-black text-[#141219] m-0 font-display flex items-center gap-2">
                 <ShoppingBag className="w-4 h-4 text-[#D30915]" />
-                <span>Purchased Items ({order.items.length})</span>
+                <span>Purchased Items ({totalItemsPurchased} {totalItemsPurchased === 1 ? 'item' : 'items'})</span>
               </h3>
               <span className="text-[11px] text-[#716d77]">{formattedDate}</span>
             </div>
@@ -160,16 +164,34 @@ export const OrderConfirmation: React.FC<OrderConfirmationProps> = ({
             {/* Items List */}
             <div className="space-y-3.5 divide-y divide-[#f7eff4] w-full max-w-full">
               {order.items.map((item, idx) => (
-                <div key={idx} className="pt-3.5 first:pt-0 flex items-center justify-between gap-3.5 w-full max-w-full overflow-hidden">
-                  <div className="relative shrink-0">
-                    <div className="w-16 h-16 rounded-[14px] bg-[#faf5f8] border border-[#ecdbe6] flex items-center justify-center p-1.5 shadow-2xs">
+                <div key={idx} className="pt-3.5 first:pt-0 flex items-center justify-between gap-3.5 w-full max-w-full overflow-visible">
+                  <div className="relative shrink-0 overflow-visible" style={{ overflow: 'visible' }}>
+                    <div className="w-16 h-16 rounded-[14px] bg-[#faf5f8] border border-[#ecdbe6] flex items-center justify-center p-1.5 shadow-2xs overflow-hidden">
                       <img
                         src={item.product.image}
                         alt={item.product.name}
                         className="w-full h-full object-contain"
                       />
                     </div>
-                    <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 rounded-full bg-[#141219] text-white text-[10px] font-black flex items-center justify-center border-2 border-white shadow-xs z-10">
+                    <span
+                      className="absolute rounded-full bg-[#141219] text-white font-bold flex items-center justify-center border-2 border-white shadow-xs z-20 leading-none select-none pointer-events-none"
+                      style={{
+                        top: '-8px',
+                        right: '-8px',
+                        width: '20px',
+                        height: '20px',
+                        fontSize: '12px',
+                        lineHeight: '1',
+                        backgroundColor: '#141219',
+                        color: '#ffffff',
+                        border: '2px solid #ffffff',
+                        borderRadius: '9999px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxSizing: 'border-box',
+                      }}
+                    >
                       {item.quantity}
                     </span>
                   </div>

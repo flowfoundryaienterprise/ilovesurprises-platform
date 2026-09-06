@@ -8,7 +8,6 @@ import {
   CheckCircle2,
   AlertCircle,
   ChevronDown,
-  ChevronUp,
   Package,
   ShieldCheck,
   RefreshCw,
@@ -492,7 +491,7 @@ export const Contact: React.FC = () => {
               return (
                 <div
                   key={faq.question}
-                  className={`rounded-[14px] sm:rounded-[18px] border-2 transition-all ${isOpen
+                  className={`rounded-[14px] sm:rounded-[18px] border-2 transition-colors duration-300 ${isOpen
                       ? 'bg-[#fffafc] border-[#fecdd3] shadow-xs'
                       : 'bg-white border-[#f0e2ec] hover:border-[#fecdd3]'
                     }`}
@@ -500,19 +499,41 @@ export const Contact: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => toggleFaq(idx)}
-                    className="w-full p-3.5 sm:p-5 flex items-center justify-between text-left font-bold text-xs sm:text-sm text-[#141219] cursor-pointer"
+                    aria-expanded={isOpen}
+                    aria-controls={`faq-answer-${idx}`}
+                    id={`faq-header-${idx}`}
+                    className="group w-full p-3.5 sm:p-5 flex items-center justify-between text-left font-bold text-xs sm:text-sm text-[#141219] hover:text-[#D30915] active:scale-[0.99] transition-colors cursor-pointer"
                   >
-                    <span className="pr-2">{faq.question}</span>
-                    <span className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#fff1f2] text-[#D30915] flex items-center justify-center shrink-0 ml-2">
-                      {isOpen ? <ChevronUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+                    <span className="pr-2 group-hover:text-[#D30915] transition-colors">{faq.question}</span>
+                    <span
+                      className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 ml-2 transition-colors duration-300 ${
+                        isOpen
+                          ? 'bg-[#D30915] text-white shadow-xs'
+                          : 'bg-[#fff1f2] text-[#D30915] group-hover:bg-[#ffe5ea]'
+                      }`}
+                    >
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-300 ease-out ${
+                          isOpen ? 'rotate-180' : ''
+                        }`}
+                      />
                     </span>
                   </button>
 
-                  {isOpen && (
-                    <div className="px-3.5 sm:px-5 pb-4 sm:pb-5 text-xs text-[#55505a] leading-relaxed animate-in fade-in duration-150">
-                      <p className="m-0 pt-2 border-t border-[#f7eff4]">{faq.answer}</p>
+                  <div
+                    id={`faq-answer-${idx}`}
+                    role="region"
+                    aria-labelledby={`faq-header-${idx}`}
+                    className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${
+                      isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+                    }`}
+                  >
+                    <div className="overflow-hidden">
+                      <div className="px-3.5 sm:px-5 pb-4 sm:pb-5 text-xs text-[#55505a] leading-relaxed">
+                        <p className="m-0 pt-2 border-t border-[#f7eff4]">{faq.answer}</p>
+                      </div>
                     </div>
-                  )}
+                  </div>
                 </div>
               );
             })}

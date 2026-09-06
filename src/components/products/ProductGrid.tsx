@@ -20,7 +20,7 @@ interface ProductGridProps {
 }
 
 // Default skeleton count is 11 (Existing 8 count + 3 additional skeleton cards)
-export const ProductGrid: React.FC<ProductGridProps> = ({
+export const ProductGrid: React.FC<ProductGridProps> = React.memo(({
   products,
   cart = [],
   wishlistIds = [],
@@ -37,6 +37,34 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   const gridClasses = isFullWidth
     ? 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'
     : 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4';
+
+  const cartQuantityMap = React.useMemo(() => {
+    const map: Record<string, number> = {};
+    for (let i = 0; i < cart.length; i++) {
+      map[cart[i].product.id] = cart[i].quantity;
+    }
+    return map;
+  }, [cart]);
+
+  const wishlistSet = React.useMemo(() => new Set(wishlistIds), [wishlistIds]);
+
+  const handleUpdate = React.useCallback(
+    (productId: string, newQty: number) => {
+      const currentQty = cartQuantityMap[productId] || 0;
+      onUpdateQuantity(productId, newQty - currentQty);
+    },
+    [cartQuantityMap, onUpdateQuantity]
+  );
+
+  const handleToggle = React.useCallback(
+    (productId: string) => {
+      const target = products.find((p) => p.id === productId);
+      if (target) {
+        onWishlistToggle(target);
+      }
+    },
+    [products, onWishlistToggle]
+  );
 
   if (isLoading) {
     return (
@@ -68,7 +96,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
           <button
             type="button"
             onClick={onResetFilters}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[12px] bg-[#D30915] hover:bg-[#B60711] text-white text-xs font-black uppercase tracking-wider shadow-[0_8px_20px_rgba(211, 9, 21,0.25)] active:scale-95 transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[12px] bg-[#D30915] hover:bg-[#B60711] text-white text-xs font-black uppercase tracking-wider shadow-[0_8px_20px_rgba(211,9,21,0.25)] hover:shadow-[0_12px_24px_rgba(211,9,21,0.35)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all cursor-pointer"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             <span>Reset All Filters</span>
@@ -81,20 +109,17 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   return (
     <div className={`grid gap-3.5 sm:gap-4 lg:gap-5 w-full transition-all duration-300 ${gridClasses}`}>
       {products.map((product) => {
-        const cartItem = cart.find((item) => item.product.id === product.id);
-        const isWishlisted = wishlistIds.includes(product.id);
+        const qty = cartQuantityMap[product.id] || 0;
+        const isWishlisted = wishlistSet.has(product.id);
 
         return (
           <ProductCard
             key={product.id}
             product={product}
-            cartQuantity={cartItem?.quantity || 0}
+            cartQuantity={qty}
             onAddToCart={onAddToCart}
-            onUpdateQuantity={(id, qty) => {
-              const currentQty = cartItem?.quantity || 0;
-              onUpdateQuantity(id, qty - currentQty);
-            }}
-            onToggleWishlist={() => onWishlistToggle(product)}
+            onUpdateQuantity={handleUpdate}
+            onToggleWishlist={handleToggle}
             onSelectProduct={onSelectProduct}
             isWishlisted={isWishlisted}
           />
@@ -102,4 +127,6 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
       })}
     </div>
   );
-};
+});
+
+ProductGrid.displayName = 'ProductGrid';
