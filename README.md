@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://ilovesurprises.com" target="_blank" rel="noopener noreferrer">
-    <img src="public/assets/ilovesurprises/logo/logo.svg" alt="I Love Surprises Logo" width="340" />
+    <img src="public/assets/ilovesurprises/logo/i%20love%20surprises%20logo.jpeg" alt="I Love Surprises Logo" width="340" />
   </a>
 </p>
 
