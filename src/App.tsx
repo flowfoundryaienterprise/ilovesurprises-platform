@@ -890,7 +890,7 @@ export function App() {
     (currentView === 'order-confirmation' && !isExplicitCheckoutStepPath);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-[#141219]">
+    <div className="min-h-screen flex flex-col bg-white text-[#141219] w-full max-w-full min-w-0">
       <SEOHead
         view={currentView}
         product={selectedProduct}

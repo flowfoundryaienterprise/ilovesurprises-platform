@@ -137,7 +137,7 @@ export const SalesRosterTable: React.FC<SalesRosterTableProps> = ({ commissions 
       </div>
 
       {/* Sales Table */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto w-full max-w-full min-w-0 scrollbar-thin">
         <table className="w-full text-left text-xs text-[#141219]">
           <thead className="bg-[#faf5f8] border-b border-[#f0e4ec] text-[11px] uppercase font-black tracking-wider text-[#716d77]">
             <tr>
@@ -195,7 +195,7 @@ export const SalesRosterTable: React.FC<SalesRosterTableProps> = ({ commissions 
         </table>
       </div>
 
-      <div className="p-3 bg-[#fffafb] border-t border-[#f4ebf1] text-[11px] text-[#8a858f] flex items-center justify-between">
+      <div className="p-3 bg-[#fffafb] border-t border-[#f4ebf1] text-[11px] text-[#8a858f] flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 min-w-0">
         <span>*Customer privacy protected: Phone numbers and full billing details are withheld</span>
         <span>Orders automatically credited via 60-day persistent cookie</span>
       </div>

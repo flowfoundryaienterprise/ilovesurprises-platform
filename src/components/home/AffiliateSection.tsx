@@ -113,12 +113,12 @@ export const AffiliateSection: React.FC<AffiliateSectionProps> = ({ isLoading = 
               </div>
             </div>
 
-            {/* CTAs with Smooth Hover States: Side-by-side in same line on mobile */}
-            <div className="flex items-center gap-2 min-[375px]:gap-2.5 sm:gap-3 w-full sm:w-auto">
+            {/* CTAs with Smooth Hover States: Stack on ultra-compact mobile, side-by-side on 380px+ */}
+            <div className="flex flex-col min-[380px]:flex-row items-stretch min-[380px]:items-center gap-2 min-[375px]:gap-2.5 sm:gap-3 w-full sm:w-auto">
               <a
                 href="/affiliate"
                 role="button"
-                className="group flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 min-h-[44px] sm:min-h-[48px] px-2.5 min-[375px]:px-4 sm:px-7 rounded-[13px] sm:rounded-[14px] bg-gradient-to-r from-[#D30915] to-[#B60711] hover:from-[#B60711] hover:to-[#96060e] text-white font-black text-[11px] min-[375px]:text-xs sm:text-[13px] uppercase tracking-wider shadow-[0_10px_26px_rgba(211,9,21,0.28)] hover:shadow-[0_14px_32px_rgba(211,9,21,0.40)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 cursor-pointer whitespace-nowrap text-center"
+                className="group flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 min-h-[44px] sm:min-h-[48px] px-3 min-[380px]:px-4 sm:px-7 rounded-[13px] sm:rounded-[14px] bg-gradient-to-r from-[#D30915] to-[#B60711] hover:from-[#B60711] hover:to-[#96060e] text-white font-black text-[11px] min-[375px]:text-xs sm:text-[13px] uppercase tracking-wider shadow-[0_10px_26px_rgba(211,9,21,0.28)] hover:shadow-[0_14px_32px_rgba(211,9,21,0.40)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 cursor-pointer whitespace-nowrap text-center"
               >
                 <span>Join for $19.99/month</span>
                 <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform group-hover:translate-x-1 shrink-0" />
@@ -127,7 +127,7 @@ export const AffiliateSection: React.FC<AffiliateSectionProps> = ({ isLoading = 
               <a
                 href="/affiliate"
                 role="button"
-                className="inline-flex items-center justify-center min-h-[44px] sm:min-h-[48px] px-3 min-[375px]:px-4 sm:px-6 rounded-[13px] sm:rounded-[14px] bg-white hover:bg-[#fff9fb] border border-[#ebdce5] hover:border-[#D30915] text-[#141219] hover:text-[#D30915] font-black text-[11px] min-[375px]:text-xs sm:text-[13px] uppercase tracking-wider shadow-2xs hover:shadow-[0_6px_18px_rgba(50,31,63,0.06)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 cursor-pointer whitespace-nowrap shrink-0 text-center"
+                className="inline-flex items-center justify-center min-h-[44px] sm:min-h-[48px] px-3 min-[380px]:px-4 sm:px-6 rounded-[13px] sm:rounded-[14px] bg-white hover:bg-[#fff9fb] border border-[#ebdce5] hover:border-[#D30915] text-[#141219] hover:text-[#D30915] font-black text-[11px] min-[375px]:text-xs sm:text-[13px] uppercase tracking-wider shadow-2xs hover:shadow-[0_6px_18px_rgba(50,31,63,0.06)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 cursor-pointer whitespace-nowrap shrink-0 text-center"
               >
                 Learn More
               </a>

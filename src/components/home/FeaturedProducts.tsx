@@ -73,7 +73,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
       <div id="best-sellers" className="absolute -top-20" />
 
       {/* Header & Quick Category Filter Chips */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 min-w-0 max-w-full">
         <div>
           <h2 className="text-base sm:text-xl font-black text-[#141219] uppercase tracking-wide flex items-center gap-2 m-0 font-display">
             <span>Trending Best Sellers</span>
@@ -86,7 +86,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
         </div>
 
         {/* Quick Filter Chips with Tactile Hover Effects */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none min-w-0 max-w-full">
           {filterChips.map((chip) => {
             const isActive = activeChip.toLowerCase() === chip.toLowerCase() || (activeChip === 'All' && chip === 'All Surprises');
             return (

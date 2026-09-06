@@ -361,7 +361,7 @@ export const AdminAppraisals: React.FC<AdminAppraisalsProps> = ({ onShowToast })
 
       {/* 4. Appraisals Data Table */}
       <div className="rounded-[20px] bg-white border border-[#eedbe6] shadow-2xs overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto w-full max-w-full min-w-0 scrollbar-thin">
           <table className="w-full text-left text-xs text-[#141219] border-collapse min-w-[760px]">
             <thead>
               <tr className="border-b border-[#f0e2ec] bg-[#fffafc] text-[10px] font-black uppercase tracking-wider text-[#716d77]">

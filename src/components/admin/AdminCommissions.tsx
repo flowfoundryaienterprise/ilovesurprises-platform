@@ -649,7 +649,7 @@ export const AdminCommissions: React.FC<AdminCommissionsProps> = ({
             </p>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto w-full max-w-full min-w-0 scrollbar-thin">
             <table className="w-full text-left border-collapse min-w-[700px]">
               <thead>
                 <tr className="border-b border-[#eedbe6] text-[10px] font-extrabold uppercase text-[#716d77] tracking-wider bg-[#faf7f9]">

@@ -297,7 +297,7 @@ export const GenealogyTree: React.FC<GenealogyTreeProps> = ({
     treeData.forEach((root) => traverse(root, 0));
 
     return (
-      <div className="overflow-x-auto rounded-[16px] sm:rounded-[20px] border border-[#eedbe6] bg-white scrollbar-thin">
+      <div className="overflow-x-auto w-full max-w-full min-w-0 rounded-[16px] sm:rounded-[20px] border border-[#eedbe6] bg-white scrollbar-thin">
         <table className="w-full text-left text-xs border-collapse min-w-[620px]">
           <thead>
             <tr className="bg-[#fff5f9] border-b border-[#eedbe6] text-[#716d77] font-black uppercase text-[9px] sm:text-[10px] tracking-wider">

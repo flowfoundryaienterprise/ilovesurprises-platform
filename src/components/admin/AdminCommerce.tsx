@@ -388,7 +388,7 @@ export const AdminCommerce: React.FC<AdminCommerceProps> = ({
                   </div>
                 </div>
 
-                <div className="overflow-x-auto rounded-xl border border-[#eedbe6]">
+                <div className="overflow-x-auto rounded-xl border border-[#eedbe6] w-full max-w-full min-w-0 scrollbar-thin">
                   <table className="w-full text-left text-xs border-collapse min-w-[550px]">
                     <thead className="bg-[#faf7f9] border-b border-[#eedbe6] text-[10px] font-extrabold uppercase text-[#716d77]">
                       <tr>

@@ -924,7 +924,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="relative flex items-center justify-between gap-2.5 sm:gap-3 xl:gap-5">
 
             {/* Left Block: Brand Logo */}
-            <div className="flex items-center shrink-0 min-w-0 lg:w-[310px] xl:w-[340px]">
+            <div className="flex items-center shrink-0 min-w-0">
               <a
                 href="/"
                 onClick={(e) =>
@@ -953,7 +953,7 @@ export const Header: React.FC<HeaderProps> = ({
                     loading="eager"
                     fetchPriority="high"
                     decoding="async"
-                    className="h-[48px] min-[360px]:h-[52px] min-[390px]:h-[55px] min-[420px]:h-[58px] sm:h-[54px] md:h-[58px] lg:h-[62px] xl:h-[66px] w-auto max-w-[195px] min-[360px]:max-w-[210px] min-[390px]:max-w-[225px] min-[420px]:max-w-[240px] sm:max-w-[210px] md:max-w-[235px] lg:max-w-[255px] xl:max-w-[275px] object-contain transition-transform duration-300 group-hover:scale-102"
+                    className="h-[48px] min-[360px]:h-[52px] min-[390px]:h-[55px] min-[420px]:h-[58px] sm:h-[54px] md:h-[58px] lg:h-[62px] xl:h-[66px] w-auto max-w-[195px] min-[360px]:max-w-[210px] min-[390px]:max-w-[225px] min-[420px]:max-w-[240px] sm:max-w-[210px] md:max-w-[235px] lg:max-w-[240px] xl:max-w-[275px] object-contain transition-transform duration-300 group-hover:scale-102"
                     style={{
                       imageRendering: '-webkit-optimize-contrast',
                       WebkitBackfaceVisibility: 'hidden',
@@ -966,7 +966,7 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
 
             {/* Desktop Center: Large Pill-Shaped Search Bar */}
-            <div ref={desktopSearchContainerRef} className="hidden lg:flex flex-1 justify-center max-w-xl xl:max-w-2xl mx-auto relative -translate-x-[30px]">
+            <div ref={desktopSearchContainerRef} className="hidden lg:flex flex-1 justify-center max-w-md min-[1280px]:max-w-xl 2xl:max-w-2xl mx-1.5 min-[1280px]:mx-auto relative min-w-0">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -1042,14 +1042,14 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
 
             {/* Right Header Actions: Login, Join for $20/mo Button, Cart & Hamburger */}
-            <div className="relative z-30 flex items-center justify-end gap-1.5 sm:gap-2 shrink-0 lg:w-[310px] xl:w-[340px]">
+            <div className="relative z-30 flex items-center justify-end gap-1.5 sm:gap-2 shrink-0 min-w-0">
 
               {/* When NOT logged in: Login Button matching Reference */}
               {!user ? (
                 <button
                   type="button"
                   onClick={() => onOpenAuth?.('login')}
-                  className="hidden sm:flex items-center gap-1.5 h-[38px] px-3.5 rounded-full hover:bg-gray-100 text-[13.5px] xl:text-[14px] font-bold text-[#141219] hover:text-[#D30915] active:scale-95 transition-all cursor-pointer select-none shrink-0"
+                  className="hidden sm:flex items-center gap-1.5 h-[38px] px-2.5 min-[1200px]:px-3.5 rounded-full hover:bg-gray-100 text-[13px] xl:text-[14px] font-bold text-[#141219] hover:text-[#D30915] active:scale-95 transition-all cursor-pointer select-none shrink-0"
                 >
                   <User className="w-4 h-4 text-[#141219]" />
                   <span>Login</span>
@@ -1293,11 +1293,12 @@ export const Header: React.FC<HeaderProps> = ({
                       onNavigate?.('affiliate');
                     }
                   }}
-                  className="hidden sm:inline-flex items-center justify-center gap-1.5 h-[38px] px-3.5 rounded-full bg-[#059669] hover:bg-[#047857] text-white text-[13.5px] xl:text-[14px] font-bold shadow-2xs hover:shadow-[0_4px_16px_rgba(5,150,105,0.25)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all cursor-pointer whitespace-nowrap select-none shrink-0"
+                  className="hidden sm:inline-flex items-center justify-center gap-1.5 h-[38px] px-2.5 min-[1240px]:px-3 xl:px-3.5 rounded-full bg-[#059669] hover:bg-[#047857] text-white text-[12px] min-[1240px]:text-[13px] xl:text-[14px] font-bold shadow-2xs hover:shadow-[0_4px_16px_rgba(5,150,105,0.25)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all cursor-pointer whitespace-nowrap select-none shrink-0"
                   title="Go to My Consultant Storefront Portal"
                 >
                   <Store className="w-4 h-4 shrink-0" />
-                  <span>My Storefront</span>
+                  <span className="hidden min-[1240px]:inline">My Storefront</span>
+                  <span className="min-[1240px]:hidden">Storefront</span>
                 </button>
               ) : (
                 <button
@@ -1311,11 +1312,12 @@ export const Header: React.FC<HeaderProps> = ({
                       onNavigate?.('affiliate');
                     }
                   }}
-                  className="hidden sm:inline-flex items-center justify-center gap-1.5 h-[38px] px-4 rounded-full bg-[#D30915] hover:bg-[#b60711] text-white text-[13.5px] xl:text-[14px] font-bold shadow-xs hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all cursor-pointer whitespace-nowrap select-none shrink-0"
+                  className="hidden sm:inline-flex items-center justify-center gap-1.5 h-[38px] px-2.5 min-[1240px]:px-3.5 xl:px-4 rounded-full bg-[#D30915] hover:bg-[#b60711] text-white text-[12px] min-[1240px]:text-[13px] xl:text-[14px] font-bold shadow-xs hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all cursor-pointer whitespace-nowrap select-none shrink-0"
                   title="Join $20/month"
                 >
                   <Users className="w-4 h-4 shrink-0" />
-                  <span>Join $20/month</span>
+                  <span className="hidden min-[1240px]:inline">Join $20/month</span>
+                  <span className="min-[1240px]:hidden">Join $20/mo</span>
                 </button>
               )}
 
@@ -1323,15 +1325,15 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={onOpenCart}
-                className="hidden lg:flex relative items-center justify-center h-[38px] px-4 rounded-full bg-[#FDF0F3] hover:bg-[#FEEBF0] text-[#141219] hover:text-[#D30915] active:scale-95 transition-all cursor-pointer select-none shrink-0 gap-1.5"
+                className="hidden lg:flex relative items-center justify-center h-[38px] px-2.5 min-[1240px]:px-3 xl:px-4 rounded-full bg-[#FDF0F3] hover:bg-[#FEEBF0] text-[#141219] hover:text-[#D30915] active:scale-95 transition-all cursor-pointer select-none shrink-0 gap-1.5"
                 aria-label={`Shopping cart with ${cartCount} items`}
                 title="Shopping Cart"
               >
                 <ShoppingCart className="w-4 h-4 text-[#D30915] shrink-0" />
-                <span className="inline text-[13.5px] xl:text-[14px] font-bold tracking-tight text-[#141219]">
+                <span className="inline text-[12.5px] min-[1240px]:text-[13px] xl:text-[14px] font-bold tracking-tight text-[#141219]">
                   Cart
                 </span>
-                <span className="text-[13.5px] font-bold text-[#716d77] ml-0.5">
+                <span className="text-[12.5px] min-[1240px]:text-[13px] xl:text-[13.5px] font-bold text-[#716d77] ml-0.5">
                   {cartCount}
                 </span>
               </button>
@@ -1424,11 +1426,11 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Row 2: Desktop Horizontal Category Navigation */}
           <nav
             ref={desktopNavRef}
-            className="hidden lg:flex items-center justify-between border-t border-[#f4ebf0] mt-1.5 pt-1.5 px-0.5 relative"
+            className="hidden lg:flex items-center justify-between border-t border-[#f4ebf0] mt-1.5 pt-1.5 px-0.5 relative min-w-0 max-w-full"
             aria-label="Main Category Navigation"
           >
             {/* Left: Product Categories Cluster */}
-            <div className="flex items-center gap-1 xl:gap-1.5 2xl:gap-2.5 flex-nowrap translate-x-[15px]">
+            <div className="flex items-center gap-0.5 min-[1120px]:gap-0.5 min-[1220px]:gap-1 xl:gap-1.5 2xl:gap-2.5 flex-nowrap min-w-0 py-0.5">
               {/* Home Pill */}
               <button
                 type="button"
@@ -1437,7 +1439,7 @@ export const Header: React.FC<HeaderProps> = ({
                   const homeCat = NAVIGATION_CATEGORIES.find((c) => c.slug === 'home');
                   if (homeCat) handleCategoryClick(homeCat);
                 }}
-                className="flex items-center gap-1.5 px-2.5 xl:px-3 py-1 rounded-full bg-[#FDECEF] hover:bg-[#fcdde3] text-[#D30915] text-[13px] xl:text-[13.5px] font-bold transition-all cursor-pointer whitespace-nowrap select-none shrink-0 active:scale-95"
+                className="flex items-center gap-1 xl:gap-1.5 px-1.5 min-[1180px]:px-2 xl:px-2.5 2xl:px-3 py-0.5 min-[1180px]:py-1 rounded-full bg-[#FDECEF] hover:bg-[#fcdde3] text-[#D30915] text-[11px] min-[1180px]:text-[12px] xl:text-[13px] 2xl:text-[13.5px] font-bold transition-all cursor-pointer whitespace-nowrap select-none shrink-0 active:scale-95"
               >
                 <HomeIcon className="w-3.5 h-3.5 text-[#D30915] shrink-0" />
                 <span>Home</span>
@@ -1466,15 +1468,37 @@ export const Header: React.FC<HeaderProps> = ({
                     <button
                       type="button"
                       onClick={() => handleCategoryClick(cat)}
-                      className={`group flex items-center gap-1 px-1 xl:px-1.5 py-0.5 rounded-full text-[13px] xl:text-[13.5px] font-bold transition-all cursor-pointer whitespace-nowrap select-none shrink-0 ${isMegaActive
+                      className={`group flex items-center gap-0.5 min-[1180px]:gap-1 px-1 min-[1180px]:px-1.5 xl:px-2 py-0.5 rounded-full text-[11px] min-[1150px]:text-[11.5px] min-[1220px]:text-[12px] xl:text-[13px] 2xl:text-[13.5px] font-bold transition-all cursor-pointer whitespace-nowrap select-none shrink-0 ${isMegaActive
                           ? 'text-[#D30915] bg-[#fff0f3]'
                           : 'text-[#141219] hover:text-[#D30915] hover:bg-[#fff9fb]'
                         }`}
                       aria-expanded={isMegaActive}
                     >
-                      <span>{cat.name}</span>
+                      {cat.slug === 'candles' ? (
+                        <>
+                          <span className="hidden min-[1180px]:inline">{cat.name}</span>
+                          <span className="min-[1180px]:hidden">Candles</span>
+                        </>
+                      ) : cat.slug === 'bath-bombs' ? (
+                        <>
+                          <span className="hidden min-[1280px]:inline">{cat.name}</span>
+                          <span className="min-[1280px]:hidden">Bath Bombs</span>
+                        </>
+                      ) : cat.slug === 'wax-melts' ? (
+                        <>
+                          <span className="hidden min-[1340px]:inline">{cat.name}</span>
+                          <span className="min-[1340px]:hidden">Melts & Treats</span>
+                        </>
+                      ) : cat.slug === 'mystery-boxes' ? (
+                        <>
+                          <span className="hidden min-[1220px]:inline">{cat.name}</span>
+                          <span className="min-[1220px]:hidden">Mystery</span>
+                        </>
+                      ) : (
+                        <span>{cat.name}</span>
+                      )}
                       {cat.badge && (
-                        <span className="text-[8.5px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-[#FF3366] text-white ml-0.5">
+                        <span className="hidden min-[1380px]:inline-block text-[8.5px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-[#FF3366] text-white ml-0.5">
                           {cat.badge}
                         </span>
                       )}
@@ -1491,7 +1515,7 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
 
             {/* Right: Utility Links Cluster (Divider + Affiliate Program + Appraise Jewelry) */}
-            <div className="flex items-center gap-1.5 xl:gap-2 shrink-0 ml-2 pl-2 xl:ml-3 xl:pl-3 border-l border-[#e2d5de]">
+            <div className="flex items-center gap-0.5 min-[1180px]:gap-1 xl:gap-1.5 2xl:gap-2 shrink-0 ml-1 pl-1 min-[1180px]:ml-1.5 min-[1180px]:pl-1.5 xl:ml-2.5 xl:pl-2.5 border-l border-[#e2d5de]">
               {NAVIGATION_CATEGORIES.filter(
                 (c) =>
                   !c.hideInDesktopNav &&
@@ -1507,7 +1531,7 @@ export const Header: React.FC<HeaderProps> = ({
                     type="button"
                     onMouseEnter={handleMegaLeave}
                     onClick={() => handleCategoryClick(cat)}
-                    className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[13px] xl:text-[13.5px] font-bold transition-all cursor-pointer whitespace-nowrap select-none shrink-0 ${isRouteActive
+                    className={`flex items-center gap-0.5 min-[1180px]:gap-1 xl:gap-1.5 px-1 min-[1180px]:px-1.5 xl:px-2 py-0.5 rounded-full text-[11px] min-[1150px]:text-[11.5px] min-[1220px]:text-[12px] xl:text-[13px] 2xl:text-[13.5px] font-bold transition-all cursor-pointer whitespace-nowrap select-none shrink-0 ${isRouteActive
                         ? 'text-[#D30915] bg-[#fff0f3]'
                         : 'text-[#141219] hover:text-[#D30915] hover:bg-[#fff9fb]'
                       }`}
@@ -1518,7 +1542,19 @@ export const Header: React.FC<HeaderProps> = ({
                     {(cat.slug === 'appraise-your-jewelry' || cat.id === 'appraisal') && (
                       <Gem className="w-3.5 h-3.5 text-[#D30915] shrink-0" />
                     )}
-                    <span>{cat.name}</span>
+                    {cat.slug === 'affiliate' ? (
+                      <>
+                        <span className="hidden min-[1260px]:inline">{cat.name}</span>
+                        <span className="min-[1260px]:hidden">Affiliate</span>
+                      </>
+                    ) : (cat.slug === 'appraise-your-jewelry' || cat.id === 'appraisal') ? (
+                      <>
+                        <span className="hidden min-[1260px]:inline">{cat.name}</span>
+                        <span className="min-[1260px]:hidden">Appraise</span>
+                      </>
+                    ) : (
+                      <span>{cat.name}</span>
+                    )}
                   </button>
                 );
               })}
@@ -1549,18 +1585,18 @@ export const Header: React.FC<HeaderProps> = ({
                   className="w-full bg-white rounded-b-[20px] border border-stone-200 border-t-0 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.1)] relative"
                   style={{
                     width: '100%',
-                    maxWidth: '1280px',
+                    maxWidth: 'min(1280px, 100%)',
                     left: 0,
                     right: 0,
                     margin: '0 auto',
-                    padding: '24px 32px',
+                    padding: '16px 20px',
                     boxSizing: 'border-box',
                     overflow: 'hidden',
                     borderRadius: '0 0 16px 16px',
                   }}
                 >
                   {/* Top Bar: Clean, Straight Category Title & View All */}
-                  <div className="flex items-center justify-between gap-4 pb-3 mb-4 border-b border-stone-100">
+                  <div className="flex items-center justify-between gap-4 pb-2.5 mb-3 border-b border-stone-100">
                     <div className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-[#D30915]" />
                       <span className="font-extrabold text-xs uppercase tracking-wider text-stone-900 whitespace-nowrap">
@@ -1583,9 +1619,9 @@ export const Header: React.FC<HeaderProps> = ({
                       display: 'grid',
                       gridTemplateColumns:
                         cat.columns && cat.columns.length === 3
-                          ? 'minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 1fr) 250px'
-                          : 'minmax(0, 1.15fr) minmax(0, 1fr) 250px',
-                      gap: '24px',
+                          ? 'minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(160px, 240px)'
+                          : 'minmax(0, 1.2fr) minmax(0, 1fr) minmax(160px, 240px)',
+                      gap: '14px',
                       alignItems: 'start',
                     }}
                   >
@@ -1604,16 +1640,16 @@ export const Header: React.FC<HeaderProps> = ({
                               <button
                                 type="button"
                                 onClick={() => handleSubCategoryClick(cat, item)}
-                                className="w-full text-left group/sub flex items-center justify-between gap-3 py-1 text-[13.5px] font-medium text-stone-700 hover:text-[#D30915] transition-colors cursor-pointer whitespace-nowrap"
+                                className="w-full text-left group/sub flex items-center justify-between gap-2 py-1 text-[13px] xl:text-[13.5px] font-medium text-stone-700 hover:text-[#D30915] transition-colors cursor-pointer min-w-0"
                               >
-                                <div className="flex items-center gap-2 min-w-0">
+                                <div className="flex items-center gap-1.5 min-w-0 flex-1">
                                   <span className="w-1.5 h-1.5 rounded-full bg-stone-300 group-hover/sub:bg-[#D30915] group-hover/sub:scale-125 transition-all shrink-0" />
-                                  <span className="group-hover/sub:translate-x-0.5 transition-transform whitespace-nowrap">
+                                  <span className="group-hover/sub:translate-x-0.5 transition-transform truncate">
                                     {item.name}
                                   </span>
                                 </div>
                                 {item.badge && (
-                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-700 border border-stone-200 shrink-0 whitespace-nowrap">
+                                  <span className="text-[9.5px] xl:text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-stone-100 text-stone-700 border border-stone-200 shrink-0 whitespace-nowrap">
                                     {item.badge}
                                   </span>
                                 )}
@@ -1642,15 +1678,15 @@ export const Header: React.FC<HeaderProps> = ({
                                 setDisplayedMegaCategory(null);
                                 onSearch?.('Cash ' + cat.name);
                               }}
-                              className="w-full text-left group/sub flex items-center justify-between gap-3 py-1 text-[13.5px] font-medium text-stone-700 hover:text-[#D30915] transition-colors cursor-pointer whitespace-nowrap"
+                              className="w-full text-left group/sub flex items-center justify-between gap-2 py-1 text-[13px] xl:text-[13.5px] font-medium text-stone-700 hover:text-[#D30915] transition-colors cursor-pointer min-w-0"
                             >
-                              <div className="flex items-center gap-2 min-w-0">
+                              <div className="flex items-center gap-1.5 min-w-0 flex-1">
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 group-hover/sub:scale-125 transition-all shrink-0" />
-                                <span className="group-hover/sub:translate-x-0.5 transition-transform whitespace-nowrap">
+                                <span className="group-hover/sub:translate-x-0.5 transition-transform truncate">
                                   Cash Inside Reveals
                                 </span>
                               </div>
-                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0 whitespace-nowrap">
+                              <span className="text-[9.5px] xl:text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0 whitespace-nowrap">
                                 💵 Cash
                               </span>
                             </button>
@@ -1663,15 +1699,15 @@ export const Header: React.FC<HeaderProps> = ({
                                 setDisplayedMegaCategory(null);
                                 onSearch?.('Jewelry ' + cat.name);
                               }}
-                              className="w-full text-left group/sub flex items-center justify-between gap-3 py-1 text-[13.5px] font-medium text-stone-700 hover:text-[#D30915] transition-colors cursor-pointer whitespace-nowrap"
+                              className="w-full text-left group/sub flex items-center justify-between gap-2 py-1 text-[13px] xl:text-[13.5px] font-medium text-stone-700 hover:text-[#D30915] transition-colors cursor-pointer min-w-0"
                             >
-                              <div className="flex items-center gap-2 min-w-0">
+                              <div className="flex items-center gap-1.5 min-w-0 flex-1">
                                 <span className="w-1.5 h-1.5 rounded-full bg-purple-400 group-hover/sub:scale-125 transition-all shrink-0" />
-                                <span className="group-hover/sub:translate-x-0.5 transition-transform whitespace-nowrap">
+                                <span className="group-hover/sub:translate-x-0.5 transition-transform truncate">
                                   Jewelry Inside Reveals
                                 </span>
                               </div>
-                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200 shrink-0 whitespace-nowrap">
+                              <span className="text-[9.5px] xl:text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200 shrink-0 whitespace-nowrap">
                                 💎 Jewelry
                               </span>
                             </button>
@@ -1680,15 +1716,15 @@ export const Header: React.FC<HeaderProps> = ({
                             <button
                               type="button"
                               onClick={() => handleCategoryClick(cat)}
-                              className="w-full text-left group/sub flex items-center justify-between gap-3 py-1 text-[13.5px] font-medium text-stone-700 hover:text-[#D30915] transition-colors cursor-pointer whitespace-nowrap"
+                              className="w-full text-left group/sub flex items-center justify-between gap-2 py-1 text-[13px] xl:text-[13.5px] font-medium text-stone-700 hover:text-[#D30915] transition-colors cursor-pointer min-w-0"
                             >
-                              <div className="flex items-center gap-2 min-w-0">
+                              <div className="flex items-center gap-1.5 min-w-0 flex-1">
                                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400 group-hover/sub:scale-125 transition-all shrink-0" />
-                                <span className="group-hover/sub:translate-x-0.5 transition-transform whitespace-nowrap">
+                                <span className="group-hover/sub:translate-x-0.5 transition-transform truncate">
                                   Best Seller Reveals
                                 </span>
                               </div>
-                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 shrink-0 whitespace-nowrap">
+                              <span className="text-[9.5px] xl:text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 shrink-0 whitespace-nowrap">
                                 ★ Popular
                               </span>
                             </button>
@@ -1716,14 +1752,7 @@ export const Header: React.FC<HeaderProps> = ({
 
                     {/* Right Spotlight Promo Card (Displays Full Product Image on Clean White Background) */}
                     {cat.spotlight && (
-                      <div
-                        className="flex flex-col min-w-0 shrink-0"
-                        style={{
-                          width: '250px',
-                          maxWidth: '250px',
-                          flexShrink: 0,
-                        }}
-                      >
+                      <div className="flex flex-col min-w-0 shrink-0 w-full max-w-[240px]">
                         <div
                           onClick={() => {
                             setActiveMegaCategory(null);
@@ -1734,22 +1763,15 @@ export const Header: React.FC<HeaderProps> = ({
                               onNavigate?.('shop');
                             }
                           }}
-                          className="group/promo relative flex flex-col bg-white border border-stone-200 hover:border-stone-400 transition-all duration-300 shadow-xs hover:shadow-md cursor-pointer"
-                          style={{
-                            width: '250px',
-                            maxWidth: '250px',
-                            borderRadius: '12px',
-                            overflow: 'hidden',
-                            boxSizing: 'border-box',
-                          }}
+                          className="group/promo relative flex flex-col bg-white border border-stone-200 hover:border-stone-400 transition-all duration-300 shadow-xs hover:shadow-md cursor-pointer w-full max-w-[240px] rounded-[12px] overflow-hidden box-border"
                         >
                           {/* Image Container: Pure white background, no pink gradient or overlay badges */}
                           <div
                             className="relative w-full flex items-center justify-center bg-white overflow-hidden"
                             style={{
                               width: '100%',
-                              height: '190px',
-                              maxHeight: '220px',
+                              height: '175px',
+                              maxHeight: '185px',
                               borderRadius: '12px 12px 0 0',
                               overflow: 'hidden',
                               position: 'relative',
@@ -1762,22 +1784,22 @@ export const Header: React.FC<HeaderProps> = ({
                               style={{
                                 width: '100%',
                                 height: '100%',
-                                maxHeight: '190px',
+                                maxHeight: '175px',
                                 objectFit: 'contain',
                                 objectPosition: 'center',
                                 display: 'block',
-                                padding: '8px',
+                                padding: '6px',
                                 boxSizing: 'border-box',
                               }}
                             />
                           </div>
 
                           {/* Details below image: Only clean text */}
-                          <div className="p-2.5 flex items-center justify-between gap-2 bg-white border-t border-stone-100">
+                          <div className="p-2 flex items-center justify-between gap-1.5 bg-white border-t border-stone-100 min-w-0">
                             <strong className="font-bold text-xs text-stone-900 group-hover/promo:text-[#D30915] transition-colors truncate">
                               {cat.spotlight.title}
                             </strong>
-                            <span className="text-[11px] font-bold text-[#D30915] flex items-center gap-1 shrink-0 whitespace-nowrap">
+                            <span className="text-[10.5px] font-bold text-[#D30915] flex items-center gap-1 shrink-0 whitespace-nowrap">
                               Shop <ArrowRight className="w-3 h-3 group-hover/promo:translate-x-1 transition-transform" />
                             </span>
                           </div>
