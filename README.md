@@ -1,7 +1,5 @@
 <p align="center">
-  <a href="https://ilovesurprises.com" target="_blank" rel="noopener noreferrer">
-    <img src="public/assets/ilovesurprises/logo/i%20love%20surprises%20logo.jpeg" alt="I Love Surprises Logo" width="340" />
-  </a>
+  <img src="public/assets/ilovesurprises/logo/i%20love%20surprises%20logo.jpeg" alt="I Love Surprises Logo" width="340" />
 </p>
 
 <h1 align="center">I Love Surprises Platform</h1>
@@ -15,9 +13,6 @@
 </p>
 
 <p align="center">
-  <a href="https://ilovesurprises.com" target="_blank" rel="noopener noreferrer">
-    <img src="https://img.shields.io/badge/🌐_Live_Demo-Visit_Storefront-D30915?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Live Demo" />
-  </a>
   <a href="https://github.com/flowfoundryaienterprise/ilovesurprises-platform" target="_blank" rel="noopener noreferrer">
     <img src="https://img.shields.io/badge/💻_GitHub-Repository-24292e?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Repository" />
   </a>
@@ -175,21 +170,9 @@ ilovesurprises-platform/
 
 ---
 
-## 🌐 Live Demo
+## 📸 Storefront Experience
 
-The production application is live and accessible at:
-
-**[https://ilovesurprises.com](https://ilovesurprises.com)**
-
----
-
-## 📸 Storefront Preview
-
-Explore the live storefront experience:
-
-> 🛍️ **[Visit I Love Surprises Online Storefront](https://ilovesurprises.com)**
->
-> Browse luxury jewelry reveal candles, cash surprises, scent profiles, interactive cart bag, and multi-step checkout live in production.
+Browse luxury jewelry reveal candles, cash surprises, scent profiles, interactive cart bag, and multi-step checkout.
 
 ---
 
@@ -248,14 +231,9 @@ The storefront is built mobile-first and tested across all major device tiers:
 | **Brand Rep Portal** | `/affiliate` | Consultant dashboard, real-time sales metrics, referral links, and commission tracking |
 | **Admin Dashboard** | `/admin` | Store administration, inventory tracking, orders, discount coupons, and analytics |
 | **Rewards** | `/rewards` | VIP tier perks, points milestone progression, and prize reveal probability rates |
+| **Jewelry Appraisal** | `/appraise-your-jewelry` | Unique code lookup to reveal hidden jewelry retail appraised value and specs |
 | **About Us** | `/about` | Brand heritage, artisan soy wax craftsmanship, and surprise reveal guarantee |
 | **Contact** | `/contact` | Customer support form, FAQ accordion, and direct contact details |
-
----
-
-## 👨‍💻 Author
-
-- **Janarthanan** — [FlowFoundry AI Enterprise](https://github.com/flowfoundryaienterprise)
 
 ---
 
