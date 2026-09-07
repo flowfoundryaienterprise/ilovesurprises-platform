@@ -243,7 +243,7 @@ export const AffiliateSection: React.FC<AffiliateSectionProps> = ({ isLoading = 
               <div className="mt-3 p-2.5 sm:p-3 rounded-[12px] bg-[#fff1f2] border border-[#fecdd3] flex items-center justify-center sm:justify-start gap-2 text-[11px] sm:text-xs font-bold text-[#D30915]">
                 <ShieldCheck className="w-4 h-4 text-[#D30915] shrink-0" />
                 <span className="leading-snug">
-                  <strong>5-Tier Sponsor Network</strong> — Earn overrides on every team sale with weekly payouts
+                  <strong>5-Tier Sponsor Network</strong> — Earn overrides on every team sale with monthly payouts (15th of each month)
                 </span>
               </div>
 

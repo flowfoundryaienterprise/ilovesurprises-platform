@@ -429,7 +429,7 @@ export const EarningsChart: React.FC = () => {
             Highest Earning Month: <strong className="text-[#141219]">{peakPeriod.label} (${(peakPeriod.personal + peakPeriod.team).toFixed(2)})</strong>
           </span>
           <span className="text-emerald-700 font-bold">
-            ✓ Automated Weekly Direct Payouts Active
+            ✓ Automated Monthly Direct Payouts Active (15th of each month)
           </span>
         </div>
       </div>

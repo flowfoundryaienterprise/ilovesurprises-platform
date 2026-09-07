@@ -75,14 +75,14 @@ export const PayoutsManagerCard: React.FC<PayoutsManagerCardProps> = ({
               </span>
             )}
           </div>
-          <span className="text-[11px] text-[#716d77] block mt-2">Processed every Friday</span>
+          <span className="text-[11px] text-[#716d77] block mt-2">Monthly payouts — paid on the 15th of each month</span>
         </div>
 
         {/* Action Button Card */}
         <div className="p-4 sm:p-5 rounded-[20px] bg-gradient-to-r from-[#fff5f6] to-[#fff0f2] border border-[#ffd8dc] shadow-[0_6px_24px_rgba(211, 9, 21,0.06)] flex flex-col justify-between">
           <div>
             <span className="text-xs font-black uppercase tracking-wider text-[#D30915]">Withdrawal Center</span>
-            <p className="text-[11px] text-[#645c68] mt-0.5">Transfer funds to your PayPal or Bank Account</p>
+            <p className="text-[11px] text-[#645c68] mt-0.5">Monthly disbursements processed on the 15th of each month</p>
           </div>
           <div className="flex items-center gap-2 mt-3">
             <button

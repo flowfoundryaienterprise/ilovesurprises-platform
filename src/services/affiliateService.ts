@@ -223,7 +223,7 @@ const DEFAULT_COMMISSION_RECORDS: CommissionRecord[] = [
     commissionRate: 0.20,
     commissionAmount: 18.00,
     status: 'paid',
-    payoutDate: '2026-03-01',
+    payoutDate: '2026-03-15',
   },
   {
     id: 'comm-102',
@@ -237,7 +237,7 @@ const DEFAULT_COMMISSION_RECORDS: CommissionRecord[] = [
     commissionRate: 0.05,
     commissionAmount: 7.50,
     status: 'paid',
-    payoutDate: '2026-03-01',
+    payoutDate: '2026-03-15',
   },
   {
     id: 'comm-103',
@@ -251,7 +251,7 @@ const DEFAULT_COMMISSION_RECORDS: CommissionRecord[] = [
     commissionRate: 0.04,
     commissionAmount: 2.60,
     status: 'paid',
-    payoutDate: '2026-03-01',
+    payoutDate: '2026-03-15',
   },
   {
     id: 'comm-104',
@@ -265,7 +265,7 @@ const DEFAULT_COMMISSION_RECORDS: CommissionRecord[] = [
     commissionRate: 0.20,
     commissionAmount: 23.99,
     status: 'paid',
-    payoutDate: '2026-03-01',
+    payoutDate: '2026-03-15',
   },
   {
     id: 'comm-105',
@@ -368,8 +368,8 @@ const DEFAULT_PAYOUT_RECORDS: PayoutRecord[] = [
     netAmount: 180.00,
     method: 'bank_transfer',
     destinationAccount: 'Chase Bank (•••• 4819)',
-    requestedAt: '2026-01-30T09:12:00Z',
-    completedAt: '2026-02-01T16:00:00Z',
+    requestedAt: '2026-01-15T09:12:00Z',
+    completedAt: '2026-01-15T16:00:00Z',
     status: 'completed',
     referenceId: 'ACH-7829104-US',
   },

@@ -258,7 +258,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
             <div className="p-3.5 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-between">
               <div>
                 <div className="font-bold text-xs text-[#141219]">PayPal Express & Rep Payouts</div>
-                <div className="text-[11px] text-emerald-600 font-medium">Instant Disbursement Active</div>
+                <div className="text-[11px] text-emerald-600 font-medium">Monthly Disbursement Active (15th)</div>
               </div>
               <button
                 type="button"

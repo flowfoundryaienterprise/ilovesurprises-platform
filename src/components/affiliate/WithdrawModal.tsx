@@ -77,8 +77,8 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
       onUpdateStats(updatedStats);
       onUpdatePayouts(updatedPayouts);
       setSuccessPayout(result.payout);
-      onShowToast(`Payout request for $${numAmount.toFixed(2)} submitted!`, {
-        title: 'Withdrawal Submitted',
+      onShowToast(`Payout request for $${numAmount.toFixed(2)} scheduled for monthly distribution on the 15th!`, {
+        title: 'Withdrawal Scheduled',
         type: 'success',
       });
     } else {
@@ -93,7 +93,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
         <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#f4edf2]">
           <div>
             <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#D30915] block">
-              Representative Payout Hub
+              Representative Payout Hub • Monthly on the 15th
             </span>
             <h3 className="text-sm sm:text-lg font-black text-[#141219] m-0 font-display">
               Withdraw Available Earnings
@@ -121,7 +121,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
               </h4>
 
               <p className="text-xs text-[#716d77] max-w-sm mx-auto leading-relaxed">
-                Your request to transfer <strong className="text-[#141219] font-black">${successPayout.amount.toFixed(2)}</strong> via <strong className="capitalize">{successPayout.method.replace('_', ' ')}</strong> ({successPayout.destinationAccount}) is processing. Reference: <code className="text-[#D30915] font-bold">{successPayout.referenceId}</code>.
+                Your request to transfer <strong className="text-[#141219] font-black">${successPayout.amount.toFixed(2)}</strong> via <strong className="capitalize">{successPayout.method.replace('_', ' ')}</strong> ({successPayout.destinationAccount}) is scheduled for the next monthly payout on the 15th. Reference: <code className="text-[#D30915] font-bold">{successPayout.referenceId}</code>.
               </p>
 
               <div className="pt-2 sm:pt-3">
@@ -268,7 +268,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
 
               <div className="flex items-center gap-2 text-[10px] sm:text-[11px] text-[#716d77] bg-stone-50 p-2 sm:p-2.5 rounded-[12px] border border-stone-200">
                 <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 shrink-0" />
-                <span>Zero transaction fees deducted. 100% of your earnings are delivered directly.</span>
+                <span>Monthly payouts — processed on the 15th of each month. Zero transaction fees.</span>
               </div>
 
               <div className="pt-2 grid grid-cols-2 sm:flex sm:items-center sm:justify-end gap-2 sm:gap-2.5">

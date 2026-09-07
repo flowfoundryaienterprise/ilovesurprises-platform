@@ -53,7 +53,7 @@ const FAQ_ITEMS = [
   {
     question: 'How do I join as an Independent Representative?',
     answer:
-      'You can join our Representative Program to earn 20% direct commission on all customer candle sales through your personalized store link, plus up to 15% in 5-tier team override bonuses (up to 35% total program payout) with weekly automated direct payouts.',
+      'You can join our Representative Program to earn 20% direct commission on all customer candle sales through your personalized store link, plus up to 15% in 5-tier team override bonuses (up to 35% total program payout) with monthly direct payouts on the 15th of each month.',
   },
   {
     question: 'What is your guarantee and damaged package policy?',

@@ -91,7 +91,7 @@ export const ReferralLinkCard: React.FC<ReferralLinkCardProps> = ({
             </h3>
 
             <p className="text-xs sm:text-sm text-[#716d77] m-0 mt-1">
-              Every candle ordered through your rep link earns you <strong className="text-[#D30915] font-black">20% commission</strong> with weekly automated payouts.
+              Every candle ordered through your rep link earns you <strong className="text-[#D30915] font-black">20% commission</strong> with monthly payouts on the 15th of each month.
             </p>
           </div>
 

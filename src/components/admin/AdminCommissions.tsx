@@ -269,7 +269,7 @@ export const AdminCommissions: React.FC<AdminCommissionsProps> = ({
 
   const handleBatchApproveClick = () => {
     onBatchApprove();
-    onShowToast(`Batch approved all pending commission entries!`, {
+    onShowToast(`Batch approved all pending commissions for release on the 15th!`, {
       title: 'Ledger Updated',
       type: 'success',
     });
@@ -288,7 +288,7 @@ export const AdminCommissions: React.FC<AdminCommissionsProps> = ({
       <div className="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-[#eedbe6] shadow-xs space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <DollarSign className="w-5 h-5 text-[#D30915]" />
               <h2 className="text-xl font-black text-[#141219] hero-title-font m-0">
                 Commission Central & Ledger
@@ -296,9 +296,12 @@ export const AdminCommissions: React.FC<AdminCommissionsProps> = ({
               <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
                 35% Max Distribution Cap
               </span>
+              <span className="text-xs font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200">
+                Monthly Payouts: 15th of every month
+              </span>
             </div>
             <p className="text-xs text-[#716d77] m-0 mt-0.5">
-              Verified 5-tier downline compensation, unilevel commission ledger, batch payouts, and clawback tracking.
+              Verified 5-tier downline compensation, unilevel commission ledger, monthly batch payouts (15th of each month), and clawback tracking.
             </p>
           </div>
 

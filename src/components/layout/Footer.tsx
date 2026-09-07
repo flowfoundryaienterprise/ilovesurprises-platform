@@ -384,7 +384,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             </li>
             <li>
               <a href="#affiliate" className="hover:text-[#D30915] hover:translate-x-1 inline-block transition-all py-0.5">
-                💳 Weekly Direct PayPal / Bank Payouts
+                💳 Monthly Direct Payouts (15th of each month)
               </a>
             </li>
             <li>

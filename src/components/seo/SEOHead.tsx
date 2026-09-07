@@ -200,7 +200,7 @@ export function SEOHead({ view, product, category, repUsername, accountTab }: SE
         seo = {
           title: `Become an Independent Surprise Consultant ${BRAND_SUFFIX}`,
           description:
-            'Start your home fragrance business for $19.99/mo. Earn 20% personal sales commission plus up to 5 tiers of team downline overrides with weekly payouts.',
+            'Start your home fragrance business for $19.99/mo. Earn 20% personal sales commission plus up to 5 tiers of team downline overrides with monthly payouts on the 15th.',
           canonical: `${SITE_ORIGIN}/affiliate`,
           isPrivate: false,
           ogType: 'website',

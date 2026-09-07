@@ -181,7 +181,7 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({
             <div className="text-xl font-black text-[#D30915]">
               ${kpis.pendingCommissionLiability.toLocaleString('en-US', { minimumFractionDigits: 2 })}
             </div>
-            <span className="text-[10px] text-[#716d77] font-medium">Scheduled for batch release</span>
+            <span className="text-[10px] text-[#716d77] font-medium">Scheduled for monthly batch release (15th)</span>
           </div>
           <Percent className="w-6 h-6 text-[#D30915]/40" />
         </div>

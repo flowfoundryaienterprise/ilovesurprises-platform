@@ -501,7 +501,7 @@ export const AffiliateDashboard: React.FC<AffiliateDashboardProps> = ({
                 Official I Love Surprises 5-Level Compensation Plan
               </strong>
               <span className="text-[11px] text-[#716d77]">
-                Weekly automated direct withdrawals via PayPal & Bank Transfer with zero payout fees.
+                Monthly payouts — processed on the 15th of each month via PayPal & Bank Transfer with zero payout fees.
               </span>
             </div>
           </div>

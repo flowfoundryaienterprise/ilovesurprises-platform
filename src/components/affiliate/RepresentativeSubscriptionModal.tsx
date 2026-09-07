@@ -984,7 +984,7 @@ export const RepresentativeSubscriptionModal: React.FC<RepresentativeSubscriptio
                       </div>
                       <div className="flex items-start gap-1.5">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                        <span><strong>Weekly Payouts:</strong> Direct to your bank</span>
+                        <span><strong>Monthly Payouts:</strong> Direct on the 15th</span>
                       </div>
                       <div className="flex items-start gap-1.5">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
@@ -1524,7 +1524,7 @@ export const RepresentativeSubscriptionModal: React.FC<RepresentativeSubscriptio
                   </span>
                 </div>
                 <p className="text-[10.5px] sm:text-[11px] text-stone-600 m-0 leading-snug">
-                  Direct weekly deposits via Stripe are unlocked for personal and team overrides.
+                  Direct monthly deposits on the 15th of each month are unlocked for personal and team overrides.
                 </p>
               </div>
             </div>

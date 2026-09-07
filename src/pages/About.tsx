@@ -591,7 +591,7 @@ export const About: React.FC<AboutProps> = ({
               <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 mb-1.5 sm:mb-2" />
               <h4 className="text-xs sm:text-sm font-black text-[#141219] mb-0.5 sm:mb-1">Generous Earning</h4>
               <p className="text-[11px] sm:text-xs text-[#716d77] leading-relaxed m-0">
-                20% direct commissions plus 5-level overrides up to 35% total program payout with automated withdrawals.
+                20% direct commissions plus 5-level overrides up to 35% total program payout with monthly direct payouts on the 15th.
               </p>
             </div>
 
