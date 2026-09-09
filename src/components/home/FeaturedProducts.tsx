@@ -63,6 +63,66 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
     });
   }, [activeChip, searchQuery]);
 
+  const [columns, setColumns] = React.useState<number>(() => {
+    if (typeof window === 'undefined') return 5;
+    const w = window.innerWidth;
+    if (w >= 1280) return 5;
+    if (w >= 1024) return 4;
+    if (w >= 768) return 3;
+    return 2;
+  });
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      const w = window.innerWidth;
+      let cols = 2;
+      if (w >= 1280) cols = 5;
+      else if (w >= 1024) cols = 4;
+      else if (w >= 768) cols = 3;
+      setColumns(cols);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const displayedProducts = useMemo(() => {
+    if (!filteredProducts || filteredProducts.length === 0) return [];
+
+    const isDesktop = columns >= 4;
+    if (!isDesktop) return filteredProducts;
+
+    const remainder = filteredProducts.length % columns;
+    const hasOneEmptySpace = remainder === columns - 1;
+    const isSingleSearchResult = Boolean(
+      searchQuery && searchQuery.trim().length > 0 && filteredProducts.length === 1
+    );
+
+    if (hasOneEmptySpace || isSingleSearchResult) {
+      const existingIds = new Set(filteredProducts.map((p) => p.id));
+      const candidate =
+        productsData.find(
+          (p) => !existingIds.has(p.id) && p.inStock !== false && p.isBestSeller
+        ) ||
+        productsData.find(
+          (p) => !existingIds.has(p.id) && p.inStock !== false
+        );
+
+      if (candidate) {
+        return [
+          ...filteredProducts,
+          {
+            ...candidate,
+            badge: candidate.badge || 'Surprise Pick',
+          },
+        ];
+      }
+    }
+
+    return filteredProducts;
+  }, [filteredProducts, columns, searchQuery]);
+
   const getProductQuantity = (productId: string) => {
     const item = cart.find((i) => i.product.id === productId);
     return item ? item.quantity : 0;
@@ -79,7 +139,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
             <span>Trending Best Sellers</span>
             {!isLoading && (
               <span className="text-xs font-bold text-[#D30915] bg-[#fff1f2] px-2 py-0.5 rounded-full lowercase">
-                {filteredProducts.length} items
+                {displayedProducts.length} items
               </span>
             )}
           </h2>
@@ -113,11 +173,11 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
           role="status"
           aria-label="Loading products"
         >
-          {Array.from({ length: 11 }).map((_, index) => (
+          {Array.from({ length: 15 }).map((_, index) => (
             <ProductCardSkeleton key={index} />
           ))}
         </div>
-      ) : filteredProducts.length === 0 ? (
+      ) : displayedProducts.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-2xl border border-[#eee7ed] p-6 shadow-2xs">
           <Sparkles className="w-8 h-8 text-[#D30915] mx-auto mb-2 opacity-50" />
           <h3 className="text-sm font-bold text-[#141219]">No surprises found matching your filter</h3>
@@ -132,7 +192,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 sm:gap-4 lg:gap-5 w-full transition-all duration-300">
-          {filteredProducts.map((product) => (
+          {displayedProducts.map((product) => (
             <ProductCard
               key={product.id}
               product={product}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Phone, ArrowRight, AlertCircle, ShieldCheck } from 'lucide-react';
 import { PasswordInput } from './PasswordInput';
+import { GoogleIcon } from './GoogleIcon';
 import { authService, isValidEmailOrMobile } from '../../services/auth';
 import type { UserProfile } from '../../types';
 
@@ -20,6 +21,25 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   const [rememberMe, setRememberMe] = useState(true);
   const [errors, setErrors] = useState<{ identifier?: string; password?: string; general?: string }>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
+  const [resendStatus, setResendStatus] = useState<string | null>(null);
+  const [isResending, setIsResending] = useState(false);
+
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    setErrors({});
+    try {
+      const res = await authService.loginWithGoogle();
+      if (!res.success) {
+        setErrors({ general: res.error || 'Failed to initialize Google sign-in. Please try again.' });
+        setIsGoogleLoading(false);
+      }
+    } catch {
+      setErrors({ general: 'Network error occurred while connecting with Google.' });
+      setIsGoogleLoading(false);
+    }
+  };
 
   const isPhone = /^\+?\d+$/.test(identifier.trim().replace(/[\s-()]/g, '')) && !identifier.includes('@');
 
@@ -58,7 +78,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
       if (res.success && res.user) {
         onSuccess(res.user);
+      } else if (res.requiresVerification) {
+        setUnverifiedEmail(identifier.trim());
+        setErrors({ general: res.error || 'Your email address is not verified yet. Please check your inbox or resend the verification link.' });
       } else {
+        setUnverifiedEmail(null);
         setErrors({ general: res.error || 'Unable to sign in. Please verify your credentials.' });
       }
     } catch {
@@ -68,31 +92,42 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     }
   };
 
+  const handleResendVerification = async () => {
+    if (!unverifiedEmail || isResending) return;
+    setIsResending(true);
+    setResendStatus(null);
+    try {
+      const res = await authService.resendVerification(unverifiedEmail);
+      if (res.success) {
+        setResendStatus('Verification email resent! Please check your inbox.');
+      } else {
+        setResendStatus(res.error || 'Failed to resend verification email.');
+      }
+    } catch {
+      setResendStatus('Network error occurred. Please try again.');
+    } finally {
+      setIsResending(false);
+    }
+  };
+
   return (
     <div className="w-full">
       {/* Centered Logo & Welcome Header */}
       <div className="text-center mb-5">
-        <picture className="flex items-center justify-center shrink-0 mx-auto mb-3">
-          <source srcSet="/assets/ilovesurprises/logo/logo.svg" type="image/svg+xml" />
-          <source
-            srcSet="/assets/ilovesurprises/logo/logo-ultra-hd.png 2x, /assets/ilovesurprises/logo/logo-16k.png 1x"
-            type="image/png"
-          />
-          <img
-            src="/assets/ilovesurprises/logo/logo-16k.png"
-            alt="I Love Surprises Logo"
-            width={4096}
-            height={1364}
-            className="h-[42px] min-[360px]:h-[46px] min-[390px]:h-[50px] min-[420px]:h-[52px] sm:h-[57px] w-auto max-w-[170px] min-[360px]:max-w-[195px] min-[390px]:max-w-[215px] min-[420px]:max-w-[230px] sm:max-w-[265px] mx-auto object-contain"
-            loading="eager"
-            style={{
-              imageRendering: '-webkit-optimize-contrast',
-              WebkitBackfaceVisibility: 'hidden',
-              backfaceVisibility: 'hidden',
-              transform: 'translateZ(0)',
-            }}
-          />
-        </picture>
+        <img
+          src="/assets/ilovesurprises/logo/logo-16k.png"
+          alt="I Love Surprises Logo"
+          width={8192}
+          height={2728}
+          className="h-[42px] min-[360px]:h-[46px] min-[390px]:h-[50px] min-[420px]:h-[52px] sm:h-[57px] w-auto max-w-[170px] min-[360px]:max-w-[195px] min-[390px]:max-w-[215px] min-[420px]:max-w-[230px] sm:max-w-[265px] mx-auto object-contain mb-3"
+          loading="eager"
+          style={{
+            imageRendering: '-webkit-optimize-contrast',
+            WebkitBackfaceVisibility: 'hidden',
+            backfaceVisibility: 'hidden',
+            transform: 'translateZ(0)',
+          }}
+        />
         <h2 className="text-xl sm:text-2xl font-black text-[#141219] tracking-tight m-0 font-display">
           Welcome Back
         </h2>
@@ -103,11 +138,58 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
       {/* General Error Banner */}
       {errors.general && (
-        <div className="mb-4 p-3 rounded-[13px] bg-red-50 border border-red-200 text-red-700 text-xs font-semibold flex items-center gap-2 animate-in fade-in duration-200">
-          <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
-          <span>{errors.general}</span>
+        <div className="mb-4 p-3 rounded-[13px] bg-red-50 border border-red-200 text-red-700 text-xs font-semibold space-y-1.5 animate-in fade-in duration-200">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0 text-red-500 mt-0.5" />
+            <span>{errors.general}</span>
+          </div>
+          {unverifiedEmail && (
+            <div className="pl-6 pt-1">
+              {resendStatus ? (
+                <p className="text-[11px] text-emerald-700 font-bold m-0">{resendStatus}</p>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleResendVerification}
+                  disabled={isResending}
+                  className="text-[11px] font-black text-[#D30915] underline hover:text-[#B60711] cursor-pointer disabled:opacity-50"
+                >
+                  {isResending ? 'Resending Link...' : 'Resend Verification Link'}
+                </button>
+              )}
+            </div>
+          )}
         </div>
       )}
+
+      {/* Google OAuth Button */}
+      <button
+        type="button"
+        onClick={handleGoogleSignIn}
+        disabled={isLoading || isGoogleLoading}
+        className="w-full h-[42px] sm:h-[44px] rounded-[13px] bg-white hover:bg-stone-50 border border-[#e5dfe5] hover:border-[#cfc6d0] text-[#141219] text-xs sm:text-sm font-bold shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer flex items-center justify-center gap-2.5 disabled:opacity-50 active:scale-98"
+        aria-label="Continue with Google"
+      >
+        {isGoogleLoading ? (
+          <div className="flex items-center gap-2 text-xs font-semibold text-[#716d77]">
+            <span className="w-4 h-4 border-2 border-[#D30915] border-t-transparent rounded-full animate-spin" />
+            <span>Connecting to Google...</span>
+          </div>
+        ) : (
+          <>
+            <GoogleIcon className="w-4 h-4 sm:w-4.5 sm:h-4.5 shrink-0" />
+            <span>Continue with Google</span>
+          </>
+        )}
+      </button>
+
+      {/* Divider */}
+      <div className="relative my-3.5 flex items-center justify-center">
+        <div className="border-t border-[#ebdce5] w-full" />
+        <span className="bg-white px-2.5 text-[10px] sm:text-[11px] font-bold text-[#8a858f] uppercase tracking-wider shrink-0">
+          or sign in with email
+        </span>
+      </div>
 
       {/* Login Form */}
       <form onSubmit={handleSubmit} noValidate className="space-y-3.5">

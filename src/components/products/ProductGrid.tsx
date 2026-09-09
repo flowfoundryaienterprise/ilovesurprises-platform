@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Sparkles, RefreshCw } from 'lucide-react';
 import { ProductCard } from './ProductCard';
 import { ProductCardSkeleton } from '../ui/ProductCardSkeleton';
+import { productsData } from '../../data/products';
 import type { Product, CartItem } from '../../types';
 
 interface ProductGridProps {
@@ -17,15 +18,16 @@ interface ProductGridProps {
   emptyMessage?: string;
   onResetFilters?: () => void;
   isFullWidth?: boolean;
+  searchQuery?: string;
 }
 
-// Default skeleton count is 11 (Existing 8 count + 3 additional skeleton cards)
+// Default skeleton count is 15 (covers 3 complete 5-col rows on desktop or 5 complete 3-col rows on tablet)
 export const ProductGrid: React.FC<ProductGridProps> = React.memo(({
   products,
   cart = [],
   wishlistIds = [],
   isLoading = false,
-  skeletonCount = 11,
+  skeletonCount = 15,
   onAddToCart,
   onUpdateQuantity,
   onWishlistToggle,
@@ -33,12 +35,80 @@ export const ProductGrid: React.FC<ProductGridProps> = React.memo(({
   emptyMessage = 'No surprise products match your selected filters.',
   onResetFilters,
   isFullWidth = false,
+  searchQuery = '',
 }) => {
   const gridClasses = isFullWidth
     ? 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'
     : 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4';
 
-  const cartQuantityMap = React.useMemo(() => {
+  // Responsive column detection for desktop grid alignment
+  const [columns, setColumns] = useState<number>(() => {
+    if (typeof window === 'undefined') return isFullWidth ? 5 : 4;
+    const w = window.innerWidth;
+    if (w >= 1280) return isFullWidth ? 5 : 4;
+    if (w >= 1024) return isFullWidth ? 4 : 3;
+    if (w >= 768) return 3;
+    return 2;
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      const w = window.innerWidth;
+      let cols = 2;
+      if (w >= 1280) cols = isFullWidth ? 5 : 4;
+      else if (w >= 1024) cols = isFullWidth ? 4 : 3;
+      else if (w >= 768) cols = 3;
+      setColumns(cols);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isFullWidth]);
+
+  // Desktop empty space filler:
+  // On desktop (lg & xl >= 1024px), if a search or query leaves exactly 1 empty space on the last row
+  // (e.g. 4 items in a 5-column row, 9, 14, 19, 24 items, or 3 items in a 4-column row),
+  // OR if searching returns a single product, fill the last line's empty space with a surprise reveal product.
+  const displayedProducts = useMemo(() => {
+    if (!products || products.length === 0) return [];
+
+    const isDesktop = columns >= 4;
+    if (!isDesktop) return products;
+
+    const remainder = products.length % columns;
+    const hasOneEmptySpaceOnLastLine = remainder === columns - 1;
+    const isSingleSearchResult = Boolean(
+      searchQuery && searchQuery.trim().length > 0 && products.length === 1
+    );
+
+    if (hasOneEmptySpaceOnLastLine || isSingleSearchResult) {
+      const existingIds = new Set(products.map((p) => p.id));
+      const candidate =
+        productsData.find(
+          (p) => !existingIds.has(p.id) && p.inStock !== false && p.isBestSeller
+        ) ||
+        productsData.find(
+          (p) =>
+            !existingIds.has(p.id) &&
+            p.inStock !== false &&
+            (p.surpriseType === 'cash' || p.surpriseType === 'jewelry')
+        ) ||
+        productsData.find((p) => !existingIds.has(p.id) && p.inStock !== false);
+
+      if (candidate) {
+        const fillerProduct: Product = {
+          ...candidate,
+          badge: candidate.badge || 'Surprise Pick',
+        };
+        return [...products, fillerProduct];
+      }
+    }
+
+    return products;
+  }, [products, columns, searchQuery]);
+
+  const cartQuantityMap = useMemo(() => {
     const map: Record<string, number> = {};
     for (let i = 0; i < cart.length; i++) {
       map[cart[i].product.id] = cart[i].quantity;
@@ -46,9 +116,9 @@ export const ProductGrid: React.FC<ProductGridProps> = React.memo(({
     return map;
   }, [cart]);
 
-  const wishlistSet = React.useMemo(() => new Set(wishlistIds), [wishlistIds]);
+  const wishlistSet = useMemo(() => new Set(wishlistIds), [wishlistIds]);
 
-  const handleUpdate = React.useCallback(
+  const handleUpdate = useCallback(
     (productId: string, newQty: number) => {
       const currentQty = cartQuantityMap[productId] || 0;
       onUpdateQuantity(productId, newQty - currentQty);
@@ -56,14 +126,14 @@ export const ProductGrid: React.FC<ProductGridProps> = React.memo(({
     [cartQuantityMap, onUpdateQuantity]
   );
 
-  const handleToggle = React.useCallback(
+  const handleToggle = useCallback(
     (productId: string) => {
-      const target = products.find((p) => p.id === productId);
+      const target = displayedProducts.find((p) => p.id === productId);
       if (target) {
         onWishlistToggle(target);
       }
     },
-    [products, onWishlistToggle]
+    [displayedProducts, onWishlistToggle]
   );
 
   if (isLoading) {
@@ -108,7 +178,7 @@ export const ProductGrid: React.FC<ProductGridProps> = React.memo(({
 
   return (
     <div className={`grid gap-3.5 sm:gap-4 lg:gap-5 w-full transition-all duration-300 ${gridClasses}`}>
-      {products.map((product) => {
+      {displayedProducts.map((product) => {
         const qty = cartQuantityMap[product.id] || 0;
         const isWishlisted = wishlistSet.has(product.id);
 

@@ -939,29 +939,22 @@ export const Header: React.FC<HeaderProps> = ({
                 className="flex items-center shrink-0 group focus:outline-none select-none"
                 aria-label="ILoveSurprises Home"
               >
-                <picture className="flex items-center shrink min-w-0">
-                  <source srcSet="/assets/ilovesurprises/logo/logo.svg" type="image/svg+xml" />
-                  <source
-                    srcSet="/assets/ilovesurprises/logo/logo-ultra-hd.png 2x, /assets/ilovesurprises/logo/logo-16k.png 1x"
-                    type="image/png"
-                  />
-                  <img
-                    src="/assets/ilovesurprises/logo/logo-16k.png"
-                    alt="I Love Surprises Logo"
-                    width={4096}
-                    height={1364}
-                    loading="eager"
-                    fetchPriority="high"
-                    decoding="async"
-                    className="h-[48px] min-[360px]:h-[52px] min-[390px]:h-[55px] min-[420px]:h-[58px] sm:h-[54px] md:h-[58px] lg:h-[62px] xl:h-[66px] w-auto max-w-[195px] min-[360px]:max-w-[210px] min-[390px]:max-w-[225px] min-[420px]:max-w-[240px] sm:max-w-[210px] md:max-w-[235px] lg:max-w-[240px] xl:max-w-[275px] object-contain transition-transform duration-300 group-hover:scale-102"
-                    style={{
-                      imageRendering: '-webkit-optimize-contrast',
-                      WebkitBackfaceVisibility: 'hidden',
-                      backfaceVisibility: 'hidden',
-                      transform: 'translateZ(0)',
-                    }}
-                  />
-                </picture>
+                <img
+                  src="/assets/ilovesurprises/logo/logo-16k.png"
+                  alt="I Love Surprises Logo"
+                  width={8192}
+                  height={2728}
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
+                  className="h-[48px] min-[360px]:h-[52px] min-[390px]:h-[55px] min-[420px]:h-[58px] sm:h-[54px] md:h-[58px] lg:h-[62px] xl:h-[66px] w-auto max-w-[195px] min-[360px]:max-w-[210px] min-[390px]:max-w-[225px] min-[420px]:max-w-[240px] sm:max-w-[210px] md:max-w-[235px] lg:max-w-[240px] xl:max-w-[275px] object-contain transition-transform duration-300 group-hover:scale-102"
+                  style={{
+                    imageRendering: '-webkit-optimize-contrast',
+                    WebkitBackfaceVisibility: 'hidden',
+                    backfaceVisibility: 'hidden',
+                    transform: 'translateZ(0)',
+                  }}
+                />
               </a>
             </div>
 
@@ -1853,28 +1846,21 @@ export const Header: React.FC<HeaderProps> = ({
                 className="flex items-center shrink min-w-0"
                 aria-label="Home"
               >
-                <picture className="flex items-center shrink min-w-0">
-                  <source srcSet="/assets/ilovesurprises/logo/logo.svg" type="image/svg+xml" />
-                  <source
-                    srcSet="/assets/ilovesurprises/logo/logo-ultra-hd.png 2x, /assets/ilovesurprises/logo/logo-16k.png 1x"
-                    type="image/png"
-                  />
-                  <img
-                    src="/assets/ilovesurprises/logo/logo-16k.png"
-                    alt="I Love Surprises Logo"
-                    width={4096}
-                    height={1364}
-                    loading="lazy"
-                    decoding="async"
-                    className="h-[42px] min-[360px]:h-[46px] min-[390px]:h-[50px] min-[420px]:h-[52px] sm:h-[50px] w-auto max-w-[170px] min-[360px]:max-w-[195px] min-[390px]:max-w-[215px] min-[420px]:max-w-[230px] sm:max-w-[225px] object-contain"
-                    style={{
-                      imageRendering: '-webkit-optimize-contrast',
-                      WebkitBackfaceVisibility: 'hidden',
-                      backfaceVisibility: 'hidden',
-                      transform: 'translateZ(0)',
-                    }}
-                  />
-                </picture>
+                <img
+                  src="/assets/ilovesurprises/logo/logo-16k.png"
+                  alt="I Love Surprises Logo"
+                  width={8192}
+                  height={2728}
+                  loading="lazy"
+                  decoding="async"
+                  className="h-[42px] min-[360px]:h-[46px] min-[390px]:h-[50px] min-[420px]:h-[52px] sm:h-[50px] w-auto max-w-[170px] min-[360px]:max-w-[195px] min-[390px]:max-w-[215px] min-[420px]:max-w-[230px] sm:max-w-[225px] object-contain"
+                  style={{
+                    imageRendering: '-webkit-optimize-contrast',
+                    WebkitBackfaceVisibility: 'hidden',
+                    backfaceVisibility: 'hidden',
+                    transform: 'translateZ(0)',
+                  }}
+                />
               </a>
 
               <button

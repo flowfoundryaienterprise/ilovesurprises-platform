@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, ArrowLeft, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
-import { authService, isValidEmailOrMobile } from '../../services/auth';
+import { authService, isValidEmail } from '../../services/auth';
 
 interface ForgotPasswordFormProps {
   onSwitchToLogin: () => void;
@@ -17,12 +17,12 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!identifier.trim()) {
-      setError('Please enter your registered email or mobile number.');
+      setError('Please enter your registered email address.');
       return;
     }
 
-    if (!isValidEmailOrMobile(identifier)) {
-      setError('Please enter a valid email address or 10-digit mobile number.');
+    if (!isValidEmail(identifier)) {
+      setError('Please enter a valid email address.');
       return;
     }
 
@@ -47,27 +47,20 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
     <div className="w-full">
       {/* Centered Logo & Header */}
       <div className="text-center mb-5">
-        <picture className="flex items-center justify-center shrink-0 mx-auto mb-3">
-          <source srcSet="/assets/ilovesurprises/logo/logo.svg" type="image/svg+xml" />
-          <source
-            srcSet="/assets/ilovesurprises/logo/logo-ultra-hd.png 2x, /assets/ilovesurprises/logo/logo-16k.png 1x"
-            type="image/png"
-          />
-          <img
-            src="/assets/ilovesurprises/logo/logo-16k.png"
-            alt="I Love Surprises Logo"
-            width={4096}
-            height={1364}
-            className="h-[42px] min-[360px]:h-[46px] min-[390px]:h-[50px] min-[420px]:h-[52px] sm:h-[57px] w-auto max-w-[170px] min-[360px]:max-w-[195px] min-[390px]:max-w-[215px] min-[420px]:max-w-[230px] sm:max-w-[265px] mx-auto object-contain"
-            loading="eager"
-            style={{
-              imageRendering: '-webkit-optimize-contrast',
-              WebkitBackfaceVisibility: 'hidden',
-              backfaceVisibility: 'hidden',
-              transform: 'translateZ(0)',
-            }}
-          />
-        </picture>
+        <img
+          src="/assets/ilovesurprises/logo/logo-16k.png"
+          alt="I Love Surprises Logo"
+          width={8192}
+          height={2728}
+          className="h-[42px] min-[360px]:h-[46px] min-[390px]:h-[50px] min-[420px]:h-[52px] sm:h-[57px] w-auto max-w-[170px] min-[360px]:max-w-[195px] min-[390px]:max-w-[215px] min-[420px]:max-w-[230px] sm:max-w-[265px] mx-auto object-contain mb-3"
+          loading="eager"
+          style={{
+            imageRendering: '-webkit-optimize-contrast',
+            WebkitBackfaceVisibility: 'hidden',
+            backfaceVisibility: 'hidden',
+            transform: 'translateZ(0)',
+          }}
+        />
         <h2 className="text-xl sm:text-2xl font-black text-[#141219] tracking-tight m-0 font-display">
           Forgot Password?
         </h2>
@@ -119,7 +112,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
 
           <div>
             <label htmlFor="forgot-identifier" className="block text-[11px] sm:text-xs font-bold text-[#141219] mb-1">
-              Email or Mobile Number <span className="text-[#D30915]">*</span>
+              Email Address <span className="text-[#D30915]">*</span>
             </label>
             <div className="relative">
               <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8a858f] pointer-events-none">
@@ -127,10 +120,11 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
               </div>
               <input
                 id="forgot-identifier"
-                type="text"
+                type="email"
+                autoComplete="email"
                 required
                 disabled={isLoading}
-                placeholder="Enter registered email or mobile"
+                placeholder="you@email.com"
                 value={identifier}
                 onChange={(e) => {
                   setIdentifier(e.target.value);

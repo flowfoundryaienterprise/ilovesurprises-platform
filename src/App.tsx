@@ -13,9 +13,12 @@ import type { AccountTab } from './pages/Account';
 import type { Product, CartItem, UserProfile, Order } from './types';
 import type { AdminTab } from './types/admin';
 import { productsData } from './data/products';
+import { productService } from './services/productService';
 import { accountService } from './services/accountService';
 import { representativeService } from './services/representativeService';
 import { SEOHead } from './components/seo/SEOHead';
+import { supabase } from './services/supabaseClient';
+import { authService } from './services/auth';
 
 // Route-level code splitting for rapid initial load and 144Hz responsiveness
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard').then((m) => ({ default: m.AdminDashboard })));
@@ -133,6 +136,19 @@ export function App() {
     return null;
   });
 
+  // Dynamically resolve product if accessed directly via URL and not in static dataset
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !selectedProduct) {
+      const path = window.location.pathname;
+      if (path.startsWith('/product/')) {
+        const slug = path.replace('/product/', '');
+        productService.getProductBySlug(slug).then((prod) => {
+          if (prod) setSelectedProduct(prod);
+        });
+      }
+    }
+  }, [selectedProduct]);
+
   const [confirmedOrderId, setConfirmedOrderId] = useState<string | null>(() => {
     if (typeof window === 'undefined') return null;
     const path = window.location.pathname;
@@ -169,8 +185,27 @@ export function App() {
     return accountService.getStoredUser();
   });
 
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'signup' | 'forgot'>('login');
+  const [isAuthOpen, setIsAuthOpen] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash || '';
+      const search = window.location.search || '';
+      if (hash.includes('type=recovery') || search.includes('type=recovery')) {
+        return true;
+      }
+    }
+    return false;
+  });
+
+  const [authMode, setAuthMode] = useState<'login' | 'signup' | 'forgot' | 'reset'>(() => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash || '';
+      const search = window.location.search || '';
+      if (hash.includes('type=recovery') || search.includes('type=recovery')) {
+        return 'reset';
+      }
+    }
+    return 'login';
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All Surprises');
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -192,6 +227,32 @@ export function App() {
     return () => {
       window.removeEventListener('ilovesurprises_user_updated', handleUserUpdated);
       window.removeEventListener('ils_consultant_subscribed', handleUserUpdated);
+    };
+  }, []);
+
+  // Supabase Auth listener for session persistence and recovery link handling
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setAuthMode('reset');
+        setIsAuthOpen(true);
+      } else if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
+        if (session?.user) {
+          const freshUser = await authService.syncOAuthUserProfile(session.user);
+          if (freshUser) {
+            setUser(freshUser);
+            accountService.updateStoredUser(freshUser);
+            setIsAuthOpen(false);
+          }
+        }
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+        accountService.updateStoredUser(null);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
     };
   }, []);
 
@@ -441,6 +502,13 @@ export function App() {
           if (matched) {
             setSelectedProduct(matched);
             setCurrentView('product-details');
+          } else {
+            productService.getProductBySlug(slug).then((prod) => {
+              if (prod) {
+                setSelectedProduct(prod);
+                setCurrentView('product-details');
+              }
+            });
           }
         } else {
           setCurrentView('home');
@@ -453,7 +521,7 @@ export function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [isCartOpen, isAuthOpen]);
 
-  const handleOpenAuth = (mode: 'login' | 'signup' | 'forgot' = 'login') => {
+  const handleOpenAuth = (mode: 'login' | 'signup' | 'forgot' | 'reset' = 'login') => {
     setAuthMode(mode);
     setIsAuthOpen(true);
   };
@@ -530,7 +598,12 @@ export function App() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+    } catch {
+      // ignore
+    }
     try {
       localStorage.removeItem('ils_consultant_subscribed');
       localStorage.removeItem('ils_consultant_username');
@@ -542,6 +615,14 @@ export function App() {
     accountService.updateStoredUser(null);
     window.dispatchEvent(new CustomEvent('ils_consultant_subscribed', { detail: { subscribed: false } }));
     window.dispatchEvent(new CustomEvent('ilovesurprises_user_updated'));
+
+    if (currentView === 'account' || currentView === 'checkout') {
+      setCurrentView('home');
+      if (window.history.pushState) {
+        window.history.pushState({ view: 'home' }, '', '/');
+      }
+    }
+
     showToast('You have signed out successfully.', {
       title: 'Signed Out',
       type: 'info',
@@ -1037,21 +1118,25 @@ export function App() {
               </div>
             )}
 
-            {currentView === 'product-details' && selectedProduct && (
-              <div key={`page-product-${selectedProduct.id}`} className={transitionClass}>
-                <ProductDetails
-                  product={selectedProduct}
-                  cart={cart}
-                  wishlistIds={wishlistIds}
-                  onBackToShop={() => handleNavigateToShop(undefined, 'backward')}
-                  onAddToCart={handleAddToCart}
-                  onUpdateQuantity={handleUpdateQuantity}
-                  onWishlistToggle={handleWishlistToggle}
-                  onSelectProduct={handleSelectProduct}
-                  onOpenCart={() => setIsCartOpen(true)}
-                  onBuyNow={handleBuyNow}
-                />
-              </div>
+            {currentView === 'product-details' && (
+              selectedProduct ? (
+                <div key={`page-product-${selectedProduct.id}`} className={transitionClass}>
+                  <ProductDetails
+                    product={selectedProduct}
+                    cart={cart}
+                    wishlistIds={wishlistIds}
+                    onBackToShop={() => handleNavigateToShop(undefined, 'backward')}
+                    onAddToCart={handleAddToCart}
+                    onUpdateQuantity={handleUpdateQuantity}
+                    onWishlistToggle={handleWishlistToggle}
+                    onSelectProduct={handleSelectProduct}
+                    onOpenCart={() => setIsCartOpen(true)}
+                    onBuyNow={handleBuyNow}
+                  />
+                </div>
+              ) : (
+                <PageLoadingFallback />
+              )
             )}
 
             {currentView === 'account' && (

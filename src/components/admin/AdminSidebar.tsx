@@ -85,17 +85,11 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
         <div className="flex items-center gap-2.5 overflow-hidden">
           {(!isCollapsed || isMobileOpen) ? (
             <div className="flex flex-col gap-1 min-w-0">
-              <picture className="flex items-center shrink-0">
-                <source srcSet="/assets/ilovesurprises/logo/logo.svg" type="image/svg+xml" />
-                <source
-                  srcSet="/assets/ilovesurprises/logo/logo-ultra-hd.png 2x, /assets/ilovesurprises/logo/logo-16k.png 1x"
-                  type="image/png"
-                />
                 <img
                   src="/assets/ilovesurprises/logo/logo-16k.png"
                   alt="ILoveSurprises"
-                  width={4096}
-                  height={1364}
+                  width={8192}
+                  height={2728}
                   className="h-[33px] sm:h-[37px] w-auto max-w-[175px] object-contain"
                   style={{
                     imageRendering: '-webkit-optimize-contrast',
@@ -104,7 +98,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                     transform: 'translateZ(0)',
                   }}
                 />
-              </picture>
               <span className="self-start text-[9px] font-black uppercase tracking-wider text-[#D30915] bg-[#fff1f2] px-1.5 py-0.5 rounded border border-[#fecdd3]">
                 Admin Suite
               </span>

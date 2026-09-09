@@ -1,4 +1,8 @@
 import type { Order, OrderStatus, OrderItem, ShippingAddress, DeliveryMethod, PaymentSummary } from '../types';
+import { supabase } from './supabaseClient';
+import { attributionService } from './attributionService';
+import { commissionService } from './commissionService';
+import { representativeService } from './representativeService';
 
 const ORDERS_STORAGE_KEY = 'ilovesurprises_orders_v1';
 
@@ -73,7 +77,7 @@ export const orderService = {
   },
 
   /**
-   * Creates and persists a new order
+   * Creates and persists a new order with Lifetime Attribution & 5-Level Commission Generation
    */
   async createOrder(params: {
     items: OrderItem[];
@@ -89,13 +93,37 @@ export const orderService = {
       name: string;
       repUsername: string;
     };
+    userId?: string;
   }): Promise<Order> {
-    // Simulating realistic backend order creation latency (450ms)
-    await new Promise((resolve) => setTimeout(resolve, 450));
+    // Simulating realistic backend order creation latency (350ms)
+    await new Promise((resolve) => setTimeout(resolve, 350));
+
+    const customerEmail = params.shippingAddress.email?.toLowerCase().trim() || '';
+    const customerName = params.shippingAddress.fullName || 'Valued Customer';
+
+    // 1. Resolve Lifetime Attribution:
+    // If customer already has a permanent assigned representative, use that permanent representative!
+    let finalAttributedRep = params.attributedRep;
+    const attributionResolution = await attributionService.resolveAttributionForCheckout({
+      customerEmail,
+      userId: params.userId,
+      currentSessionRep: params.attributedRep?.repUsername,
+    });
+
+    if (attributionResolution.repUsername) {
+      const repDetails = representativeService.lookupRepresentative(attributionResolution.repUsername);
+      finalAttributedRep = {
+        name: repDetails?.name || attributionResolution.repUsername,
+        repUsername: attributionResolution.repUsername,
+      };
+    }
+
+    const orderId = generateOrderId();
+    const createdAtIso = new Date().toISOString();
 
     const newOrder: Order = {
-      id: generateOrderId(),
-      createdAt: new Date().toISOString(),
+      id: orderId,
+      createdAt: createdAtIso,
       status: 'processing',
       trackingNumber: generateTrackingNumber(),
       estimatedDeliveryDate: params.deliveryMethod.estimatedDeliveryDate,
@@ -108,9 +136,10 @@ export const orderService = {
       promoCode: params.promoCode,
       shippingFee: params.shippingFee,
       total: params.total,
-      attributedRep: params.attributedRep,
+      attributedRep: finalAttributedRep,
     };
 
+    // 2. Persist to Local Storage
     const existing = this.getOrders();
     const updated = [newOrder, ...existing];
 
@@ -120,6 +149,80 @@ export const orderService = {
         window.dispatchEvent(new CustomEvent('ilovesurprises_orders_updated'));
       } catch (err) {
         console.error('Failed to save order to localStorage', err);
+      }
+    }
+
+    // 3. Persist to Supabase Database (orders table)
+    try {
+      let repProfileUuid: string | null = null;
+      if (finalAttributedRep?.repUsername) {
+        try {
+          const { data: repProf } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('rep_username', finalAttributedRep.repUsername.toLowerCase().trim())
+            .maybeSingle();
+          if (repProf?.id) {
+            repProfileUuid = repProf.id;
+          }
+        } catch {
+          // fallback
+        }
+      }
+
+      await supabase.from('orders').insert({
+        id: newOrder.id,
+        user_id: params.userId || null,
+        subtotal: newOrder.subtotal,
+        discount: newOrder.discount,
+        shipping_fee: newOrder.shippingFee,
+        total: newOrder.total,
+        status: newOrder.status,
+        payment_method: newOrder.paymentSummary.method,
+        payment_status: 'paid',
+        shipping_address: {
+          ...(newOrder.shippingAddress as unknown as Record<string, unknown>),
+          attributed_rep: finalAttributedRep?.repUsername || null,
+        } as any,
+        delivery_method: newOrder.deliveryMethod as any,
+        estimated_delivery_date: newOrder.estimatedDeliveryDate || null,
+        tracking_number: newOrder.trackingNumber,
+        attributed_rep_id: repProfileUuid,
+        notes: finalAttributedRep?.repUsername ? `rep:${finalAttributedRep.repUsername}` : null,
+        created_at: createdAtIso,
+      });
+
+      // Insert order items
+      if (params.items && params.items.length > 0) {
+        const itemInserts = params.items.map((item) => ({
+          order_id: newOrder.id,
+          product_id: item.product.id,
+          quantity: item.quantity,
+          selected_surprise_option: item.selectedSurpriseOption || null,
+          unit_price: item.product.price,
+          total_price: item.product.price * item.quantity,
+        }));
+        await supabase.from('order_items').insert(itemInserts);
+      }
+    } catch (err) {
+      console.warn('Supabase order creation sync warning:', err);
+    }
+
+    // 4. Generate 5-Level MLM Commissions (Idempotent & Lifetime Assured)
+    if (finalAttributedRep && params.subtotal > 0) {
+      const primaryProductName = params.items.length > 0 ? params.items[0].product.name : 'Candle Order';
+      try {
+        await commissionService.processOrderCommissions({
+          orderId: newOrder.id,
+          orderAmount: params.subtotal,
+          customerName,
+          customerEmail,
+          userId: params.userId,
+          productName: primaryProductName,
+          sessionRepUsername: finalAttributedRep.repUsername,
+        });
+      } catch (commErr) {
+        console.error('Commission processing warning:', commErr);
       }
     }
 
@@ -142,3 +245,4 @@ export const orderService = {
     return target;
   },
 };
+

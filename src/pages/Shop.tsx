@@ -12,8 +12,9 @@ import {
 } from '../components/products/filterConstants';
 import { ProductGrid } from '../components/products/ProductGrid';
 import { productsData } from '../data/products';
+import { productService } from '../services/productService';
 import { sessionTracker } from '../utils/sessionTracker';
-import type { Product, CartItem } from '../types';
+import type { Product, CartItem, SurpriseType } from '../types';
 import {
   SlidersHorizontal,
   ArrowUpDown,
@@ -219,10 +220,64 @@ export const Shop: React.FC<ShopProps> = ({
     setSearchQuery(initialSearchQuery);
   }
 
-  // Active applied products shown in the grid
+  const [currentPage, setCurrentPage] = useState(1);
+  const [prevFilterKey, setPrevFilterKey] = useState(() => JSON.stringify({ appliedFilters, searchQuery }));
+  const currentFilterKey = JSON.stringify({ appliedFilters, searchQuery });
+  if (currentFilterKey !== prevFilterKey) {
+    setPrevFilterKey(currentFilterKey);
+    setCurrentPage(1);
+  }
+  const [serverProducts, setServerProducts] = useState<Product[] | null>(null);
+  const [serverTotal, setServerTotal] = useState<number | null>(null);
+  const [serverTotalPages, setServerTotalPages] = useState<number>(1);
+
+  useEffect(() => {
+    let isCancelled = false;
+    const sortParam =
+      appliedFilters.sortBy === 'price-asc'
+        ? 'price-asc'
+        : appliedFilters.sortBy === 'price-desc'
+        ? 'price-desc'
+        : appliedFilters.sortBy === 'rating'
+        ? 'rating'
+        : appliedFilters.sortBy === 'best-sellers'
+        ? 'best-sellers'
+        : 'featured';
+
+    productService
+      .getProducts({
+        page: currentPage,
+        limit: 25,
+        category: appliedFilters.categories[0],
+        searchQuery,
+        minPrice: appliedFilters.minPrice,
+        maxPrice: appliedFilters.maxPrice,
+        surpriseTypes: appliedFilters.surpriseTypes as SurpriseType[],
+        sort: sortParam,
+      })
+      .then((res) => {
+        if (!isCancelled && res) {
+          setServerProducts(res.products);
+          setServerTotal(res.total);
+          setServerTotalPages(res.totalPages);
+        }
+      })
+      .catch((err) => {
+        console.warn('Error fetching products from service:', err);
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [currentPage, appliedFilters, searchQuery]);
+
+  // Active applied products shown in the grid (fallback in-memory)
   const filteredProducts = useMemo(() => {
     return filterProducts(productsData, appliedFilters, searchQuery);
   }, [searchQuery, appliedFilters]);
+
+  const activeProducts = serverProducts ?? filteredProducts;
+  const displayTotalCount = serverTotal ?? productsData.length;
 
   // Draft matching products (shown on the "Search by Filter (X)" button)
   const draftFilteredProducts = useMemo(() => {
@@ -331,8 +386,8 @@ export const Shop: React.FC<ShopProps> = ({
               Surprise Catalog
             </h1>
             <p className="text-xs text-[#716d77] m-0 font-medium">
-              Showing <strong className="text-[#141219] font-black">{filteredProducts.length}</strong> of{' '}
-              <strong className="text-[#141219] font-black">{productsData.length}</strong> reveals
+              Showing <strong className="text-[#141219] font-black">{activeProducts.length}</strong> of{' '}
+              <strong className="text-[#141219] font-black">{displayTotalCount}</strong> reveals
             </p>
           </div>
         </div>
@@ -415,7 +470,8 @@ export const Shop: React.FC<ShopProps> = ({
       <div id="shop-product-grid" className="w-full">
         <ProductGrid
           isLoading={isProductsLoading}
-          products={filteredProducts}
+          products={activeProducts}
+          searchQuery={searchQuery}
           cart={cart}
           wishlistIds={wishlistIds}
           onAddToCart={onAddToCart}
@@ -430,6 +486,36 @@ export const Shop: React.FC<ShopProps> = ({
               : 'No surprise products match all your selected filters. Try broadening your criteria.'
           }
         />
+
+        {serverTotalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 mt-8 mb-4">
+            <button
+              type="button"
+              onClick={() => {
+                setCurrentPage((p) => Math.max(1, p - 1));
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              disabled={currentPage <= 1}
+              className="px-4 py-2 rounded-xl border border-[#ebdce5] bg-white text-xs font-bold text-[#141219] hover:bg-[#faf5f8] disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-2xs"
+            >
+              Previous
+            </button>
+            <span className="text-xs font-black text-[#716d77] px-3">
+              Page {currentPage} of {serverTotalPages}
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setCurrentPage((p) => Math.min(serverTotalPages, p + 1));
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              disabled={currentPage >= serverTotalPages}
+              className="px-4 py-2 rounded-xl border border-[#ebdce5] bg-white text-xs font-bold text-[#141219] hover:bg-[#faf5f8] disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-2xs"
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Mobile Full-Screen Filter Panel Portal */}

@@ -13,7 +13,7 @@ let checked = 0;
 function checkAsset(relPath, sourceName) {
   if (!relPath || !relPath.startsWith('/')) return;
   checked++;
-  const fullPath = path.join(publicDir, relPath.slice(1));
+  const fullPath = path.join(publicDir, decodeURIComponent(relPath.slice(1)));
   if (!fs.existsSync(fullPath)) {
     console.error(`❌ MISSING ASSET: ${relPath} (referenced in ${sourceName})`);
     missing++;
@@ -41,12 +41,14 @@ for (const r of reviewsData) {
 
 console.log('--- Checking Hardcoded Component Assets ---');
 const extraAssets = [
-  '/assets/ilovesurprises/logo/2_Horizontal_LOGO_I-Love-Surprises_JC.avif',
-  '/assets/ilovesurprises/hero/wowsz.png',
+  '/logo.png',
+  '/assets/ilovesurprises/logo/logo-ultra-hd.png',
+  '/assets/ilovesurprises/logo/logo-16k.png',
+  '/assets/ilovesurprises/hero/hero-main-product.png',
+  '/assets/ilovesurprises/hero/hero-lifestyle-reveal.jpg',
   '/assets/ilovesurprises/banners/mjb.png',
-  '/assets/ilovesurprises/banners/guad1.png',
-  '/assets/ilovesurprises/banners/99_467f5a07-5323-4d9e-90f0-3a82dc5889e9.png',
-  '/assets/ilovesurprises/affiliate/WhatsApp_Image_2026-08-19_at_6.15.11_PM_2.jpg'
+  '/assets/ilovesurprises/banners/mobile-banner.jpg',
+  '/assets/ilovesurprises/reviews/WhatsApp_Image_2026-08-19_at_6.15.11_PM_2.jpg'
 ];
 
 for (const a of extraAssets) {

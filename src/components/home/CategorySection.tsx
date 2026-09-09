@@ -16,6 +16,19 @@ export const CategorySection: React.FC<CategorySectionProps> = React.memo(({
   onSelectCategory,
   onViewAllCategories,
 }) => {
+  const [isExpanded, setIsExpanded] = React.useState(false);
+
+  const displayedCategories = React.useMemo(() => {
+    return isExpanded ? categoriesData : categoriesData.slice(0, 6);
+  }, [isExpanded]);
+
+  const handleToggleCollections = () => {
+    setIsExpanded((prev) => !prev);
+    if (onViewAllCategories) {
+      onViewAllCategories();
+    }
+  };
+
   return (
     <section id="categories" className="max-w-[1460px] mx-auto px-3 sm:px-6 pt-3 pb-6 sm:py-8">
 
@@ -35,14 +48,16 @@ export const CategorySection: React.FC<CategorySectionProps> = React.memo(({
 
         <button
           type="button"
-          onClick={() => onViewAllCategories ? onViewAllCategories() : onSelectCategory?.('All Surprises')}
-          className="text-xs sm:text-sm font-bold text-[#D30915] hover:text-[#B60711] hover:underline active:scale-95 transition-all self-center sm:self-end cursor-pointer"
+          onClick={handleToggleCollections}
+          className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#D30915] hover:text-[#B60711] hover:underline active:scale-95 transition-all self-center sm:self-end cursor-pointer"
+          aria-expanded={isExpanded}
         >
-          View all collections →
+          <span>{isExpanded ? 'Show less collections' : 'View all collections'}</span>
+          <span className="text-[13px]">{isExpanded ? '↑' : '→'}</span>
         </button>
       </div>
 
-      {/* 6 Category Cards Grid (3 per line on mobile, 6 on desktop) */}
+      {/* 6 Category Cards Grid (3 per line on mobile, 6 on desktop by default; expandable to all) */}
       {isLoading ? (
         <div
           className="grid grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4 mb-6 sm:mb-8"
@@ -54,15 +69,15 @@ export const CategorySection: React.FC<CategorySectionProps> = React.memo(({
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4 mb-6 sm:mb-8">
-          {categoriesData.map((category) => {
+        <div className="grid grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4 mb-6 sm:mb-8 transition-all duration-300">
+          {displayedCategories.map((category) => {
             const isSelected = selectedCategory === category.name || selectedCategory === category.id;
             return (
               <button
                 key={category.id}
                 type="button"
                 onClick={() => onSelectCategory?.(category.name)}
-                className={`p-2 min-[375px]:p-2.5 sm:p-4 rounded-[16px] sm:rounded-[20px] border transition-all duration-300 flex flex-col items-center text-center cursor-pointer group hover:-translate-y-1.5 active:translate-y-0 active:scale-95 ${isSelected
+                className={`p-2 min-[375px]:p-2.5 sm:p-4 rounded-[16px] sm:rounded-[20px] border transition-all duration-300 flex flex-col items-center text-center cursor-pointer group hover:-translate-y-1.5 active:translate-y-0 active:scale-95 animate-in fade-in zoom-in-95 duration-200 ${isSelected
                   ? 'border-[#D30915] bg-[#fff1f2] shadow-[0_8px_24px_rgba(211, 9, 21,0.18)]'
                   : 'border-[#eee7ed] bg-white hover:border-[#f1b8cb] hover:bg-[#fff9fb] shadow-[0_4px_16px_rgba(50,31,63,0.03)] hover:shadow-[0_12px_28px_rgba(50,31,63,0.08)]'
                   }`}

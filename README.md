@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/assets/ilovesurprises/logo/Picsart_26-09-06_13-10-54-145.jpg" alt="I Love Surprises Logo" width="360" />
+  <img src="public/assets/ilovesurprises/logo/logo-16k.png" alt="I Love Surprises Logo" width="360" />
 </p>
 
 <h1 align="center">I Love Surprises Platform</h1>

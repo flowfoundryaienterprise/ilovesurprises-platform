@@ -134,28 +134,21 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           <div className="sm:col-span-2 lg:col-span-4 flex flex-col justify-between">
             <div>
               <a href="#hero" className="inline-block mb-3 group focus:outline-none">
-                <picture className="flex items-center shrink-0">
-                  <source srcSet="/assets/ilovesurprises/logo/logo.svg" type="image/svg+xml" />
-                  <source
-                    srcSet="/assets/ilovesurprises/logo/logo-ultra-hd.png 2x, /assets/ilovesurprises/logo/logo-16k.png 1x"
-                    type="image/png"
-                  />
-                  <img
-                    src="/assets/ilovesurprises/logo/logo-16k.png"
-                    alt="I Love Surprises Logo"
-                    width={4096}
-                    height={1364}
-                    className="h-[42px] min-[360px]:h-[46px] min-[390px]:h-[50px] min-[420px]:h-[52px] sm:h-[58px] md:h-[62px] w-auto max-w-[170px] min-[360px]:max-w-[195px] min-[390px]:max-w-[215px] min-[420px]:max-w-[230px] sm:max-w-[265px] object-contain transition-transform duration-300 group-hover:scale-103"
-                    loading="lazy"
-                    decoding="async"
-                    style={{
-                      imageRendering: '-webkit-optimize-contrast',
-                      WebkitBackfaceVisibility: 'hidden',
-                      backfaceVisibility: 'hidden',
-                      transform: 'translateZ(0)',
-                    }}
-                  />
-                </picture>
+                <img
+                  src="/assets/ilovesurprises/logo/logo-16k.png"
+                  alt="I Love Surprises Logo"
+                  width={8192}
+                  height={2728}
+                  className="h-[42px] min-[360px]:h-[46px] min-[390px]:h-[50px] min-[420px]:h-[52px] sm:h-[58px] md:h-[62px] w-auto max-w-[170px] min-[360px]:max-w-[195px] min-[390px]:max-w-[215px] min-[420px]:max-w-[230px] sm:max-w-[265px] object-contain transition-transform duration-300 group-hover:scale-103"
+                  loading="lazy"
+                  decoding="async"
+                  style={{
+                    imageRendering: '-webkit-optimize-contrast',
+                    WebkitBackfaceVisibility: 'hidden',
+                    backfaceVisibility: 'hidden',
+                    transform: 'translateZ(0)',
+                  }}
+                />
               </a>
 
             <p className="text-xs text-[#55505a] leading-relaxed max-w-sm m-0 mb-3.5 font-medium">

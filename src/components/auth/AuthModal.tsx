@@ -4,11 +4,12 @@ import { X } from 'lucide-react';
 import { LoginForm } from './LoginForm';
 import { SignUpForm } from './SignUpForm';
 import { ForgotPasswordForm } from './ForgotPasswordForm';
+import { ResetPasswordForm } from './ResetPasswordForm';
 import type { UserProfile } from '../../types';
 
 interface AuthModalProps {
   isOpen: boolean;
-  initialMode?: 'login' | 'signup' | 'forgot';
+  initialMode?: 'login' | 'signup' | 'forgot' | 'reset';
   onClose: () => void;
   onSuccess: (user: UserProfile) => void;
 }
@@ -20,7 +21,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   onSuccess,
 }) => {
   const [isClosing, setIsClosing] = useState(false);
-  const [view, setView] = useState<'login' | 'signup' | 'forgot'>(initialMode);
+  const [view, setView] = useState<'login' | 'signup' | 'forgot' | 'reset'>(initialMode);
   const [prevInitialMode, setPrevInitialMode] = useState(initialMode);
 
   if (initialMode !== prevInitialMode) {
@@ -123,6 +124,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
           {view === 'forgot' && (
             <ForgotPasswordForm
+              onSwitchToLogin={() => setView('login')}
+            />
+          )}
+
+          {view === 'reset' && (
+            <ResetPasswordForm
               onSwitchToLogin={() => setView('login')}
             />
           )}
