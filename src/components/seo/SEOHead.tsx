@@ -262,16 +262,16 @@ export function SEOHead({ view, product, category, repUsername, accountTab }: SE
 
       case 'appraisal':
         seo = {
-          title: `Appraise Your Jewelry ${BRAND_SUFFIX}`,
+          title: `Free Jewelry Value / Appraisal ${BRAND_SUFFIX}`,
           description:
-            'Found a piece of jewelry in your surprise candle? Enter your jewelry code to discover its certified retail appraisal value, metal purity, and gemstone specifications.',
+            'Found jewelry inside an eligible I Love Surprises product? Use our appraisal service to submit your jewelry information and request an estimated value or appraisal information.',
           canonical: `${SITE_ORIGIN}/appraise-your-jewelry`,
           isPrivate: false,
           ogType: 'website',
           ogImage: DEFAULT_IMAGE,
           breadcrumbs: [
             { name: 'Home', url: `${SITE_ORIGIN}/` },
-            { name: 'Appraise Your Jewelry', url: `${SITE_ORIGIN}/appraise-your-jewelry` },
+            { name: 'Free Jewelry Value / Appraisal', url: `${SITE_ORIGIN}/appraise-your-jewelry` },
           ],
         };
         break;
@@ -321,6 +321,108 @@ export function SEOHead({ view, product, category, repUsername, accountTab }: SE
           ogType: 'website',
           ogImage: DEFAULT_IMAGE,
           breadcrumbs: [],
+        };
+        break;
+
+      case 'refund-policy':
+        seo = {
+          title: `Refund & Return Policy ${BRAND_SUFFIX}`,
+          description: 'Review the official I Love Surprises 60-day return policy and refund guidelines.',
+          canonical: `${SITE_ORIGIN}/refund-policy`,
+          isPrivate: false,
+          ogType: 'website',
+          ogImage: DEFAULT_IMAGE,
+          breadcrumbs: [
+            { name: 'Home', url: `${SITE_ORIGIN}/` },
+            { name: 'Refund & Return Policy', url: `${SITE_ORIGIN}/refund-policy` },
+          ],
+        };
+        break;
+
+      case 'terms':
+        seo = {
+          title: `Terms & Conditions ${BRAND_SUFFIX}`,
+          description: 'Official Terms & Conditions and store policies for ILoveSurprises.com.',
+          canonical: `${SITE_ORIGIN}/terms`,
+          isPrivate: false,
+          ogType: 'website',
+          ogImage: DEFAULT_IMAGE,
+          breadcrumbs: [
+            { name: 'Home', url: `${SITE_ORIGIN}/` },
+            { name: 'Terms & Conditions', url: `${SITE_ORIGIN}/terms` },
+          ],
+        };
+        break;
+
+      case 'official-rules':
+        seo = {
+          title: `Official Rules / No Purchase Necessary ${BRAND_SUFFIX}`,
+          description: 'Official promotion rules and Alternate Method of Entry (AMOE) for I Love Surprises cash reveals.',
+          canonical: `${SITE_ORIGIN}/official-rules`,
+          isPrivate: false,
+          ogType: 'website',
+          ogImage: DEFAULT_IMAGE,
+          breadcrumbs: [
+            { name: 'Home', url: `${SITE_ORIGIN}/` },
+            { name: 'Official Rules', url: `${SITE_ORIGIN}/official-rules` },
+          ],
+        };
+        break;
+
+      case 'shipping-policy':
+        seo = {
+          title: `Shipping Policy ${BRAND_SUFFIX}`,
+          description: 'Fast tracked shipping, handling times, delivery destinations, and carrier guidance for I Love Surprises.',
+          canonical: `${SITE_ORIGIN}/shipping`,
+          isPrivate: false,
+          ogType: 'website',
+          ogImage: DEFAULT_IMAGE,
+          breadcrumbs: [
+            { name: 'Home', url: `${SITE_ORIGIN}/` },
+            { name: 'Shipping Policy', url: `${SITE_ORIGIN}/shipping` },
+          ],
+        };
+        break;
+
+      case 'privacy':
+        seo = {
+          title: `Privacy Policy ${BRAND_SUFFIX}`,
+          description: 'Learn how I Love Surprises safeguards personal information, order data, and customer privacy.',
+          canonical: `${SITE_ORIGIN}/privacy`,
+          isPrivate: false,
+          ogType: 'website',
+          ogImage: DEFAULT_IMAGE,
+          breadcrumbs: [
+            { name: 'Home', url: `${SITE_ORIGIN}/` },
+            { name: 'Privacy Policy', url: `${SITE_ORIGIN}/privacy` },
+          ],
+        };
+        break;
+
+      case 'faqs':
+        seo = {
+          title: `Frequently Asked Questions ${BRAND_SUFFIX}`,
+          description: 'Frequently asked questions about surprise candles, jewelry, shipping, returns, and support.',
+          canonical: `${SITE_ORIGIN}/faqs`,
+          isPrivate: false,
+          ogType: 'website',
+          ogImage: DEFAULT_IMAGE,
+          breadcrumbs: [
+            { name: 'Home', url: `${SITE_ORIGIN}/` },
+            { name: 'Frequently Asked Questions', url: `${SITE_ORIGIN}/faqs` },
+          ],
+        };
+        break;
+
+      default:
+        seo = {
+          title: `I Love Surprises ${BRAND_SUFFIX}`,
+          description: 'Discover luxury soy candles and bath treats with real cash or fine jewelry hidden inside.',
+          canonical: `${SITE_ORIGIN}/`,
+          isPrivate: false,
+          ogType: 'website',
+          ogImage: DEFAULT_IMAGE,
+          breadcrumbs: [{ name: 'Home', url: `${SITE_ORIGIN}/` }],
         };
         break;
     }

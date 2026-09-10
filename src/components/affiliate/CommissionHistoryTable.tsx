@@ -9,10 +9,12 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import type { CommissionRecord, CommissionTierLevel, CommissionStatus } from '../../types';
+import { qualificationService } from '../../services/qualificationService';
 import { AffiliateCustomSelect, type AffiliateSelectOption } from './AffiliateCustomSelect';
 
 interface CommissionHistoryTableProps {
   commissions: CommissionRecord[];
+  repUsername?: string;
 }
 
 const LEVEL_OPTIONS: AffiliateSelectOption[] = [
@@ -31,14 +33,20 @@ const STATUS_OPTIONS: AffiliateSelectOption[] = [
   { value: 'approved', label: 'Approved for Payout', badge: 'Approved', badgeColor: 'bg-blue-50 text-blue-800 border border-blue-200' },
   { value: 'paid', label: 'Paid & Transferred', badge: 'Paid', badgeColor: 'bg-emerald-50 text-emerald-800 border border-emerald-200' },
   { value: 'reversed', label: 'Reversed (Refunded)', badge: 'Reversed', badgeColor: 'bg-rose-50 text-rose-800 border border-rose-200' },
+  { value: 'unqualified', label: 'Unqualified (<$125 sales)', badge: 'Unqualified', badgeColor: 'bg-amber-50 text-amber-900 border border-amber-300' },
 ];
 
 export const CommissionHistoryTable: React.FC<CommissionHistoryTableProps> = ({
   commissions,
+  repUsername = 'sarah_sparkles',
 }) => {
   const [search, setSearch] = useState('');
   const [selectedLevel, setSelectedLevel] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
+
+  // Qualification status for current month
+  const qual = qualificationService.getCachedQualification(repUsername);
+  const isQualified = qual.isQualified;
 
   const filteredCommissions = useMemo(() => {
     return commissions.filter((c) => {
@@ -65,7 +73,9 @@ export const CommissionHistoryTable: React.FC<CommissionHistoryTableProps> = ({
   }, [commissions, search, selectedLevel, selectedStatus]);
 
   const totalFilteredEarned = useMemo(() => {
-    return filteredCommissions.reduce((sum, c) => sum + c.commissionAmount, 0);
+    return filteredCommissions
+      .filter((c) => c.status !== 'unqualified' && c.status !== 'reversed')
+      .reduce((sum, c) => sum + c.commissionAmount, 0);
   }, [filteredCommissions]);
 
   const handleExportCSV = () => {
@@ -123,6 +133,16 @@ export const CommissionHistoryTable: React.FC<CommissionHistoryTableProps> = ({
             <span>Reversed</span>
           </span>
         );
+      case 'unqualified':
+        return (
+          <span
+            className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-black uppercase text-amber-900 bg-amber-50 px-2 sm:px-2.5 py-0.5 rounded-full border border-amber-300"
+            title="Requires at least $125 in monthly qualifying retail customer sales"
+          >
+            <Clock className="w-3 h-3 text-amber-700 shrink-0" />
+            <span>Unqualified ($125 req.)</span>
+          </span>
+        );
       case 'pending':
       default:
         return (
@@ -175,6 +195,43 @@ export const CommissionHistoryTable: React.FC<CommissionHistoryTableProps> = ({
           <Download className="w-3.5 h-3.5" />
           <span>Export CSV</span>
         </button>
+      </div>
+
+      {/* Team Commission Qualification Banner (Section 9) */}
+      <div
+        className={`p-3.5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs ${
+          isQualified
+            ? 'bg-emerald-50/80 border-emerald-200 text-emerald-950'
+            : 'bg-amber-50/80 border-amber-200 text-amber-950'
+        }`}
+      >
+        <div className="flex items-center gap-2">
+          {isQualified ? (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          ) : (
+            <Clock className="w-4 h-4 text-amber-600 shrink-0" />
+          )}
+          <div>
+            <span className="font-bold">
+              Team Commission Qualification:{' '}
+              {isQualified ? (
+                <span className="text-emerald-800">✓ Qualified for this month</span>
+              ) : (
+                <span className="text-amber-800">
+                  Not qualified — $125 qualifying retail customer sales required.
+                </span>
+              )}
+            </span>
+            <span className="block text-[11px] text-[#716d77] mt-0.5">
+              Current qualifying retail sales: ${qual.qualifyingRetailSales.toFixed(2)} / ${qual.qualificationThreshold.toFixed(2)} (Personal purchases excluded)
+            </span>
+          </div>
+        </div>
+        <span className="text-[11px] font-bold text-[#716d77] shrink-0">
+          {isQualified
+            ? '✓ Levels 1–5 overrides active'
+            : 'Personal 20% active • Team overrides locked'}
+        </span>
       </div>
 
       {/* Filters & Search Row with Custom Luxury Dropdowns */}

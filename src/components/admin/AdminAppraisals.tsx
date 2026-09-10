@@ -13,6 +13,7 @@ import {
   Filter,
   RefreshCw,
   X,
+  Eye,
 } from 'lucide-react';
 import type { JewelryAppraisal, JewelryType, AppraisalStatus } from '../../types/appraisal';
 import { appraisalService, APPRAISALS_UPDATED_EVENT } from '../../services/appraisalService';
@@ -37,6 +38,7 @@ export const AdminAppraisals: React.FC<AdminAppraisalsProps> = ({ onShowToast })
   const [selectedType, setSelectedType] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [viewingCertificate, setViewingCertificate] = useState<JewelryAppraisal | null>(null);
 
   // Modal State for Add / Edit
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -56,6 +58,10 @@ export const AdminAppraisals: React.FC<AdminAppraisalsProps> = ({ onShowToast })
     status: 'active' as AppraisalStatus,
     serialNumber: '',
     inspectedDate: 'March 2026',
+    customerName: '',
+    customerEmail: '',
+    orderId: '',
+    productName: '',
   });
 
   // Subscribe to service updates
@@ -117,6 +123,10 @@ export const AdminAppraisals: React.FC<AdminAppraisalsProps> = ({ onShowToast })
       status: 'active',
       serialNumber: randSerial,
       inspectedDate: 'March 2026',
+      customerName: '',
+      customerEmail: '',
+      orderId: '',
+      productName: '',
     });
     setIsModalOpen(true);
   };
@@ -136,6 +146,10 @@ export const AdminAppraisals: React.FC<AdminAppraisalsProps> = ({ onShowToast })
       status: item.status,
       serialNumber: item.serialNumber,
       inspectedDate: item.inspectedDate,
+      customerName: item.customerName || '',
+      customerEmail: item.customerEmail || '',
+      orderId: item.orderId || '',
+      productName: item.productName || '',
     });
     setIsModalOpen(true);
   };
@@ -162,6 +176,10 @@ export const AdminAppraisals: React.FC<AdminAppraisalsProps> = ({ onShowToast })
         status: formData.status,
         serialNumber: formData.serialNumber,
         inspectedDate: formData.inspectedDate,
+        customerName: formData.customerName.trim() || undefined,
+        customerEmail: formData.customerEmail.trim() || undefined,
+        orderId: formData.orderId.trim() || undefined,
+        productName: formData.productName.trim() || undefined,
       });
 
       onShowToast(`Appraisal code "${formData.code}" updated successfully.`, {
@@ -182,6 +200,10 @@ export const AdminAppraisals: React.FC<AdminAppraisalsProps> = ({ onShowToast })
         status: formData.status,
         serialNumber: formData.serialNumber,
         inspectedDate: formData.inspectedDate,
+        customerName: formData.customerName.trim() || undefined,
+        customerEmail: formData.customerEmail.trim() || undefined,
+        orderId: formData.orderId.trim() || undefined,
+        productName: formData.productName.trim() || undefined,
       });
 
       onShowToast(`New appraisal code "${formData.code}" registered!`, {
@@ -473,6 +495,15 @@ export const AdminAppraisals: React.FC<AdminAppraisalsProps> = ({ onShowToast })
                       <div className="inline-flex items-center gap-1">
                         <button
                           type="button"
+                          onClick={() => setViewingCertificate(item)}
+                          className="p-1.5 rounded-lg text-[#55505a] hover:text-[#D30915] hover:bg-[#fff0f3] transition-colors cursor-pointer"
+                          title="View Official Certificate Details"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                        </button>
+
+                        <button
+                          type="button"
                           onClick={() => handleOpenEditModal(item)}
                           className="p-1.5 rounded-lg text-[#55505a] hover:text-[#D30915] hover:bg-[#fff0f3] transition-colors cursor-pointer"
                           title="Edit Appraisal"
@@ -638,6 +669,57 @@ export const AdminAppraisals: React.FC<AdminAppraisalsProps> = ({ onShowToast })
                 </div>
               </div>
 
+              {/* Linked Customer, Order, and Product Traceability */}
+              <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200 space-y-2.5">
+                <span className="text-[10px] font-black uppercase tracking-wider text-stone-500 block">
+                  Customer & Order Traceability (Optional)
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[10px] uppercase text-[#716d77] mb-1">Customer Name</label>
+                    <input
+                      type="text"
+                      placeholder="Your name"
+                      value={formData.customerName}
+                      onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
+                      className="w-full h-[36px] px-3 rounded-[10px] bg-white border border-[#e5dfe5] text-xs font-medium outline-none focus:border-[#D30915]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] uppercase text-[#716d77] mb-1">Customer Email</label>
+                    <input
+                      type="email"
+                      placeholder="example@gmail.com"
+                      value={formData.customerEmail}
+                      onChange={(e) => setFormData({ ...formData, customerEmail: e.target.value })}
+                      className="w-full h-[36px] px-3 rounded-[10px] bg-white border border-[#e5dfe5] text-xs font-medium outline-none focus:border-[#D30915]"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[10px] uppercase text-[#716d77] mb-1">Order Number / ID</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. ILS-89104-US"
+                      value={formData.orderId}
+                      onChange={(e) => setFormData({ ...formData, orderId: e.target.value })}
+                      className="w-full h-[36px] px-3 rounded-[10px] bg-white border border-[#e5dfe5] text-xs font-medium outline-none focus:border-[#D30915]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] uppercase text-[#716d77] mb-1">Source Candle / Product</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Midnight Amber Cash Candle"
+                      value={formData.productName}
+                      onChange={(e) => setFormData({ ...formData, productName: e.target.value })}
+                      className="w-full h-[36px] px-3 rounded-[10px] bg-white border border-[#e5dfe5] text-xs font-medium outline-none focus:border-[#D30915]"
+                    />
+                  </div>
+                </div>
+              </div>
+
               {/* Description */}
               <div>
                 <label className="block text-[10px] uppercase text-[#716d77] mb-1">
@@ -694,6 +776,124 @@ export const AdminAppraisals: React.FC<AdminAppraisalsProps> = ({ onShowToast })
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* 6. View Certificate Details Modal */}
+      {viewingCertificate && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
+          <div className="w-full max-w-lg rounded-[28px] bg-white border-2 border-[#eedbe6] shadow-2xl p-6 sm:p-8 relative my-auto space-y-5">
+            <button
+              type="button"
+              onClick={() => setViewingCertificate(null)}
+              className="absolute top-5 right-5 w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 flex items-center justify-center cursor-pointer transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Certificate Header Banner */}
+            <div className="text-center pb-4 border-b border-stone-100">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 mb-2">
+                <Award className="w-6 h-6 text-[#D30915]" />
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#D30915] block">
+                Official Certification of Authenticity & Valuation
+              </span>
+              <h3 className="text-xl font-black text-[#141219] mt-0.5">
+                {viewingCertificate.name}
+              </h3>
+              <div className="flex items-center justify-center gap-2 text-xs font-mono text-stone-500 mt-1">
+                <span>Cert #{viewingCertificate.serialNumber}</span>
+                <span>•</span>
+                <span className="font-bold text-[#D30915]">Code: {viewingCertificate.code}</span>
+              </div>
+            </div>
+
+            {/* Certificate Card Content */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-4 p-3 bg-stone-50 rounded-2xl border border-stone-200">
+                <img
+                  src={viewingCertificate.image}
+                  alt={viewingCertificate.name}
+                  className="w-16 h-16 rounded-xl object-cover border border-stone-200 shrink-0"
+                />
+                <div className="min-w-0 flex-1">
+                  <span className="text-[10px] uppercase font-bold text-stone-500 block">
+                    Certified Estimated Replacement Value
+                  </span>
+                  <span className="text-2xl font-black text-[#D30915]">
+                    ${viewingCertificate.estimatedValue.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  </span>
+                  <span className="text-[11px] text-stone-500 block mt-0.5 font-medium">
+                    Inspected: {viewingCertificate.inspectedDate}
+                  </span>
+                </div>
+              </div>
+
+              {/* Specs Grid */}
+              <div className="grid grid-cols-2 gap-2 text-xs bg-[#fffbfd] p-3 rounded-2xl border border-[#eedbe6]">
+                <div>
+                  <span className="text-[10px] font-bold text-stone-500 block">Material & Metal</span>
+                  <span className="font-bold text-[#141219]">{viewingCertificate.material}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold text-stone-500 block">Stone & Clarity</span>
+                  <span className="font-bold text-[#141219]">{viewingCertificate.stone || 'Natural Accents'}</span>
+                </div>
+                <div className="col-span-2 pt-1 border-t border-[#f7eff4]">
+                  <span className="text-[10px] font-bold text-stone-500 block">Setting & Cut</span>
+                  <span className="font-bold text-[#141219]">{viewingCertificate.cutSetting || 'Artisan Prong Setting'}</span>
+                </div>
+              </div>
+
+              {/* Customer / Order / Product Traceability */}
+              <div className="p-3 rounded-2xl bg-stone-50 border border-stone-200 text-xs space-y-1.5">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-stone-600 block">
+                  Traceability & Record Connection
+                </span>
+                <div className="flex items-center justify-between text-stone-700">
+                  <span className="text-stone-500">Linked Customer:</span>
+                  <span className="font-bold text-[#141219]">
+                    {viewingCertificate.customerName
+                      ? `${viewingCertificate.customerName} (${viewingCertificate.customerEmail || ''})`
+                      : 'Inventory Pool / Unclaimed'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-stone-700">
+                  <span className="text-stone-500">Linked Order ID:</span>
+                  <span className="font-mono font-bold text-[#D30915]">
+                    {viewingCertificate.orderId || 'Stock Item'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-stone-700">
+                  <span className="text-stone-500">Source Candle / Product:</span>
+                  <span className="font-bold text-[#141219]">
+                    {viewingCertificate.productName || 'Fine Jewelry Cash Candle'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2 pt-2 border-t border-stone-100">
+              <a
+                href={`/appraise-your-jewelry?code=${encodeURIComponent(viewingCertificate.code)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="flex-1 h-[42px] px-4 rounded-xl bg-[#D30915] hover:bg-[#B60711] text-white text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-xs transition-colors"
+              >
+                <span>Open Public Certificate Page</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+              <button
+                type="button"
+                onClick={() => setViewingCertificate(null)}
+                className="h-[42px] px-4 rounded-xl border border-stone-200 bg-white text-xs font-bold text-stone-700 hover:bg-stone-50 cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

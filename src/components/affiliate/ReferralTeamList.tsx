@@ -1,10 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { Users, Search, Award, Filter } from 'lucide-react';
+import { Users, Search, Award, Filter, CheckCircle2, Clock } from 'lucide-react';
 import type { ReferralMember } from '../../types';
+import { qualificationService } from '../../services/qualificationService';
 import { AffiliateCustomSelect, type AffiliateSelectOption } from './AffiliateCustomSelect';
 
 interface ReferralTeamListProps {
   members: ReferralMember[];
+  repUsername?: string;
 }
 
 const LEVEL_OPTIONS: AffiliateSelectOption[] = [
@@ -24,10 +26,16 @@ const STATUS_OPTIONS: AffiliateSelectOption[] = [
 
 const DEFAULT_PROFILE_AVATAR = '/assets/ilovesurprises/Profile/profile%20image.webp';
 
-export const ReferralTeamList: React.FC<ReferralTeamListProps> = ({ members }) => {
+export const ReferralTeamList: React.FC<ReferralTeamListProps> = ({
+  members,
+  repUsername = 'sarah_sparkles',
+}) => {
   const [search, setSearch] = useState('');
   const [levelFilter, setLevelFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+
+  const qual = qualificationService.getCachedQualification(repUsername);
+  const isQualified = qual.isQualified;
 
   const filteredMembers = useMemo(() => {
     return members.filter((m) => {
@@ -79,6 +87,36 @@ export const ReferralTeamList: React.FC<ReferralTeamListProps> = ({ members }) =
             All 5-Tier Representative Members ({filteredMembers.length})
           </h3>
         </div>
+      </div>
+
+      {/* Downline Commission Qualification Banner */}
+      <div
+        className={`p-3 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs ${
+          isQualified
+            ? 'bg-emerald-50/80 border-emerald-200 text-emerald-950'
+            : 'bg-amber-50/80 border-amber-200 text-amber-950'
+        }`}
+      >
+        <span className="font-bold flex items-center gap-1.5">
+          {isQualified ? (
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+          ) : (
+            <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+          )}
+          <span>
+            Team Commission Qualification:{' '}
+            {isQualified ? (
+              <span className="text-emerald-800">✓ Qualified for this month</span>
+            ) : (
+              <span className="text-amber-800">
+                Not qualified — $125 qualifying retail customer sales required.
+              </span>
+            )}
+          </span>
+        </span>
+        <span className="text-[11px] text-[#716d77] font-medium">
+          Personal purchases excluded from qualification threshold
+        </span>
       </div>
 
       {/* Filter Bar with Custom Luxury Dropdowns */}

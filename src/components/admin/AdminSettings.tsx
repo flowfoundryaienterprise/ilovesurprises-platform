@@ -329,6 +329,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
                   type="text"
                   value={formData.emailSenderName}
                   onChange={(e) => setFormData((p) => ({ ...p, emailSenderName: e.target.value }))}
+                  placeholder="Your name"
                   className="w-full h-9 px-3 rounded-xl bg-[#faf7f9] border border-[#eedbe6]"
                 />
               </div>
@@ -338,6 +339,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
                   type="email"
                   value={formData.emailSenderAddress}
                   onChange={(e) => setFormData((p) => ({ ...p, emailSenderAddress: e.target.value }))}
+                  placeholder="example@gmail.com"
                   className="w-full h-9 px-3 rounded-xl bg-[#faf7f9] border border-[#eedbe6]"
                 />
               </div>

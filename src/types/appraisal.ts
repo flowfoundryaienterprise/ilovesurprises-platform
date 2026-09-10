@@ -17,6 +17,11 @@ export interface JewelryAppraisal {
   serialNumber: string;
   inspectedDate: string;
   createdAt?: string;
+  customerName?: string;
+  customerEmail?: string;
+  orderId?: string;
+  productId?: string;
+  productName?: string;
 }
 
 /**

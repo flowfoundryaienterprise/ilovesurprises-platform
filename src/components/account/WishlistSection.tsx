@@ -3,6 +3,7 @@ import { Heart, ShoppingBag, Trash2, Sparkles, Star, ArrowRight } from 'lucide-r
 import { ProductCardSkeleton } from '../ui/ProductCardSkeleton';
 import type { Product } from '../../types';
 import { productsData } from '../../data/products';
+import { deduplicateProducts } from '../../utils/productUtils';
 
 interface WishlistSectionProps {
   wishlistIds: string[];
@@ -28,7 +29,7 @@ export const WishlistSection: React.FC<WishlistSectionProps> = ({
     return () => clearTimeout(timer);
   }, []);
 
-  const wishlistProducts = productsData.filter((p) => wishlistIds.includes(p.id));
+  const wishlistProducts = deduplicateProducts(productsData.filter((p) => wishlistIds.includes(p.id)));
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">

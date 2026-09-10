@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ShieldCheck,
   Check,
   X,
+  Lock,
 } from 'lucide-react';
 import type { AdminRole, AdminTab } from '../../types/admin';
-import { ADMIN_ROLES_CONFIG } from '../../services/adminService';
+import { adminService, ADMIN_ROLES_CONFIG } from '../../services/adminService';
 
 interface AdminPermissionsProps {
   currentRole: AdminRole;
@@ -21,6 +22,7 @@ export const AdminPermissions: React.FC<AdminPermissionsProps> = ({
   onShowToast,
 }) => {
   const ALL_ROLES: AdminRole[] = ['super_admin', 'store_manager', 'affiliate_manager', 'support_rep'];
+  const [roleConfigs, setRoleConfigs] = useState(() => adminService.getRoleDefinitions());
 
   const PERMISSION_GROUPS: {
     tab: AdminTab;
@@ -43,6 +45,38 @@ export const AdminPermissions: React.FC<AdminPermissionsProps> = ({
       title: 'Role Switched',
       type: 'success',
     });
+  };
+
+  const handleTogglePermission = (role: AdminRole, tab: AdminTab, label: string) => {
+    if (currentRole !== 'super_admin') {
+      onShowToast('Only Super Admin can modify role permissions', { type: 'info' });
+      return;
+    }
+    if (role === 'super_admin') {
+      onShowToast('Super Admin permissions are immutable and mandatory', { type: 'info' });
+      return;
+    }
+    // Hard security check: Staff cannot be granted settings or permissions
+    if (tab === 'settings' || tab === 'permissions') {
+      onShowToast(`Security Policy: "${label}" is strictly restricted to Super Admin only.`, {
+        type: 'info',
+        title: 'Restricted Action',
+      });
+      return;
+    }
+
+    const currentAllowed = roleConfigs[role].allowedTabs;
+    const isCurrentlyAllowed = currentAllowed.includes(tab);
+    const updatedTabs = isCurrentlyAllowed
+      ? currentAllowed.filter((t) => t !== tab)
+      : [...currentAllowed, tab];
+
+    const updated = adminService.updateRolePermissions(role, updatedTabs);
+    setRoleConfigs(updated);
+    onShowToast(
+      `${isCurrentlyAllowed ? 'Revoked' : 'Granted'} "${label}" for ${roleConfigs[role].name}`,
+      { type: 'success', title: 'Permission Updated' }
+    );
   };
 
   return (
@@ -118,7 +152,9 @@ export const AdminPermissions: React.FC<AdminPermissionsProps> = ({
               Module Access Matrix
             </h3>
             <p className="text-xs text-[#716d77] m-0">
-              Visual map of allowed sections per administrative profile.
+              {currentRole === 'super_admin'
+                ? 'Super Admin Mode: Click any staff permission below to toggle live privileges. System settings and permissions matrix are strictly locked to Super Admin.'
+                : 'Visual map of allowed sections per administrative profile.'}
             </p>
           </div>
           <span className="text-xs text-[#716d77] font-medium hidden sm:inline">
@@ -161,44 +197,48 @@ export const AdminPermissions: React.FC<AdminPermissionsProps> = ({
                     </span>
                   </td>
 
-                  {/* Store Manager */}
-                  <td className="py-3.5 px-3 text-center">
-                    {ADMIN_ROLES_CONFIG.store_manager.allowedTabs.includes(group.tab) ? (
-                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-50 text-emerald-600">
-                        <Check className="w-4 h-4 stroke-[3]" />
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-400">
-                        <X className="w-4 h-4" />
-                      </span>
-                    )}
-                  </td>
+                  {/* Other Roles: store_manager, affiliate_manager, support_rep */}
+                  {(['store_manager', 'affiliate_manager', 'support_rep'] as AdminRole[]).map((rKey) => {
+                    const isRestricted = group.tab === 'settings' || group.tab === 'permissions';
+                    const isAllowed = roleConfigs[rKey].allowedTabs.includes(group.tab);
 
-                  {/* Affiliate Manager */}
-                  <td className="py-3.5 px-3 text-center">
-                    {ADMIN_ROLES_CONFIG.affiliate_manager.allowedTabs.includes(group.tab) ? (
-                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-50 text-emerald-600">
-                        <Check className="w-4 h-4 stroke-[3]" />
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-400">
-                        <X className="w-4 h-4" />
-                      </span>
-                    )}
-                  </td>
+                    if (isRestricted) {
+                      return (
+                        <td key={rKey} className="py-3.5 px-3 text-center">
+                          <span
+                            title="Restricted: Critical system operations reserved for Super Admin"
+                            className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-stone-100 text-stone-400"
+                          >
+                            <Lock className="w-3.5 h-3.5 text-stone-400" />
+                          </span>
+                        </td>
+                      );
+                    }
 
-                  {/* Support Rep */}
-                  <td className="py-3.5 px-3 text-center">
-                    {ADMIN_ROLES_CONFIG.support_rep.allowedTabs.includes(group.tab) ? (
-                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-50 text-emerald-600">
-                        <Check className="w-4 h-4 stroke-[3]" />
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-400">
-                        <X className="w-4 h-4" />
-                      </span>
-                    )}
-                  </td>
+                    return (
+                      <td key={rKey} className="py-3.5 px-3 text-center">
+                        <button
+                          type="button"
+                          disabled={currentRole !== 'super_admin'}
+                          onClick={() => handleTogglePermission(rKey, group.tab, group.label)}
+                          title={
+                            currentRole === 'super_admin'
+                              ? `Click to ${isAllowed ? 'Revoke' : 'Grant'} access for ${roleConfigs[rKey].name}`
+                              : undefined
+                          }
+                          className={`inline-flex items-center justify-center w-6 h-6 rounded-full transition-transform ${
+                            currentRole === 'super_admin' ? 'hover:scale-110 cursor-pointer' : 'cursor-default'
+                          } ${
+                            isAllowed
+                              ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'
+                              : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                          }`}
+                        >
+                          {isAllowed ? <Check className="w-4 h-4 stroke-[3]" /> : <X className="w-4 h-4" />}
+                        </button>
+                      </td>
+                    );
+                  })}
                 </tr>
               ))}
             </tbody>

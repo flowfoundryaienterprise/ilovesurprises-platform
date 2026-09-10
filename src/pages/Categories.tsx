@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { categoriesData } from '../data/categories';
 import { productsData } from '../data/products';
+import { deduplicateProducts } from '../utils/productUtils';
 import { Skeleton } from '../components/ui/Skeleton';
 import { sessionTracker } from '../utils/sessionTracker';
 
@@ -200,7 +201,7 @@ export const Categories: React.FC<CategoriesProps> = ({
             : 18.95;
 
           // Top 3 companion product thumbnails
-          const previewThumbs = categoryProducts.slice(0, 3);
+          const previewThumbs = deduplicateProducts(categoryProducts).slice(0, 3);
 
           return (
             <div

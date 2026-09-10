@@ -73,6 +73,10 @@ export interface RepresentativeAdminRecord {
   teamSalesMonth: number;
   teamSize: number;
   totalCommissionsEarned: number;
+  qualifyingRetailSalesMonth?: number;
+  isDownlineCommissionQualified?: boolean;
+  qualificationThreshold?: number;
+  personalPurchasesMonth?: number;
 }
 
 export type MembershipPlanType = 'monthly' | 'six_month' | 'twelve_month';
@@ -107,6 +111,7 @@ export interface AdminProductItem {
   category: string;
   price: number;
   originalPrice?: number;
+  description?: string;
   stock: number;
   lowStockThreshold: number;
   surpriseType: string;
@@ -124,8 +129,22 @@ export interface AdminCollectionItem {
   slug: string;
   productCount: number;
   featured: boolean;
+  orderIndex?: number;
   image: string;
   tagline: string;
+}
+
+export interface AdminOrderItem {
+  id: string;
+  orderNumber: string;
+  customerName: string;
+  customerEmail: string;
+  total: number;
+  status: 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  paymentStatus: 'paid' | 'refunded' | 'pending';
+  itemCount: number;
+  itemsSummary: string;
+  createdAt: string;
 }
 
 export interface AdminCustomerItem {
@@ -165,7 +184,7 @@ export interface AdminDiscountCode {
 }
 
 export type AdminCommissionTierLevel = 'selling_rep' | 1 | 2 | 3 | 4 | 5;
-export type CommissionLedgerStatus = 'pending' | 'approved' | 'reversed' | 'paid';
+export type CommissionLedgerStatus = 'pending' | 'approved' | 'reversed' | 'paid' | 'unqualified';
 
 export interface AdminCommissionRecord {
   id: string;
@@ -182,6 +201,7 @@ export interface AdminCommissionRecord {
   date: string;
   customerName: string;
   payoutReference?: string;
+  unqualifiedReason?: string;
 }
 
 export interface AdminReportData {

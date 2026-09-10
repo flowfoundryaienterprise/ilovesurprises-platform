@@ -257,6 +257,16 @@ export const AdminCommissions: React.FC<AdminCommissionsProps> = ({
             <span>Pending Review</span>
           </span>
         );
+      case 'unqualified':
+        return (
+          <span
+            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-300 text-[10px] font-bold"
+            title="Unqualified: Requires at least $125 in qualifying retail customer sales this calendar month"
+          >
+            <Clock className="w-3 h-3 text-amber-700" />
+            <span>Unqualified (&lt;$125)</span>
+          </span>
+        );
       case 'reversed':
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-bold">
@@ -379,6 +389,25 @@ export const AdminCommissions: React.FC<AdminCommissionsProps> = ({
               </div>
             ))}
           </div>
+
+          {/* Active Monthly Qualification Policy (Founder Requirement) */}
+          <div className="p-3.5 rounded-xl bg-purple-50/70 border border-purple-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
+            <div className="flex items-start sm:items-center gap-2">
+              <ShieldAlert className="w-4 h-4 text-purple-700 shrink-0 mt-0.5 sm:mt-0" />
+              <div className="text-purple-950 font-medium space-y-0.5">
+                <div>
+                  <strong className="font-black">Active Commission Qualification Rule:</strong> Surprise Consultants must generate at least <strong>$125.00</strong> in qualifying retail customer sales each calendar month to receive team/downline commissions.
+                </div>
+                <div className="text-[11px] text-purple-800">
+                  * Rep personal purchases receive a 20% discount upfront, generate $0 commission, and do not count toward the $125 requirement.
+                  * $20 Rep signup/monthly fees do not generate commission income.
+                </div>
+              </div>
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-wider text-purple-800 bg-purple-100/80 px-2.5 py-0.5 rounded-md border border-purple-200 shrink-0">
+              Policy Enforced ($125 Fixed)
+            </span>
+          </div>
         </div>
       </div>
 
@@ -411,6 +440,7 @@ export const AdminCommissions: React.FC<AdminCommissionsProps> = ({
             <option value="pending">Pending Approval</option>
             <option value="approved">Approved for Payout</option>
             <option value="paid">Paid & Settled</option>
+            <option value="unqualified">Unqualified (&lt;$125 Monthly Sales)</option>
             <option value="reversed">Reversed / Refund Clawback</option>
           </select>
         </div>

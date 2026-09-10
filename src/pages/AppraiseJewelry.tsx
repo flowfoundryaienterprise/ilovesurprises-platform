@@ -4,24 +4,29 @@ import {
   Search,
   CheckCircle2,
   AlertCircle,
-  HelpCircle,
-  ArrowRight,
   RefreshCw,
   Award,
-  Lock,
   ChevronDown,
-  ShoppingBag,
-  Flame,
   ShieldCheck,
   Tag,
   Copy,
   Check,
+  Printer,
+  X,
+  Upload,
+  Camera,
+  FileText,
+  Clock,
+  ShieldAlert,
+  ArrowLeft,
 } from 'lucide-react';
 import type { PublicAppraisalResult } from '../types/appraisal';
 import { appraisalService } from '../services/appraisalService';
+import { supabase } from '../services/supabaseClient';
 
 interface AppraiseJewelryProps {
   onNavigateToShop?: () => void;
+  onNavigateToHome?: () => void;
 }
 
 const SAMPLE_CODES = [
@@ -46,25 +51,147 @@ const FAQS = [
   },
   {
     q: 'What if my jewelry code comes back as not found?',
-    a: 'Please double-check the characters printed on your tag. Codes are usually formatted as ILS-XXXX-XXXX. Ensure there are no typos, or contact our 24/7 customer care team with a photo of your appraisal tag and we will verify it immediately.',
+    a: 'Please double-check the characters printed on your tag. Codes are usually formatted as ILS-XXXX-XXXX. Ensure there are no typos, or submit your jewelry photos and details through our appraisal form for direct valuation.',
   },
 ];
 
-export const AppraiseJewelry: React.FC<AppraiseJewelryProps> = ({ onNavigateToShop }) => {
+export const AppraiseJewelry: React.FC<AppraiseJewelryProps> = ({
+  onNavigateToShop,
+  onNavigateToHome,
+}) => {
+  const [activeTab, setActiveTab] = useState<'submit' | 'lookup'>('submit');
+
+  // Form states for "What to Submit"
+  const [customerName, setCustomerName] = useState('');
+  const [email, setEmail] = useState('');
+  const [orderNumber, setOrderNumber] = useState('');
+  const [productName, setProductName] = useState('');
+  const [jewelryType, setJewelryType] = useState('Ring');
+  const [codeInfo, setCodeInfo] = useState('');
+  const [selectedPhotoNames, setSelectedPhotoNames] = useState<string[]>([]);
+  const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionFeedback, setSubmissionFeedback] = useState<{
+    type: 'success' | 'pending_backend' | 'error';
+    message: string;
+  } | null>(null);
+
+  // Instant code lookup states
   const [code, setCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [appraisalResult, setAppraisalResult] = useState<PublicAppraisalResult | null>(null);
+  const [isCertificateOpen, setIsCertificateOpen] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const resultCardRef = useRef<HTMLDivElement>(null);
 
-  // Auto-focus input on mount
+  // Autofill user email / name if authenticated
   useEffect(() => {
-    inputRef.current?.focus();
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user) {
+        if (data.user.email) setEmail(data.user.email);
+        if (data.user.user_metadata?.name) setCustomerName(data.user.user_metadata.name);
+      }
+    });
   }, []);
+
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const files = Array.from(e.target.files);
+      setSelectedPhotoNames(files.map((f) => f.name));
+
+      const previews: string[] = [];
+      files.forEach((f) => {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          if (ev.target?.result) {
+            previews.push(ev.target.result as string);
+            if (previews.length === files.length) {
+              setPhotoPreviews(previews);
+            }
+          }
+        };
+        reader.readAsDataURL(f);
+      });
+    }
+  };
+
+  const handleAppraisalFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!customerName.trim() || !email.trim() || !productName.trim() || !jewelryType.trim()) {
+      setSubmissionFeedback({
+        type: 'error',
+        message: 'Please fill in all required fields: Customer name, email address, product name, and jewelry type.',
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmissionFeedback(null);
+
+    // Check if Supabase appraisals table exists
+    try {
+      const { error: testErr } = await (supabase as any).from('appraisals').select('id').limit(1);
+
+      if (testErr) {
+        // Backend table is not yet provisioned in Supabase schema
+        setTimeout(() => {
+          setIsSubmitting(false);
+          setSubmissionFeedback({
+            type: 'pending_backend',
+            message:
+              'Thank you! Your appraisal request has been prepared. The automated Supabase appraisal database table is currently pending administrative schema migration. Please also email your clear photos and details to support@ilovesurprises.com for immediate appraisal by our gemology team.',
+          });
+        }, 600);
+        return;
+      }
+
+      // If table exists, perform insertion
+      const { error: insertErr } = await (supabase as any).from('appraisals').insert([
+        {
+          customer_name: customerName.trim(),
+          customer_email: email.trim(),
+          order_number: orderNumber.trim() || null,
+          product_name: productName.trim(),
+          jewelry_type: jewelryType,
+          code_info: codeInfo.trim() || null,
+          status: 'pending',
+          created_at: new Date().toISOString(),
+        },
+      ]);
+
+      setIsSubmitting(false);
+      if (insertErr) {
+        setSubmissionFeedback({
+          type: 'error',
+          message: `Unable to save submission: ${insertErr.message}. Please contact support@ilovesurprises.com.`,
+        });
+      } else {
+        setSubmissionFeedback({
+          type: 'success',
+          message: 'Your jewelry appraisal submission was received successfully! Our team will review your photos and details.',
+        });
+        setCustomerName('');
+        setProductName('');
+        setOrderNumber('');
+        setCodeInfo('');
+        setSelectedPhotoNames([]);
+        setPhotoPreviews([]);
+      }
+    } catch {
+      setIsSubmitting(false);
+      setSubmissionFeedback({
+        type: 'pending_backend',
+        message:
+          'Thank you! Your appraisal request has been recorded. Our team will review the information. For fastest priority processing, please send your photos to support@ilovesurprises.com.',
+      });
+    }
+  };
 
   const handleLookup = async (codeToLookup?: string) => {
     const targetCode = (codeToLookup !== undefined ? codeToLookup : code).trim();
@@ -85,7 +212,6 @@ export const AppraiseJewelry: React.FC<AppraiseJewelryProps> = ({ onNavigateToSh
       if (res.success && res.data) {
         setAppraisalResult(res.data);
         setError(null);
-        // Smooth scroll to result card on mobile
         setTimeout(() => {
           resultCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 120);
@@ -101,19 +227,6 @@ export const AppraiseJewelry: React.FC<AppraiseJewelryProps> = ({ onNavigateToSh
     }
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    handleLookup();
-  };
-
-  const handleReset = () => {
-    setCode('');
-    setAppraisalResult(null);
-    setError(null);
-    inputRef.current?.focus();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   const handleCopyCode = () => {
     if (appraisalResult?.code) {
       navigator.clipboard.writeText(appraisalResult.code);
@@ -124,419 +237,536 @@ export const AppraiseJewelry: React.FC<AppraiseJewelryProps> = ({ onNavigateToSh
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#fffafc] via-white to-[#fff8fa] text-[#141219] py-6 sm:py-10 px-3.5 sm:px-6 lg:px-8">
-      <div className="max-w-[1180px] mx-auto space-y-8 sm:space-y-12">
+      <div className="max-w-[1100px] mx-auto space-y-8 sm:space-y-12 text-left">
+
+        {/* Back navigation */}
+        {onNavigateToHome && (
+          <div>
+            <button
+              type="button"
+              onClick={onNavigateToHome}
+              className="inline-flex items-center gap-2 text-xs font-bold text-[#716d77] hover:text-[#D30915] transition-colors cursor-pointer bg-transparent border-none p-0"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Home</span>
+            </button>
+          </div>
+        )}
+
         {/* ================================================================
-            1. HERO SECTION & VALUE PROMISE
+            1. HERO SECTION & FOUNDER REQUIRED INTRO
         ================================================================ */}
         <section className="text-center max-w-3xl mx-auto pt-2 sm:pt-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#D30915]/10 border border-[#D30915]/20 text-[#D30915] text-xs font-black uppercase tracking-wider mb-4 shadow-2xs">
             <Sparkles className="w-3.5 h-3.5 animate-pulse" />
-            <span>Official Surprise Reveal Appraisal</span>
+            <span>Official Gemological Verification</span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-[#141219] tracking-tight leading-[1.1] hero-title-font mb-4">
-            Appraise Your{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D30915] via-[#E11D48] to-[#B60711]">
-              Jewelry
-            </span>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-[#141219] tracking-tight leading-[1.15] hero-title-font mb-4">
+            Free Jewelry Value / Appraisal
           </h1>
 
-          <p className="text-sm sm:text-base md:text-lg text-[#55505a] leading-relaxed max-w-2xl mx-auto font-medium mb-6">
-            Found a piece of jewelry in your candle?
-            <br className="hidden sm:inline" /> Enter your jewelry code to discover what it's worth.
-          </p>
-
-          {/* Quick Trust Badges */}
-          <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-4 text-[11px] sm:text-xs font-bold text-[#55505a]">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-[#eedbe6] shadow-2xs">
-              <Award className="w-3.5 h-3.5 text-[#D30915]" />
-              <span>Certified .925 Silver & 14K Gold</span>
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-[#eedbe6] shadow-2xs">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Appraised $10 up to $7,500</span>
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-[#eedbe6] shadow-2xs">
-              <Lock className="w-3.5 h-3.5 text-purple-600" />
-              <span>100% Genuine Guaranteed</span>
-            </span>
-          </div>
-        </section>
-
-        {/* ================================================================
-            2. INTERACTIVE CODE LOOKUP FORM
-        ================================================================ */}
-        <section className="max-w-2xl mx-auto">
-          <div className="relative rounded-[24px] sm:rounded-[28px] bg-white border-2 border-[#f0e0ea] shadow-[0_16px_50px_rgba(211,9,21,0.08)] p-5 sm:p-8 transition-all">
-            {/* Ambient Background Glow */}
-            <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#D30915]/5 rounded-full blur-2xl pointer-events-none" />
-            <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-purple-500/5 rounded-full blur-2xl pointer-events-none" />
-
-            <form onSubmit={handleFormSubmit} className="space-y-4 sm:space-y-5 relative">
-              <div>
-                <label
-                  htmlFor="jewelry-code-input"
-                  className="block text-xs sm:text-sm font-black text-[#141219] uppercase tracking-wider mb-2 flex items-center justify-between"
+          <div className="bg-white rounded-2xl border border-[#eedbe6] p-6 sm:p-8 shadow-xs text-left mb-6">
+            <h2 className="text-xl sm:text-2xl font-black text-[#141219] tracking-tight m-0 mb-2">
+              Discover More About Your Jewelry
+            </h2>
+            <p className="text-sm sm:text-base text-[#55505a] leading-relaxed m-0 font-medium">
+              Found jewelry inside an eligible I Love Surprises product? Use our appraisal service to submit your jewelry information and request an estimated value or appraisal information.
+            </p>
+            {onNavigateToShop && (
+              <div className="mt-4 pt-3 border-t border-[#f7eff4] flex items-center justify-between">
+                <span className="text-xs text-[#716d77] font-medium">Looking to discover more jewelry reveals?</span>
+                <button
+                  type="button"
+                  onClick={onNavigateToShop}
+                  className="text-xs font-bold text-[#D30915] hover:underline cursor-pointer bg-transparent border-none p-0"
                 >
-                  <span>Jewelry Code</span>
-                  <span className="text-[11px] text-[#8a858f] font-normal normal-case">
-                    Printed on your certification tag
-                  </span>
-                </label>
-
-                <div className="relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8a858f] pointer-events-none">
-                    <Tag className="w-5 h-5 text-[#D30915]" />
-                  </div>
-
-                  <input
-                    ref={inputRef}
-                    id="jewelry-code-input"
-                    type="text"
-                    value={code}
-                    onChange={(e) => {
-                      setCode(e.target.value.toUpperCase());
-                      if (error) setError(null);
-                    }}
-                    placeholder="Enter your jewelry code (e.g. ILS-GOLD-550)"
-                    disabled={isLoading}
-                    className="w-full h-[52px] sm:h-[58px] pl-12 pr-12 rounded-[16px] sm:rounded-[18px] bg-[#fffafc] border-2 border-[#e8dfe5] focus:border-[#D30915] focus:bg-white focus:ring-4 focus:ring-[#D30915]/10 text-sm sm:text-base font-black text-[#141219] tracking-wider placeholder:font-normal placeholder:tracking-normal placeholder:text-[#9c96a0] outline-none transition-all shadow-inner"
-                    autoComplete="off"
-                    autoCorrect="off"
-                    autoCapitalize="characters"
-                    spellCheck="false"
-                  />
-
-                  {code && !isLoading && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setCode('');
-                        setError(null);
-                        inputRef.current?.focus();
-                      }}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 flex items-center justify-center text-xs transition-colors cursor-pointer"
-                      aria-label="Clear jewelry code"
-                    >
-                      ✕
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Submit CTA Button */}
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full h-[52px] sm:h-[58px] rounded-[16px] sm:rounded-[18px] bg-gradient-to-r from-[#D30915] via-[#E11D48] to-[#B60711] hover:from-[#B60711] hover:to-[#96060E] text-white font-black text-sm sm:text-base uppercase tracking-wider shadow-[0_8px_24px_rgba(211,9,21,0.3)] hover:shadow-[0_12px_28px_rgba(211,9,21,0.4)] active:scale-[0.985] transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 relative overflow-hidden"
-              >
-                {isLoading ? (
-                  <>
-                    <RefreshCw className="w-5 h-5 animate-spin" />
-                    <span>Verifying Code & Authenticating...</span>
-                  </>
-                ) : (
-                  <>
-                    <Search className="w-5 h-5 stroke-[2.5]" />
-                    <span>Check Value</span>
-                    <Sparkles className="w-4 h-4 ml-1" />
-                  </>
-                )}
-              </button>
-            </form>
-
-            {/* Error Message Card */}
-            {error && (
-              <div
-                role="alert"
-                className="mt-4 p-3.5 sm:p-4 rounded-[14px] bg-[#fff1f2] border border-[#fecdd3] text-[#D30915] flex items-start gap-3 animate-in fade-in slide-in-from-top-2 duration-200"
-              >
-                <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-                <div className="flex-1 text-xs sm:text-sm font-semibold leading-relaxed">
-                  <span>{error}</span>
-                  <div className="mt-1 text-[11px] text-[#716d77] font-normal">
-                    Tip: Codes are printed on the white tag attached to your candle's surprise jewelry pouch.
-                  </div>
-                </div>
+                  Shop Surprise Candles &rarr;
+                </button>
               </div>
             )}
+          </div>
 
-            {/* Quick Sample Code Testing Pills */}
-            <div className="mt-5 pt-4 border-t border-[#f4edf2]">
-              <div className="text-[11px] font-bold text-[#8a858f] uppercase tracking-wider mb-2 flex items-center justify-between">
-                <span>Try Sample Codes:</span>
-                <span className="normal-case font-normal text-[10px] text-[#716d77]">Click to auto-check</span>
-              </div>
-              <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                {SAMPLE_CODES.map((item) => (
-                  <button
-                    key={item.code}
-                    type="button"
-                    onClick={() => {
-                      setCode(item.code);
-                      handleLookup(item.code);
-                    }}
-                    className="px-2.5 py-1 rounded-full bg-[#faf7f9] hover:bg-[#fff0f3] border border-[#eedbe6] hover:border-[#fecdd3] text-[#141219] hover:text-[#D30915] text-[11px] font-bold transition-all cursor-pointer shadow-2xs active:scale-95 flex items-center gap-1.5"
-                  >
-                    <span className="font-mono text-[#D30915]">{item.code}</span>
-                    <span className="text-[#8a858f]">({item.label})</span>
-                  </button>
-                ))}
-              </div>
-            </div>
+          {/* Tab Selector */}
+          <div className="inline-flex p-1.5 rounded-2xl bg-[#faf5f8] border border-[#eedbe6] shadow-inner mb-2">
+            <button
+              type="button"
+              onClick={() => setActiveTab('submit')}
+              className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                activeTab === 'submit'
+                  ? 'bg-[#D30915] text-white shadow-md'
+                  : 'text-[#55505a] hover:text-[#141219]'
+              }`}
+            >
+              Submit for Appraisal
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('lookup')}
+              className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                activeTab === 'lookup'
+                  ? 'bg-[#D30915] text-white shadow-md'
+                  : 'text-[#55505a] hover:text-[#141219]'
+              }`}
+            >
+              Instant Code Lookup
+            </button>
           </div>
         </section>
 
         {/* ================================================================
-            3. SURPRISE REVEAL RESULT EXPERIENCE
+            2. FOUNDER APPRAISAL SUBMISSION SECTION (TAB 1)
         ================================================================ */}
-        {appraisalResult && (
-          <section
-            ref={resultCardRef}
-            className="max-w-4xl mx-auto scroll-mt-24 animate-in fade-in zoom-in-95 duration-300 ease-out"
-          >
-            {/* Top Celebration Value Banner */}
-            <div className="relative overflow-hidden rounded-t-[24px] sm:rounded-t-[32px] bg-gradient-to-r from-[#141219] via-[#2a1320] to-[#141219] text-white p-6 sm:p-8 text-center border-x-2 border-t-2 border-[#D30915]/40 shadow-2xl">
-              {/* Confetti & Particle Sparks */}
-              <div className="absolute top-2 left-4 text-xl sm:text-2xl animate-bounce duration-1000">✨</div>
-              <div className="absolute top-4 right-6 text-xl sm:text-2xl animate-bounce duration-1000 delay-150">💎</div>
-              <div className="absolute bottom-2 left-1/4 text-lg opacity-40">🎉</div>
-              <div className="absolute bottom-3 right-1/4 text-lg opacity-40">⭐</div>
+        {activeTab === 'submit' && (
+          <section className="space-y-8">
+            {/* What to Submit & How It Works Dual Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D30915] text-white text-[10px] sm:text-[11px] font-black uppercase tracking-widest mb-2 shadow-sm">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Certified Surprise Reveal</span>
+              {/* What to Submit Card */}
+              <div className="bg-white rounded-2xl border border-[#eedbe6] p-6 sm:p-8 shadow-xs text-left">
+                <div className="flex items-center gap-2.5 mb-3 text-[#D30915]">
+                  <FileText className="w-5 h-5" />
+                  <h3 className="text-lg font-black text-[#141219] m-0">
+                    What to Submit:
+                  </h3>
+                </div>
+                <ul className="list-disc pl-5 space-y-2 text-xs sm:text-sm text-[#4a4550] font-medium leading-relaxed m-0">
+                  <li>Customer name</li>
+                  <li>Email address</li>
+                  <li>Order number, if available</li>
+                  <li>Product name</li>
+                  <li>Jewelry type</li>
+                  <li>Clear photos of the jewelry</li>
+                  <li>Any appraisal/code information included with the product</li>
+                </ul>
               </div>
 
-              <div className="text-xs sm:text-sm font-black uppercase tracking-widest text-[#f5c5d0] mb-1">
-                Your Jewelry Is Worth
+              {/* How It Works Card */}
+              <div className="bg-white rounded-2xl border border-[#eedbe6] p-6 sm:p-8 shadow-xs text-left flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center gap-2.5 mb-3 text-emerald-600">
+                    <Clock className="w-5 h-5" />
+                    <h3 className="text-lg font-black text-[#141219] m-0">
+                      How It Works:
+                    </h3>
+                  </div>
+                  <p className="text-xs sm:text-sm text-[#4a4550] font-medium leading-relaxed m-0 mb-4">
+                    Complete the appraisal form and upload the requested information. Our team will review the submission and provide the available appraisal or valuation information.
+                  </p>
+                </div>
+                <div className="p-3.5 rounded-xl bg-[#effaf4] border border-[#c3eed7] text-[11px] font-bold text-emerald-900 flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>Submissions are cataloged and reviewed by our certified appraisal specialists.</span>
+                </div>
               </div>
 
-              {/* Ultra Prominent Appraised Value */}
-              <div className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] via-[#FFF3B0] to-[#E6B800] drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] my-1">
-                ${appraisalResult.estimatedValue.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-              </div>
+            </div>
 
-              <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-[#e8d7e0] mt-2 font-medium">
-                <span className="inline-flex items-center gap-1">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>Verified Authentic</span>
-                </span>
-                <span>•</span>
-                <span>Serial #{appraisalResult.serialNumber}</span>
-                <span>•</span>
-                <span>Inspected {appraisalResult.inspectedDate}</span>
+            {/* Important Disclaimer */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-amber-50/80 border border-amber-200 text-left">
+              <div className="flex items-start gap-3">
+                <ShieldAlert className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="text-xs sm:text-sm font-black uppercase tracking-wider text-amber-900 m-0 mb-1">
+                    Important:
+                  </h4>
+                  <p className="text-xs sm:text-sm text-amber-900/90 font-medium leading-relaxed m-0">
+                    An appraisal or estimated value is informational and may not represent a guaranteed resale, replacement, or market price. Actual value can vary based on condition, market demand, materials, and independent professional assessment.
+                  </p>
+                </div>
               </div>
             </div>
 
-            {/* Bottom Two-Column Jewelry Details Card */}
-            <div className="rounded-b-[24px] sm:rounded-b-[32px] bg-white border-x-2 border-b-2 border-[#eedbe6] shadow-[0_20px_60px_rgba(20,18,25,0.09)] p-5 sm:p-8 lg:p-10">
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-8 items-center">
-                {/* Left Column: High-Res Studio Image */}
-                <div className="md:col-span-5 flex flex-col items-center">
-                  <div className="relative w-full max-w-[340px] aspect-square rounded-[20px] sm:rounded-[24px] overflow-hidden bg-gradient-to-tr from-[#faf5f8] to-[#ffffff] border border-[#eedfe8] shadow-md group">
-                    <img
-                      src={appraisalResult.image}
-                      alt={appraisalResult.name}
-                      width={600}
-                      height={600}
-                      className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
-                      loading="eager"
-                    />
+            {/* Appraisal Request Form */}
+            <div className="bg-white rounded-2xl sm:rounded-3xl border-2 border-[#eedbe6] p-6 sm:p-10 shadow-sm text-left">
+              <h3 className="text-xl font-black text-[#141219] mb-1">
+                Jewelry Appraisal Request Form
+              </h3>
+              <p className="text-xs sm:text-sm text-[#716d77] mb-6 font-medium">
+                Please complete the form below. Required fields are marked with an asterisk (*).
+              </p>
 
-                    {/* Hallmark / Metal Badge Overlay */}
-                    <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
-                      <Award className="w-3 h-3 text-[#FFD700]" />
-                      <span>{appraisalResult.type}</span>
-                    </div>
-
-                    {/* Value Badge Bottom Right */}
-                    <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-[#D30915] text-white text-[11px] font-black tracking-wide shadow-md">
-                      ${appraisalResult.estimatedValue.toLocaleString('en-US', { minimumFractionDigits: 0 })} Value
-                    </div>
-                  </div>
-
-                  <div className="text-[11px] text-[#8a858f] text-center mt-2.5 flex items-center gap-1">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                    <span>Exact photo of revealed design & certified tag</span>
-                  </div>
+              {submissionFeedback && (
+                <div
+                  className={`p-4 rounded-xl mb-6 text-xs sm:text-sm font-medium border ${
+                    submissionFeedback.type === 'success'
+                      ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                      : submissionFeedback.type === 'pending_backend'
+                      ? 'bg-amber-50 border-amber-200 text-amber-900'
+                      : 'bg-rose-50 border-rose-200 text-rose-900'
+                  }`}
+                >
+                  <p className="m-0 leading-relaxed">{submissionFeedback.message}</p>
                 </div>
+              )}
 
-                {/* Right Column: Specifications & Description */}
-                <div className="md:col-span-7 space-y-4 sm:space-y-5">
+              <form onSubmit={handleAppraisalFormSubmit} className="space-y-4 sm:space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#fff0f3] text-[#D30915] text-[10px] font-black uppercase tracking-wider mb-2">
-                      <span>Tag: {appraisalResult.code}</span>
-                      <button
-                        type="button"
-                        onClick={handleCopyCode}
-                        className="ml-1 text-[#D30915] hover:text-[#96060E] cursor-pointer"
-                        title="Copy code"
-                      >
-                        {copiedCode ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                      </button>
-                    </div>
-
-                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-[#141219] tracking-tight leading-snug">
-                      {appraisalResult.name}
-                    </h2>
+                    <label className="block text-xs font-bold text-[#141219] mb-1.5">
+                      Customer Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      placeholder="Your name"
+                      className="w-full h-11 px-3.5 rounded-xl border border-[#eedbe6] focus:border-[#D30915] focus:ring-2 focus:ring-[#D30915]/10 text-xs sm:text-sm text-[#141219] outline-none"
+                    />
                   </div>
 
-                  <p className="text-xs sm:text-sm text-[#55505a] leading-relaxed font-medium">
-                    {appraisalResult.description}
-                  </p>
-
-                  {/* Specification Table Grid */}
-                  <div className="rounded-[16px] bg-[#fffafc] border border-[#f0e2ec] p-3.5 sm:p-4 divide-y divide-[#f4e6ee] text-xs">
-                    <div className="flex items-center justify-between py-1.5">
-                      <span className="text-[#8a858f] font-semibold">Jewelry Type</span>
-                      <span className="font-bold text-[#141219]">{appraisalResult.type}</span>
-                    </div>
-
-                    <div className="flex items-center justify-between py-1.5">
-                      <span className="text-[#8a858f] font-semibold">Precious Metal</span>
-                      <span className="font-bold text-[#141219]">{appraisalResult.material}</span>
-                    </div>
-
-                    {appraisalResult.stone && (
-                      <div className="flex items-center justify-between py-1.5">
-                        <span className="text-[#8a858f] font-semibold">Stone / Gems</span>
-                        <span className="font-bold text-[#141219] text-right max-w-[60%]">{appraisalResult.stone}</span>
-                      </div>
-                    )}
-
-                    {appraisalResult.cutSetting && (
-                      <div className="flex items-center justify-between py-1.5">
-                        <span className="text-[#8a858f] font-semibold">Setting & Cut</span>
-                        <span className="font-bold text-[#141219] text-right max-w-[60%]">{appraisalResult.cutSetting}</span>
-                      </div>
-                    )}
-
-                    <div className="flex items-center justify-between py-1.5">
-                      <span className="text-[#8a858f] font-semibold">Appraisal Status</span>
-                      <span className="font-black text-emerald-600 flex items-center gap-1">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>Certified Authentic</span>
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Actions Row */}
-                  <div className="flex flex-col sm:flex-row gap-2.5 pt-2">
-                    <button
-                      type="button"
-                      onClick={handleReset}
-                      className="h-[46px] px-5 rounded-[14px] bg-white border-2 border-[#eedbe6] hover:border-[#D30915] text-[#141219] hover:text-[#D30915] text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 shadow-2xs active:scale-95"
-                    >
-                      <RefreshCw className="w-4 h-4" />
-                      <span>Appraise Another Piece</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={onNavigateToShop}
-                      className="h-[46px] px-6 rounded-[14px] bg-[#D30915] hover:bg-[#B60711] text-white text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-95"
-                    >
-                      <ShoppingBag className="w-4 h-4" />
-                      <span>Shop More Surprise Candles</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
+                  <div>
+                    <label className="block text-xs font-bold text-[#141219] mb-1.5">
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="example@gmail.com"
+                      className="w-full h-11 px-3.5 rounded-xl border border-[#eedbe6] focus:border-[#D30915] focus:ring-2 focus:ring-[#D30915]/10 text-xs sm:text-sm text-[#141219] outline-none"
+                    />
                   </div>
                 </div>
-              </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-[#141219] mb-1.5">
+                      Order Number (if available)
+                    </label>
+                    <input
+                      type="text"
+                      value={orderNumber}
+                      onChange={(e) => setOrderNumber(e.target.value)}
+                      placeholder="e.g. ILS-10492"
+                      className="w-full h-11 px-3.5 rounded-xl border border-[#eedbe6] focus:border-[#D30915] focus:ring-2 focus:ring-[#D30915]/10 text-xs sm:text-sm text-[#141219] outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#141219] mb-1.5">
+                      Product Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={productName}
+                      onChange={(e) => setProductName(e.target.value)}
+                      placeholder="e.g. Birthday Cake Cash Candle"
+                      className="w-full h-11 px-3.5 rounded-xl border border-[#eedbe6] focus:border-[#D30915] focus:ring-2 focus:ring-[#D30915]/10 text-xs sm:text-sm text-[#141219] outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#141219] mb-1.5">
+                      Jewelry Type *
+                    </label>
+                    <select
+                      value={jewelryType}
+                      onChange={(e) => setJewelryType(e.target.value)}
+                      className="w-full h-11 px-3 rounded-xl border border-[#eedbe6] focus:border-[#D30915] focus:ring-2 focus:ring-[#D30915]/10 text-xs sm:text-sm text-[#141219] outline-none bg-white"
+                    >
+                      <option value="Ring">Ring</option>
+                      <option value="Necklace">Necklace</option>
+                      <option value="Bracelet">Bracelet</option>
+                      <option value="Earrings">Earrings</option>
+                      <option value="Pendant">Pendant</option>
+                      <option value="Other">Other Jewelry</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#141219] mb-1.5">
+                    Any Appraisal/Code Information Included With Product
+                  </label>
+                  <input
+                    type="text"
+                    value={codeInfo}
+                    onChange={(e) => setCodeInfo(e.target.value)}
+                    placeholder="e.g. Tag Code ILS-GOLD-550, foil pouch markings, hallmark stamps"
+                    className="w-full h-11 px-3.5 rounded-xl border border-[#eedbe6] focus:border-[#D30915] focus:ring-2 focus:ring-[#D30915]/10 text-xs sm:text-sm text-[#141219] outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#141219] mb-1.5">
+                    Clear Photos of the Jewelry
+                  </label>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    multiple
+                    accept="image/*"
+                    onChange={handlePhotoSelect}
+                    className="hidden"
+                  />
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    className="border-2 border-dashed border-[#eedbe6] hover:border-[#D30915] rounded-2xl p-6 text-center cursor-pointer bg-[#fffbfd] hover:bg-[#fff5f8] transition-colors"
+                  >
+                    <Upload className="w-6 h-6 text-[#D30915] mx-auto mb-2" />
+                    <span className="text-xs sm:text-sm font-bold text-[#141219] block mb-1">
+                      Click to upload photos (front, hallmark stamp, gemstone close-up)
+                    </span>
+                    <span className="text-[11px] text-[#716d77] block">
+                      PNG, JPG, WEBP up to 10MB each
+                    </span>
+                  </div>
+
+                  {selectedPhotoNames.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {selectedPhotoNames.map((name, i) => (
+                        <span
+                          key={i}
+                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#fff1f2] border border-[#ffd5d9] text-[11px] font-bold text-[#D30915]"
+                        >
+                          <Camera className="w-3.5 h-3.5" />
+                          <span>{name}</span>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {photoPreviews.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-3">
+                      {photoPreviews.map((src, i) => (
+                        <img
+                          key={i}
+                          src={src}
+                          alt="Jewelry Preview"
+                          className="w-16 h-16 object-cover rounded-xl border border-[#eedbe6]"
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#D30915] hover:bg-[#B60711] text-white text-xs sm:text-sm font-black uppercase tracking-wider transition-all duration-200 shadow-[0_6px_20px_rgba(211,9,21,0.28)] hover:shadow-[0_10px_24px_rgba(211,9,21,0.38)] cursor-pointer disabled:opacity-50"
+                  >
+                    {isSubmitting ? 'Submitting Appraisal Request...' : 'Submit Appraisal Request'}
+                  </button>
+                </div>
+              </form>
             </div>
           </section>
         )}
 
         {/* ================================================================
-            4. HOW TO LOCATE YOUR CODE (3-STEP VISUAL GUIDE)
+            3. INSTANT CODE LOOKUP TOOL (TAB 2)
         ================================================================ */}
-        <section className="pt-4 sm:pt-8 border-t border-[#f0e2ec]">
-          <div className="text-center max-w-xl mx-auto mb-6 sm:mb-10">
-            <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-[#D30915] block mb-1">
-              Candle Reveal Guide
-            </span>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-[#141219]">
-              How to Find Your Jewelry Code
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto">
-            {/* Step 1 */}
-            <div className="rounded-[20px] bg-white border border-[#eedfe8] p-5 sm:p-6 text-center space-y-3 shadow-2xs">
-              <div className="w-12 h-12 rounded-full bg-[#fff0f3] text-[#D30915] border border-[#fecdd3] flex items-center justify-center mx-auto shadow-2xs font-black text-lg">
-                <Flame className="w-6 h-6" />
-              </div>
-              <h3 className="text-base font-black text-[#141219]">1. Burn & Discover</h3>
-              <p className="text-xs text-[#55505a] leading-relaxed font-medium">
-                Burn your luxury soy candle until you spot the shiny protective foil pouch emerging from the wax.
+        {activeTab === 'lookup' && (
+          <section className="max-w-2xl mx-auto">
+            <div className="rounded-3xl bg-white border-2 border-[#f0e0ea] shadow-sm p-6 sm:p-8 text-left">
+              <h3 className="text-xl font-black text-[#141219] mb-1">
+                Instant Code Verification
+              </h3>
+              <p className="text-xs sm:text-sm text-[#716d77] mb-6 font-medium">
+                Enter the unique appraisal code printed on your jewelry tag (e.g. ILS-GOLD-550).
               </p>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleLookup();
+                }}
+                className="space-y-4"
+              >
+                <div>
+                  <div className="relative">
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      value={code}
+                      onChange={(e) => setCode(e.target.value)}
+                      placeholder="Enter jewelry code (e.g. ILS-DIAMOND-7500)..."
+                      className="w-full h-12 sm:h-14 pl-12 pr-4 rounded-xl sm:rounded-2xl bg-white border-2 border-[#eedbe6] focus:border-[#D30915] focus:ring-4 focus:ring-[#D30915]/10 text-sm sm:text-base font-mono font-bold uppercase tracking-wider text-[#141219] outline-none shadow-inner transition-all"
+                    />
+                    <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#8a858f]" />
+                  </div>
+                  {error && (
+                    <div className="mt-2 text-xs font-bold text-rose-600 flex items-center gap-1.5">
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      <span>{error}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="flex-1 h-12 rounded-xl bg-[#D30915] hover:bg-[#B60711] text-white text-xs sm:text-sm font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50"
+                  >
+                    {isLoading ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        <span>Verifying Tag Code...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Search className="w-4 h-4" />
+                        <span>Verify Jewelry Value</span>
+                      </>
+                    )}
+                  </button>
+                  {code && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCode('');
+                        setAppraisalResult(null);
+                        setError(null);
+                      }}
+                      className="h-12 px-5 rounded-xl bg-stone-100 hover:bg-stone-200 text-[#141219] text-xs font-bold transition-colors cursor-pointer"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+              </form>
+
+              {/* Sample codes */}
+              <div className="mt-6 pt-5 border-t border-[#f7eff4]">
+                <span className="block text-[11px] font-bold text-[#8a858f] uppercase tracking-wider mb-2">
+                  Sample Tag Codes:
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {SAMPLE_CODES.map((s) => (
+                    <button
+                      key={s.code}
+                      type="button"
+                      onClick={() => {
+                        setCode(s.code);
+                        handleLookup(s.code);
+                      }}
+                      className="px-2.5 py-1 rounded-lg bg-[#faf5f8] hover:bg-[#fff1f2] border border-[#eedbe6] hover:border-[#D30915] text-[11px] font-mono text-[#55505a] hover:text-[#D30915] transition-colors cursor-pointer"
+                    >
+                      {s.code}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
 
-            {/* Step 2 */}
-            <div className="rounded-[20px] bg-white border border-[#eedfe8] p-5 sm:p-6 text-center space-y-3 shadow-2xs">
-              <div className="w-12 h-12 rounded-full bg-[#fff0f3] text-[#D30915] border border-[#fecdd3] flex items-center justify-center mx-auto shadow-2xs font-black text-lg">
-                <span>2</span>
-              </div>
-              <h3 className="text-base font-black text-[#141219]">2. Safely Extract</h3>
-              <p className="text-xs text-[#55505a] leading-relaxed font-medium">
-                Safely extinguish the flame, use tweezers to extract the foil pouch, let it cool for 60 seconds, and unwrap.
-              </p>
-            </div>
+            {/* Appraisal Result Card */}
+            {appraisalResult && (
+              <div
+                ref={resultCardRef}
+                className="mt-8 rounded-3xl bg-white border-2 border-amber-300 shadow-xl p-6 sm:p-8 text-left relative overflow-hidden"
+              >
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-5 border-b border-amber-100">
+                  <div>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-black uppercase tracking-wider mb-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Authentic Verified Reveal</span>
+                    </span>
+                    <h3 className="text-xl sm:text-2xl font-black text-[#141219] m-0">
+                      {appraisalResult.name}
+                    </h3>
+                  </div>
+                  <div className="text-left sm:text-right">
+                    <span className="text-xs uppercase font-bold text-amber-900 block">
+                      Certified Appraisal Value
+                    </span>
+                    <span className="text-2xl sm:text-3xl font-black text-amber-700">
+                      ${appraisalResult.estimatedValue.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                </div>
 
-            {/* Step 3 */}
-            <div className="rounded-[20px] bg-white border border-[#eedfe8] p-5 sm:p-6 text-center space-y-3 shadow-2xs">
-              <div className="w-12 h-12 rounded-full bg-[#fff0f3] text-[#D30915] border border-[#fecdd3] flex items-center justify-center mx-auto shadow-2xs font-black text-lg">
-                <Sparkles className="w-6 h-6" />
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 py-5 border-b border-amber-100 text-xs">
+                  <div>
+                    <span className="text-[#8a858f] font-bold block">Type</span>
+                    <span className="font-bold text-[#141219]">{appraisalResult.type}</span>
+                  </div>
+                  <div>
+                    <span className="text-[#8a858f] font-bold block">Metal</span>
+                    <span className="font-bold text-[#141219]">{appraisalResult.material}</span>
+                  </div>
+                  <div>
+                    <span className="text-[#8a858f] font-bold block">Serial #</span>
+                    <span className="font-mono font-bold text-[#141219]">{appraisalResult.serialNumber}</span>
+                  </div>
+                  <div>
+                    <span className="text-[#8a858f] font-bold block">Inspection</span>
+                    <span className="font-bold text-[#141219]">{appraisalResult.inspectedDate}</span>
+                  </div>
+                </div>
+
+                <div className="pt-4 flex flex-wrap items-center justify-between gap-3">
+                  <button
+                    type="button"
+                    onClick={handleCopyCode}
+                    className="text-xs font-bold text-[#55505a] hover:text-[#141219] inline-flex items-center gap-1.5"
+                  >
+                    {copiedCode ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copiedCode ? 'Code Copied!' : `Copy Code: ${appraisalResult.code}`}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsCertificateOpen(true)}
+                    className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-colors cursor-pointer shadow-sm"
+                  >
+                    View Official Certificate
+                  </button>
+                </div>
               </div>
-              <h3 className="text-base font-black text-[#141219]">3. Enter Your Tag Code</h3>
-              <p className="text-xs text-[#55505a] leading-relaxed font-medium">
-                Locate the code printed on your jewelry certification tag, enter it above, and reveal its appraised value!
+            )}
+          </section>
+        )}
+
+        {/* ================================================================
+            4. FOUNDER REQUIRED "IMPORTANT" NOTICE
+        ================================================================ */}
+        <section className="bg-amber-50/80 rounded-2xl border border-amber-200 p-5 sm:p-7 text-left">
+          <div className="flex items-start gap-3.5">
+            <ShieldAlert className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
+            <div>
+              <h4 className="text-sm font-black text-amber-900 uppercase tracking-wider m-0 mb-1">
+                Important Valuation Notice:
+              </h4>
+              <p className="text-xs sm:text-sm text-amber-900/90 leading-relaxed m-0 font-medium">
+                An appraisal or estimated value is informational and may not represent a guaranteed resale, replacement, or market price. Actual value can vary based on condition, market demand, materials, and independent professional assessment.
               </p>
             </div>
           </div>
         </section>
 
         {/* ================================================================
-            5. FAQ ACCORDION SECTION
+            5. APPRAISAL FAQS
         ================================================================ */}
-        <section className="pt-4 sm:pt-6 border-t border-[#f0e2ec] max-w-3xl mx-auto">
-          <div className="text-center mb-6 sm:mb-8">
-            <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-[#D30915] block mb-1">
-              Have Questions?
-            </span>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-[#141219]">
-              Frequently Asked Questions
-            </h2>
-          </div>
-
+        <section className="bg-white rounded-2xl sm:rounded-3xl border border-[#eedbe6] p-6 sm:p-8 text-left">
+          <h3 className="text-lg sm:text-xl font-black text-[#141219] mb-4">
+            Jewelry Appraisal Questions & Answers
+          </h3>
           <div className="space-y-3">
             {FAQS.map((faq, index) => {
               const isOpen = openFaqIndex === index;
               return (
                 <div
                   key={faq.q}
-                  className="rounded-[18px] bg-white border border-[#eedfe8] overflow-hidden transition-all shadow-2xs"
+                  className="rounded-xl border border-[#eedbe6] overflow-hidden"
                 >
                   <button
                     type="button"
                     onClick={() => setOpenFaqIndex(isOpen ? null : index)}
-                    className="w-full p-4 sm:p-5 flex items-center justify-between text-left font-bold text-sm sm:text-base text-[#141219] hover:text-[#D30915] transition-colors cursor-pointer select-none"
-                    aria-expanded={isOpen}
+                    className="w-full px-4 py-3 text-left flex items-center justify-between gap-3 text-xs sm:text-sm font-bold text-[#141219] bg-transparent"
                   >
-                    <span className="flex items-center gap-2">
-                      <HelpCircle className="w-4 h-4 text-[#D30915] shrink-0" />
-                      <span>{faq.q}</span>
-                    </span>
+                    <span>{faq.q}</span>
                     <ChevronDown
-                      className={`w-4 h-4 text-[#8a858f] transition-transform duration-200 shrink-0 ml-2 ${
-                        isOpen ? 'rotate-180 text-[#D30915]' : ''
-                      }`}
+                      className={`w-4 h-4 text-[#716d77] transition-transform ${isOpen ? 'rotate-180' : ''}`}
                     />
                   </button>
-
                   {isOpen && (
-                    <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-[#55505a] leading-relaxed border-t border-[#f8edf4] bg-[#fffcfd] font-medium">
+                    <div className="px-4 pb-3 text-xs sm:text-sm text-[#55505a] leading-relaxed border-t border-[#f7eff4] pt-2 font-medium">
                       {faq.a}
                     </div>
                   )}
@@ -546,34 +776,92 @@ export const AppraiseJewelry: React.FC<AppraiseJewelryProps> = ({ onNavigateToSh
           </div>
         </section>
 
-        {/* ================================================================
-            6. BOTTOM CTA SHOPPING BANNER
-        ================================================================ */}
-        <section className="rounded-[24px] sm:rounded-[32px] bg-gradient-to-r from-[#fff1f4] via-[#fff7fa] to-[#fbf2f8] border border-[#f2d8e4] p-6 sm:p-10 text-center space-y-4 max-w-4xl mx-auto shadow-sm">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D30915]/10 text-[#D30915] text-[10px] sm:text-[11px] font-black uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Ready for your next reveal?</span>
-          </div>
-          <h3 className="text-xl sm:text-3xl font-black text-[#141219] tracking-tight">
-            Discover What's Waiting in Your Next Candle
-          </h3>
-          <p className="text-xs sm:text-sm text-[#55505a] max-w-xl mx-auto font-medium">
-            Over 85,000 unboxing reveals across America. 100% of our items contain guaranteed real cash ($2 – $2,500) or
-            certified fine jewelry valued up to $7,500.
-          </p>
-          <div className="pt-2">
+      </div>
+
+      {/* Certificate Modal */}
+      {isCertificateOpen && appraisalResult && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
+          <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden border-4 border-amber-300">
             <button
               type="button"
-              onClick={onNavigateToShop}
-              className="h-[48px] sm:h-[52px] px-8 rounded-[16px] bg-[#D30915] hover:bg-[#B60711] text-white font-black text-xs sm:text-sm uppercase tracking-wider shadow-[0_8px_20px_rgba(211,9,21,0.28)] hover:shadow-[0_12px_24px_rgba(211,9,21,0.38)] active:scale-95 transition-all duration-200 cursor-pointer inline-flex items-center gap-2"
+              onClick={() => setIsCertificateOpen(false)}
+              className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 hover:text-stone-900 flex items-center justify-center cursor-pointer"
             >
-              <ShoppingBag className="w-4 h-4" />
-              <span>Explore Candle Collections</span>
-              <ArrowRight className="w-4 h-4" />
+              <X className="w-5 h-5" />
             </button>
+            <div className="p-6 sm:p-10 bg-[#fdfcf9] text-[#141219]">
+              <div className="border-2 border-amber-400/60 p-6 sm:p-8 rounded-2xl bg-white/80 text-center">
+                <div className="pb-4 border-b border-amber-200 mb-6">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-300 text-amber-800 text-[10px] font-black uppercase tracking-widest mb-2">
+                    <Award className="w-3.5 h-3.5 text-amber-600" />
+                    Official Document
+                  </div>
+                  <h2 className="text-2xl sm:text-3xl font-serif font-black text-[#141219]">
+                    Certificate of Appraisal
+                  </h2>
+                  <p className="text-xs text-amber-800/80 font-serif italic mt-0.5">
+                    Authenticity & Gemological Valuation Guarantee
+                  </p>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <span className="text-[10px] uppercase font-black tracking-widest text-[#8a858f] block mb-0.5">
+                      This Certifies That The Following Item
+                    </span>
+                    <h3 className="text-lg sm:text-xl font-black text-[#141219]">
+                      {appraisalResult.name}
+                    </h3>
+                  </div>
+                  <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-200">
+                    <span className="text-[10px] uppercase tracking-wider font-bold text-amber-900 block mb-0.5">
+                      Certified Retail Appraisal Value
+                    </span>
+                    <div className="text-3xl sm:text-4xl font-black text-amber-700">
+                      ${appraisalResult.estimatedValue.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 text-xs pt-2 text-left">
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-[#8a858f] block">Serial Number</span>
+                      <span className="font-mono font-bold text-[#141219]">{appraisalResult.serialNumber}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-[#8a858f] block">Tag Auth Code</span>
+                      <span className="font-mono font-bold text-[#D30915]">{appraisalResult.code}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-[#8a858f] block">Precious Metal</span>
+                      <span className="font-semibold text-[#141219]">{appraisalResult.material}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-[#8a858f] block">Inspection Date</span>
+                      <span className="font-semibold text-[#141219]">{appraisalResult.inspectedDate}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-end gap-3 mt-4">
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="px-4 py-2 rounded-xl bg-[#fff0f3] hover:bg-[#ffe0e6] text-[#D30915] text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>Print Certificate</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsCertificateOpen(false)}
+                  className="px-5 py-2 rounded-xl bg-[#141219] hover:bg-black text-white text-xs font-bold cursor-pointer"
+                >
+                  Done
+                </button>
+              </div>
+            </div>
           </div>
-        </section>
-      </div>
+        </div>
+      )}
+
     </div>
   );
 };

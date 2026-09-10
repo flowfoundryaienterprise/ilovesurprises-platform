@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 export const HIDE_LAYOUT_ROUTES = [
   '/checkout',
-  '/shipping',
+  '/checkout/shipping',
   '/payment',
   '/buy-now',
   '/thank-you',

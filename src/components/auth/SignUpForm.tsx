@@ -354,7 +354,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
               name="name"
               required
               disabled={isLoading}
-              placeholder="Your full name"
+              placeholder="Your name"
               value={name}
               onChange={(e) => {
                 setName(e.target.value);
@@ -390,7 +390,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
               autoComplete="email"
               required
               disabled={isLoading}
-              placeholder="you@email.com"
+              placeholder="example@gmail.com"
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);

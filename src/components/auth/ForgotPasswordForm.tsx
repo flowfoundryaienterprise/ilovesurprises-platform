@@ -124,7 +124,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
                 autoComplete="email"
                 required
                 disabled={isLoading}
-                placeholder="you@email.com"
+                placeholder="example@gmail.com"
                 value={identifier}
                 onChange={(e) => {
                   setIdentifier(e.target.value);

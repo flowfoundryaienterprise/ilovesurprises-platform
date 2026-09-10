@@ -19,6 +19,7 @@ import { representativeService } from './services/representativeService';
 import { SEOHead } from './components/seo/SEOHead';
 import { supabase } from './services/supabaseClient';
 import { authService } from './services/auth';
+import { Sparkles, ArrowRight } from 'lucide-react';
 
 // Route-level code splitting for rapid initial load and 144Hz responsiveness
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard').then((m) => ({ default: m.AdminDashboard })));
@@ -31,6 +32,12 @@ const About = lazy(() => import('./pages/About').then((m) => ({ default: m.About
 const Contact = lazy(() => import('./pages/Contact').then((m) => ({ default: m.Contact })));
 const Rewards = lazy(() => import('./pages/Rewards').then((m) => ({ default: m.Rewards })));
 const AppraiseJewelry = lazy(() => import('./pages/AppraiseJewelry').then((m) => ({ default: m.AppraiseJewelry })));
+const RefundPolicy = lazy(() => import('./pages/RefundPolicy').then((m) => ({ default: m.RefundPolicy })));
+const Terms = lazy(() => import('./pages/Terms').then((m) => ({ default: m.Terms })));
+const OfficialRules = lazy(() => import('./pages/OfficialRules').then((m) => ({ default: m.OfficialRules })));
+const ShippingPolicy = lazy(() => import('./pages/ShippingPolicy').then((m) => ({ default: m.ShippingPolicy })));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy').then((m) => ({ default: m.PrivacyPolicy })));
+const FAQ = lazy(() => import('./pages/FAQ').then((m) => ({ default: m.FAQ })));
 const RepresentativeSubscriptionModal = lazy(() =>
   import('./components/affiliate/RepresentativeSubscriptionModal').then((m) => ({
     default: m.RepresentativeSubscriptionModal,
@@ -60,7 +67,13 @@ export type AppView =
   | 'contact'
   | 'rewards'
   | 'admin'
-  | 'appraisal';
+  | 'appraisal'
+  | 'refund-policy'
+  | 'terms'
+  | 'official-rules'
+  | 'shipping-policy'
+  | 'privacy'
+  | 'faqs';
 
 export function App() {
   const pathname = usePathname();
@@ -75,7 +88,6 @@ export function App() {
     if (
       path === '/checkout' ||
       path.startsWith('/checkout/') ||
-      path === '/shipping' ||
       path === '/payment' ||
       path === '/buy-now'
     ) {
@@ -94,6 +106,12 @@ export function App() {
     if (path === '/contact') return 'contact';
     if (path === '/rewards') return 'rewards';
     if (path === '/appraise-your-jewelry' || path === '/appraisal') return 'appraisal';
+    if (path === '/refund-policy') return 'refund-policy';
+    if (path === '/terms') return 'terms';
+    if (path === '/official-rules') return 'official-rules';
+    if (path === '/shipping' || path === '/shipping-policy') return 'shipping-policy';
+    if (path === '/privacy') return 'privacy';
+    if (path === '/faqs' || path === '/faq') return 'faqs';
 
     // Check for representative in path or query
     const trimmedPath = path.startsWith('/rep/') ? path.replace('/rep/', '') : path.slice(1);
@@ -104,7 +122,6 @@ export function App() {
         'shop',
         'categories',
         'checkout',
-        'shipping',
         'payment',
         'buy-now',
         'order-confirmation',
@@ -117,6 +134,14 @@ export function App() {
         'rewards',
         'appraisal',
         'appraise-your-jewelry',
+        'refund-policy',
+        'terms',
+        'official-rules',
+        'shipping',
+        'shipping-policy',
+        'privacy',
+        'faqs',
+        'faq',
       ].includes(trimmedPath) &&
       !trimmedPath.includes('/')
     ) {
@@ -126,28 +151,47 @@ export function App() {
     return 'home';
   });
 
+  const [isProductLoading, setIsProductLoading] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return window.location.pathname.startsWith('/product/');
+  });
+  const [productLoadingError, setProductLoadingError] = useState<boolean>(false);
+
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(() => {
     if (typeof window === 'undefined') return null;
     const path = window.location.pathname;
     if (path.startsWith('/product/')) {
-      const slug = path.replace('/product/', '');
+      const slug = path.replace('/product/', '').trim();
       return productsData.find((p) => p.slug === slug || p.id === slug) || null;
     }
     return null;
   });
 
-  // Dynamically resolve product if accessed directly via URL and not in static dataset
+  // Dynamically resolve product from Supabase if accessed directly via URL
   useEffect(() => {
-    if (typeof window !== 'undefined' && !selectedProduct) {
+    if (typeof window !== 'undefined') {
       const path = window.location.pathname;
       if (path.startsWith('/product/')) {
-        const slug = path.replace('/product/', '');
-        productService.getProductBySlug(slug).then((prod) => {
-          if (prod) setSelectedProduct(prod);
-        });
+        const slug = path.replace('/product/', '').trim();
+        if (slug) {
+          productService.getProductBySlug(slug).then((prod) => {
+            if (prod) {
+              setSelectedProduct(prod);
+              setProductLoadingError(false);
+            } else {
+              setSelectedProduct(null);
+              setProductLoadingError(true);
+            }
+          }).catch(() => {
+            setSelectedProduct(null);
+            setProductLoadingError(true);
+          }).finally(() => {
+            setIsProductLoading(false);
+          });
+        }
       }
     }
-  }, [selectedProduct]);
+  }, []);
 
   const [confirmedOrderId, setConfirmedOrderId] = useState<string | null>(() => {
     if (typeof window === 'undefined') return null;
@@ -176,7 +220,27 @@ export function App() {
   });
   const [highlightOrderId, setHighlightOrderId] = useState<string | null>(null);
 
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('ilovesurprises_cart_v1');
+        return stored ? JSON.parse(stored) : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('ilovesurprises_cart_v1', JSON.stringify(cart));
+      } catch {
+        // ignore
+      }
+    }
+  }, [cart]);
   const [wishlistIds, setWishlistIds] = useState<string[]>([]);
   const [appliedCheckoutPromo, setAppliedCheckoutPromo] = useState<string | null>(null);
 
@@ -295,7 +359,13 @@ export function App() {
       contact: 'Contact & VIP Concierge | ILoveSurprises.com',
       rewards: 'Surprise Club™ VIP Rewards & Loyalty | ILoveSurprises.com',
       admin: 'Admin Control Center | ILoveSurprises.com',
-      appraisal: 'Appraise Your Jewelry | ILoveSurprises.com',
+      appraisal: 'Free Jewelry Value / Appraisal | ILoveSurprises.com',
+      'refund-policy': 'Refund & Return Policy | ILoveSurprises.com',
+      terms: 'Terms & Conditions | ILoveSurprises.com',
+      'official-rules': 'Official Rules / No Purchase Necessary | ILoveSurprises.com',
+      'shipping-policy': 'Shipping Policy | ILoveSurprises.com',
+      privacy: 'Privacy Policy | ILoveSurprises.com',
+      faqs: 'Frequently Asked Questions | ILoveSurprises.com',
     };
 
     const descriptions: Record<AppView, string> = {
@@ -311,7 +381,13 @@ export function App() {
       contact: 'Get in touch with the ILoveSurprises concierge team for order support, custom gifts, or partnership inquiries.',
       rewards: 'Earn 10 points per $1 spent on cash reveal candles and fine jewelry. Redeem points for discount vouchers, free candles, and VIP perks.',
       admin: 'Secure internal management system for store commerce, representatives, memberships, and commissions.',
-      appraisal: 'Found a piece of jewelry in your surprise candle? Enter your jewelry code to discover its certified retail appraisal value, metal purity, and gemstone specifications.',
+      appraisal: 'Found a piece of jewelry in your surprise candle? Enter your jewelry code or submit clear photos for free certified appraisal.',
+      'refund-policy': 'Review the official I Love Surprises 60-day return policy and refund guidelines.',
+      terms: 'Official Terms & Conditions and store policies for ILoveSurprises.com.',
+      'official-rules': 'Official promotion rules and Alternate Method of Entry (AMOE) for I Love Surprises cash reveals.',
+      'shipping-policy': 'Fast tracked shipping, handling times, delivery destinations, and carrier guidance for I Love Surprises.',
+      privacy: 'Learn how I Love Surprises safeguards personal information, order data, and customer privacy.',
+      faqs: 'Frequently asked questions about surprise candles, jewelry, shipping, returns, and support.',
     };
 
     document.title = titles[currentView] || 'ILoveSurprises.com';
@@ -340,7 +416,7 @@ export function App() {
     const isProtectedCheckout =
       clean === '/checkout' ||
       clean.startsWith('/checkout/') ||
-      clean === '/shipping' ||
+      clean === '/checkout/shipping' ||
       clean === '/payment' ||
       clean === '/buy-now';
 
@@ -414,10 +490,23 @@ export function App() {
       if (e.state?.view) {
         const targetView = e.state.view as AppView;
         setCurrentView(targetView);
-        if (e.state.category) setSelectedCategory(e.state.category);
-        if (e.state.productId) {
-          const matched = productsData.find((p) => p.id === e.state.productId);
-          if (matched) setSelectedProduct(matched);
+        if (targetView === 'home') {
+          setSelectedCategory('All Surprises');
+          setSearchQuery('');
+          setSelectedProduct(null);
+        } else if (e.state.category) {
+          setSelectedCategory(e.state.category);
+        }
+        if (e.state.productId || e.state.productSlug) {
+          const identifier = (e.state.productSlug || e.state.productId) as string;
+          const matched = productsData.find((p) => p.id === identifier || p.slug === identifier);
+          if (matched) {
+            setSelectedProduct(matched);
+          } else {
+            productService.getProductBySlug(identifier).then((prod) => {
+              if (prod) setSelectedProduct(prod);
+            });
+          }
         }
         if (e.state.orderId) {
           setConfirmedOrderId(e.state.orderId);
@@ -496,21 +585,55 @@ export function App() {
         } else if (path === '/appraise-your-jewelry' || path === '/appraisal') {
           setCurrentView('appraisal');
           window.scrollTo({ top: scrollPositions.current['appraisal'] || 0, behavior: 'smooth' });
+        } else if (path === '/refund-policy') {
+          setCurrentView('refund-policy');
+          window.scrollTo({ top: scrollPositions.current['refund-policy'] || 0, behavior: 'smooth' });
+        } else if (path === '/terms') {
+          setCurrentView('terms');
+          window.scrollTo({ top: scrollPositions.current['terms'] || 0, behavior: 'smooth' });
+        } else if (path === '/official-rules') {
+          setCurrentView('official-rules');
+          window.scrollTo({ top: scrollPositions.current['official-rules'] || 0, behavior: 'smooth' });
+        } else if (path === '/shipping' || path === '/shipping-policy') {
+          setCurrentView('shipping-policy');
+          window.scrollTo({ top: scrollPositions.current['shipping-policy'] || 0, behavior: 'smooth' });
+        } else if (path === '/privacy') {
+          setCurrentView('privacy');
+          window.scrollTo({ top: scrollPositions.current['privacy'] || 0, behavior: 'smooth' });
+        } else if (path === '/faqs' || path === '/faq') {
+          setCurrentView('faqs');
+          window.scrollTo({ top: scrollPositions.current['faqs'] || 0, behavior: 'smooth' });
         } else if (path.startsWith('/product/')) {
-          const slug = path.replace('/product/', '');
+          const slug = path.replace('/product/', '').trim();
+          setIsProductLoading(true);
+          setProductLoadingError(false);
           const matched = productsData.find((p) => p.slug === slug || p.id === slug);
           if (matched) {
             setSelectedProduct(matched);
+            setIsProductLoading(false);
             setCurrentView('product-details');
           } else {
             productService.getProductBySlug(slug).then((prod) => {
               if (prod) {
                 setSelectedProduct(prod);
-                setCurrentView('product-details');
+                setProductLoadingError(false);
+              } else {
+                setSelectedProduct(null);
+                setProductLoadingError(true);
               }
+              setCurrentView('product-details');
+            }).catch(() => {
+              setSelectedProduct(null);
+              setProductLoadingError(true);
+              setCurrentView('product-details');
+            }).finally(() => {
+              setIsProductLoading(false);
             });
           }
         } else {
+          setSelectedCategory('All Surprises');
+          setSearchQuery('');
+          setSelectedProduct(null);
           setCurrentView('home');
           window.scrollTo({ top: scrollPositions.current['home'] || 0, behavior: 'smooth' });
         }
@@ -816,10 +939,15 @@ export function App() {
     scrollPositions.current[currentView] = window.scrollY;
     setNavDirection('forward');
     setSelectedProduct(product);
+    setIsProductLoading(false);
+    setProductLoadingError(false);
     setCurrentView('product-details');
     window.scrollTo(0, 0);
     if (window.history.pushState) {
-      window.history.pushState({ view: 'product-details', productId: product.id }, '', `/product/${product.slug}`);
+      window.history.pushState({ view: 'product-details', productId: product.id, productSlug: product.slug }, '', `/product/${product.slug}`);
+    }
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('ils_route_change'));
     }
   };
 
@@ -851,11 +979,14 @@ export function App() {
   const handleNavigateToHome = (direction: 'forward' | 'backward' = 'backward') => {
     scrollPositions.current[currentView] = window.scrollY;
     setNavDirection(direction);
+    setSelectedCategory('All Surprises');
+    setSearchQuery('');
+    setSelectedProduct(null);
     setCurrentView('home');
     const targetScroll = direction === 'backward' ? scrollPositions.current['home'] || 0 : 0;
     window.scrollTo({ top: targetScroll, behavior: 'smooth' });
     if (window.history.pushState) {
-      window.history.pushState({ view: 'home' }, '', '/');
+      window.history.pushState({ view: 'home', category: 'All Surprises' }, '', '/');
     }
   };
 
@@ -925,13 +1056,106 @@ export function App() {
     }
   };
 
+  const handleNavigateToRefundPolicy = (direction: 'forward' | 'backward' = 'forward') => {
+    scrollPositions.current[currentView] = window.scrollY;
+    setNavDirection(direction);
+    setCurrentView('refund-policy');
+    const targetScroll = direction === 'backward' ? scrollPositions.current['refund-policy'] || 0 : 0;
+    window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+    if (window.history.pushState) {
+      window.history.pushState({ view: 'refund-policy' }, '', '/refund-policy');
+    }
+  };
+
+  const handleNavigateToTerms = (direction: 'forward' | 'backward' = 'forward') => {
+    scrollPositions.current[currentView] = window.scrollY;
+    setNavDirection(direction);
+    setCurrentView('terms');
+    const targetScroll = direction === 'backward' ? scrollPositions.current['terms'] || 0 : 0;
+    window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+    if (window.history.pushState) {
+      window.history.pushState({ view: 'terms' }, '', '/terms');
+    }
+  };
+
+  const handleNavigateToOfficialRules = (direction: 'forward' | 'backward' = 'forward') => {
+    scrollPositions.current[currentView] = window.scrollY;
+    setNavDirection(direction);
+    setCurrentView('official-rules');
+    const targetScroll = direction === 'backward' ? scrollPositions.current['official-rules'] || 0 : 0;
+    window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+    if (window.history.pushState) {
+      window.history.pushState({ view: 'official-rules' }, '', '/official-rules');
+    }
+  };
+
+  const handleNavigateToShippingPolicy = (direction: 'forward' | 'backward' = 'forward') => {
+    scrollPositions.current[currentView] = window.scrollY;
+    setNavDirection(direction);
+    setCurrentView('shipping-policy');
+    const targetScroll = direction === 'backward' ? scrollPositions.current['shipping-policy'] || 0 : 0;
+    window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+    if (window.history.pushState) {
+      window.history.pushState({ view: 'shipping-policy' }, '', '/shipping');
+    }
+  };
+
+  const handleNavigateToPrivacy = (direction: 'forward' | 'backward' = 'forward') => {
+    scrollPositions.current[currentView] = window.scrollY;
+    setNavDirection(direction);
+    setCurrentView('privacy');
+    const targetScroll = direction === 'backward' ? scrollPositions.current['privacy'] || 0 : 0;
+    window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+    if (window.history.pushState) {
+      window.history.pushState({ view: 'privacy' }, '', '/privacy');
+    }
+  };
+
+  const handleNavigateToFAQs = (direction: 'forward' | 'backward' = 'forward') => {
+    scrollPositions.current[currentView] = window.scrollY;
+    setNavDirection(direction);
+    setCurrentView('faqs');
+    const targetScroll = direction === 'backward' ? scrollPositions.current['faqs'] || 0 : 0;
+    window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+    if (window.history.pushState) {
+      window.history.pushState({ view: 'faqs' }, '', '/faqs');
+    }
+  };
+
   const handleNavigate = (
-    route: 'home' | 'shop' | 'categories' | 'affiliate' | 'about' | 'contact' | 'rewards' | 'admin' | 'appraisal'
+    route:
+      | 'home'
+      | 'shop'
+      | 'categories'
+      | 'affiliate'
+      | 'about'
+      | 'contact'
+      | 'rewards'
+      | 'admin'
+      | 'appraisal'
+      | 'refund-policy'
+      | 'terms'
+      | 'official-rules'
+      | 'shipping-policy'
+      | 'privacy'
+      | 'faqs'
   ) => {
     if (route === 'admin') {
       handleNavigateToAdmin('overview');
     } else if (route === 'appraisal') {
       handleNavigateToAppraisal('forward');
+    } else if (route === 'refund-policy') {
+      handleNavigateToRefundPolicy('forward');
+    } else if (route === 'terms') {
+      handleNavigateToTerms('forward');
+    } else if (route === 'official-rules') {
+      handleNavigateToOfficialRules('forward');
+    } else if (route === 'shipping-policy') {
+      handleNavigateToShippingPolicy('forward');
+    } else if (route === 'privacy') {
+      handleNavigateToPrivacy('forward');
+    } else if (route === 'faqs') {
+      handleNavigateToFAQs('forward');
     } else if (route === 'shop') {
       handleNavigateToShop(undefined, 'forward');
     } else if (route === 'categories') {
@@ -961,7 +1185,7 @@ export function App() {
   const isExplicitCheckoutStepPath =
     cleanPath === '/checkout' ||
     cleanPath.startsWith('/checkout/') ||
-    cleanPath === '/shipping' ||
+    cleanPath === '/checkout/shipping' ||
     cleanPath === '/payment' ||
     cleanPath === '/buy-now';
 
@@ -1132,7 +1356,28 @@ export function App() {
                     onSelectProduct={handleSelectProduct}
                     onOpenCart={() => setIsCartOpen(true)}
                     onBuyNow={handleBuyNow}
+                    onNavigateToAppraisal={() => handleNavigate('appraisal')}
                   />
+                </div>
+              ) : isProductLoading ? (
+                <PageLoadingFallback />
+              ) : productLoadingError ? (
+                <div className="max-w-[700px] mx-auto px-4 py-20 text-center animate-in fade-in duration-300">
+                  <div className="w-16 h-16 rounded-full bg-[#fff1f2] border border-[#fecdd3] text-[#D30915] flex items-center justify-center mx-auto mb-4 shadow-xs">
+                    <Sparkles className="w-8 h-8" />
+                  </div>
+                  <h2 className="text-2xl font-black text-[#141219] mb-2 font-display">Product Not Found</h2>
+                  <p className="text-sm text-[#716d77] max-w-md mx-auto mb-6 font-medium">
+                    The requested product could not be found or is no longer available in our catalog. Explore our complete collection of real cash and jewelry reveal surprises!
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => handleNavigateToShop(undefined, 'backward')}
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#D30915] hover:bg-[#b80712] text-white text-xs font-black uppercase tracking-wider shadow-[0_8px_20px_rgba(211,9,21,0.25)] hover:shadow-[0_12px_24px_rgba(211,9,21,0.35)] transition-all cursor-pointer"
+                  >
+                    <span>Browse All Products</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
                 </div>
               ) : (
                 <PageLoadingFallback />
@@ -1210,6 +1455,73 @@ export function App() {
                 <Suspense fallback={<PageLoadingFallback />}>
                   <AppraiseJewelry
                     onNavigateToShop={() => handleNavigateToShop(undefined, 'forward')}
+                    onNavigateToHome={() => handleNavigateToHome('backward')}
+                  />
+                </Suspense>
+              </div>
+            )}
+
+            {currentView === 'refund-policy' && (
+              <div key="page-refund-policy" className={transitionClass}>
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <RefundPolicy
+                    onNavigateToContact={() => handleNavigateToContact('forward')}
+                    onNavigateToHome={() => handleNavigateToHome('backward')}
+                  />
+                </Suspense>
+              </div>
+            )}
+
+            {currentView === 'terms' && (
+              <div key="page-terms" className={transitionClass}>
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <Terms
+                    onNavigateToHome={() => handleNavigateToHome('backward')}
+                    onNavigateToContact={() => handleNavigateToContact('forward')}
+                  />
+                </Suspense>
+              </div>
+            )}
+
+            {currentView === 'official-rules' && (
+              <div key="page-official-rules" className={transitionClass}>
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <OfficialRules
+                    onNavigateToHome={() => handleNavigateToHome('backward')}
+                    onNavigateToContact={() => handleNavigateToContact('forward')}
+                  />
+                </Suspense>
+              </div>
+            )}
+
+            {currentView === 'shipping-policy' && (
+              <div key="page-shipping-policy" className={transitionClass}>
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <ShippingPolicy
+                    onNavigateToHome={() => handleNavigateToHome('backward')}
+                    onNavigateToContact={() => handleNavigateToContact('forward')}
+                  />
+                </Suspense>
+              </div>
+            )}
+
+            {currentView === 'privacy' && (
+              <div key="page-privacy" className={transitionClass}>
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <PrivacyPolicy
+                    onNavigateToHome={() => handleNavigateToHome('backward')}
+                    onNavigateToContact={() => handleNavigateToContact('forward')}
+                  />
+                </Suspense>
+              </div>
+            )}
+
+            {currentView === 'faqs' && (
+              <div key="page-faqs" className={transitionClass}>
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <FAQ
+                    onNavigateToHome={() => handleNavigateToHome('backward')}
+                    onNavigateToContact={() => handleNavigateToContact('forward')}
                   />
                 </Suspense>
               </div>

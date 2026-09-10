@@ -314,7 +314,7 @@ export const Contact: React.FC = () => {
                         setFormData({ ...formData, fullName: e.target.value });
                         if (errors.fullName) setErrors({ ...errors, fullName: undefined });
                       }}
-                      placeholder="e.g. Sarah Jenkins"
+                      placeholder="Your name"
                       className={`w-full h-[40px] sm:h-[42px] px-3 sm:px-3.5 rounded-[12px] bg-[#fffafb] border text-xs text-[#141219] outline-none transition-all ${errors.fullName ? 'border-red-400 bg-red-50/40' : 'border-[#e8dfe5] focus:border-[#D30915]'
                         }`}
                     />
@@ -337,7 +337,7 @@ export const Contact: React.FC = () => {
                         setFormData({ ...formData, email: e.target.value });
                         if (errors.email) setErrors({ ...errors, email: undefined });
                       }}
-                      placeholder="e.g. sarah@example.com"
+                      placeholder="example@gmail.com"
                       className={`w-full h-[40px] sm:h-[42px] px-3 sm:px-3.5 rounded-[12px] bg-[#fffafb] border text-xs text-[#141219] outline-none transition-all ${errors.email ? 'border-red-400 bg-red-50/40' : 'border-[#e8dfe5] focus:border-[#D30915]'
                         }`}
                     />

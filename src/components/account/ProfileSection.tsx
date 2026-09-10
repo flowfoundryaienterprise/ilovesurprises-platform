@@ -183,6 +183,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
                     setName(e.target.value);
                     if (errors.name) setErrors((prev) => ({ ...prev, name: '' }));
                   }}
+                  placeholder="Your name"
                   className="w-full h-[44px] pl-10 pr-3.5 rounded-[13px] bg-[#fffafb] border border-[#e8dfe5] focus:border-[#D30915] text-xs sm:text-sm text-[#141219] outline-none font-medium"
                 />
               </div>
@@ -205,6 +206,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
                       setEmail(e.target.value);
                       if (errors.email) setErrors((prev) => ({ ...prev, email: '' }));
                     }}
+                    placeholder="example@gmail.com"
                     className="w-full h-[44px] pl-10 pr-3.5 rounded-[13px] bg-[#fffafb] border border-[#e8dfe5] focus:border-[#D30915] text-xs sm:text-sm text-[#141219] outline-none font-medium"
                   />
                 </div>

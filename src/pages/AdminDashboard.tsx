@@ -20,6 +20,7 @@ import type {
   AdminCommissionRecord,
   AdminReportData,
   AdminSettingsData,
+  AdminOrderItem,
 } from '../types/admin';
 import { adminService, ADMIN_ROLES_CONFIG } from '../services/adminService';
 import { AdminSidebar } from '../components/admin/AdminSidebar';
@@ -61,8 +62,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [memberships, setMemberships] = useState<MembershipAdminRecord[]>(() =>
     adminService.getMemberships()
   );
-  const [products] = useState<AdminProductItem[]>(() => adminService.getCommerceProducts());
-  const [collections] = useState<AdminCollectionItem[]>(() => adminService.getCollections());
+  const [products, setProducts] = useState<AdminProductItem[]>(() => adminService.getCommerceProducts());
+  const [collections, setCollections] = useState<AdminCollectionItem[]>(() => adminService.getCollections());
   const [customers] = useState<AdminCustomerItem[]>(() => adminService.getCustomers());
   const [refunds, setRefunds] = useState<AdminRefundRecord[]>(() => adminService.getRefunds());
   const [discounts, setDiscounts] = useState<AdminDiscountCode[]>(() => adminService.getDiscounts());
@@ -71,6 +72,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   );
   const [reportData, setReportData] = useState<AdminReportData>(() => adminService.getReportsData('30d'));
   const [settings, setSettings] = useState<AdminSettingsData>(() => adminService.getSettings());
+  const [orders, setOrders] = useState<AdminOrderItem[]>([]);
+
+  // Fetch real Supabase products and orders on mount
+  useEffect(() => {
+    adminService.fetchCommerceProductsFromSupabase().then((liveProds) => {
+      if (liveProds && liveProds.length > 0) {
+        setProducts(liveProds);
+      }
+    });
+    adminService.getCommerceOrders().then((liveOrders) => {
+      setOrders(liveOrders);
+    });
+  }, []);
 
   // Subscribe to service updates
   useEffect(() => {
@@ -80,6 +94,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       setActivities(adminService.getRecentActivity());
       setRepresentatives(adminService.getRepresentatives());
       setMemberships(adminService.getMemberships());
+      setProducts(adminService.getCommerceProducts());
+      setCollections(adminService.getCollections());
       setRefunds(adminService.getRefunds());
       setDiscounts(adminService.getDiscounts());
       setCommissions(adminService.getCommissionLedger());
@@ -148,6 +164,74 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   const handleSaveSettings = (newSettings: AdminSettingsData) => {
     adminService.saveSettings(newSettings);
+  };
+
+  const handleAddProduct = async (prod: Partial<AdminProductItem>) => {
+    const created = await adminService.createProduct(prod);
+    setProducts(adminService.getCommerceProducts());
+    onShowToast(`Created product "${created.name}" successfully`, { type: 'success' });
+    return created;
+  };
+
+  const handleEditProduct = async (id: string, updates: Partial<AdminProductItem>) => {
+    await adminService.updateProduct(id, updates);
+    setProducts(adminService.getCommerceProducts());
+    onShowToast('Product updated successfully', { type: 'success' });
+  };
+
+  const handleDeleteProduct = async (id: string) => {
+    await adminService.deleteProduct(id);
+    setProducts(adminService.getCommerceProducts());
+    onShowToast('Product removed from catalog', { type: 'info' });
+  };
+
+  const handleToggleProductStatus = async (id: string) => {
+    await adminService.toggleProductStatus(id);
+    setProducts(adminService.getCommerceProducts());
+    onShowToast('Product publication status updated', { type: 'info' });
+  };
+
+  const handleCreateCollection = async (col: Partial<AdminCollectionItem>) => {
+    const created = await adminService.createCollection(col);
+    setCollections(adminService.getCollections());
+    onShowToast(`Created collection "${created.name}"`, { type: 'success' });
+    return created;
+  };
+
+  const handleEditCollection = async (id: string, updates: Partial<AdminCollectionItem>) => {
+    await adminService.updateCollection(id, updates);
+    setCollections(adminService.getCollections());
+    onShowToast('Collection updated successfully', { type: 'success' });
+  };
+
+  const handleDeleteCollection = async (id: string) => {
+    await adminService.deleteCollection(id);
+    setCollections(adminService.getCollections());
+    onShowToast('Collection deleted', { type: 'info' });
+  };
+
+  const handleToggleCollectionFeatured = async (id: string) => {
+    await adminService.toggleCollectionFeatured(id);
+    setCollections(adminService.getCollections());
+    onShowToast('Collection featured status toggled', { type: 'info' });
+  };
+
+  const handleReorderCollections = (id: string, direction: 'up' | 'down') => {
+    adminService.updateCollectionOrdering(id, direction);
+    setCollections(adminService.getCollections());
+    onShowToast('Collection order updated', { type: 'success' });
+  };
+
+  const handleAssignProductToCollection = async (productId: string, collectionId: string) => {
+    await adminService.assignProductToCollection(productId, collectionId);
+    setProducts(adminService.getCommerceProducts());
+    setCollections(adminService.getCollections());
+  };
+
+  const handleRemoveProductFromCollection = async (productId: string) => {
+    await adminService.removeProductFromCollection(productId);
+    setProducts(adminService.getCommerceProducts());
+    setCollections(adminService.getCollections());
   };
 
   const hasAccess = adminService.hasTabAccess(activeTab, currentRole);
@@ -265,8 +349,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   customers={customers}
                   refunds={refunds}
                   discounts={discounts}
+                  orders={orders}
                   onProcessRefund={handleProcessRefund}
                   onCreateDiscount={handleCreateDiscount}
+                  onAddProduct={handleAddProduct}
+                  onEditProduct={handleEditProduct}
+                  onDeleteProduct={handleDeleteProduct}
+                  onToggleProductStatus={handleToggleProductStatus}
+                  onCreateCollection={handleCreateCollection}
+                  onEditCollection={handleEditCollection}
+                  onDeleteCollection={handleDeleteCollection}
+                  onToggleCollectionFeatured={handleToggleCollectionFeatured}
+                  onReorderCollections={handleReorderCollections}
+                  onAssignProductToCollection={handleAssignProductToCollection}
+                  onRemoveProductFromCollection={handleRemoveProductFromCollection}
+                  canEdit={ADMIN_ROLES_CONFIG[currentRole].canEdit}
                   onShowToast={onShowToast}
                 />
               )}

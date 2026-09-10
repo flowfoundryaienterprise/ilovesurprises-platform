@@ -68,6 +68,9 @@ export interface Order {
     repUsername: string;
   };
   notes?: string;
+  isPersonalPurchase?: boolean;
+  isMembershipFee?: boolean;
+  repDiscountAmount?: number;
 }
 
 export interface SavedAddress {

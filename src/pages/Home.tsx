@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Hero } from '../components/home/Hero';
 import { CategorySection } from '../components/home/CategorySection';
+import { FeaturedCollectionsSection } from '../components/home/FeaturedCollectionsSection';
 import { AffiliateSection } from '../components/home/AffiliateSection';
 import { FeaturedProducts } from '../components/home/FeaturedProducts';
 import { ReviewsSection } from '../components/home/ReviewsSection';
@@ -21,7 +22,7 @@ interface HomeProps {
 
 export const Home: React.FC<HomeProps> = ({
   cart = [],
-  searchQuery = '',
+  searchQuery: _searchQuery = '',
   selectedCategory = 'All Surprises',
   onSelectCategory,
   onViewAllCategories,
@@ -32,6 +33,8 @@ export const Home: React.FC<HomeProps> = ({
 }) => {
   // Skeleton only shows on first open & page refresh; subsequent visits in same session render immediately
   const [isLoading, setIsLoading] = useState(() => sessionTracker.isFirstVisit('home'));
+  const [userSelectedCategory, setUserSelectedCategory] = useState<string | null>(null);
+  const homeCategory = userSelectedCategory ?? selectedCategory ?? 'All Surprises';
 
   useEffect(() => {
     if (!isLoading) return;
@@ -52,9 +55,17 @@ export const Home: React.FC<HomeProps> = ({
       <div className="transition-all duration-300">
         <CategorySection
           isLoading={isLoading}
-          selectedCategory={selectedCategory}
+          selectedCategory={homeCategory}
           onSelectCategory={onSelectCategory}
           onViewAllCategories={onViewAllCategories}
+        />
+      </div>
+
+      {/* 2.5 Main Featured Collections: Cash Candles, Trending Collection, Jewelry Candles */}
+      <div className="transition-all duration-300">
+        <FeaturedCollectionsSection
+          onSelectCategory={onSelectCategory}
+          onSelectProduct={onSelectProduct}
         />
       </div>
 
@@ -63,9 +74,9 @@ export const Home: React.FC<HomeProps> = ({
         <FeaturedProducts
           isLoading={isLoading}
           cart={cart}
-          searchQuery={searchQuery}
-          selectedCategory={selectedCategory}
-          onSelectCategory={onSelectCategory}
+          searchQuery=""
+          selectedCategory={homeCategory}
+          onSelectCategory={(cat) => setUserSelectedCategory(cat)}
           onAddToCart={onAddToCart}
           onUpdateQuantity={onUpdateQuantity}
           onWishlistToggle={onWishlistToggle}

@@ -12,8 +12,12 @@ import {
   Calculator,
   Sliders,
   Flame,
+  CheckCircle2,
+  Clock,
+  AlertCircle,
 } from 'lucide-react';
 import type { AffiliateStats } from '../../types';
+import { qualificationService } from '../../services/qualificationService';
 
 interface AffiliateOverviewProps {
   stats: AffiliateStats;
@@ -26,6 +30,12 @@ export const AffiliateOverview: React.FC<AffiliateOverviewProps> = ({
   onOpenWithdraw,
   onNavigateTab,
 }) => {
+  // Monthly Retail Qualification ($125 Requirement)
+  const qual = stats.monthlyQualification || qualificationService.getCachedQualification(stats.repUsername || 'sarah_sparkles');
+  const currentSales = qual.qualifyingRetailSales;
+  const threshold = qual.qualificationThreshold || 125.00;
+  const isQualified = qual.isQualified;
+
   // Income Potential Simulator Sliders
   const [personalCandlesSold, setPersonalCandlesSold] = useState(20);
   const [level1Reps, setLevel1Reps] = useState(4);
@@ -194,7 +204,109 @@ export const AffiliateOverview: React.FC<AffiliateOverviewProps> = ({
         </div>
       </div>
 
-      {/* 2. 5-Tier Compensation Overview Banner */}
+      {/* 2. Monthly Retail Qualification Card (Founder Requirement) */}
+      <div className="bg-white rounded-[20px] sm:rounded-[24px] p-4 sm:p-6 lg:p-7 border-2 border-[#eedbe6] shadow-[0_8px_24px_rgba(50,31,63,0.04)] relative overflow-hidden">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 pb-3.5 sm:pb-4 border-b border-[#f5eaf1]">
+          <div>
+            <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-black uppercase tracking-wider text-[#D30915]">
+              <ShieldCheck className="w-4 h-4 text-[#D30915]" />
+              <span>Active Commission Qualification</span>
+            </div>
+            <h3 className="text-base sm:text-xl font-black text-[#141219] m-0 font-display mt-0.5">
+              Monthly Qualification
+            </h3>
+            <p className="text-xs text-[#55505a] m-0 mt-1 font-medium leading-relaxed">
+              Surprise Consultants must generate at least <strong className="text-[#141219] font-black">$125</strong> in qualifying retail customer sales each calendar month to receive team/downline commissions.
+            </p>
+          </div>
+
+          <div className="shrink-0 flex items-center gap-2">
+            <span
+              className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider shadow-2xs ${
+                isQualified
+                  ? 'bg-emerald-100 text-emerald-900 border border-emerald-300'
+                  : 'bg-amber-100 text-amber-900 border border-amber-300'
+              }`}
+            >
+              {isQualified ? (
+                <>
+                  <CheckCircle2 className="w-4 h-4 text-emerald-700" />
+                  <span>Status: QUALIFIED</span>
+                </>
+              ) : (
+                <>
+                  <Clock className="w-4 h-4 text-amber-700" />
+                  <span>Status: NOT QUALIFIED</span>
+                </>
+              )}
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-4">
+          {/* Required */}
+          <div className="p-3.5 rounded-xl bg-[#faf6f9] border border-[#f0e2ec]">
+            <span className="text-[10px] font-black uppercase tracking-wider text-[#716d77] block mb-0.5">
+              Required retail customer sales
+            </span>
+            <strong className="text-base sm:text-xl font-black text-[#141219]">
+              ${threshold.toFixed(2)}
+            </strong>
+            <span className="block text-[10px] text-[#8a858f] mt-0.5">Required retail customer sales: $125</span>
+          </div>
+
+          {/* Current Qualifying Sales */}
+          <div className="p-3.5 rounded-xl bg-[#faf6f9] border border-[#f0e2ec]">
+            <span className="text-[10px] font-black uppercase tracking-wider text-[#716d77] block mb-0.5">
+              Current qualifying retail customer sales
+            </span>
+            <strong className={`text-base sm:text-xl font-black ${isQualified ? 'text-emerald-700' : 'text-[#D30915]'}`}>
+              ${currentSales.toFixed(2)}
+            </strong>
+            <span className="block text-[10px] text-[#8a858f] mt-0.5">
+              {isQualified ? '✓ Threshold met for downlines' : `$${Math.max(0, threshold - currentSales).toFixed(2)} needed to qualify`}
+            </span>
+          </div>
+
+          {/* Qualification Progress */}
+          <div className="p-3.5 rounded-xl bg-[#faf6f9] border border-[#f0e2ec] flex flex-col justify-between">
+            <div>
+              <span className="text-[10px] font-black uppercase tracking-wider text-[#716d77] block mb-0.5">
+                Qualification Progress
+              </span>
+              <div className="w-full h-2.5 bg-stone-200 rounded-full overflow-hidden mt-1.5 mb-1">
+                <div
+                  className={`h-full rounded-full transition-all duration-500 ${
+                    isQualified ? 'bg-emerald-600' : 'bg-gradient-to-r from-amber-500 to-[#D30915]'
+                  }`}
+                  style={{ width: `${Math.min(100, Math.round((currentSales / threshold) * 100))}%` }}
+                />
+              </div>
+            </div>
+            <span className="text-[10px] text-[#716d77] font-bold">
+              {Math.min(100, Math.round((currentSales / threshold) * 100))}% toward team commission unlock
+            </span>
+          </div>
+        </div>
+
+        {/* Founder Guidance Callout & Explicit Notes */}
+        <div className="mt-3.5 space-y-2">
+          <div className="p-3 rounded-xl bg-[#fff8fb] border border-[#eedbe6] flex items-center gap-2 text-xs text-[#55505a] font-medium">
+            <AlertCircle className="w-4 h-4 text-[#D30915] shrink-0" />
+            <span>
+              Personal purchases receive a 20% Rep discount but do not count toward the $125 monthly qualification.
+            </span>
+          </div>
+          <div className="p-3 rounded-xl bg-[#faf6fa] border border-[#f0e2ec] flex items-center gap-2 text-xs text-[#55505a] font-medium">
+            <ShieldCheck className="w-4 h-4 text-[#54217f] shrink-0" />
+            <span>
+              Rep signup/monthly fees do not generate commission income.
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. 5-Tier Compensation Overview Banner */}
       <div className="bg-white rounded-[20px] sm:rounded-[24px] p-4 sm:p-6 lg:p-7 border border-[#eedbe6] shadow-[0_8px_24px_rgba(50,31,63,0.04)] space-y-4 sm:space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#f5eaf1]">
           <div>

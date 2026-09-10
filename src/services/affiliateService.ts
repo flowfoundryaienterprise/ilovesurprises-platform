@@ -5,6 +5,7 @@ import type {
   PayoutMethod,
   ReferralMember,
 } from '../types';
+import { qualificationService } from './qualificationService';
 
 const AFFILIATE_STATS_KEY = 'ilovesurprises_affiliate_stats_v1';
 const COMMISSIONS_KEY = 'ilovesurprises_commissions_v1';
@@ -380,20 +381,29 @@ export const affiliateService = {
    * Retrieves live affiliate stats and balances
    */
   getStats(): AffiliateStats {
+    let base: AffiliateStats;
     if (typeof window === 'undefined') {
-      return this.getDefaultStats();
-    }
-    try {
-      const stored = localStorage.getItem(AFFILIATE_STATS_KEY);
-      if (stored) {
-        return JSON.parse(stored);
+      base = this.getDefaultStats();
+    } else {
+      try {
+        const stored = localStorage.getItem(AFFILIATE_STATS_KEY);
+        if (stored) {
+          base = JSON.parse(stored);
+        } else {
+          base = this.getDefaultStats();
+          localStorage.setItem(AFFILIATE_STATS_KEY, JSON.stringify(base));
+        }
+      } catch {
+        base = this.getDefaultStats();
       }
-      const initial = this.getDefaultStats();
-      localStorage.setItem(AFFILIATE_STATS_KEY, JSON.stringify(initial));
-      return initial;
-    } catch {
-      return this.getDefaultStats();
     }
+
+    // Attach deterministic monthly qualification
+    const repUsername = base.repUsername || 'sarah_sparkles';
+    const qual = qualificationService.getCachedQualification(repUsername);
+    base.monthlyQualification = qual;
+
+    return base;
   },
 
   getDefaultStats(): AffiliateStats {

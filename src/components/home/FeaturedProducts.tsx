@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Sparkles } from 'lucide-react';
 import { productsData } from '../../data/products';
+import { deduplicateProducts } from '../../utils/productUtils';
 import { ProductCard } from '../products/ProductCard';
 import { ProductCardSkeleton } from '../ui/ProductCardSkeleton';
 import type { Product, CartItem } from '../../types';
@@ -38,19 +39,27 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
   onWishlistToggle,
   onSelectProduct,
 }) => {
-  const activeChip = selectedCategory || 'All Surprises';
+  // If selectedCategory is an unknown subcategory or empty, normalize to 'All Surprises'
+  const isKnownChip = filterChips.some(
+    (chip) => chip.toLowerCase() === (selectedCategory || '').toLowerCase()
+  );
+  const activeChip = isKnownChip ? selectedCategory : 'All Surprises';
 
   const handleChipClick = (chip: string) => {
     onSelectCategory?.(chip);
   };
 
   const filteredProducts = useMemo(() => {
-    return productsData.filter((product) => {
-      // Category filter
+    const list = productsData.filter((product) => {
+      // Category filter: match exact category or category substring/name/tags
       const matchesCategory =
+        !activeChip ||
         activeChip === 'All Surprises' ||
         activeChip === 'All' ||
-        product.category.toLowerCase() === activeChip.toLowerCase();
+        product.category.toLowerCase() === activeChip.toLowerCase() ||
+        product.name.toLowerCase().includes(activeChip.toLowerCase()) ||
+        (product.description && product.description.toLowerCase().includes(activeChip.toLowerCase())) ||
+        (product.scentNotes && product.scentNotes.some((s) => s.toLowerCase().includes(activeChip.toLowerCase())));
 
       // Search filter
       const matchesSearch =
@@ -61,67 +70,19 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
 
       return matchesCategory && matchesSearch;
     });
-  }, [activeChip, searchQuery]);
 
-  const [columns, setColumns] = React.useState<number>(() => {
-    if (typeof window === 'undefined') return 5;
-    const w = window.innerWidth;
-    if (w >= 1280) return 5;
-    if (w >= 1024) return 4;
-    if (w >= 768) return 3;
-    return 2;
-  });
-
-  React.useEffect(() => {
-    const handleResize = () => {
-      const w = window.innerWidth;
-      let cols = 2;
-      if (w >= 1280) cols = 5;
-      else if (w >= 1024) cols = 4;
-      else if (w >= 768) cols = 3;
-      setColumns(cols);
-    };
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  const displayedProducts = useMemo(() => {
-    if (!filteredProducts || filteredProducts.length === 0) return [];
-
-    const isDesktop = columns >= 4;
-    if (!isDesktop) return filteredProducts;
-
-    const remainder = filteredProducts.length % columns;
-    const hasOneEmptySpace = remainder === columns - 1;
-    const isSingleSearchResult = Boolean(
-      searchQuery && searchQuery.trim().length > 0 && filteredProducts.length === 1
-    );
-
-    if (hasOneEmptySpace || isSingleSearchResult) {
-      const existingIds = new Set(filteredProducts.map((p) => p.id));
-      const candidate =
-        productsData.find(
-          (p) => !existingIds.has(p.id) && p.inStock !== false && p.isBestSeller
-        ) ||
-        productsData.find(
-          (p) => !existingIds.has(p.id) && p.inStock !== false
-        );
-
-      if (candidate) {
-        return [
-          ...filteredProducts,
-          {
-            ...candidate,
-            badge: candidate.badge || 'Surprise Pick',
-          },
-        ];
-      }
+    // Fallback: If filter or query yields 0 products on Home page, always show all bestsellers
+    if (list.length === 0) {
+      return productsData;
     }
 
-    return filteredProducts;
-  }, [filteredProducts, columns, searchQuery]);
+    return list;
+  }, [activeChip, searchQuery]);
+
+  // Strictly deduplicate products to guarantee unique product cards
+  const displayedProducts = useMemo(() => {
+    return deduplicateProducts(filteredProducts);
+  }, [filteredProducts]);
 
   const getProductQuantity = (productId: string) => {
     const item = cart.find((i) => i.product.id === productId);

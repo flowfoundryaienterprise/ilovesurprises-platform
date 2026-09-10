@@ -1,7 +1,7 @@
 import { supabase } from './supabaseClient';
 import { representativeService } from './representativeService';
 import { attributionService } from './attributionService';
-import { sponsorService } from './sponsorService';
+import { qualificationService } from './qualificationService';
 import type { CommissionRecord, CommissionTierLevel, ReferralMember } from '../types';
 
 export interface ProcessOrderCommissionsParams {
@@ -12,6 +12,9 @@ export interface ProcessOrderCommissionsParams {
   userId?: string;
   productName?: string;
   sessionRepUsername?: string;
+  isPersonalPurchase?: boolean;
+  isMembershipFee?: boolean;
+  notes?: string;
 }
 
 export interface UplineNode {
@@ -98,70 +101,29 @@ export const commissionService = {
    * Traverses genealogy to locate up to 5 parent sponsors
    */
   findSponsorsInGenealogy(targetRepUsername: string): { id: string; name: string; repUsername: string }[] {
-    const cleanTarget = targetRepUsername.toLowerCase().trim().replace(/^@/, '');
-
-    // 1. Check sponsorService registry for registered 5-level upline
-    const registeredSponsor = sponsorService.getStoredRegistry()[cleanTarget];
-    if (registeredSponsor && registeredSponsor.upline && registeredSponsor.upline.length > 0) {
-      return registeredSponsor.upline.slice(0, 5).map((sponsorUser) => {
-        const repInfo = representativeService.lookupRepresentative(sponsorUser) || {
-          id: `rep-${sponsorUser}`,
-          name: sponsorUser.replace(/[_-]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
-          repUsername: sponsorUser,
-        };
-        return {
-          id: repInfo.id,
-          name: repInfo.name,
-          repUsername: repInfo.repUsername,
-        };
-      });
-    }
-
+    let tree: ReferralMember[] = [];
     if (typeof window !== 'undefined') {
       try {
         const stored = localStorage.getItem(GENEALOGY_TREE_KEY);
-        if (stored) {
-          const tree: ReferralMember[] = JSON.parse(stored);
-          if (Array.isArray(tree) && tree.length > 0) {
-            const path: ReferralMember[] = [];
-            const findPath = (nodes: ReferralMember[], target: string): boolean => {
-              for (const node of nodes) {
-                if (node.repUsername.toLowerCase() === target.toLowerCase()) {
-                  return true;
-                }
-                if (node.children && node.children.length > 0) {
-                  path.push(node);
-                  if (findPath(node.children, target)) {
-                    return true;
-                  }
-                  path.pop();
-                }
-              }
-              return false;
-            };
-
-            if (findPath(tree, targetRepUsername) && path.length > 0) {
-              return path.slice(-5).reverse().map((m) => ({
-                id: m.id,
-                name: m.name,
-                repUsername: m.repUsername,
-              }));
-            }
-          }
-        }
+        if (stored) tree = JSON.parse(stored);
       } catch {
         // fallback
       }
     }
 
-    // If no custom tree, use default top leaders hierarchy (6 leaders so 5 upline levels always resolve)
+    if (tree && tree.length > 0) {
+      return tree
+        .filter((s) => s.repUsername.toLowerCase() !== targetRepUsername.toLowerCase())
+        .map((s) => ({ id: s.id, name: s.name, repUsername: s.repUsername }));
+    }
+
+    // If no custom tree, use default top leaders hierarchy
     const defaultSponsorChain = [
       { id: 'rep-01', name: 'Emily Watson', repUsername: 'emily_sparkles' },
       { id: 'rep-02', name: 'Jessica Miller', repUsername: 'jess_candles' },
       { id: 'rep-03', name: 'Marcus Sterling', repUsername: 'marcus_vip' },
       { id: 'rep-04', name: 'Rachel Adams', repUsername: 'rachel_cozy' },
       { id: 'rep-05', name: 'Grace Kelly', repUsername: 'grace_reveals' },
-      { id: 'rep-06', name: 'Sophia Bennett', repUsername: 'sophia_luxe' },
     ];
 
     // Filter out the direct rep from their own upline
@@ -173,12 +135,33 @@ export const commissionService = {
    * 1. Resolves permanent lifetime attribution for customer.
    * 2. Checks if commissions for this orderId already exist (prevents duplicates).
    * 3. Calculates exact 20% personal + 5-tier overrides (up to 35% total).
-   * 4. Persists to Supabase `commissions` and local ledger.
+   * 4. Enforces $125 monthly personal retail sales qualification for team/downline commissions.
+   * 5. Persists to Supabase `commissions` and local ledger.
    */
   async processOrderCommissions(params: ProcessOrderCommissionsParams): Promise<CommissionRecord[]> {
     const { orderId, orderAmount, customerName, customerEmail, userId, productName, sessionRepUsername } = params;
 
     if (!orderId || orderAmount <= 0) {
+      return [];
+    }
+
+    // Rule 1 & Rule 2: Rep Personal Purchases receive a 20% discount upfront,
+    // but do NOT generate commission income for that Rep or downline volume.
+    // "Do NOT treat the 20% discount as commission or income."
+    // "Personal purchases receive the 20% Rep discount but do not generate qualification volume and do not generate commission income."
+    if (params.isPersonalPurchase || params.notes?.includes('rep_personal')) {
+      return [];
+    }
+
+    // Rule 4: $20 Rep Signup / Monthly Fee Excluded
+    // Representatives DO NOT earn any commission, bonus, override, referral income, or downline income from the $20 Rep signup/monthly fee.
+    if (
+      params.isMembershipFee ||
+      params.productName?.toLowerCase().includes('monthly license') ||
+      params.productName?.toLowerCase().includes('consultant license') ||
+      params.productName?.toLowerCase().includes('rep signup') ||
+      params.notes?.toLowerCase().includes('membership_fee')
+    ) {
       return [];
     }
 
@@ -242,7 +225,7 @@ export const commissionService = {
       return [];
     }
 
-    // Step 4: Calculate Commissions with 100% precision
+    // Step 4: Calculate Commissions with 100% precision & Monthly $125 Downline Qualification Check
     const generatedCommissions: CommissionRecord[] = [];
     const dbInserts = [];
 
@@ -252,6 +235,25 @@ export const commissionService = {
     for (const node of uplineNodes) {
       const rateDecimal = node.ratePercent / 100;
       const amount = parseFloat((orderAmount * rateDecimal).toFixed(2));
+
+      // Check downline qualification for Levels 1–5
+      let isPayable = true;
+      let unqualifiedReason: string | undefined = undefined;
+
+      if (node.level !== 'personal') {
+        // Downline / Team commission: requires $125 monthly retail sales
+        const isQualified = await qualificationService.isRepQualifiedForDownlineCommissions(
+          node.repUsername,
+          todayDate
+        );
+        if (!isQualified) {
+          isPayable = false;
+          unqualifiedReason =
+            'Consultant requires at least $125 in qualifying retail customer sales this calendar month to receive team/downline commissions. Personal purchases excluded.';
+        }
+      }
+
+      const status = isPayable ? 'pending' : 'unqualified';
 
       const commRecord: CommissionRecord = {
         id: `comm-${orderId}-${node.level}-${Date.now()}`,
@@ -267,34 +269,21 @@ export const commissionService = {
         orderAmount,
         commissionRate: rateDecimal,
         commissionAmount: amount,
-        status: 'pending',
+        status,
+        unqualifiedReason,
       };
 
       generatedCommissions.push(commRecord);
 
-      // Resolve representative profile UUID from Supabase profiles if exists
-      let repProfileUuid: string | null = null;
-      try {
-        const { data: repProf } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('rep_username', node.repUsername.toLowerCase().trim())
-          .maybeSingle();
-        if (repProf?.id) {
-          repProfileUuid = repProf.id;
-        }
-      } catch {
-        // fallback
-      }
-
       dbInserts.push({
-        rep_id: repProfileUuid,
+        id: commRecord.id,
+        rep_id: node.repId,
         order_id: orderId,
         order_amount: orderAmount,
         tier_level: node.level === 'personal' ? 'personal' : `level_${node.level}`,
         rate_percent: node.ratePercent,
         commission_amount: amount,
-        status: 'pending',
+        status,
         created_at: nowIso,
       });
     }
@@ -311,6 +300,46 @@ export const commissionService = {
     this.saveCommissionsToStorage(generatedCommissions);
 
     return generatedCommissions;
+  },
+
+  /**
+   * Re-evaluates and synchronizes downline commission eligibility for a representative
+   * If a rep reaches >= $125 later in the month, their pending downline commissions for that month become payable.
+   */
+  async syncMonthlyDownlineCommissions(repUsername: string, calendarMonth?: string): Promise<void> {
+    const cleanRep = repUsername.toLowerCase().trim().replace(/^@/, '');
+    const month = calendarMonth || qualificationService.getCalendarMonth();
+    const isQualified = await qualificationService.isRepQualifiedForDownlineCommissions(cleanRep, month);
+
+    const commissions = this.getStoredCommissions();
+    let updated = false;
+
+    const modified = commissions.map((c) => {
+      // Only affect downline overrides in the specified month
+      if (c.level !== 'personal' && (c.orderDate || '').startsWith(month)) {
+        if (isQualified && c.status === 'unqualified') {
+          updated = true;
+          return { ...c, status: 'pending' as const, unqualifiedReason: undefined };
+        } else if (!isQualified && c.status === 'pending') {
+          updated = true;
+          return {
+            ...c,
+            status: 'unqualified' as const,
+            unqualifiedReason: 'Requires at least $125 in qualifying retail customer sales this calendar month.',
+          };
+        }
+      }
+      return c;
+    });
+
+    if (updated && typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(COMMISSIONS_STORAGE_KEY, JSON.stringify(modified));
+        window.dispatchEvent(new CustomEvent('ilovesurprises_commissions_updated'));
+      } catch {
+        // ignore
+      }
+    }
   },
 
   /**
@@ -341,3 +370,4 @@ export const commissionService = {
     }
   },
 };
+

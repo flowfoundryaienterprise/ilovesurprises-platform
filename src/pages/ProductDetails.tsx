@@ -21,6 +21,7 @@ import { ProductGallery } from '../components/products/ProductGallery';
 import { ProductCard } from '../components/products/ProductCard';
 import { productsData } from '../data/products';
 import { reviewsData } from '../data/reviews';
+import { deduplicateProducts } from '../utils/productUtils';
 import type { Product, CartItem, Review } from '../types';
 import { representativeService, type PublicRepresentative } from '../services/representativeService';
 
@@ -43,6 +44,7 @@ interface ProductDetailsProps {
     quantity?: number,
     options?: { selectedRingSize?: number; selectedJewelryType?: string; selectedSize?: string }
   ) => void;
+  onNavigateToAppraisal?: () => void;
   onShowToast?: (message: string, options?: { title?: string; type?: 'success' | 'info' }) => void;
 }
 
@@ -61,6 +63,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
   onSelectProduct,
   onOpenCart,
   onBuyNow,
+  onNavigateToAppraisal,
   onShowToast,
 }) => {
   const [quantity, setQuantity] = useState(1);
@@ -70,10 +73,10 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
   const isJewelrySurprise = useMemo(() => {
     return (
       product.surpriseType === 'jewelry' ||
-      product.category.toLowerCase().includes('jewelry') ||
-      product.name.toLowerCase().includes('ring') ||
-      product.name.toLowerCase().includes('jewelry') ||
-      Boolean(product.surpriseValue && product.surpriseValue.toLowerCase().includes('jewelry'))
+      (product.category || '').toLowerCase().includes('jewelry') ||
+      (product.name || '').toLowerCase().includes('ring') ||
+      (product.name || '').toLowerCase().includes('jewelry') ||
+      Boolean(product.surpriseValue && (product.surpriseValue || '').toLowerCase().includes('jewelry'))
     );
   }, [product]);
 
@@ -132,12 +135,13 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
     return allReviews;
   }, [allReviews, product]);
 
-  // Related products from the same category
+  // Related products from the same category strictly deduplicated
   const relatedProducts = useMemo(() => {
-    return productsData
-      .filter((p) => p.category === product.category && p.id !== product.id)
-      .slice(0, 4);
-  }, [product.category, product.id]);
+    const filtered = productsData.filter(
+      (p) => p.category === product.category && p.id !== product.id && p.slug !== product.slug
+    );
+    return deduplicateProducts(filtered).slice(0, 4);
+  }, [product.category, product.id, product.slug]);
 
   const alternateImages = useMemo(() => {
     return relatedProducts.slice(0, 3).map((p) => p.image);
@@ -403,6 +407,16 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                     <p className="text-[11px] text-[#716d77] m-0 mt-2 font-medium">
                       ✨ Your ring surprise will be tailored in Size {selectedRingSize} appraised $10 to $7,500.
                     </p>
+                    {onNavigateToAppraisal && (
+                      <button
+                        type="button"
+                        onClick={onNavigateToAppraisal}
+                        className="mt-2 text-xs font-bold text-[#D30915] hover:text-[#B60711] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                      >
+                        <Gem className="w-3.5 h-3.5" />
+                        <span>Already revealed your jewelry? Check appraisal value & certificate →</span>
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -773,7 +787,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                   type="text"
                   value={newAuthor}
                   onChange={(e) => setNewAuthor(e.target.value)}
-                  placeholder="e.g. Jessica Miller"
+                  placeholder="Your name"
                   className="w-full h-10 px-3.5 rounded-xl bg-[#faf7f9] border border-[#eedbe6] text-xs text-[#141219] focus:outline-none focus:border-[#D30915]"
                 />
               </div>

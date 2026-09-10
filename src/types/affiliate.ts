@@ -1,6 +1,19 @@
 export type CommissionTierLevel = 'personal' | 1 | 2 | 3 | 4 | 5;
 
-export type CommissionStatus = 'paid' | 'pending' | 'processing' | 'approved' | 'reversed';
+export type CommissionStatus = 'paid' | 'pending' | 'processing' | 'approved' | 'reversed' | 'unqualified';
+
+export interface MonthlyQualificationRecord {
+  repUsername: string;
+  repId?: string;
+  calendarMonth: string; // "YYYY-MM" e.g. "2026-09"
+  qualifyingRetailSales: number;
+  qualificationThreshold: number; // 125.00
+  isQualified: boolean;
+  personalPurchasesExcluded: number;
+  customerOrderCount: number;
+  personalOrderCount: number;
+  updatedAt: string;
+}
 
 export interface CommissionRecord {
   id: string;
@@ -15,6 +28,7 @@ export interface CommissionRecord {
   commissionAmount: number;
   status: CommissionStatus;
   payoutDate?: string;
+  unqualifiedReason?: string;
 }
 
 export type PayoutMethod = 'paypal' | 'bank_transfer' | 'venmo' | 'check';
@@ -68,6 +82,7 @@ export interface AffiliateStats {
   repUsername: string;
   customReferralCode: string;
   referralLink: string;
+  monthlyQualification?: MonthlyQualificationRecord;
 }
 
 export interface UserSettings {

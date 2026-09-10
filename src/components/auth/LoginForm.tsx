@@ -209,7 +209,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               autoComplete="username"
               required
               disabled={isLoading}
-              placeholder="Enter email or mobile number"
+              placeholder="example@gmail.com"
               value={identifier}
               onChange={(e) => {
                 setIdentifier(e.target.value);

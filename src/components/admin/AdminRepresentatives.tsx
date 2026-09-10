@@ -12,6 +12,7 @@ import {
   Ban,
 } from 'lucide-react';
 import type { RepresentativeAdminRecord, RepStatus } from '../../types/admin';
+import { qualificationService } from '../../services/qualificationService';
 
 interface AdminRepresentativesProps {
   representatives: RepresentativeAdminRecord[];
@@ -201,6 +202,7 @@ export const AdminRepresentatives: React.FC<AdminRepresentativesProps> = ({
                 <th className="py-3.5 px-4">Representative</th>
                 <th className="py-3.5 px-3">Sponsor Info</th>
                 <th className="py-3.5 px-3">Rank & Team</th>
+                <th className="py-3.5 px-3">Monthly Qualification ($125)</th>
                 <th className="py-3.5 px-3">Membership Plan</th>
                 <th className="py-3.5 px-3">Status</th>
                 <th className="py-3.5 px-3 text-right">Actions</th>
@@ -209,7 +211,7 @@ export const AdminRepresentatives: React.FC<AdminRepresentativesProps> = ({
             <tbody className="divide-y divide-gray-100 font-medium">
               {filteredReps.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-[#716d77]">
+                  <td colSpan={7} className="py-12 text-center text-[#716d77]">
                     <Users className="w-8 h-8 text-gray-300 mx-auto mb-2" />
                     <p className="font-bold text-sm text-[#141219] m-0">No representatives found</p>
                     <p className="text-xs m-0">Try adjusting your search query or status filter.</p>
@@ -241,6 +243,36 @@ export const AdminRepresentatives: React.FC<AdminRepresentativesProps> = ({
                     <td className="py-3 px-3">
                       <div className="font-bold text-xs text-[#54217f]">{rep.currentRank}</div>
                       <div className="text-[11px] text-[#716d77]">{rep.teamSize} Direct Downlines</div>
+                    </td>
+
+                    <td className="py-3 px-3">
+                      {(() => {
+                        const q = qualificationService.getCachedQualification(rep.repUsername);
+                        return (
+                          <div className="space-y-0.5">
+                            <div className="flex items-center gap-1.5">
+                              <span
+                                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                                  q.isQualified
+                                    ? 'bg-emerald-100 text-emerald-900 border border-emerald-300'
+                                    : 'bg-amber-100 text-amber-900 border border-amber-300'
+                                }`}
+                              >
+                                {q.isQualified ? '✓ Qualified' : 'Not Qualified'}
+                              </span>
+                            </div>
+                            <div className="text-[11px] font-bold text-[#141219]">
+                              Retail: ${q.qualifyingRetailSales.toFixed(2)} / ${q.qualificationThreshold.toFixed(2)}
+                            </div>
+                            <div className="text-[9px] text-[#716d77]">
+                              Personal: ${q.personalPurchasesExcluded.toFixed(2)} (20% off) • $20 fees: $0 comm
+                            </div>
+                            <div className="text-[9px] text-[#716d77]">
+                              Month: {q.calendarMonth} • {q.isQualified ? 'Downlines Active' : 'Downlines Ineligible'}
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </td>
 
                     <td className="py-3 px-3">
@@ -502,6 +534,65 @@ export const AdminRepresentatives: React.FC<AdminRepresentativesProps> = ({
                 <span className="font-bold text-[#141219]">{selectedRep.joinDate}</span>
               </div>
             </div>
+
+            {/* Monthly Qualification Details Card */}
+            {(() => {
+              const q = qualificationService.getCachedQualification(selectedRep.repUsername);
+              return (
+                <div className="bg-[#faf6f9] p-3.5 rounded-xl border border-[#eedbe6] space-y-2 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="font-black uppercase tracking-wider text-[10px] text-[#716d77]">
+                      Monthly Qualification (Team Overrides)
+                    </span>
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                        q.isQualified
+                          ? 'bg-emerald-100 text-emerald-900 border border-emerald-300'
+                          : 'bg-amber-100 text-amber-900 border border-amber-300'
+                      }`}
+                    >
+                      {q.isQualified ? '✓ Qualified' : 'Not Qualified'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[#716d77]">Calendar Month:</span>
+                    <span className="font-bold text-[#141219]">{q.calendarMonth}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[#716d77]">Qualifying Retail Sales:</span>
+                    <span className={`font-black ${q.isQualified ? 'text-emerald-700' : 'text-[#D30915]'}`}>
+                      ${q.qualifyingRetailSales.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[#716d77]">Rep Personal Purchases:</span>
+                    <span className="font-bold text-[#55505a]">
+                      ${q.personalPurchasesExcluded.toFixed(2)} (20% Rep discount, excluded)
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[#716d77]">$20 Rep Signup / Monthly Fee:</span>
+                    <span className="font-bold text-[#55505a]">
+                      $0 Commission / Excluded from volume
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[#716d77]">Policy Threshold:</span>
+                    <span className="font-bold text-[#141219]">${q.qualificationThreshold.toFixed(2)} (Fixed Policy)</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[#716d77]">Downline Commissions:</span>
+                    <span className={`font-bold ${q.isQualified ? 'text-emerald-700' : 'text-amber-800'}`}>
+                      {q.isQualified ? 'Eligible for Level 1–5 Overrides' : 'Ineligible (<$125 retail sales)'}
+                    </span>
+                  </div>
+                  <div className="pt-1 text-[10px] text-[#8a858f] italic border-t border-[#eedbe6]/60 space-y-0.5">
+                    <div>* Personal purchases receive 20% Rep discount but do not count toward $125 qualification.</div>
+                    <div>* Rep signup/monthly fees do not generate commission income.</div>
+                  </div>
+                </div>
+              );
+            })()}
 
             <button
               type="button"

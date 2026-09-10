@@ -94,6 +94,10 @@ export const orderService = {
       repUsername: string;
     };
     userId?: string;
+    isPersonalPurchase?: boolean;
+    isMembershipFee?: boolean;
+    repDiscountAmount?: number;
+    notes?: string;
   }): Promise<Order> {
     // Simulating realistic backend order creation latency (350ms)
     await new Promise((resolve) => setTimeout(resolve, 350));
@@ -137,6 +141,10 @@ export const orderService = {
       shippingFee: params.shippingFee,
       total: params.total,
       attributedRep: finalAttributedRep,
+      notes: params.notes || (finalAttributedRep?.repUsername ? `rep:${finalAttributedRep.repUsername}` : undefined),
+      isPersonalPurchase: params.isPersonalPurchase,
+      isMembershipFee: params.isMembershipFee,
+      repDiscountAmount: params.repDiscountAmount,
     };
 
     // 2. Persist to Local Storage
@@ -209,7 +217,9 @@ export const orderService = {
     }
 
     // 4. Generate 5-Level MLM Commissions (Idempotent & Lifetime Assured)
-    if (finalAttributedRep && params.subtotal > 0) {
+    // Rule 1 & Rule 2: Rep personal purchases receive 20% discount upfront, but do NOT generate commission income.
+    // Rule 4: $20 Rep signup / monthly fees do NOT generate commission income.
+    if (finalAttributedRep && params.subtotal > 0 && !params.isPersonalPurchase && !params.isMembershipFee) {
       const primaryProductName = params.items.length > 0 ? params.items[0].product.name : 'Candle Order';
       try {
         await commissionService.processOrderCommissions({
@@ -220,6 +230,9 @@ export const orderService = {
           userId: params.userId,
           productName: primaryProductName,
           sessionRepUsername: finalAttributedRep.repUsername,
+          isPersonalPurchase: params.isPersonalPurchase,
+          isMembershipFee: params.isMembershipFee,
+          notes: params.notes,
         });
       } catch (commErr) {
         console.error('Commission processing warning:', commErr);

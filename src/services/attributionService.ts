@@ -27,8 +27,8 @@ export const attributionService = {
   },
 
   /**
-   * Checks if a customer has a permanent lifetime representative attribution.
-   * Checks both Supabase server-side profiles & orders and persistent attribution store.
+   * Checks if a customer has a permanent lifetime representative attribution
+   * Checks both Supabase server-side profiles and persistent attribution store
    */
   async getLifetimeAttribution(customerEmailOrUserId: string): Promise<string | null> {
     if (!customerEmailOrUserId) return null;
@@ -44,10 +44,9 @@ export const attributionService = {
       }
     }
 
-    // 2. Check Supabase profiles & historical orders (server-side persistence)
+    // 2. Check Supabase profiles (server-side persistence)
     try {
       if (cleanKey.includes('@')) {
-        // 2a. Query Supabase profiles by email
         const { data, error } = await supabase
           .from('profiles')
           .select('rep_username')
@@ -56,34 +55,12 @@ export const attributionService = {
 
         if (!error && data?.rep_username) {
           if (!representativeService.isRepresentativeSuspended(data.rep_username)) {
+            // Cache locally
             this.saveToLocalRegistry(cleanKey, data.rep_username);
             return data.rep_username;
           }
         }
-
-        // 2b. Query Supabase orders for earliest order placed with this customer's email
-        const { data: orderData, error: orderErr } = await supabase
-          .from('orders')
-          .select('shipping_address, notes, created_at')
-          .filter('shipping_address->>email', 'ilike', cleanKey)
-          .order('created_at', { ascending: true })
-          .limit(1)
-          .maybeSingle();
-
-        if (!orderErr && orderData) {
-          const shippingAddr = orderData.shipping_address as Record<string, unknown> | null;
-          let orderRep = (shippingAddr?.attributed_rep as string) || null;
-          if (!orderRep && orderData.notes && orderData.notes.startsWith('rep:')) {
-            orderRep = orderData.notes.replace('rep:', '').trim();
-          }
-
-          if (orderRep && !representativeService.isRepresentativeSuspended(orderRep)) {
-            this.saveToLocalRegistry(cleanKey, orderRep);
-            return orderRep;
-          }
-        }
       } else {
-        // 2c. Query Supabase profiles by user ID
         const { data, error } = await supabase
           .from('profiles')
           .select('rep_username')
@@ -94,28 +71,6 @@ export const attributionService = {
           if (!representativeService.isRepresentativeSuspended(data.rep_username)) {
             this.saveToLocalRegistry(cleanKey, data.rep_username);
             return data.rep_username;
-          }
-        }
-
-        // 2d. Query Supabase orders for customer's user_id
-        const { data: orderData, error: orderErr } = await supabase
-          .from('orders')
-          .select('shipping_address, notes, created_at')
-          .eq('user_id', cleanKey)
-          .order('created_at', { ascending: true })
-          .limit(1)
-          .maybeSingle();
-
-        if (!orderErr && orderData) {
-          const shippingAddr = orderData.shipping_address as Record<string, unknown> | null;
-          let orderRep = (shippingAddr?.attributed_rep as string) || null;
-          if (!orderRep && orderData.notes && orderData.notes.startsWith('rep:')) {
-            orderRep = orderData.notes.replace('rep:', '').trim();
-          }
-
-          if (orderRep && !representativeService.isRepresentativeSuspended(orderRep)) {
-            this.saveToLocalRegistry(cleanKey, orderRep);
-            return orderRep;
           }
         }
       }
@@ -197,13 +152,6 @@ export const attributionService = {
       return { success: true, repUsername: existing, wasAlreadyAssigned: true };
     }
 
-    if (params.userId) {
-      const existingUser = await this.getLifetimeAttribution(params.userId);
-      if (existingUser) {
-        return { success: true, repUsername: existingUser, wasAlreadyAssigned: true };
-      }
-    }
-
     // Establish new lifetime attribution
     const attributionRecord: CustomerAttributionRecord = {
       customerEmail: cleanEmail,
@@ -257,3 +205,4 @@ export const attributionService = {
     }
   },
 };
+

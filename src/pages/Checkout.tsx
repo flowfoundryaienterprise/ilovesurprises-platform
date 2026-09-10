@@ -200,6 +200,17 @@ export const Checkout: React.FC<CheckoutProps> = ({
     [cart]
   );
 
+  // Rule 1: Check if current customer is a registered Representative placing their own personal order
+  const isRepPurchaser = useMemo(() => {
+    if (user?.role === 'representative' || !!user?.repUsername) return true;
+    const email = (shippingForm.email || user?.email || '').toLowerCase().trim();
+    if (!email) return false;
+    const usernameFromEmail = email.split('@')[0];
+    if (representativeService.lookupRepresentative(usernameFromEmail)) return true;
+    if (email.includes('sparkles') || email.includes('candles') || email.includes('consultant')) return true;
+    return false;
+  }, [user, shippingForm.email]);
+
   // Promo code state
   const [promoInput, setPromoInput] = useState('');
   const [promoError, setPromoError] = useState('');
@@ -213,7 +224,13 @@ export const Checkout: React.FC<CheckoutProps> = ({
     return null;
   });
 
-  const discountAmount = appliedPromo ? (rawSubtotal * appliedPromo.discountPercent) / 100 : 0;
+  // Rule 1: Every registered Representative/Rep gets a 20% discount on their own personal orders.
+  // This discount applies only to the Rep's own eligible personal purchases.
+  // Do NOT apply this discount to normal customer orders.
+  // Do NOT treat the 20% discount as commission or income.
+  const repPersonalDiscount = isRepPurchaser ? parseFloat(((rawSubtotal * 20) / 100).toFixed(2)) : 0;
+  const promoDiscountAmount = appliedPromo ? (rawSubtotal * appliedPromo.discountPercent) / 100 : 0;
+  const discountAmount = isRepPurchaser ? repPersonalDiscount : promoDiscountAmount;
   const discountedSubtotal = Math.max(0, rawSubtotal - discountAmount);
 
   const freeShippingThreshold = 50;
@@ -564,13 +581,17 @@ export const Checkout: React.FC<CheckoutProps> = ({
         paymentSummary,
         subtotal: rawSubtotal,
         discount: discountAmount,
-        promoCode: appliedPromo?.code,
+        promoCode: isRepPurchaser ? 'REP_20_PERSONAL' : appliedPromo?.code,
         shippingFee,
         total: finalTotal,
         attributedRep: attributedRep && !attributedRep.isSuspended && !representativeService.isRepresentativeSuspended(attributedRep.repUsername) ? {
           name: attributedRep.name,
           repUsername: attributedRep.repUsername,
         } : undefined,
+        userId: user?.id,
+        isPersonalPurchase: isRepPurchaser,
+        repDiscountAmount: isRepPurchaser ? repPersonalDiscount : undefined,
+        notes: isRepPurchaser ? 'rep_personal_order: 20% rep discount applied' : undefined,
       });
 
       // Automatically sync & record delivery address (max 3, deduplicated)
@@ -629,7 +650,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
                     if (window.history.pushState) window.history.pushState({ view: 'checkout', step: 'delivery' }, '', '/checkout/delivery');
                   } else if (currentStep === 'delivery') {
                     setCurrentStep('shipping');
-                    if (window.history.pushState) window.history.pushState({ view: 'checkout', step: 'shipping' }, '', '/shipping');
+                    if (window.history.pushState) window.history.pushState({ view: 'checkout', step: 'shipping' }, '', '/checkout/shipping');
                   } else {
                     onNavigateToShop();
                   }
@@ -952,10 +973,21 @@ export const Checkout: React.FC<CheckoutProps> = ({
                     <span>Subtotal</span>
                     <span className="font-bold text-[#141219]">${rawSubtotal.toFixed(2)}</span>
                   </div>
-                  {appliedPromo && (
+                  {isRepPurchaser ? (
+                    <div className="flex justify-between text-emerald-800 font-bold bg-emerald-50/80 px-2 py-1 rounded border border-emerald-200">
+                      <span>Rep Personal Discount (20%)</span>
+                      <span>-${repPersonalDiscount.toFixed(2)}</span>
+                    </div>
+                  ) : appliedPromo ? (
                     <div className="flex justify-between text-emerald-700 font-bold">
                       <span>Discount ({appliedPromo.code})</span>
                       <span>-${discountAmount.toFixed(2)}</span>
+                    </div>
+                  ) : null}
+                  {isRepPurchaser && (
+                    <div className="p-2 rounded-lg bg-purple-50 border border-purple-200 text-[10px] text-purple-900 leading-tight">
+                      <span className="font-bold block">Rep Personal Purchase:</span>
+                      Personal purchases receive a 20% Rep discount but do not count toward the $125 monthly qualification.
                     </div>
                   )}
                   <div className="flex justify-between">
@@ -1292,7 +1324,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
                             autoComplete="name"
                             value={shippingForm.fullName}
                             onChange={(e) => setShippingForm({ ...shippingForm, fullName: e.target.value })}
-                            placeholder="Recipient full name"
+                            placeholder="Your name"
                             className={`w-full min-h-[46px] px-3.5 rounded-[14px] bg-[#fffafb] border text-base sm:text-sm text-[#141219] outline-none transition-all ${shippingErrors.fullName ? 'border-red-500 bg-red-50/20' : 'border-[#e8dfe5] focus:border-[#D30915]'
                               }`}
                           />
@@ -1312,7 +1344,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
                             autoComplete="email"
                             value={shippingForm.email}
                             onChange={(e) => setShippingForm({ ...shippingForm, email: e.target.value })}
-                            placeholder="Tracking updates email"
+                            placeholder="example@gmail.com"
                             className={`w-full min-h-[46px] px-3.5 rounded-[14px] bg-[#fffafb] border text-base sm:text-sm text-[#141219] outline-none transition-all ${shippingErrors.email ? 'border-red-500 bg-red-50/20' : 'border-[#e8dfe5] focus:border-[#D30915]'
                               }`}
                           />
@@ -1847,7 +1879,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
                         autoComplete="cc-name"
                         value={cardName}
                         onChange={(e) => setCardName(e.target.value)}
-                        placeholder="Name on credit card"
+                        placeholder="Your name"
                         className={`w-full min-h-[46px] px-3.5 rounded-[13px] bg-white border text-base sm:text-sm text-[#141219] outline-none ${paymentErrors.cardName ? 'border-red-500' : 'border-[#e8dfe5] focus:border-[#D30915]'
                           }`}
                       />
@@ -2142,10 +2174,30 @@ export const Checkout: React.FC<CheckoutProps> = ({
                   <span className="font-bold text-[#141219]">${rawSubtotal.toFixed(2)}</span>
                 </div>
 
-                {appliedPromo && (
+                {isRepPurchaser ? (
+                  <div className="flex justify-between items-center text-emerald-800 font-bold bg-emerald-50/80 px-2.5 py-1.5 rounded-lg border border-emerald-200">
+                    <div className="flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <span>Rep Personal Order Discount (20% Off)</span>
+                    </div>
+                    <span>-${repPersonalDiscount.toFixed(2)}</span>
+                  </div>
+                ) : appliedPromo ? (
                   <div className="flex justify-between text-emerald-700 font-bold">
                     <span>Discount ({appliedPromo.code})</span>
                     <span>-${discountAmount.toFixed(2)}</span>
+                  </div>
+                ) : null}
+
+                {isRepPurchaser && (
+                  <div className="p-2.5 rounded-xl bg-purple-50/80 border border-purple-200 text-[11px] text-purple-950 font-medium">
+                    <p className="m-0 font-bold flex items-center gap-1 text-purple-900">
+                      <ShieldCheck className="w-3.5 h-3.5 text-purple-700 shrink-0" />
+                      Representative Personal Purchase:
+                    </p>
+                    <p className="m-0 mt-0.5 text-[10px] text-purple-800 leading-snug">
+                      Personal purchases receive a 20% Rep discount but do not count toward the $125 monthly qualification.
+                    </p>
                   </div>
                 )}
 

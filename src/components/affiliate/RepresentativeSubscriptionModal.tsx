@@ -779,7 +779,7 @@ export const RepresentativeSubscriptionModal: React.FC<RepresentativeSubscriptio
                           required
                           value={fullName}
                           onChange={(e) => setFullName(e.target.value)}
-                          placeholder="e.g. Sarah Jenkins"
+                          placeholder="Your name"
                           className="w-full h-10 px-3.5 rounded-xl bg-white border border-stone-300 text-xs sm:text-sm text-stone-900 font-medium focus:outline-none focus:border-[#D30915] focus:ring-2 focus:ring-[#D30915]/15 transition-all"
                         />
                       </div>
@@ -793,7 +793,7 @@ export const RepresentativeSubscriptionModal: React.FC<RepresentativeSubscriptio
                           required
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
-                          placeholder="sarah@example.com"
+                          placeholder="example@gmail.com"
                           className="w-full h-10 px-3.5 rounded-xl bg-white border border-stone-300 text-xs sm:text-sm text-stone-900 font-medium focus:outline-none focus:border-[#D30915] focus:ring-2 focus:ring-[#D30915]/15 transition-all"
                         />
                       </div>
@@ -1149,7 +1149,7 @@ export const RepresentativeSubscriptionModal: React.FC<RepresentativeSubscriptio
                       required
                       value={cardholderName}
                       onChange={(e) => setCardholderName(e.target.value)}
-                      placeholder="Full Name as shown on card"
+                      placeholder="Your name"
                       className="w-full h-10 px-3.5 rounded-xl bg-white border border-stone-300 text-xs sm:text-sm text-stone-900 font-medium focus:outline-none focus:border-[#D30915] focus:ring-2 focus:ring-[#D30915]/15"
                     />
                   </div>

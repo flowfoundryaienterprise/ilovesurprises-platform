@@ -16,17 +16,22 @@ import type {
   CommissionLedgerStatus,
   AdminReportData,
   AdminSettingsData,
+  AdminOrderItem,
 } from '../types/admin';
 import { productsData } from '../data/products';
 import { categoriesData } from '../data/categories';
+import { supabase, isSupabaseConfigured } from './supabaseClient';
 
 const ADMIN_ROLE_KEY = 'ils_admin_current_role_v1';
+const ADMIN_ROLES_PERMISSIONS_OVERRIDE_KEY = 'ils_admin_roles_permissions_v1';
 const ADMIN_REPS_KEY = 'ils_admin_representatives_v1';
 const ADMIN_MEMBERSHIPS_KEY = 'ils_admin_memberships_v1';
 const ADMIN_COMMISSIONS_KEY = 'ils_admin_commissions_v1';
 const ADMIN_REFUNDS_KEY = 'ils_admin_refunds_v1';
 const ADMIN_DISCOUNTS_KEY = 'ils_admin_discounts_v1';
 const ADMIN_SETTINGS_KEY = 'ils_admin_settings_v1';
+const ADMIN_PRODUCTS_OVERRIDE_KEY = 'ils_admin_products_override_v1';
+const ADMIN_COLLECTIONS_OVERRIDE_KEY = 'ils_admin_collections_override_v1';
 
 export const ADMIN_ROLES_CONFIG: Record<AdminRole, AdminRoleDefinition> = {
   super_admin: {
@@ -43,8 +48,8 @@ export const ADMIN_ROLES_CONFIG: Record<AdminRole, AdminRoleDefinition> = {
     id: 'store_manager',
     name: 'Store Manager',
     badge: 'Commerce & Ops',
-    description: 'Manages catalog, inventory, order refunds, discount promotions, and sales reports.',
-    allowedTabs: ['overview', 'commerce', 'reports', 'appraisals'],
+    description: 'Manages catalog, inventory, order refunds, discount promotions, and sales reports. Restricted from MLM and financial settings.',
+    allowedTabs: ['overview', 'commerce', 'reports', 'appraisals', 'representatives'],
     canEdit: true,
     canApprovePayouts: false,
     canManageSettings: false,
@@ -63,8 +68,8 @@ export const ADMIN_ROLES_CONFIG: Record<AdminRole, AdminRoleDefinition> = {
     id: 'support_rep',
     name: 'Customer Support Lead',
     badge: 'Read & Assist',
-    description: 'Access to customer orders, lookup reps, memberships, and refunds processing.',
-    allowedTabs: ['overview', 'representatives', 'memberships', 'commerce', 'appraisals'],
+    description: 'Access to customer orders, lookup reps, memberships, and refunds processing. Read-only permissions.',
+    allowedTabs: ['overview', 'commerce', 'representatives', 'memberships', 'appraisals', 'reports'],
     canEdit: false,
     canApprovePayouts: false,
     canManageSettings: false,
@@ -584,10 +589,49 @@ export const adminService = {
     }
   },
 
+  getRoleDefinitions(): Record<AdminRole, AdminRoleDefinition> {
+    if (typeof window === 'undefined') return ADMIN_ROLES_CONFIG;
+    try {
+      const stored = localStorage.getItem(ADMIN_ROLES_PERMISSIONS_OVERRIDE_KEY);
+      if (stored) {
+        const overrides = JSON.parse(stored);
+        return {
+          ...ADMIN_ROLES_CONFIG,
+          ...overrides,
+        };
+      }
+    } catch {
+      // fallback
+    }
+    return ADMIN_ROLES_CONFIG;
+  },
+
+  updateRolePermissions(role: AdminRole, allowedTabs: AdminTab[], canEdit?: boolean): Record<AdminRole, AdminRoleDefinition> {
+    if (typeof window !== 'undefined') {
+      try {
+        const currentDefs = this.getRoleDefinitions();
+        const updated: Record<AdminRole, AdminRoleDefinition> = {
+          ...currentDefs,
+          [role]: {
+            ...currentDefs[role],
+            allowedTabs,
+            canEdit: canEdit !== undefined ? canEdit : currentDefs[role].canEdit,
+          },
+        };
+        localStorage.setItem(ADMIN_ROLES_PERMISSIONS_OVERRIDE_KEY, JSON.stringify(updated));
+        window.dispatchEvent(new CustomEvent('ils_admin_updated'));
+        return updated;
+      } catch (err) {
+        console.error('Failed to save role permissions', err);
+      }
+    }
+    return this.getRoleDefinitions();
+  },
+
   hasTabAccess(tab: AdminTab, role?: AdminRole): boolean {
     const currentRole = role || this.getCurrentRole();
-    const config = ADMIN_ROLES_CONFIG[currentRole];
-    return config.allowedTabs.includes(tab);
+    const config = this.getRoleDefinitions()[currentRole];
+    return config ? config.allowedTabs.includes(tab) : false;
   },
 
   getKPIs(): AdminKPIs {
@@ -767,13 +811,14 @@ export const adminService = {
   },
 
   getCommerceProducts(): AdminProductItem[] {
-    return productsData.map((p, idx) => ({
+    const base: AdminProductItem[] = productsData.map((p, idx) => ({
       id: p.id,
       name: p.name,
       sku: `ILS-SKU-${p.id.slice(0, 4).toUpperCase()}`,
       category: p.category,
       price: p.price,
       originalPrice: p.originalPrice,
+      description: p.description,
       stock: 35 + (idx * 17) % 65,
       lowStockThreshold: 15,
       surpriseType: p.surpriseType,
@@ -781,21 +826,516 @@ export const adminService = {
       image: p.image,
       rating: p.rating,
       reviewCount: p.reviewCount,
-      status: 'active',
+      status: (p.inStock ? 'active' : 'draft') as 'active' | 'draft' | 'archived',
       isBestSeller: p.isBestSeller,
     }));
+
+    if (typeof window === 'undefined') return base;
+
+    try {
+      const stored = localStorage.getItem(ADMIN_PRODUCTS_OVERRIDE_KEY);
+      if (stored) {
+        const overrides: AdminProductItem[] = JSON.parse(stored);
+        if (Array.isArray(overrides) && overrides.length > 0) {
+          return overrides;
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    return base;
+  },
+
+  async fetchCommerceProductsFromSupabase(): Promise<AdminProductItem[]> {
+    if (!isSupabaseConfigured()) return this.getCommerceProducts();
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(100);
+      if (!error && data && data.length > 0) {
+        return data.map((row: any, idx: number) => {
+          const matchedCat = categoriesData.find((c) => c.id === row.category_id);
+          return {
+            id: row.id,
+            name: row.name,
+            sku: `ILS-SKU-${row.id.slice(0, 4).toUpperCase()}`,
+            category: matchedCat ? matchedCat.name : 'Candles',
+            price: Number(row.price),
+            originalPrice: row.original_price ? Number(row.original_price) : undefined,
+            description: row.description || undefined,
+            stock: 35 + ((idx * 17) % 65),
+            lowStockThreshold: 15,
+            surpriseType: row.surprise_type || 'cash',
+            surpriseValue: row.surprise_value || undefined,
+            image: row.image,
+            rating: Number(row.rating) || 5.0,
+            reviewCount: Number(row.review_count) || 0,
+            status: (row.in_stock ? 'active' : 'draft') as 'active' | 'draft',
+            isBestSeller: Boolean(row.is_best_seller),
+          };
+        });
+      }
+    } catch (err) {
+      console.warn('Supabase fetch products notice:', err);
+    }
+    return this.getCommerceProducts();
+  },
+
+  async createProduct(data: Partial<AdminProductItem>): Promise<AdminProductItem> {
+    const products = this.getCommerceProducts();
+    const id = data.id || `prod_${Date.now().toString(36)}`;
+    const matchedCategory =
+      categoriesData.find((c) => c.name.toLowerCase() === (data.category || '').toLowerCase()) ||
+      categoriesData[1];
+
+    const newProduct: AdminProductItem = {
+      id,
+      name: data.name || 'New Surprise Candle',
+      sku: data.sku || `ILS-SKU-${Date.now().toString().slice(-4)}`,
+      category: matchedCategory.name,
+      price: Number(data.price) || 29.99,
+      originalPrice: data.originalPrice ? Number(data.originalPrice) : undefined,
+      description: data.description || undefined,
+      stock: Number(data.stock) || 50,
+      lowStockThreshold: Number(data.lowStockThreshold) || 15,
+      surpriseType: data.surpriseType || 'cash',
+      surpriseValue: data.surpriseValue || '$100 Cash Prize',
+      image: data.image || matchedCategory.image,
+      rating: 5.0,
+      reviewCount: 0,
+      status: (data.status as any) || 'active',
+      isBestSeller: Boolean(data.isBestSeller),
+    };
+
+    const updated = [newProduct, ...products];
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(ADMIN_PRODUCTS_OVERRIDE_KEY, JSON.stringify(updated));
+        window.dispatchEvent(new CustomEvent('ils_admin_updated'));
+        window.dispatchEvent(new CustomEvent('ils_catalog_updated'));
+      } catch (err) {
+        console.error('Failed to save product override', err);
+      }
+    }
+
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase.from('products').insert({
+          id,
+          name: newProduct.name,
+          description: newProduct.description,
+          slug:
+            newProduct.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') +
+            '-' +
+            Date.now().toString().slice(-4),
+          category_id: matchedCategory.id,
+          price: newProduct.price,
+          original_price: newProduct.originalPrice,
+          surprise_type: newProduct.surpriseType,
+          surprise_value: newProduct.surpriseValue,
+          image: newProduct.image,
+          in_stock: newProduct.status === 'active',
+          is_best_seller: newProduct.isBestSeller,
+          rating: 5.0,
+          review_count: 0,
+        });
+      } catch (err) {
+        console.warn('Supabase product insert notice:', err);
+      }
+    }
+
+    return newProduct;
+  },
+
+  async updateProduct(id: string, updates: Partial<AdminProductItem>): Promise<boolean> {
+    const products = this.getCommerceProducts();
+    const targetIdx = products.findIndex((p) => p.id === id);
+    if (targetIdx === -1) return false;
+
+    const matchedCat = updates.category
+      ? categoriesData.find((c) => c.name.toLowerCase() === updates.category!.toLowerCase()) ||
+        categoriesData[0]
+      : undefined;
+
+    const updatedItem: AdminProductItem = {
+      ...products[targetIdx],
+      ...updates,
+      category: matchedCat ? matchedCat.name : updates.category || products[targetIdx].category,
+    };
+
+    products[targetIdx] = updatedItem;
+
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(ADMIN_PRODUCTS_OVERRIDE_KEY, JSON.stringify(products));
+        window.dispatchEvent(new CustomEvent('ils_admin_updated'));
+        window.dispatchEvent(new CustomEvent('ils_catalog_updated'));
+      } catch (err) {
+        console.error('Failed to update product', err);
+      }
+    }
+
+    if (isSupabaseConfigured()) {
+      try {
+        const payload: Record<string, any> = {};
+        if (updates.name !== undefined) payload.name = updates.name;
+        if (updates.description !== undefined) payload.description = updates.description;
+        if (updates.price !== undefined) payload.price = Number(updates.price);
+        if (updates.originalPrice !== undefined) payload.original_price = updates.originalPrice;
+        if (updates.image !== undefined) payload.image = updates.image;
+        if (updates.surpriseType !== undefined) payload.surprise_type = updates.surpriseType;
+        if (updates.surpriseValue !== undefined) payload.surprise_value = updates.surpriseValue;
+        if (updates.status !== undefined) payload.in_stock = updates.status === 'active';
+        if (updates.isBestSeller !== undefined) payload.is_best_seller = updates.isBestSeller;
+        if (matchedCat) payload.category_id = matchedCat.id;
+
+        await supabase.from('products').update(payload as any).eq('id', id);
+      } catch (err) {
+        console.warn('Supabase product update notice:', err);
+      }
+    }
+
+    return true;
+  },
+
+  async deleteProduct(id: string): Promise<boolean> {
+    const products = this.getCommerceProducts();
+    const filtered = products.filter((p) => p.id !== id);
+
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(ADMIN_PRODUCTS_OVERRIDE_KEY, JSON.stringify(filtered));
+        window.dispatchEvent(new CustomEvent('ils_admin_updated'));
+        window.dispatchEvent(new CustomEvent('ils_catalog_updated'));
+      } catch (err) {
+        console.error('Failed to delete product', err);
+      }
+    }
+
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase.from('products').delete().eq('id', id);
+      } catch (err) {
+        console.warn('Supabase product delete notice:', err);
+      }
+    }
+
+    return true;
+  },
+
+  async toggleProductStatus(id: string): Promise<boolean> {
+    const products = this.getCommerceProducts();
+    const item = products.find((p) => p.id === id);
+    if (!item) return false;
+    const newStatus = item.status === 'active' ? 'draft' : 'active';
+    return this.updateProduct(id, { status: newStatus });
   },
 
   getCollections(): AdminCollectionItem[] {
-    return categoriesData.map((c) => ({
+    const base: AdminCollectionItem[] = categoriesData.map((c, idx) => ({
       id: c.id,
       name: c.name,
       slug: c.slug,
       productCount: c.itemCount,
       featured: !!c.featured,
+      orderIndex: idx + 1,
       image: c.image,
       tagline: c.tagline,
     }));
+
+    if (typeof window === 'undefined') return base;
+
+    try {
+      const stored = localStorage.getItem(ADMIN_COLLECTIONS_OVERRIDE_KEY);
+      if (stored) {
+        const overrides: AdminCollectionItem[] = JSON.parse(stored);
+        if (Array.isArray(overrides) && overrides.length > 0) {
+          return overrides.sort((a, b) => (a.orderIndex || 99) - (b.orderIndex || 99));
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    return base.sort((a, b) => (a.orderIndex || 99) - (b.orderIndex || 99));
+  },
+
+  updateCollectionOrdering(id: string, direction: 'up' | 'down'): AdminCollectionItem[] {
+    const list = this.getCollections();
+    const idx = list.findIndex((c) => c.id === id);
+    if (idx === -1) return list;
+
+    const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (targetIdx < 0 || targetIdx >= list.length) return list;
+
+    // Swap positions and orderIndexes
+    const temp = list[idx];
+    list[idx] = list[targetIdx];
+    list[targetIdx] = temp;
+
+    list.forEach((item, index) => {
+      item.orderIndex = index + 1;
+    });
+
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(ADMIN_COLLECTIONS_OVERRIDE_KEY, JSON.stringify(list));
+        window.dispatchEvent(new CustomEvent('ils_admin_updated'));
+      } catch (err) {
+        console.error('Failed to update collection order', err);
+      }
+    }
+    return list;
+  },
+
+  async assignProductToCollection(productId: string, categoryNameOrId: string): Promise<boolean> {
+    const matchedCategory =
+      categoriesData.find(
+        (c) =>
+          c.id === categoryNameOrId ||
+          c.name.toLowerCase() === categoryNameOrId.toLowerCase()
+      ) || categoriesData[0];
+
+    // Update in local product override
+    await this.updateProduct(productId, { category: matchedCategory.name });
+
+    // Update in Supabase
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase
+          .from('products')
+          .update({ category_id: matchedCategory.id })
+          .eq('id', productId);
+      } catch (err) {
+        console.warn('Supabase product category assign notice:', err);
+      }
+    }
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('ils_admin_updated'));
+      window.dispatchEvent(new CustomEvent('ils_catalog_updated'));
+    }
+    return true;
+  },
+
+  async removeProductFromCollection(productId: string): Promise<boolean> {
+    const defaultCategory = categoriesData[0];
+    return this.assignProductToCollection(productId, defaultCategory.id);
+  },
+
+  getProductsByCollection(categoryNameOrId: string): AdminProductItem[] {
+    const products = this.getCommerceProducts();
+    const catLower = categoryNameOrId.toLowerCase().trim();
+    return products.filter(
+      (p) =>
+        p.category.toLowerCase() === catLower ||
+        (catLower.includes('zodiac') && p.name.toLowerCase().includes('zodiac'))
+    );
+  },
+
+  async createCollection(col: Partial<AdminCollectionItem>): Promise<AdminCollectionItem> {
+    const list = this.getCollections();
+    const slug =
+      col.slug || (col.name || 'new-collection').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const id = col.id || `cat-${slug}`;
+
+    const newCol: AdminCollectionItem = {
+      id,
+      name: col.name || 'New Collection',
+      slug,
+      tagline: col.tagline || 'Curated surprise collection',
+      productCount: 0,
+      featured: Boolean(col.featured),
+      orderIndex: list.length + 1,
+      image: col.image || '/assets/ilovesurprises/categories/Coke_CSH_Sodapop-CND_JC.jpg',
+    };
+
+    const updated = [...list, newCol];
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(ADMIN_COLLECTIONS_OVERRIDE_KEY, JSON.stringify(updated));
+        window.dispatchEvent(new CustomEvent('ils_admin_updated'));
+      } catch (err) {
+        console.error('Failed to create collection override', err);
+      }
+    }
+
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase.from('categories').insert({
+          id,
+          name: newCol.name,
+          slug: newCol.slug,
+          tagline: newCol.tagline,
+          description: newCol.tagline,
+          item_count: 0,
+          image: newCol.image,
+          featured: newCol.featured,
+        });
+      } catch (err) {
+        console.warn('Supabase category insert notice:', err);
+      }
+    }
+
+    return newCol;
+  },
+
+  async updateCollection(id: string, updates: Partial<AdminCollectionItem>): Promise<boolean> {
+    const list = this.getCollections();
+    const idx = list.findIndex((c) => c.id === id);
+    if (idx === -1) return false;
+
+    list[idx] = { ...list[idx], ...updates };
+
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(ADMIN_COLLECTIONS_OVERRIDE_KEY, JSON.stringify(list));
+        window.dispatchEvent(new CustomEvent('ils_admin_updated'));
+      } catch (err) {
+        console.error('Failed to update collection', err);
+      }
+    }
+
+    if (isSupabaseConfigured()) {
+      try {
+        const payload: Record<string, any> = {};
+        if (updates.name !== undefined) payload.name = updates.name;
+        if (updates.tagline !== undefined) payload.tagline = updates.tagline;
+        if (updates.image !== undefined) payload.image = updates.image;
+        if (updates.featured !== undefined) payload.featured = updates.featured;
+
+        await supabase.from('categories').update(payload as any).eq('id', id);
+      } catch (err) {
+        console.warn('Supabase category update notice:', err);
+      }
+    }
+
+    return true;
+  },
+
+  async deleteCollection(id: string): Promise<boolean> {
+    const list = this.getCollections();
+    const filtered = list.filter((c) => c.id !== id);
+
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(ADMIN_COLLECTIONS_OVERRIDE_KEY, JSON.stringify(filtered));
+        window.dispatchEvent(new CustomEvent('ils_admin_updated'));
+      } catch (err) {
+        console.error('Failed to delete collection', err);
+      }
+    }
+
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase.from('categories').delete().eq('id', id);
+      } catch (err) {
+        console.warn('Supabase category delete notice:', err);
+      }
+    }
+
+    return true;
+  },
+
+  async toggleCollectionFeatured(id: string): Promise<boolean> {
+    const list = this.getCollections();
+    const item = list.find((c) => c.id === id);
+    if (!item) return false;
+    return this.updateCollection(id, { featured: !item.featured });
+  },
+
+  async getCommerceOrders(): Promise<AdminOrderItem[]> {
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase
+          .from('orders')
+          .select('id, total, status, payment_status, created_at, order_items ( id, product_id, quantity, unit_price )')
+          .order('created_at', { ascending: false })
+          .limit(50);
+        if (!error && data && data.length > 0) {
+          return data.map((o: any) => ({
+            id: o.id,
+            orderNumber: `ILS-${o.id.slice(0, 6).toUpperCase()}`,
+            customerName: 'Verified Customer',
+            customerEmail: 'customer@order.com',
+            total: Number(o.total) || 0,
+            status: (o.status as any) || 'delivered',
+            paymentStatus: (o.payment_status as any) || 'paid',
+            itemCount: o.order_items?.length || 1,
+            itemsSummary: `${o.order_items?.length || 1} items revealed`,
+            createdAt: o.created_at ? o.created_at.split('T')[0] : '2026-03-01',
+          }));
+        }
+      } catch (err) {
+        console.warn('Supabase orders fetch notice:', err);
+      }
+    }
+
+    return [
+      {
+        id: 'ord-101',
+        orderNumber: 'ILS-849201-US',
+        customerName: 'Victoria Price',
+        customerEmail: 'v.price@gmail.com',
+        total: 89.99,
+        status: 'delivered',
+        paymentStatus: 'paid',
+        itemCount: 2,
+        itemsSummary: 'Tahitian Vanilla & Gold Cash Candle (x1), Sparkling Citrus Bath Bomb (x1)',
+        createdAt: '2026-03-04',
+      },
+      {
+        id: 'ord-102',
+        orderNumber: 'ILS-729184-US',
+        customerName: 'Brandon Miller',
+        customerEmail: 'bmiller@fastmail.com',
+        total: 149.95,
+        status: 'shipped',
+        paymentStatus: 'paid',
+        itemCount: 3,
+        itemsSummary: 'Aquarius Zodiac Cash Money Candle (x2), Cash Candles Trio (x1)',
+        createdAt: '2026-03-03',
+      },
+      {
+        id: 'ord-103',
+        orderNumber: 'ILS-619283-US',
+        customerName: 'Kylie Jenks',
+        customerEmail: 'kylie.j@yahoo.com',
+        total: 64.99,
+        status: 'processing',
+        paymentStatus: 'paid',
+        itemCount: 1,
+        itemsSummary: 'Lavender Dream Real Cash Bath Bomb (x1)',
+        createdAt: '2026-03-02',
+      },
+      {
+        id: 'ord-104',
+        orderNumber: 'ILS-591024-US',
+        customerName: 'Samantha Chen',
+        customerEmail: 'samantha.chen@outlook.com',
+        total: 119.97,
+        status: 'delivered',
+        paymentStatus: 'paid',
+        itemCount: 3,
+        itemsSummary: 'Pink Champagne Cash Candle Trio (x3)',
+        createdAt: '2026-03-01',
+      },
+      {
+        id: 'ord-105',
+        orderNumber: 'ILS-482910-US',
+        customerName: 'Ethan Wright',
+        customerEmail: 'ethan.w@gmail.com',
+        total: 49.99,
+        status: 'delivered',
+        paymentStatus: 'paid',
+        itemCount: 1,
+        itemsSummary: 'Eucalyptus Mint Cash Melts (x1)',
+        createdAt: '2026-02-28',
+      },
+    ];
   },
 
   getCustomers(): AdminCustomerItem[] {

@@ -13,6 +13,7 @@ import {
 import { ProductGrid } from '../components/products/ProductGrid';
 import { productsData } from '../data/products';
 import { productService } from '../services/productService';
+import { deduplicateProducts } from '../utils/productUtils';
 import { sessionTracker } from '../utils/sessionTracker';
 import type { Product, CartItem, SurpriseType } from '../types';
 import {
@@ -69,9 +70,11 @@ function filterProducts(
           if (catNorm === 'jewelry' && (prodCatNorm.includes('jewelry') || p.surpriseType === 'jewelry')) return true;
 
           // Subcategory name / keyword matching against product name or description
-          if (p.name.toLowerCase().includes(catNorm)) return true;
-          if (p.description?.toLowerCase().includes(catNorm)) return true;
-          if (p.scentNotes?.some((s) => s.toLowerCase().includes(catNorm))) return true;
+          if (catNorm.includes('zodiac') && (p.name.toLowerCase().includes('zodiac') || p.description?.toLowerCase().includes('zodiac'))) return true;
+          const rootNorm = catNorm.replace(/s$/i, '');
+          if (p.name.toLowerCase().includes(catNorm) || p.name.toLowerCase().includes(rootNorm)) return true;
+          if (p.description?.toLowerCase().includes(catNorm) || p.description?.toLowerCase().includes(rootNorm)) return true;
+          if (p.scentNotes?.some((s) => s.toLowerCase().includes(catNorm) || s.toLowerCase().includes(rootNorm))) return true;
 
           return false;
         });
@@ -230,9 +233,14 @@ export const Shop: React.FC<ShopProps> = ({
   const [serverProducts, setServerProducts] = useState<Product[] | null>(null);
   const [serverTotal, setServerTotal] = useState<number | null>(null);
   const [serverTotalPages, setServerTotalPages] = useState<number>(1);
+  const [isFetchingProducts, setIsFetchingProducts] = useState<boolean>(true);
 
   useEffect(() => {
     let isCancelled = false;
+    const loadTimer = setTimeout(() => {
+      if (!isCancelled) setIsFetchingProducts(true);
+    }, 0);
+
     const sortParam =
       appliedFilters.sortBy === 'price-asc'
         ? 'price-asc'
@@ -260,14 +268,19 @@ export const Shop: React.FC<ShopProps> = ({
           setServerProducts(res.products);
           setServerTotal(res.total);
           setServerTotalPages(res.totalPages);
+          setIsFetchingProducts(false);
         }
       })
       .catch((err) => {
         console.warn('Error fetching products from service:', err);
+        if (!isCancelled) {
+          setIsFetchingProducts(false);
+        }
       });
 
     return () => {
       isCancelled = true;
+      clearTimeout(loadTimer);
     };
   }, [currentPage, appliedFilters, searchQuery]);
 
@@ -276,7 +289,10 @@ export const Shop: React.FC<ShopProps> = ({
     return filterProducts(productsData, appliedFilters, searchQuery);
   }, [searchQuery, appliedFilters]);
 
-  const activeProducts = serverProducts ?? filteredProducts;
+  const activeProducts = useMemo(() => {
+    return deduplicateProducts(serverProducts ?? filteredProducts);
+  }, [serverProducts, filteredProducts]);
+
   const displayTotalCount = serverTotal ?? productsData.length;
 
   // Draft matching products (shown on the "Search by Filter (X)" button)
@@ -469,7 +485,7 @@ export const Shop: React.FC<ShopProps> = ({
       {/* Product Grid Area (Full width with stable layout) */}
       <div id="shop-product-grid" className="w-full">
         <ProductGrid
-          isLoading={isProductsLoading}
+          isLoading={isProductsLoading || isFetchingProducts}
           products={activeProducts}
           searchQuery={searchQuery}
           cart={cart}

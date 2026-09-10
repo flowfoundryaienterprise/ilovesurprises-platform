@@ -2,6 +2,7 @@ import { supabase, isSupabaseConfigured } from './supabaseClient';
 import type { Product, SurpriseType } from '../types';
 import { productsData } from '../data/products';
 import { categoriesData } from '../data/categories';
+import { deduplicateProducts, rankProductsBySearch } from '../utils/productUtils';
 import type { Database } from '../types/supabase';
 
 type ProductRow = Database['public']['Tables']['products']['Row'];
@@ -77,13 +78,22 @@ export const productService = {
           .from('products')
           .select('*', { count: 'exact' });
 
-        // Category filter
+        // Category / Collection filter
         if (params.category && params.category !== 'All Surprises' && params.category !== 'All') {
+          const catParam = params.category.toLowerCase().trim();
           const matchedCategory = categoriesData.find(
-            (c) => c.name.toLowerCase() === params.category!.toLowerCase()
+            (c) =>
+              c.name.toLowerCase() === catParam ||
+              c.slug.toLowerCase() === catParam ||
+              c.id.toLowerCase() === catParam
           );
           if (matchedCategory) {
             query = query.eq('category_id', matchedCategory.id);
+          } else if (catParam.includes('zodiac')) {
+            query = query.ilike('name', '%zodiac%');
+          } else {
+            const rootWord = catParam.replace(/s$/i, '');
+            query = query.or(`name.ilike.%${catParam}%,name.ilike.%${rootWord}%`);
           }
         }
 
@@ -105,33 +115,33 @@ export const productService = {
           query = query.in('surprise_type', params.surpriseTypes);
         }
 
-        // Sorting
+        // Sorting with deterministic ID tie-breaker to prevent pagination overlap/duplicates
         switch (params.sort) {
           case 'price-asc':
-            query = query.order('price', { ascending: true });
+            query = query.order('price', { ascending: true }).order('id', { ascending: true });
             break;
           case 'price-desc':
-            query = query.order('price', { ascending: false });
+            query = query.order('price', { ascending: false }).order('id', { ascending: true });
             break;
           case 'rating':
-            query = query.order('rating', { ascending: false });
+            query = query.order('rating', { ascending: false }).order('id', { ascending: true });
             break;
           case 'newest':
-            query = query.order('is_new', { ascending: false }).order('created_at', { ascending: false });
+            query = query.order('is_new', { ascending: false }).order('created_at', { ascending: false }).order('id', { ascending: true });
             break;
           case 'best-sellers':
-            query = query.order('is_best_seller', { ascending: false }).order('review_count', { ascending: false });
+            query = query.order('is_best_seller', { ascending: false }).order('review_count', { ascending: false }).order('id', { ascending: true });
             break;
           case 'featured':
           default:
-            query = query.order('is_best_seller', { ascending: false }).order('rating', { ascending: false });
+            query = query.order('is_best_seller', { ascending: false }).order('rating', { ascending: false }).order('id', { ascending: true });
             break;
         }
 
         const { data, error, count } = await query.range(from, to);
 
         if (!error && data && data.length > 0) {
-          const products = data.map(mapRowToProduct);
+          const products = deduplicateProducts(data.map(mapRowToProduct));
           const total = count ?? products.length;
           return {
             products,
@@ -149,9 +159,27 @@ export const productService = {
     let filtered = [...productsData];
 
     if (params.category && params.category !== 'All Surprises' && params.category !== 'All') {
-      filtered = filtered.filter(
-        (p) => p.category.toLowerCase() === params.category!.toLowerCase()
+      const catParam = params.category.toLowerCase().trim();
+      const matchedCategory = categoriesData.find(
+        (c) =>
+          c.name.toLowerCase() === catParam ||
+          c.slug.toLowerCase() === catParam ||
+          c.id.toLowerCase() === catParam
       );
+      if (matchedCategory) {
+        const targetName = matchedCategory.name.toLowerCase();
+        filtered = filtered.filter((p) => p.category.toLowerCase() === targetName);
+      } else if (catParam.includes('zodiac')) {
+        filtered = filtered.filter((p) => p.name.toLowerCase().includes('zodiac'));
+      } else {
+        const rootWord = catParam.replace(/s$/i, '');
+        filtered = filtered.filter(
+          (p) =>
+            p.category.toLowerCase() === catParam ||
+            p.name.toLowerCase().includes(catParam) ||
+            p.name.toLowerCase().includes(rootWord)
+        );
+      }
     }
 
     if (params.searchQuery?.trim()) {
@@ -197,7 +225,7 @@ export const productService = {
     }
 
     const total = filtered.length;
-    const paginated = filtered.slice(from, to + 1);
+    const paginated = deduplicateProducts(filtered).slice(from, to + 1);
 
     return {
       products: paginated,
@@ -208,29 +236,147 @@ export const productService = {
   },
 
   /**
-   * Retrieves single product by slug or ID
+   * Fast real-time product search with Supabase querying and intelligent ranking
    */
-  async getProductBySlug(slug: string): Promise<Product | null> {
-    if (!slug) return null;
+  async searchProducts(query: string, limit = 8): Promise<Product[]> {
+    const q = (query || '').trim();
+    if (!q) {
+      return this.getFeaturedProducts(limit);
+    }
 
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await supabase
+        const candidateRows: ProductRow[] = [];
+        const seenRowIds = new Set<string>();
+
+        // 1. Exact match check (case-insensitive, instant ~100-200ms)
+        const { data: exactRows } = await supabase
           .from('products')
           .select('*')
-          .or(`slug.eq.${slug},id.eq.${slug}`)
+          .ilike('name', q)
+          .limit(5);
+
+        if (exactRows) {
+          for (const row of exactRows) {
+            if (!seenRowIds.has(row.id)) {
+              seenRowIds.add(row.id);
+              candidateRows.push(row);
+            }
+          }
+        }
+
+        // 2. Exact slug match check
+        const normalizedSlug = q.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+        if (normalizedSlug) {
+          const { data: slugRows } = await supabase
+            .from('products')
+            .select('*')
+            .eq('slug', normalizedSlug)
+            .limit(5);
+
+          if (slugRows) {
+            for (const row of slugRows) {
+              if (!seenRowIds.has(row.id)) {
+                seenRowIds.add(row.id);
+                candidateRows.push(row);
+              }
+            }
+          }
+        }
+
+        // 3. Prefix search (B-Tree friendly, fast)
+        const { data: prefixRows } = await supabase
+          .from('products')
+          .select('*')
+          .ilike('name', `${q}%`)
+          .limit(limit * 2);
+
+        if (prefixRows) {
+          for (const row of prefixRows) {
+            if (!seenRowIds.has(row.id)) {
+              seenRowIds.add(row.id);
+              candidateRows.push(row);
+            }
+          }
+        }
+
+        // 4. Substring search if more candidates needed
+        if (candidateRows.length < limit * 2) {
+          const { data: subRows } = await supabase
+            .from('products')
+            .select('*')
+            .ilike('name', `%${q}%`)
+            .limit(limit * 2);
+
+          if (subRows) {
+            for (const row of subRows) {
+              if (!seenRowIds.has(row.id)) {
+                seenRowIds.add(row.id);
+                candidateRows.push(row);
+              }
+            }
+          }
+        }
+
+        // Supabase query succeeded: return ranked real catalog results
+        // (Even if candidateRows is empty, it means genuine 0 matching products found in the 57k+ catalog)
+        const mapped = candidateRows.map(mapRowToProduct);
+        const ranked = rankProductsBySearch(mapped, q);
+        return ranked.slice(0, limit);
+      } catch (err) {
+        console.warn('Supabase searchProducts error, falling back to static dataset:', err);
+      }
+    }
+
+    // Static fallback (only if Supabase is unconfigured or offline network failure)
+    const staticMatches = productsData.filter((p) => {
+      const name = p.name.toLowerCase();
+      const cat = p.category.toLowerCase();
+      const desc = (p.description || '').toLowerCase();
+      const lowerQ = q.toLowerCase();
+      return name.includes(lowerQ) || cat.includes(lowerQ) || desc.includes(lowerQ);
+    });
+
+    return rankProductsBySearch(staticMatches, q).slice(0, limit);
+  },
+
+  /**
+   * Retrieves single product by slug or ID with exact matching and fallback protection
+   */
+  async getProductBySlug(slug: string): Promise<Product | null> {
+    if (!slug) return null;
+    const cleanSlug = slug.trim();
+
+    if (isSupabaseConfigured()) {
+      try {
+        // Check by slug first
+        const { data: bySlug, error: slugErr } = await supabase
+          .from('products')
+          .select('*')
+          .eq('slug', cleanSlug)
           .maybeSingle();
 
-        if (!error && data) {
-          return mapRowToProduct(data);
+        if (!slugErr && bySlug) {
+          return mapRowToProduct(bySlug);
+        }
+
+        // Check by id second
+        const { data: byId, error: idErr } = await supabase
+          .from('products')
+          .select('*')
+          .eq('id', cleanSlug)
+          .maybeSingle();
+
+        if (!idErr && byId) {
+          return mapRowToProduct(byId);
         }
       } catch (err) {
         console.warn('Supabase getProductBySlug error, using fallback:', err);
       }
     }
 
-    // Static fallback
-    return productsData.find((p) => p.slug === slug || p.id === slug) || null;
+    // Static fallback (exact slug or ID match only)
+    return productsData.find((p) => p.slug === cleanSlug || p.id === cleanSlug) || null;
   },
 
   /**
@@ -243,16 +389,18 @@ export const productService = {
           .from('products')
           .select('*')
           .eq('is_best_seller', true)
+          .order('id', { ascending: true })
           .limit(limit);
 
         if (!error && data && data.length > 0) {
-          return data.map(mapRowToProduct);
+          return deduplicateProducts(data.map(mapRowToProduct));
         }
       } catch (err) {
         console.warn('Supabase getFeaturedProducts error, using fallback:', err);
       }
     }
 
-    return productsData.filter((p) => p.isBestSeller).slice(0, limit);
+    return deduplicateProducts(productsData.filter((p) => p.isBestSeller)).slice(0, limit);
   },
 };
+

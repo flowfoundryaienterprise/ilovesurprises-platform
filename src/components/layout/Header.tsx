@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Search,
@@ -32,7 +32,7 @@ import {
   Gem,
 } from 'lucide-react';
 import type { UserProfile, Product } from '../../types';
-import { productsData } from '../../data/products';
+import { productService } from '../../services/productService';
 import {
   NAVIGATION_CATEGORIES,
   type NavigationCategory,
@@ -43,12 +43,48 @@ export interface HeaderProps {
   cartCount?: number;
   cartSubtotal?: number;
   user?: UserProfile | null;
-  activeView?: 'home' | 'shop' | 'categories' | 'product-details' | 'checkout' | 'order-confirmation' | 'account' | 'affiliate' | 'about' | 'contact' | 'rewards' | 'admin' | 'appraisal';
+  activeView?:
+    | 'home'
+    | 'shop'
+    | 'categories'
+    | 'product-details'
+    | 'checkout'
+    | 'order-confirmation'
+    | 'account'
+    | 'affiliate'
+    | 'about'
+    | 'contact'
+    | 'rewards'
+    | 'admin'
+    | 'appraisal'
+    | 'refund-policy'
+    | 'terms'
+    | 'official-rules'
+    | 'shipping-policy'
+    | 'privacy'
+    | 'faqs';
   onOpenCart?: () => void;
   onOpenAuth?: (mode?: 'login' | 'signup' | 'forgot') => void;
   onLogout?: () => void;
   onSearch?: (query: string) => void;
-  onNavigate?: (route: 'home' | 'shop' | 'categories' | 'affiliate' | 'about' | 'contact' | 'rewards' | 'admin' | 'appraisal') => void;
+  onNavigate?: (
+    route:
+      | 'home'
+      | 'shop'
+      | 'categories'
+      | 'affiliate'
+      | 'about'
+      | 'contact'
+      | 'rewards'
+      | 'admin'
+      | 'appraisal'
+      | 'refund-policy'
+      | 'terms'
+      | 'official-rules'
+      | 'shipping-policy'
+      | 'privacy'
+      | 'faqs'
+  ) => void;
   onNavigateToAccount?: (tab?: 'profile' | 'orders' | 'addresses' | 'wishlist' | 'settings' | 'affiliate') => void;
   onNavigateToAffiliate?: () => void;
   onOpenSubscription?: () => void;
@@ -69,6 +105,7 @@ const NAV_LINKS: NavItem[] = [
   { id: 'home', label: 'Home', href: '/', targetSectionId: 'hero', icon: HomeIcon },
   { id: 'shop', label: 'Shop', href: '/shop', targetSectionId: 'featured', icon: ShoppingBag },
   { id: 'categories', label: 'Categories', href: '/categories', targetSectionId: 'categories', icon: LayoutGrid },
+  { id: 'appraisal', label: 'Appraisal', href: '/appraise-your-jewelry', targetSectionId: 'appraisal', icon: Gem },
   { id: 'rewards', label: 'VIP Rewards', href: '/rewards', targetSectionId: 'rewards', icon: Star },
   { id: 'affiliate', label: 'Affiliate', href: '/affiliate', targetSectionId: 'affiliate', icon: Users },
   { id: 'about', label: 'About', href: '/about', targetSectionId: 'about', icon: Info },
@@ -130,6 +167,9 @@ export const Header: React.FC<HeaderProps> = ({
   onSelectCategory,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [matchingProducts, setMatchingProducts] = useState<Product[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const activeSearchIdRef = useRef(0);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isDesktopSearchFocused, setIsDesktopSearchFocused] = useState(false);
   const [isMobileSearchFocused, setIsMobileSearchFocused] = useState(false);
@@ -238,6 +278,7 @@ export const Header: React.FC<HeaderProps> = ({
     closeMobileMenu();
     if (cat.isDirectLink) {
       if (cat.slug === 'home') {
+        setSearchQuery('');
         onNavigate?.('home');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else if (cat.slug === 'affiliate') {
@@ -369,21 +410,42 @@ export const Header: React.FC<HeaderProps> = ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef = useRef<any>(null);
 
-  // Filter matching products for popup search view
-  const matchingProducts = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return productsData.filter((p) => p.isBestSeller).slice(0, 8);
+  // Asynchronous real Supabase catalog search with race condition prevention and debouncing
+  useEffect(() => {
+    const q = searchQuery.trim();
+    const searchId = ++activeSearchIdRef.current;
+
+    if (!q) {
+      productService.getFeaturedProducts(8).then((featured) => {
+        if (searchId === activeSearchIdRef.current) {
+          setMatchingProducts(featured);
+          setIsSearching(false);
+        }
+      });
+      return;
     }
-    const q = searchQuery.toLowerCase().trim();
-    return productsData
-      .filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          p.category.toLowerCase().includes(q) ||
-          (p.surpriseValue?.toLowerCase().includes(q) ?? false) ||
-          (p.scentNotes?.some((s) => s.toLowerCase().includes(q)) ?? false)
-      )
-      .slice(0, 12);
+
+    const timer = setTimeout(() => {
+      setIsSearching(true);
+      productService
+        .searchProducts(q, 8)
+        .then((results) => {
+          if (searchId === activeSearchIdRef.current) {
+            setMatchingProducts(results);
+            setIsSearching(false);
+          }
+        })
+        .catch((err) => {
+          if (searchId === activeSearchIdRef.current) {
+            console.warn('Navbar search error:', err);
+            setIsSearching(false);
+          }
+        });
+    }, 220);
+
+    return () => {
+      clearTimeout(timer);
+    };
   }, [searchQuery]);
 
   // Open Mobile Menu safely with smooth entry transition
@@ -581,22 +643,23 @@ export const Header: React.FC<HeaderProps> = ({
       setSearchQuery(q);
     }
 
-    onSearch?.(q);
     setIsSearchOpen(false);
     setIsDesktopSearchFocused(false);
     setIsMobileSearchFocused(false);
     closeVoiceModal();
     closeMobileMenu();
 
-    // Find best matched product
-    const matched = productsData.find(
-      (p) =>
-        p.name.toLowerCase().includes(q.toLowerCase()) ||
-        p.category.toLowerCase().includes(q.toLowerCase()) ||
-        (p.scentNotes?.some((s) => s.toLowerCase().includes(q.toLowerCase())) ?? false)
+    // If an exact matching product is in the current search results, open it directly
+    const exactMatch = matchingProducts.find(
+      (p) => p.name.toLowerCase() === q.toLowerCase()
     );
+    if (exactMatch && onSelectProduct) {
+      onSelectProduct(exactMatch);
+      return;
+    }
 
-    scrollToProductOrFeatured(matched?.id);
+    // Otherwise trigger onSearch (opens Shop page with search query)
+    onSearch?.(q);
   };
 
   // Web Speech API Voice Search Handler (With YouTube-style Animation Modal)
@@ -671,18 +734,23 @@ export const Header: React.FC<HeaderProps> = ({
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const q = e.target.value;
     setSearchQuery(q);
-    onSearch?.(q);
+    setIsSearchOpen(true);
   };
 
   const handleClearSearch = () => {
     setSearchQuery('');
-    onSearch?.('');
+    setIsSearching(false);
+    productService.getFeaturedProducts(8).then((prods) => {
+      setMatchingProducts(prods);
+    });
   };
 
   const handleSelectProduct = (product: Product) => {
-    setSearchQuery(product.name);
-    onSearch?.(product.name);
     setIsSearchOpen(false);
+    setIsDesktopSearchFocused(false);
+    setIsMobileSearchFocused(false);
+    desktopSearchInputRef.current?.blur();
+    mobileSearchInputRef.current?.blur();
     closeMobileMenu();
     if (onSelectProduct) {
       onSelectProduct(product);
@@ -698,7 +766,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   const renderSearchDropdown = (isMobileDropdown = false) => (
     <div
-      className={`absolute top-full left-0 right-0 mt-2 bg-white/98 backdrop-blur-xl rounded-[20px] border border-[#eedfe8] shadow-[0_20px_50px_rgba(50,31,63,0.18)] p-3 sm:p-4 z-50 animate-in fade-in zoom-in-95 duration-150 ease-out isolate ${isMobileDropdown ? 'w-full' : ''
+      className={`absolute top-full left-0 right-0 mt-2 bg-white/98 backdrop-blur-xl rounded-[20px] border border-[#eedfe8] shadow-[0_20px_50px_rgba(50,31,63,0.18)] p-3 sm:p-4 z-50 pointer-events-auto animate-in fade-in zoom-in-95 duration-150 ease-out isolate ${isMobileDropdown ? 'w-full' : ''
         }`}
       role="region"
       aria-label="Search suggestions"
@@ -714,6 +782,11 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               key={tag}
               type="button"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSelectTag(tag);
+              }}
               onClick={() => handleSelectTag(tag)}
               className="px-2.5 py-1 rounded-[8px] bg-[#fff1f2] hover:bg-[#D30915] text-[#D30915] hover:text-white border border-[#fecdd3] text-[11px] font-bold transition-all cursor-pointer shadow-2xs"
             >
@@ -723,28 +796,77 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Live Quick Results if search query present */}
-      {searchQuery.trim() && matchingProducts.length > 0 && (
-        <div className="mt-3 pt-2.5 border-t border-[#f4edf2] max-h-[220px] overflow-y-auto space-y-1.5 pr-1">
+      {/* 1. Loading Skeleton Shimmer - Shown WHILE searching real catalog */}
+      {searchQuery.trim() && isSearching && (
+        <div className="mt-3 pt-2.5 border-t border-[#f4edf2] space-y-2" aria-live="polite">
+          <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-[#8a858f]">
+            <span className="w-2 h-2 rounded-full bg-[#D30915] animate-ping" />
+            <span>Searching Real Catalog...</span>
+          </div>
+          {[1, 2, 3].map((idx) => (
+            <div key={idx} className="p-1.5 flex items-center gap-2.5 animate-pulse">
+              <div className="w-9 h-9 rounded-[8px] bg-stone-200 shrink-0" />
+              <div className="flex-1 space-y-1.5">
+                <div className="h-3 bg-stone-200 rounded w-3/4" />
+                <div className="h-2.5 bg-stone-100 rounded w-1/2" />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 2. Genuine No Results State - ONLY shown when completed search genuinely returns 0 products */}
+      {searchQuery.trim() && !isSearching && matchingProducts.length === 0 && (
+        <div className="mt-3 pt-3 border-t border-[#f4edf2] text-center py-3">
+          <p className="text-xs font-bold text-[#141219] m-0">No matching products found</p>
+          <p className="text-[11px] text-[#716d77] m-0 mt-0.5">
+            We couldn&apos;t find any products matching &quot;{searchQuery}&quot;
+          </p>
+          <button
+            type="button"
+            onMouseDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              executeSearch(searchQuery);
+            }}
+            onClick={() => executeSearch(searchQuery)}
+            className="mt-2.5 inline-flex items-center gap-1 text-[11px] font-bold text-[#D30915] hover:underline cursor-pointer"
+          >
+            Search &quot;{searchQuery}&quot; in Full Catalog →
+          </button>
+        </div>
+      )}
+
+      {/* 3. Live Quick Results if search query present and search completed */}
+      {searchQuery.trim() && !isSearching && matchingProducts.length > 0 && (
+        <div className="mt-3 pt-2.5 border-t border-[#f4edf2] max-h-[250px] overflow-y-auto space-y-1.5 pr-1">
           <div className="text-[10px] font-black uppercase tracking-wider text-[#8a858f] mb-1 flex items-center justify-between">
             <span>Matching Products</span>
             <span className="text-[#D30915] font-bold">{matchingProducts.length} items</span>
           </div>
-          {matchingProducts.slice(0, 5).map((p) => (
-            <div
+          {matchingProducts.slice(0, 6).map((p) => (
+            <button
               key={p.id}
-              role="button"
-              tabIndex={0}
-              onClick={() => handleSelectProduct(p)}
+              type="button"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSelectProduct(p);
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSelectProduct(p);
+              }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
                   handleSelectProduct(p);
                 }
               }}
-              className="p-1.5 sm:p-2 rounded-[10px] hover:bg-[#fff1f2] flex items-center justify-between transition-colors cursor-pointer group"
+              className="w-full text-left p-1.5 sm:p-2 rounded-[10px] hover:bg-[#fff1f2] flex items-center justify-between transition-colors cursor-pointer group select-none border-0 bg-transparent"
             >
-              <div className="flex items-center gap-2.5 min-w-0">
+              <div className="flex items-center gap-2.5 min-w-0 pointer-events-none">
                 <img
                   src={p.image}
                   alt={p.name}
@@ -759,8 +881,58 @@ export const Header: React.FC<HeaderProps> = ({
                   </p>
                 </div>
               </div>
-              <ArrowRight className="w-3.5 h-3.5 text-[#D30915] opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-            </div>
+              <ArrowRight className="w-3.5 h-3.5 text-[#D30915] opacity-0 group-hover:opacity-100 transition-opacity shrink-0 pointer-events-none" />
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* 4. Default Featured Suggestions if search query is empty */}
+      {!searchQuery.trim() && matchingProducts.length > 0 && (
+        <div className="mt-3 pt-2.5 border-t border-[#f4edf2] max-h-[220px] overflow-y-auto space-y-1.5 pr-1">
+          <div className="text-[10px] font-black uppercase tracking-wider text-[#8a858f] mb-1 flex items-center justify-between">
+            <span>Trending Reveals</span>
+            <span className="text-[#D30915] font-bold">Featured</span>
+          </div>
+          {matchingProducts.slice(0, 5).map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSelectProduct(p);
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSelectProduct(p);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleSelectProduct(p);
+                }
+              }}
+              className="w-full text-left p-1.5 sm:p-2 rounded-[10px] hover:bg-[#fff1f2] flex items-center justify-between transition-colors cursor-pointer group select-none border-0 bg-transparent"
+            >
+              <div className="flex items-center gap-2.5 min-w-0 pointer-events-none">
+                <img
+                  src={p.image}
+                  alt={p.name}
+                  className="w-9 h-9 rounded-[8px] object-cover shrink-0 border border-[#eee0e8]"
+                />
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-[#141219] group-hover:text-[#D30915] truncate m-0">
+                    {p.name}
+                  </p>
+                  <p className="text-[10px] text-[#716d77] m-0">
+                    ${p.price.toFixed(2)} • {p.category}
+                  </p>
+                </div>
+              </div>
+              <ArrowRight className="w-3.5 h-3.5 text-[#D30915] opacity-0 group-hover:opacity-100 transition-opacity shrink-0 pointer-events-none" />
+            </button>
           ))}
         </div>
       )}
@@ -801,6 +973,9 @@ export const Header: React.FC<HeaderProps> = ({
     } else if (item.id === 'rewards') {
       onNavigate?.('rewards');
       return;
+    } else if (item.id === 'appraisal') {
+      onNavigate?.('appraisal');
+      return;
     } else if (item.id === 'about') {
       onNavigate?.('about');
       return;
@@ -808,6 +983,7 @@ export const Header: React.FC<HeaderProps> = ({
       onNavigate?.('contact');
       return;
     } else if (item.id === 'home') {
+      setSearchQuery('');
       onNavigate?.('home');
       return;
     }
@@ -855,6 +1031,15 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500 shrink-0" />
               <span>Surprise Club Rewards</span>
+            </button>
+            <span className="text-[#e2d5de]">|</span>
+            <button
+              type="button"
+              onClick={() => onNavigate?.('appraisal')}
+              className="flex items-center gap-1.5 hover:text-[#D30915] transition-colors cursor-pointer"
+            >
+              <Gem className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+              <span>Appraise Jewelry</span>
             </button>
             <span className="text-[#e2d5de]">|</span>
             <div className="flex items-center gap-1.5">
@@ -927,15 +1112,16 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="flex items-center shrink-0 min-w-0">
               <a
                 href="/"
-                onClick={(e) =>
+                onClick={(e) => {
+                  setSearchQuery('');
                   handleNavClick(e, {
                     id: 'home',
                     label: 'Home',
                     href: '/',
                     targetSectionId: 'hero',
                     icon: HomeIcon,
-                  })
-                }
+                  });
+                }}
                 className="flex items-center shrink-0 group focus:outline-none select-none"
                 aria-label="ILoveSurprises Home"
               >
@@ -959,7 +1145,7 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
 
             {/* Desktop Center: Large Pill-Shaped Search Bar */}
-            <div ref={desktopSearchContainerRef} className="hidden lg:flex flex-1 justify-center max-w-md min-[1280px]:max-w-xl 2xl:max-w-2xl mx-1.5 min-[1280px]:mx-auto relative min-w-0">
+            <div ref={desktopSearchContainerRef} className="hidden lg:flex flex-1 justify-center max-w-md min-[1280px]:max-w-xl 2xl:max-w-2xl mx-1.5 min-[1280px]:mx-auto relative min-w-0 z-50 pointer-events-auto">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -1348,7 +1534,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Row 1.5 (Mobile Only): Expandable Full-Width Search Bar */}
           {isMobileSearchOpen && (
-            <div ref={mobileSearchContainerRef} className="lg:hidden w-full pt-2 pb-0.5 relative animate-in fade-in slide-in-from-top-1 duration-200">
+            <div ref={mobileSearchContainerRef} className="lg:hidden w-full pt-2 pb-0.5 relative z-50 pointer-events-auto animate-in fade-in slide-in-from-top-1 duration-200">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
