@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
-import { User, Mail, Phone, ArrowRight, AlertCircle, ShieldCheck, CheckCircle2, RefreshCw, Users, Link2 } from 'lucide-react';
+import { User, Mail, ArrowRight, AlertCircle, ShieldCheck, CheckCircle2, RefreshCw, Users, Link2 } from 'lucide-react';
 import { PasswordInput } from './PasswordInput';
-import { GoogleIcon } from './GoogleIcon';
 import {
   authService,
   evaluatePasswordStrength,
   isValidEmail,
-  isValidMobile,
 } from '../../services/auth';
 import { sponsorService } from '../../services/sponsorService';
 import type { UserProfile } from '../../types';
@@ -22,7 +20,6 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
 }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [mobile, setMobile] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [role, setRole] = useState<'customer' | 'representative'>('customer');
@@ -47,7 +44,6 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
   const [errors, setErrors] = useState<{
     name?: string;
     email?: string;
-    mobile?: string;
     password?: string;
     confirmPassword?: string;
     repUsername?: string;
@@ -55,25 +51,9 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
     general?: string;
   }>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [verificationSentEmail, setVerificationSentEmail] = useState<string | null>(null);
   const [resendStatus, setResendStatus] = useState<string | null>(null);
   const [isResending, setIsResending] = useState(false);
-
-  const handleGoogleSignUp = async () => {
-    setIsGoogleLoading(true);
-    setErrors({});
-    try {
-      const res = await authService.loginWithGoogle();
-      if (!res.success) {
-        setErrors({ general: res.error || 'Failed to initialize Google sign-up. Please try again.' });
-        setIsGoogleLoading(false);
-      }
-    } catch {
-      setErrors({ general: 'Network error occurred while connecting with Google.' });
-      setIsGoogleLoading(false);
-    }
-  };
 
   const passwordStrength = evaluatePasswordStrength(password);
 
@@ -88,12 +68,6 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
       newErrors.email = 'Email address is required.';
     } else if (!isValidEmail(email)) {
       newErrors.email = 'Please enter a valid email address.';
-    }
-
-    if (!mobile.trim()) {
-      newErrors.mobile = 'Mobile number is required.';
-    } else if (!isValidMobile(mobile)) {
-      newErrors.mobile = 'Please enter a valid 10-digit mobile number.';
     }
 
     if (!password) {
@@ -141,7 +115,6 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
       const res = await authService.register({
         name: name.trim(),
         email: cleanEmail,
-        mobile: mobile.trim(),
         password,
         role,
         repUsername: role === 'representative' ? sponsorService.normalizeUsername(repUsername) : undefined,
@@ -284,35 +257,6 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
         </div>
       )}
 
-      {/* Google OAuth Button */}
-      <button
-        type="button"
-        onClick={handleGoogleSignUp}
-        disabled={isLoading || isGoogleLoading}
-        className="w-full h-[42px] sm:h-[44px] rounded-[13px] bg-white hover:bg-stone-50 border border-[#e5dfe5] hover:border-[#cfc6d0] text-[#141219] text-xs sm:text-sm font-bold shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer flex items-center justify-center gap-2.5 disabled:opacity-50 active:scale-98 mb-3"
-        aria-label="Continue with Google"
-      >
-        {isGoogleLoading ? (
-          <div className="flex items-center gap-2 text-xs font-semibold text-[#716d77]">
-            <span className="w-4 h-4 border-2 border-[#D30915] border-t-transparent rounded-full animate-spin" />
-            <span>Connecting to Google...</span>
-          </div>
-        ) : (
-          <>
-            <GoogleIcon className="w-4 h-4 sm:w-4.5 sm:h-4.5 shrink-0" />
-            <span>Continue with Google</span>
-          </>
-        )}
-      </button>
-
-      {/* Divider */}
-      <div className="relative my-3 flex items-center justify-center">
-        <div className="border-t border-[#ebdce5] w-full" />
-        <span className="bg-white px-2.5 text-[10px] sm:text-[11px] font-bold text-[#8a858f] uppercase tracking-wider shrink-0">
-          or register with email
-        </span>
-      </div>
-
       {/* Account Type Toggle */}
       <div className="grid grid-cols-2 p-1 rounded-[13px] bg-[#fff1f2] border border-[#fecdd3] mb-3.5">
         <button
@@ -406,42 +350,6 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
             <p className="text-[11px] text-red-500 mt-1 font-medium flex items-center gap-1">
               <span>⚠️</span>
               <span>{errors.email}</span>
-            </p>
-          )}
-        </div>
-
-        {/* Mobile Number */}
-        <div>
-          <label htmlFor="signup-mobile" className="block text-[11px] sm:text-xs font-bold text-[#141219] mb-1">
-            Mobile Number <span className="text-[#D30915]">*</span>
-          </label>
-          <div className="relative">
-            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8a858f] pointer-events-none">
-              <Phone className="w-4 h-4" />
-            </div>
-            <input
-              id="signup-mobile"
-              type="tel"
-              name="mobile"
-              autoComplete="tel"
-              required
-              disabled={isLoading}
-              placeholder="e.g. (555) 000-0000"
-              value={mobile}
-              onChange={(e) => {
-                setMobile(e.target.value);
-                if (errors.mobile) setErrors((prev) => ({ ...prev, mobile: undefined }));
-              }}
-              className={`w-full h-[40px] sm:h-[42px] pl-10 pr-3 rounded-[12px] bg-[#fffafb] border text-xs sm:text-sm font-medium text-[#141219] placeholder:text-[#9c95a0] transition-all outline-none disabled:opacity-50 ${errors.mobile
-                ? 'border-red-400 focus:border-red-500 focus:bg-white focus:ring-2 focus:ring-red-100'
-                : 'border-[#ebdce5] hover:border-[#f1b8cb] focus:border-[#D30915] focus:bg-white focus:ring-2 focus:ring-[#D30915]/10'
-                }`}
-            />
-          </div>
-          {errors.mobile && (
-            <p className="text-[11px] text-red-500 mt-1 font-medium flex items-center gap-1">
-              <span>⚠️</span>
-              <span>{errors.mobile}</span>
             </p>
           )}
         </div>

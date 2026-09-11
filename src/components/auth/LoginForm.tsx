@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Mail, Phone, ArrowRight, AlertCircle, ShieldCheck } from 'lucide-react';
+import { Mail, ArrowRight, AlertCircle, ShieldCheck } from 'lucide-react';
 import { PasswordInput } from './PasswordInput';
-import { GoogleIcon } from './GoogleIcon';
-import { authService, isValidEmailOrMobile } from '../../services/auth';
+import { authService, isValidEmail } from '../../services/auth';
 import type { UserProfile } from '../../types';
 
 interface LoginFormProps {
@@ -16,40 +15,22 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   onSwitchToSignUp,
   onSwitchToForgotPassword,
 }) => {
-  const [identifier, setIdentifier] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
-  const [errors, setErrors] = useState<{ identifier?: string; password?: string; general?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
   const [resendStatus, setResendStatus] = useState<string | null>(null);
   const [isResending, setIsResending] = useState(false);
 
-  const handleGoogleSignIn = async () => {
-    setIsGoogleLoading(true);
-    setErrors({});
-    try {
-      const res = await authService.loginWithGoogle();
-      if (!res.success) {
-        setErrors({ general: res.error || 'Failed to initialize Google sign-in. Please try again.' });
-        setIsGoogleLoading(false);
-      }
-    } catch {
-      setErrors({ general: 'Network error occurred while connecting with Google.' });
-      setIsGoogleLoading(false);
-    }
-  };
-
-  const isPhone = /^\+?\d+$/.test(identifier.trim().replace(/[\s-()]/g, '')) && !identifier.includes('@');
-
   const validate = (): boolean => {
-    const newErrors: { identifier?: string; password?: string; general?: string } = {};
+    const newErrors: { email?: string; password?: string; general?: string } = {};
 
-    if (!identifier.trim()) {
-      newErrors.identifier = 'Please enter your email or mobile number.';
-    } else if (!isValidEmailOrMobile(identifier)) {
-      newErrors.identifier = 'Please enter a valid email address or 10-digit mobile number.';
+    if (!email.trim()) {
+      newErrors.email = 'Email address is required.';
+    } else if (!isValidEmail(email)) {
+      newErrors.email = 'Please enter a valid email address.';
     }
 
     if (!password) {
@@ -71,7 +52,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
     try {
       const res = await authService.login({
-        identifier: identifier.trim(),
+        identifier: email.trim(),
         password,
         rememberMe,
       });
@@ -79,7 +60,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       if (res.success && res.user) {
         onSuccess(res.user);
       } else if (res.requiresVerification) {
-        setUnverifiedEmail(identifier.trim());
+        setUnverifiedEmail(email.trim());
         setErrors({ general: res.error || 'Your email address is not verified yet. Please check your inbox or resend the verification link.' });
       } else {
         setUnverifiedEmail(null);
@@ -162,71 +143,42 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         </div>
       )}
 
-      {/* Google OAuth Button */}
-      <button
-        type="button"
-        onClick={handleGoogleSignIn}
-        disabled={isLoading || isGoogleLoading}
-        className="w-full h-[42px] sm:h-[44px] rounded-[13px] bg-white hover:bg-stone-50 border border-[#e5dfe5] hover:border-[#cfc6d0] text-[#141219] text-xs sm:text-sm font-bold shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer flex items-center justify-center gap-2.5 disabled:opacity-50 active:scale-98"
-        aria-label="Continue with Google"
-      >
-        {isGoogleLoading ? (
-          <div className="flex items-center gap-2 text-xs font-semibold text-[#716d77]">
-            <span className="w-4 h-4 border-2 border-[#D30915] border-t-transparent rounded-full animate-spin" />
-            <span>Connecting to Google...</span>
-          </div>
-        ) : (
-          <>
-            <GoogleIcon className="w-4 h-4 sm:w-4.5 sm:h-4.5 shrink-0" />
-            <span>Continue with Google</span>
-          </>
-        )}
-      </button>
-
-      {/* Divider */}
-      <div className="relative my-3.5 flex items-center justify-center">
-        <div className="border-t border-[#ebdce5] w-full" />
-        <span className="bg-white px-2.5 text-[10px] sm:text-[11px] font-bold text-[#8a858f] uppercase tracking-wider shrink-0">
-          or sign in with email
-        </span>
-      </div>
-
       {/* Login Form */}
       <form onSubmit={handleSubmit} noValidate className="space-y-3.5">
-        {/* Mobile Number / Email */}
+        {/* Email Address */}
         <div>
-          <label htmlFor="login-identifier" className="block text-[11px] sm:text-xs font-bold text-[#141219] mb-1">
-            Mobile Number / Email <span className="text-[#D30915]">*</span>
+          <label htmlFor="login-email" className="block text-[11px] sm:text-xs font-bold text-[#141219] mb-1">
+            Email Address <span className="text-[#D30915]">*</span>
           </label>
           <div className="relative">
             <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8a858f] pointer-events-none">
-              {isPhone ? <Phone className="w-4 h-4" /> : <Mail className="w-4 h-4" />}
+              <Mail className="w-4 h-4" />
             </div>
             <input
-              id="login-identifier"
-              type="text"
-              name="identifier"
-              autoComplete="username"
+              id="login-email"
+              type="email"
+              name="email"
+              autoComplete="email"
               required
               disabled={isLoading}
               placeholder="example@gmail.com"
-              value={identifier}
+              value={email}
               onChange={(e) => {
-                setIdentifier(e.target.value);
-                if (errors.identifier) setErrors((prev) => ({ ...prev, identifier: undefined }));
+                setEmail(e.target.value);
+                if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
               }}
-              className={`w-full h-[42px] sm:h-[44px] pl-10 pr-3 rounded-[13px] bg-[#fffafb] border text-xs sm:text-sm font-medium text-[#141219] placeholder:text-[#9c95a0] transition-all outline-none disabled:opacity-50 ${errors.identifier
+              className={`w-full h-[42px] sm:h-[44px] pl-10 pr-3 rounded-[13px] bg-[#fffafb] border text-xs sm:text-sm font-medium text-[#141219] placeholder:text-[#9c95a0] transition-all outline-none disabled:opacity-50 ${errors.email
                 ? 'border-red-400 focus:border-red-500 focus:bg-white focus:ring-2 focus:ring-red-100'
                 : 'border-[#ebdce5] hover:border-[#f1b8cb] focus:border-[#D30915] focus:bg-white focus:ring-2 focus:ring-[#D30915]/10'
                 }`}
-              aria-invalid={!!errors.identifier}
-              aria-describedby={errors.identifier ? 'login-identifier-error' : undefined}
+              aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? 'login-email-error' : undefined}
             />
           </div>
-          {errors.identifier && (
-            <p id="login-identifier-error" className="text-[11px] text-red-500 mt-1 font-medium flex items-center gap-1">
+          {errors.email && (
+            <p id="login-email-error" className="text-[11px] text-red-500 mt-1 font-medium flex items-center gap-1">
               <span>⚠️</span>
-              <span>{errors.identifier}</span>
+              <span>{errors.email}</span>
             </p>
           )}
         </div>

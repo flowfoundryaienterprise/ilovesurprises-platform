@@ -10,9 +10,11 @@ import type { Product, CartItem } from '../types';
 
 interface HomeProps {
   cart?: CartItem[];
+  wishlistIds?: string[];
   searchQuery?: string;
   selectedCategory?: string;
   onSelectCategory?: (category: string) => void;
+  onNavigateToShop?: () => void;
   onViewAllCategories?: () => void;
   onAddToCart: (product: Product) => void;
   onUpdateQuantity: (productId: string, delta: number) => void;
@@ -22,9 +24,11 @@ interface HomeProps {
 
 export const Home: React.FC<HomeProps> = ({
   cart = [],
+  wishlistIds = [],
   searchQuery: _searchQuery = '',
   selectedCategory = 'All Surprises',
   onSelectCategory,
+  onNavigateToShop,
   onViewAllCategories,
   onAddToCart,
   onUpdateQuantity,
@@ -74,9 +78,11 @@ export const Home: React.FC<HomeProps> = ({
         <FeaturedProducts
           isLoading={isLoading}
           cart={cart}
+          wishlistIds={wishlistIds}
           searchQuery=""
           selectedCategory={homeCategory}
           onSelectCategory={(cat) => setUserSelectedCategory(cat)}
+          onNavigateToShop={onNavigateToShop || (() => onSelectCategory?.('All Surprises'))}
           onAddToCart={onAddToCart}
           onUpdateQuantity={onUpdateQuantity}
           onWishlistToggle={onWishlistToggle}

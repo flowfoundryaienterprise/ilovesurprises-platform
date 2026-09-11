@@ -105,7 +105,7 @@ export function App() {
     if (path === '/about') return 'about';
     if (path === '/contact') return 'contact';
     if (path === '/rewards') return 'rewards';
-    if (path === '/appraise-your-jewelry' || path === '/appraisal') return 'appraisal';
+    if (path === '/appraise' || path === '/appraise-your-jewelry' || path === '/appraisal') return 'appraisal';
     if (path === '/refund-policy') return 'refund-policy';
     if (path === '/terms') return 'terms';
     if (path === '/official-rules') return 'official-rules';
@@ -133,6 +133,7 @@ export function App() {
         'contact',
         'rewards',
         'appraisal',
+        'appraise',
         'appraise-your-jewelry',
         'refund-policy',
         'terms',
@@ -210,7 +211,7 @@ export function App() {
     const tab = params.get('tab');
     if (
       tab &&
-      ['overview', 'representatives', 'memberships', 'commerce', 'commissions', 'reports', 'settings', 'permissions'].includes(
+      ['overview', 'representatives', 'memberships', 'commerce', 'appraisals', 'commissions', 'reports', 'settings', 'permissions'].includes(
         tab
       )
     ) {
@@ -241,7 +242,28 @@ export function App() {
       }
     }
   }, [cart]);
-  const [wishlistIds, setWishlistIds] = useState<string[]>([]);
+  const [wishlistIds, setWishlistIds] = useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('ilovesurprises_wishlist_v1');
+        return stored ? JSON.parse(stored) : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('ilovesurprises_wishlist_v1', JSON.stringify(wishlistIds));
+      } catch {
+        // ignore
+      }
+    }
+  }, [wishlistIds]);
+
   const [appliedCheckoutPromo, setAppliedCheckoutPromo] = useState<string | null>(null);
 
   // Persistent user profile state
@@ -300,7 +322,7 @@ export function App() {
       if (event === 'PASSWORD_RECOVERY') {
         setAuthMode('reset');
         setIsAuthOpen(true);
-      } else if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
+      } else if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION') {
         if (session?.user) {
           const freshUser = await authService.syncOAuthUserProfile(session.user);
           if (freshUser) {
@@ -499,14 +521,19 @@ export function App() {
         }
         if (e.state.productId || e.state.productSlug) {
           const identifier = (e.state.productSlug || e.state.productId) as string;
-          const matched = productsData.find((p) => p.id === identifier || p.slug === identifier);
-          if (matched) {
-            setSelectedProduct(matched);
-          } else {
+          setSelectedProduct((current) => {
+            if (
+              current &&
+              (current.slug.toLowerCase() === identifier.toLowerCase() ||
+                current.id.toLowerCase() === identifier.toLowerCase())
+            ) {
+              return current;
+            }
             productService.getProductBySlug(identifier).then((prod) => {
               if (prod) setSelectedProduct(prod);
             });
-          }
+            return current;
+          });
         }
         if (e.state.orderId) {
           setConfirmedOrderId(e.state.orderId);
@@ -605,31 +632,41 @@ export function App() {
           window.scrollTo({ top: scrollPositions.current['faqs'] || 0, behavior: 'smooth' });
         } else if (path.startsWith('/product/')) {
           const slug = path.replace('/product/', '').trim();
-          setIsProductLoading(true);
-          setProductLoadingError(false);
-          const matched = productsData.find((p) => p.slug === slug || p.id === slug);
-          if (matched) {
-            setSelectedProduct(matched);
-            setIsProductLoading(false);
-            setCurrentView('product-details');
-          } else {
-            productService.getProductBySlug(slug).then((prod) => {
-              if (prod) {
-                setSelectedProduct(prod);
-                setProductLoadingError(false);
-              } else {
+          setCurrentView('product-details');
+          setSelectedProduct((current) => {
+            if (
+              current &&
+              (current.slug.toLowerCase() === slug.toLowerCase() ||
+                current.id.toLowerCase() === slug.toLowerCase())
+            ) {
+              setIsProductLoading(false);
+              setProductLoadingError(false);
+              return current;
+            }
+
+            setIsProductLoading(true);
+            setProductLoadingError(false);
+            productService
+              .getProductBySlug(slug)
+              .then((prod) => {
+                if (prod) {
+                  setSelectedProduct(prod);
+                  setProductLoadingError(false);
+                } else {
+                  setSelectedProduct(null);
+                  setProductLoadingError(true);
+                }
+              })
+              .catch(() => {
                 setSelectedProduct(null);
                 setProductLoadingError(true);
-              }
-              setCurrentView('product-details');
-            }).catch(() => {
-              setSelectedProduct(null);
-              setProductLoadingError(true);
-              setCurrentView('product-details');
-            }).finally(() => {
-              setIsProductLoading(false);
-            });
-          }
+              })
+              .finally(() => {
+                setIsProductLoading(false);
+              });
+
+            return current;
+          });
         } else {
           setSelectedCategory('All Surprises');
           setSearchQuery('');
@@ -962,6 +999,9 @@ export function App() {
     window.scrollTo({ top: targetScroll, behavior: 'smooth' });
     if (window.history.pushState) {
       window.history.pushState({ view: 'shop', category: category || selectedCategory }, '', '/shop');
+    }
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('ils_route_change', { detail: { route: 'shop' } }));
     }
   };
 
@@ -1304,9 +1344,11 @@ export function App() {
               <div key="page-home" className={transitionClass}>
                 <Home
                   cart={cart}
+                  wishlistIds={wishlistIds}
                   searchQuery={searchQuery}
                   selectedCategory={selectedCategory}
                   onSelectCategory={(cat) => handleNavigateToShop(cat, 'forward')}
+                  onNavigateToShop={() => handleNavigateToShop('All Surprises', 'forward')}
                   onViewAllCategories={() => handleNavigateToCategories('forward')}
                   onAddToCart={handleAddToCart}
                   onUpdateQuantity={handleUpdateQuantity}

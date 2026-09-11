@@ -311,7 +311,14 @@ export const GenealogyTree: React.FC<GenealogyTreeProps> = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-[#f7eff4]">
-            {rows.map(({ member, depth }) => {
+            {rows.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="py-8 text-center text-[#716d77] font-medium">
+                  No downline representatives yet
+                </td>
+              </tr>
+            ) : (
+              rows.map(({ member, depth }) => {
               const levelInfo = LEVEL_COLORS[member.level] || LEVEL_COLORS[1];
               const hasChildren = Boolean(member.children && member.children.length > 0);
               const isExpanded = expandedIds.has(member.id);
@@ -395,7 +402,7 @@ export const GenealogyTree: React.FC<GenealogyTreeProps> = ({
                   </td>
                 </tr>
               );
-            })}
+            }))}
           </tbody>
         </table>
       </div>
@@ -562,7 +569,7 @@ export const GenealogyTree: React.FC<GenealogyTreeProps> = ({
                     Top Sponsor Leader (You)
                   </span>
                   <strong className="text-sm sm:text-lg font-black text-white block leading-tight">
-                    Sarah's Direct Team Network
+                    Your Direct Team Network
                   </strong>
                   <span className="text-[10px] sm:text-[11px] text-red-100 font-medium mt-0.5 block">
                     20% Personal + Up to 15% 5-Tier Overrides (35% Max)
@@ -575,24 +582,31 @@ export const GenealogyTree: React.FC<GenealogyTreeProps> = ({
             </div>
 
             {/* Level 1 Nodes Container */}
-            <div className="flex items-start justify-center gap-4 sm:gap-10 pt-2 relative">
-              {treeData.length > 1 && (
-                <div
-                  className="h-0.5 bg-[#eedbe6] absolute top-2"
-                  style={{
-                    left: '120px',
-                    right: '120px',
-                  }}
-                />
-              )}
+            {treeData.length === 0 ? (
+              <div className="py-10 text-center text-[#716d77] max-w-sm mx-auto">
+                <p className="font-bold text-sm text-[#141219] m-0">No downline representatives yet</p>
+                <p className="text-xs m-0 mt-1">Representatives who sign up under your referral link will appear here.</p>
+              </div>
+            ) : (
+              <div className="flex items-start justify-center gap-4 sm:gap-10 pt-2 relative">
+                {treeData.length > 1 && (
+                  <div
+                    className="h-0.5 bg-[#eedbe6] absolute top-2"
+                    style={{
+                      left: '120px',
+                      right: '120px',
+                    }}
+                  />
+                )}
 
-              {treeData.map((l1Member) => (
-                <div key={l1Member.id} className="relative flex flex-col items-center">
-                  <div className="w-0.5 h-4 bg-[#eedbe6] absolute -top-4 left-1/2 -translate-x-1/2" />
-                  {renderTreeNode(l1Member, 1)}
-                </div>
-              ))}
-            </div>
+                {treeData.map((l1Member) => (
+                  <div key={l1Member.id} className="relative flex flex-col items-center">
+                    <div className="w-0.5 h-4 bg-[#eedbe6] absolute -top-4 left-1/2 -translate-x-1/2" />
+                    {renderTreeNode(l1Member, 1)}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       ) : (

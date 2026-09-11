@@ -11,7 +11,7 @@ export const SalesRosterTable: React.FC<SalesRosterTableProps> = ({ commissions 
   const [filterStatus, setFilterStatus] = useState<'all' | 'qualified' | 'pending' | 'reversed'>('all');
 
   const salesRecords = useMemo(() => {
-    return commissions.map((c, idx) => ({
+    return commissions.map((c) => ({
       id: c.id,
       orderId: c.orderId,
       date: c.orderDate,
@@ -23,7 +23,7 @@ export const SalesRosterTable: React.FC<SalesRosterTableProps> = ({ commissions 
       itemsDescription: c.productName,
       orderAmount: c.orderAmount,
       commissionAmount: c.commissionAmount,
-      status: idx === 4 ? 'pending' : idx === 6 ? 'reversed' : 'qualified',
+      status: c.status === 'reversed' ? 'reversed' : c.status === 'pending' ? 'pending' : 'qualified',
       levelLabel: c.levelLabel,
     }));
   }, [commissions]);
@@ -154,7 +154,7 @@ export const SalesRosterTable: React.FC<SalesRosterTableProps> = ({ commissions 
             {filtered.length === 0 ? (
               <tr>
                 <td colSpan={7} className="py-8 text-center text-xs text-[#8a858f]">
-                  No sales orders found matching this filter.
+                  {commissions.length === 0 ? 'No orders yet.' : 'No sales orders found matching this filter.'}
                 </td>
               </tr>
             ) : (

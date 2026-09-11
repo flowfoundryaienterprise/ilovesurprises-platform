@@ -44,7 +44,7 @@ export const FeaturedCollectionsSection: React.FC<FeaturedCollectionsSectionProp
     {
       id: 'trending-collection',
       title: 'Trending Collection',
-      categoryKey: 'All Surprises',
+      categoryKey: 'Trending',
       badge: 'Most Loved Reveals',
       badgeIcon: Flame,
       badgeColor: 'bg-amber-50 text-amber-700 border-amber-200',

@@ -38,7 +38,7 @@ const STATUS_OPTIONS: AffiliateSelectOption[] = [
 
 export const CommissionHistoryTable: React.FC<CommissionHistoryTableProps> = ({
   commissions,
-  repUsername = 'sarah_sparkles',
+  repUsername = '',
 }) => {
   const [search, setSearch] = useState('');
   const [selectedLevel, setSelectedLevel] = useState<string>('all');
@@ -281,9 +281,11 @@ export const CommissionHistoryTable: React.FC<CommissionHistoryTableProps> = ({
       {filteredCommissions.length === 0 ? (
         <div className="text-center py-10 px-4 rounded-[18px] bg-[#fffafc] border border-dashed border-[#eedbe6]">
           <DollarSign className="w-10 h-10 text-[#d9cbd5] mx-auto mb-2" />
-          <h4 className="text-sm font-black text-[#141219] mb-1">No Commissions Matching Filters</h4>
+          <h4 className="text-sm font-black text-[#141219] mb-1">
+            {commissions.length === 0 ? 'No commissions yet' : 'No Commissions Matching Filters'}
+          </h4>
           <p className="text-xs text-[#716d77]">
-            Try adjusting your search keywords or tier level dropdown.
+            {commissions.length === 0 ? 'Your earned commissions and multi-tier payouts will appear here.' : 'Try adjusting your search keywords or tier level dropdown.'}
           </p>
         </div>
       ) : (

@@ -23,10 +23,10 @@ export const RepresentativeAccountTab: React.FC<RepresentativeAccountTabProps> =
 }) => {
   const [copied, setCopied] = React.useState(false);
 
-  const repName = user?.name || 'Emily Watson';
-  const repEmail = user?.email || 'emily.w@sparkles.com';
-  const repUsername = stats.repUsername || 'emily_sparkles';
-  const storeUrl = `https://ilovesurprises.com/${repUsername}`;
+  const repName = user?.name || (stats.repUsername ? `@${stats.repUsername}` : 'Representative');
+  const repEmail = user?.email || '';
+  const repUsername = stats.repUsername || user?.repUsername || '';
+  const storeUrl = typeof window !== 'undefined' ? `${window.location.origin}/shop?rep=${repUsername}` : `https://ilovesurprises.com/shop?rep=${repUsername}`;
   const avatarUrl = user?.avatar || '/assets/ilovesurprises/Profile/profile%20image.webp';
 
   const handleCopyStore = () => {
@@ -129,40 +129,9 @@ export const RepresentativeAccountTab: React.FC<RepresentativeAccountTabProps> =
               </tr>
             </thead>
             <tbody className="divide-y divide-[#f7eff4]">
-              <tr className="hover:bg-[#fff9fa] transition-colors">
-                <td className="py-3 px-4 font-mono font-bold text-[#D30915]">INV-2026-0301</td>
-                <td className="py-3 px-4 text-[#716d77]">March 1, 2026</td>
-                <td className="py-3 px-4 font-medium">Monthly Consultant License ($19.99/mo)</td>
-                <td className="py-3 px-4 text-[#55505a]">Visa •••• 4242</td>
-                <td className="py-3 px-4 text-right font-black">$19.99</td>
-                <td className="py-3 px-4 text-center">
-                  <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                    Paid
-                  </span>
-                </td>
-              </tr>
-              <tr className="hover:bg-[#fff9fa] transition-colors">
-                <td className="py-3 px-4 font-mono font-bold text-[#D30915]">INV-2026-0201</td>
-                <td className="py-3 px-4 text-[#716d77]">February 1, 2026</td>
-                <td className="py-3 px-4 font-medium">Monthly Consultant License ($19.99/mo)</td>
-                <td className="py-3 px-4 text-[#55505a]">Visa •••• 4242</td>
-                <td className="py-3 px-4 text-right font-black">$19.99</td>
-                <td className="py-3 px-4 text-center">
-                  <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                    Paid
-                  </span>
-                </td>
-              </tr>
-              <tr className="hover:bg-[#fff9fa] transition-colors">
-                <td className="py-3 px-4 font-mono font-bold text-[#D30915]">INV-2026-0114</td>
-                <td className="py-3 px-4 text-[#716d77]">January 14, 2026</td>
-                <td className="py-3 px-4 font-medium">Essential Representative Starter Kit</td>
-                <td className="py-3 px-4 text-[#55505a]">Visa •••• 4242</td>
-                <td className="py-3 px-4 text-right font-black">$49.00</td>
-                <td className="py-3 px-4 text-center">
-                  <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                    Paid
-                  </span>
+              <tr>
+                <td colSpan={6} className="py-8 text-center text-xs text-[#8a858f]">
+                  No billing invoices yet. Your membership dues and subscription receipts will appear here once processed.
                 </td>
               </tr>
             </tbody>

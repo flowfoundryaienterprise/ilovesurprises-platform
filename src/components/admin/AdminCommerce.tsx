@@ -134,11 +134,11 @@ export const AdminCommerce: React.FC<AdminCommerceProps> = ({
 
   // Refund Modal State
   const [isRefundModalOpen, setIsRefundModalOpen] = useState(false);
-  const [refundOrderNumber, setRefundOrderNumber] = useState('ILS-89104-US');
-  const [refundCustomerName, setRefundCustomerName] = useState('Sarah Jenkins');
-  const [refundCustomerEmail, setRefundCustomerEmail] = useState('sarah.j@yahoo.com');
-  const [refundAmount, setRefundAmount] = useState('49.99');
-  const [refundReason, setRefundReason] = useState('Customer changed mind - returned intact');
+  const [refundOrderNumber, setRefundOrderNumber] = useState('');
+  const [refundCustomerName, setRefundCustomerName] = useState('');
+  const [refundCustomerEmail, setRefundCustomerEmail] = useState('');
+  const [refundAmount, setRefundAmount] = useState('');
+  const [refundReason, setRefundReason] = useState('');
   const [refundRestock, setRefundRestock] = useState(true);
 
   // Discount Modal State
@@ -970,8 +970,8 @@ export const AdminCommerce: React.FC<AdminCommerceProps> = ({
                 <tbody className="divide-y divide-gray-100 font-medium">
                   {filteredOrders.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="text-center py-8 text-stone-400">
-                        No store orders match your search criteria.
+                      <td colSpan={7} className="text-center py-8 text-stone-400 font-medium">
+                        No orders yet
                       </td>
                     </tr>
                   ) : (
@@ -1051,31 +1051,39 @@ export const AdminCommerce: React.FC<AdminCommerceProps> = ({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 font-medium">
-                  {filteredCustomers.map((cust) => (
-                    <tr key={cust.id} className="hover:bg-[#fffbfd] transition-colors">
-                      <td className="py-3 px-4">
-                        <div className="font-bold text-[#141219]">{cust.name}</div>
-                        <div className="text-[11px] text-[#716d77]">{cust.email}</div>
-                      </td>
-                      <td className="py-3 px-3 text-[#716d77]">{cust.phone}</td>
-                      <td className="py-3 px-3">
-                        {cust.repReferredBy ? (
-                          <span className="text-xs font-bold text-[#D30915]">@{cust.repReferredBy}</span>
-                        ) : (
-                          <span className="text-xs text-[#8a858f]">Organic / Direct</span>
-                        )}
-                      </td>
-                      <td className="py-3 px-3 font-bold text-[#141219]">{cust.ordersCount} orders</td>
-                      <td className="py-3 px-3 font-black text-[#141219]">
-                        ${cust.totalSpent.toFixed(2)}
-                      </td>
-                      <td className="py-3 px-3">
-                        <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold">
-                          Active
-                        </span>
+                  {filteredCustomers.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="text-center py-8 text-stone-400 font-medium">
+                        No customers found
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    filteredCustomers.map((cust) => (
+                      <tr key={cust.id} className="hover:bg-[#fffbfd] transition-colors">
+                        <td className="py-3 px-4">
+                          <div className="font-bold text-[#141219]">{cust.name}</div>
+                          <div className="text-[11px] text-[#716d77]">{cust.email}</div>
+                        </td>
+                        <td className="py-3 px-3 text-[#716d77]">{cust.phone}</td>
+                        <td className="py-3 px-3">
+                          {cust.repReferredBy ? (
+                            <span className="text-xs font-bold text-[#D30915]">@{cust.repReferredBy}</span>
+                          ) : (
+                            <span className="text-xs text-[#8a858f]">Organic / Direct</span>
+                          )}
+                        </td>
+                        <td className="py-3 px-3 font-bold text-[#141219]">{cust.ordersCount} orders</td>
+                        <td className="py-3 px-3 font-black text-[#141219]">
+                          ${cust.totalSpent.toFixed(2)}
+                        </td>
+                        <td className="py-3 px-3">
+                          <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold">
+                            Active
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -1101,30 +1109,38 @@ export const AdminCommerce: React.FC<AdminCommerceProps> = ({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 font-medium">
-                  {refunds.map((r) => (
-                    <tr key={r.id} className="hover:bg-[#fffbfd] transition-colors">
-                      <td className="py-3 px-4 font-mono font-bold text-[#141219]">{r.orderId}</td>
-                      <td className="py-3 px-3">
-                        <div className="font-bold text-[#141219]">{r.customerName}</div>
-                        <div className="text-[11px] text-[#716d77]">{r.customerEmail}</div>
+                  {refunds.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="text-center py-8 text-stone-400 font-medium">
+                        No refunds found
                       </td>
-                      <td className="py-3 px-3 font-black text-rose-600">
-                        ${r.amount.toFixed(2)}
-                      </td>
-                      <td className="py-3 px-3 text-[#716d77] max-w-[200px] truncate">{r.reason}</td>
-                      <td className="py-3 px-3">
-                        <span
-                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                            r.restocked ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-700'
-                          }`}
-                        >
-                          {r.restocked ? 'Restocked' : 'Scrapped'}
-                        </span>
-                      </td>
-                      <td className="py-3 px-3 text-[#716d77]">{r.approvedBy || 'Admin'}</td>
-                      <td className="py-3 px-3 text-[#8a858f]">{r.requestedAt}</td>
                     </tr>
-                  ))}
+                  ) : (
+                    refunds.map((r) => (
+                      <tr key={r.id} className="hover:bg-[#fffbfd] transition-colors">
+                        <td className="py-3 px-4 font-mono font-bold text-[#141219]">{r.orderId}</td>
+                        <td className="py-3 px-3">
+                          <div className="font-bold text-[#141219]">{r.customerName}</div>
+                          <div className="text-[11px] text-[#716d77]">{r.customerEmail}</div>
+                        </td>
+                        <td className="py-3 px-3 font-black text-rose-600">
+                          ${r.amount.toFixed(2)}
+                        </td>
+                        <td className="py-3 px-3 text-[#716d77] max-w-[200px] truncate">{r.reason}</td>
+                        <td className="py-3 px-3">
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                              r.restocked ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-700'
+                            }`}
+                          >
+                            {r.restocked ? 'Restocked' : 'Scrapped'}
+                          </span>
+                        </td>
+                        <td className="py-3 px-3 text-[#716d77]">{r.approvedBy || 'Admin'}</td>
+                        <td className="py-3 px-3 text-[#8a858f]">{r.requestedAt}</td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>

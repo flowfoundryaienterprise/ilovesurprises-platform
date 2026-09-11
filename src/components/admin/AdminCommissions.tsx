@@ -53,26 +53,7 @@ const DEFAULT_RATES: CommissionRatesConfig = {
   level5: 1,
 };
 
-const DEFAULT_AUDIT_LOGS: CommissionAuditRecord[] = [
-  {
-    id: 'audit-001',
-    timestamp: '2026-02-01T09:00:00Z',
-    level: 'Platform Baseline Schedule',
-    previousRate: 0,
-    newRate: 35,
-    changeAction: 'Initial Commission Matrix Established (35% Cap)',
-    adminUser: 'Admin Superuser (ops@ilovesurprises.com)',
-  },
-  {
-    id: 'audit-002',
-    timestamp: '2026-02-15T14:30:00Z',
-    level: 'Level 1 Downline',
-    previousRate: 5,
-    newRate: 5,
-    changeAction: 'Quarterly Unilevel Policy Compliance Review',
-    adminUser: 'Compliance Officer (audits@ilovesurprises.com)',
-  },
-];
+const DEFAULT_AUDIT_LOGS: CommissionAuditRecord[] = [];
 
 const COMMISSION_RATES_KEY = 'ils_admin_commission_rates_v1';
 const COMMISSION_AUDIT_KEY = 'ils_admin_commission_audit_v1';
@@ -486,7 +467,7 @@ export const AdminCommissions: React.FC<AdminCommissionsProps> = ({
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-[#716d77]">
                     <DollarSign className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                    <p className="font-bold text-sm text-[#141219] m-0">No commissions matching filters</p>
+                    <p className="font-bold text-sm text-[#141219] m-0">No commissions yet</p>
                   </td>
                 </tr>
               ) : (
@@ -602,7 +583,13 @@ export const AdminCommissions: React.FC<AdminCommissionsProps> = ({
 
       {/* 4. Mobile Responsive Cards View (< 768px) */}
       <div className="md:hidden space-y-3">
-        {paginatedItems.map((c) => (
+        {paginatedItems.length === 0 ? (
+          <div className="bg-white rounded-2xl border border-[#eedbe6] p-8 text-center text-[#716d77]">
+            <DollarSign className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+            <p className="font-bold text-sm text-[#141219] m-0">No commissions yet</p>
+          </div>
+        ) : (
+          paginatedItems.map((c) => (
           <div key={c.id} className="bg-white rounded-2xl border border-[#eedbe6] p-4 shadow-xs space-y-3">
             <div className="flex items-start justify-between">
               <div>
@@ -661,7 +648,8 @@ export const AdminCommissions: React.FC<AdminCommissionsProps> = ({
               )}
             </div>
           </div>
-        ))}
+        ))
+        )}
       </div>
 
       {/* 5. Commission Rate Audit Log (Expandable) */}
@@ -695,28 +683,36 @@ export const AdminCommissions: React.FC<AdminCommissionsProps> = ({
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#f5eaf1] text-xs">
-                {auditLogs.map((log) => (
-                  <tr key={log.id} className="hover:bg-[#fdf9fb] transition-colors">
-                    <td className="py-2.5 px-3 font-mono text-gray-500 text-[11px] whitespace-nowrap">
-                      {new Date(log.timestamp).toLocaleDateString()} {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </td>
-                    <td className="py-2.5 px-3 font-bold text-[#141219]">
-                      {log.level}
-                    </td>
-                    <td className="py-2.5 px-3 font-mono font-semibold text-gray-500">
-                      {log.previousRate}%
-                    </td>
-                    <td className="py-2.5 px-3 font-mono font-black text-[#D30915]">
-                      {log.newRate}%
-                    </td>
-                    <td className="py-2.5 px-3 text-[#54217f] font-medium">
-                      {log.changeAction}
-                    </td>
-                    <td className="py-2.5 px-3 text-gray-500 text-[11px]">
-                      {log.adminUser}
+                {auditLogs.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-8 text-center text-gray-400 font-medium">
+                      No rate adjustments logged yet
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  auditLogs.map((log) => (
+                    <tr key={log.id} className="hover:bg-[#fdf9fb] transition-colors">
+                      <td className="py-2.5 px-3 font-mono text-gray-500 text-[11px] whitespace-nowrap">
+                        {new Date(log.timestamp).toLocaleDateString()} {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </td>
+                      <td className="py-2.5 px-3 font-bold text-[#141219]">
+                        {log.level}
+                      </td>
+                      <td className="py-2.5 px-3 font-mono font-semibold text-gray-500">
+                        {log.previousRate}%
+                      </td>
+                      <td className="py-2.5 px-3 font-mono font-black text-[#D30915]">
+                        {log.newRate}%
+                      </td>
+                      <td className="py-2.5 px-3 text-[#54217f] font-medium">
+                        {log.changeAction}
+                      </td>
+                      <td className="py-2.5 px-3 text-gray-500 text-[11px]">
+                        {log.adminUser}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

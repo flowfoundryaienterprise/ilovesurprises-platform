@@ -29,12 +29,6 @@ interface AppraiseJewelryProps {
   onNavigateToHome?: () => void;
 }
 
-const SAMPLE_CODES = [
-  { code: 'ILS-GOLD-550', label: '$550 Gold Earrings' },
-  { code: 'ILS-SILVER-250', label: '$250 Silver Ring' },
-  { code: 'ILS-DIAMOND-7500', label: '$7,500 Diamond Ring' },
-  { code: 'ILS-SAPPHIRE-2500', label: '$2,500 Sapphire' },
-];
 
 const FAQS = [
   {
@@ -632,26 +626,10 @@ export const AppraiseJewelry: React.FC<AppraiseJewelryProps> = ({
                 </div>
               </form>
 
-              {/* Sample codes */}
-              <div className="mt-6 pt-5 border-t border-[#f7eff4]">
-                <span className="block text-[11px] font-bold text-[#8a858f] uppercase tracking-wider mb-2">
-                  Sample Tag Codes:
-                </span>
-                <div className="flex flex-wrap gap-2">
-                  {SAMPLE_CODES.map((s) => (
-                    <button
-                      key={s.code}
-                      type="button"
-                      onClick={() => {
-                        setCode(s.code);
-                        handleLookup(s.code);
-                      }}
-                      className="px-2.5 py-1 rounded-lg bg-[#faf5f8] hover:bg-[#fff1f2] border border-[#eedbe6] hover:border-[#D30915] text-[11px] font-mono text-[#55505a] hover:text-[#D30915] transition-colors cursor-pointer"
-                    >
-                      {s.code}
-                    </button>
-                  ))}
-                </div>
+              {/* Information Note */}
+              <div className="mt-6 pt-5 border-t border-[#f7eff4] flex items-center gap-2 text-xs text-[#716d77]">
+                <ShieldCheck className="w-4 h-4 text-[#D30915] shrink-0" />
+                <span>Enter the unique appraisal code printed on your physical jewelry pouch or foil tag.</span>
               </div>
             </div>
 

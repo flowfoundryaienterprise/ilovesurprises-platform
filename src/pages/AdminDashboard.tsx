@@ -64,7 +64,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   );
   const [products, setProducts] = useState<AdminProductItem[]>(() => adminService.getCommerceProducts());
   const [collections, setCollections] = useState<AdminCollectionItem[]>(() => adminService.getCollections());
-  const [customers] = useState<AdminCustomerItem[]>(() => adminService.getCustomers());
+  const [customers, setCustomers] = useState<AdminCustomerItem[]>(() => adminService.getCustomers());
   const [refunds, setRefunds] = useState<AdminRefundRecord[]>(() => adminService.getRefunds());
   const [discounts, setDiscounts] = useState<AdminDiscountCode[]>(() => adminService.getDiscounts());
   const [commissions, setCommissions] = useState<AdminCommissionRecord[]>(() =>
@@ -74,7 +74,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [settings, setSettings] = useState<AdminSettingsData>(() => adminService.getSettings());
   const [orders, setOrders] = useState<AdminOrderItem[]>([]);
 
-  // Fetch real Supabase products and orders on mount
+  // Fetch real Supabase products, orders, reps, customers, and commissions on mount
   useEffect(() => {
     adminService.fetchCommerceProductsFromSupabase().then((liveProds) => {
       if (liveProds && liveProds.length > 0) {
@@ -83,6 +83,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     });
     adminService.getCommerceOrders().then((liveOrders) => {
       setOrders(liveOrders);
+    });
+    adminService.fetchRepresentativesFromSupabase().then((liveReps) => {
+      setRepresentatives(liveReps);
+    });
+    adminService.fetchCustomersFromSupabase().then((liveCusts) => {
+      setCustomers(liveCusts);
+    });
+    adminService.fetchCommissionsFromSupabase().then((liveComms) => {
+      setCommissions(liveComms);
+    });
+    adminService.fetchKPIsFromSupabase().then((liveKPIs) => {
+      setKpis(liveKPIs);
     });
   }, []);
 
@@ -96,9 +108,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       setMemberships(adminService.getMemberships());
       setProducts(adminService.getCommerceProducts());
       setCollections(adminService.getCollections());
+      setCustomers(adminService.getCustomers());
       setRefunds(adminService.getRefunds());
       setDiscounts(adminService.getDiscounts());
       setCommissions(adminService.getCommissionLedger());
+      setReportData(adminService.getReportsData('30d'));
       setSettings(adminService.getSettings());
     };
 

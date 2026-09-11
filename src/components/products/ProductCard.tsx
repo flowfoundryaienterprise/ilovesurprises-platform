@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Heart, Plus, Minus, Star, Sparkles } from 'lucide-react';
 import type { Product } from '../../types';
+import { resolveProductImage } from '../../services/productService';
 
 interface ProductCardProps {
   product: Product;
@@ -21,6 +22,16 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
   onSelectProduct,
   isWishlisted = false,
 }) => {
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+
+  const resolved = resolveProductImage(product.image, product.name, product.category);
+  const imageSrc =
+    failedSrc === resolved ? resolveProductImage(null, product.name, product.category) : resolved;
+
+  const handleImageError = () => {
+    setFailedSrc(resolved);
+  };
+
   const handleCardClick = () => {
     onSelectProduct?.(product);
   };
@@ -59,13 +70,14 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
       {/* Product Image Container with Hardware-Accelerated Isolated Overflow Clipping */}
       <div className="relative w-full max-w-full aspect-square rounded-[14px] overflow-hidden bg-white border border-[#f5edf2] mb-2.5 flex items-center justify-center isolate">
         <img
-          src={product.image}
+          src={imageSrc}
           alt={product.name}
           width={400}
           height={400}
           className="w-full h-full max-w-full object-contain p-1.5 transition-transform duration-500 ease-out group-hover:scale-105"
           loading="lazy"
           decoding="async"
+          onError={handleImageError}
         />
 
         {/* Top-Left Badges Stack with Proper Flex Spacing & No Overlap */}
@@ -90,11 +102,17 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
           aria-label={isWishlisted ? `Remove ${product.name} from wishlist` : `Save ${product.name} to wishlist`}
           className={`absolute top-1.5 right-1.5 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer shadow-xs active:scale-90 z-20 focus-visible:ring-2 focus-visible:ring-[#D30915]/50 focus-visible:outline-none ${
             isWishlisted
-              ? 'bg-[#D30915] text-white shadow-[0_4px_12px_rgba(211, 9, 21,0.3)] hover:scale-105'
-              : 'bg-white/90 hover:bg-white text-[#716d77] hover:text-[#D30915] hover:shadow-[0_4px_12px_rgba(211, 9, 21,0.2)] hover:scale-110'
+              ? 'bg-[#fff1f2] border border-[#fecdd3] text-[#D30915] shadow-[0_4px_12px_rgba(211,9,21,0.22)] scale-105'
+              : 'bg-white/90 hover:bg-white text-[#716d77] hover:text-[#D30915] hover:shadow-[0_4px_12px_rgba(211,9,21,0.2)] hover:scale-110'
           }`}
         >
-          <Heart className={`w-3.5 h-3.5 ${isWishlisted ? 'fill-current' : ''}`} />
+          <Heart
+            className={`w-3.5 h-3.5 transition-all duration-200 ${
+              isWishlisted
+                ? 'fill-[#D30915] text-[#D30915] scale-110'
+                : 'text-[#716d77] hover:text-[#D30915]'
+            }`}
+          />
         </button>
 
         {/* Surprise Pill Tag at Bottom of Image with Strict Truncation and No Overflow */}

@@ -10,6 +10,7 @@ import {
   ChevronRight,
   RotateCcw,
 } from 'lucide-react';
+import { resolveProductImage } from '../../services/productService';
 
 interface ProductGalleryProps {
   mainImage: string;
@@ -26,12 +27,16 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
   badge,
   surpriseValue,
 }) => {
-  const allImages = Array.from(new Set([mainImage, ...alternateImages].filter(Boolean)));
+  const resolvedMain = resolveProductImage(mainImage, productName);
+  const allImages = Array.from(
+    new Set([resolvedMain, ...alternateImages.map((img) => resolveProductImage(img, productName))].filter(Boolean))
+  );
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHoverZooming, setIsHoverZooming] = useState(false);
   const [zoomOrigin, setZoomOrigin] = useState({ x: 50, y: 50 });
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxScale, setLightboxScale] = useState(1);
+  const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
 
   const containerRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
@@ -46,11 +51,15 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
   useEffect(() => {
     const timer = setTimeout(() => {
       setCurrentIndex(0);
+      setFailedImages({});
     }, 0);
     return () => clearTimeout(timer);
   }, [mainImage]);
 
-  const currentImage = allImages[currentIndex] || mainImage;
+  const rawCurrentImage = allImages[currentIndex] || resolvedMain;
+  const currentImage = failedImages[rawCurrentImage]
+    ? resolveProductImage(null, productName)
+    : rawCurrentImage;
 
   // Body scroll lock during Lightbox
   useEffect(() => {
@@ -131,6 +140,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
             }`}
           loading="eager"
           decoding="async"
+          onError={() => setFailedImages((prev) => ({ ...prev, [rawCurrentImage]: true }))}
         />
 
         {/* Top Badges */}
@@ -308,6 +318,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                     transform: `scale(${lightboxScale})`,
                   }}
                   className="max-w-full max-h-[70vh] object-contain transition-transform duration-200 select-none shadow-2xl rounded-[18px]"
+                  onError={() => setFailedImages((prev) => ({ ...prev, [rawCurrentImage]: true }))}
                 />
               </div>
 

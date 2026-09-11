@@ -268,11 +268,13 @@ export const OrderHistorySection: React.FC<OrderHistorySectionProps> = ({
           <div className="text-center py-12 px-4 rounded-[20px] bg-[#fffafc] border border-dashed border-[#eedbe6]">
             <Package className="w-12 h-12 text-[#d9cbd5] mx-auto mb-3" />
             <h4 className="text-base font-black text-[#141219] mb-1">
-              {orderSearch ? 'No Matching Orders Found' : 'No Orders in this Category'}
+              {orderSearch ? 'No Matching Orders Found' : orders.length === 0 ? 'No orders yet' : 'No Orders in this Category'}
             </h4>
             <p className="text-xs text-[#716d77] max-w-sm mx-auto mb-5 leading-relaxed">
               {orderSearch
                 ? `We couldn't find any orders matching "${orderSearch}". Try a different search term or clear filters.`
+                : orders.length === 0
+                ? 'When you purchase candles or bath treats, your tracked deliveries and prize receipts will appear right here.'
                 : 'You have not placed any orders matching this filter yet.'}
             </p>
             {orderSearch ? (

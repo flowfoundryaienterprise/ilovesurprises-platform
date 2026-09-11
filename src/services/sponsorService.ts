@@ -208,23 +208,7 @@ export const sponsorService = {
         nextSponsor = registry[currentSponsor].sponsorUsername;
       }
 
-      // 2. Check default genealogy hierarchy chain
-      if (!nextSponsor) {
-        const defaultChain = [
-          'emily_sparkles',
-          'jess_candles',
-          'marcus_vip',
-          'rachel_cozy',
-          'grace_reveals',
-          'sophia_luxe',
-        ];
-        const idx = defaultChain.indexOf(currentSponsor);
-        if (idx >= 0 && idx < defaultChain.length - 1) {
-          nextSponsor = defaultChain[idx + 1];
-        }
-      }
-
-      // 3. Check Supabase profiles for sponsor of current node
+      // 2. Check Supabase profiles for sponsor of current node
       if (!nextSponsor) {
         try {
           const { data } = await supabase
@@ -321,17 +305,7 @@ export const sponsorService = {
       return this.buildUpline(registry[clean].sponsorUsername, clean);
     }
 
-    // Default fallback sponsor chain for verified default reps
-    const defaultSponsorChain = [
-      'emily_sparkles',
-      'jess_candles',
-      'marcus_vip',
-      'rachel_cozy',
-      'grace_reveals',
-      'sophia_luxe',
-    ];
-
-    return defaultSponsorChain.filter((s) => s.toLowerCase() !== clean).slice(0, 5);
+    return [];
   },
 
   /**

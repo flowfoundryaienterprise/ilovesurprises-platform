@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Star, CheckCircle, Sparkles, Gem, DollarSign, PackageCheck, ShieldCheck, Award } from 'lucide-react';
+import type { Review } from '../../types';
 import { reviewsData } from '../../data/reviews';
 import { Skeleton } from '../ui/Skeleton';
 
@@ -9,9 +10,32 @@ interface ReviewsSectionProps {
 
 export const ReviewsSection: React.FC<ReviewsSectionProps> = React.memo(({ isLoading = false }) => {
   const [activeFilter, setActiveFilter] = useState<'all' | 'cash' | 'jewelry'>('all');
+  const [reviews, setReviews] = useState<Review[]>(() => {
+    try {
+      const stored = localStorage.getItem('ilovesurprises_reviews_v1');
+      const parsed = stored ? JSON.parse(stored) : [];
+      return [...parsed, ...reviewsData];
+    } catch {
+      return reviewsData;
+    }
+  });
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      try {
+        const stored = localStorage.getItem('ilovesurprises_reviews_v1');
+        const parsed = stored ? JSON.parse(stored) : [];
+        setReviews([...parsed, ...reviewsData]);
+      } catch {
+        setReviews(reviewsData);
+      }
+    };
+    window.addEventListener('storage', handleUpdate);
+    return () => window.removeEventListener('storage', handleUpdate);
+  }, []);
 
   const filteredReviews = React.useMemo(() => {
-    return reviewsData.filter((rev) => {
+    return reviews.filter((rev) => {
       if (activeFilter === 'cash') {
         return rev.revealedSurprise?.toLowerCase().includes('cash') || rev.revealedSurprise?.includes('$50') || rev.revealedSurprise?.includes('$100');
       }
@@ -20,13 +44,18 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = React.memo(({ isLoa
       }
       return true;
     });
-  }, [activeFilter]);
+  }, [reviews, activeFilter]);
 
   const { cashCount, jewelryCount } = React.useMemo(() => {
-    const cash = reviewsData.filter(r => r.revealedSurprise?.toLowerCase().includes('cash') || r.revealedSurprise?.includes('$50') || r.revealedSurprise?.includes('$100')).length;
-    const jewelry = reviewsData.filter(r => r.revealedSurprise?.toLowerCase().includes('ring') || r.revealedSurprise?.toLowerCase().includes('earring') || r.revealedSurprise?.toLowerCase().includes('jewelry')).length;
+    const cash = reviews.filter(r => r.revealedSurprise?.toLowerCase().includes('cash') || r.revealedSurprise?.includes('$50') || r.revealedSurprise?.includes('$100')).length;
+    const jewelry = reviews.filter(r => r.revealedSurprise?.toLowerCase().includes('ring') || r.revealedSurprise?.toLowerCase().includes('earring') || r.revealedSurprise?.toLowerCase().includes('jewelry')).length;
     return { cashCount: cash, jewelryCount: jewelry };
-  }, []);
+  }, [reviews]);
+
+  const avgRating = React.useMemo(() => {
+    if (reviews.length === 0) return '5.0';
+    return (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1);
+  }, [reviews]);
 
   return (
     <section id="reviews" className="max-w-[1460px] mx-auto px-3 sm:px-6 py-4 sm:py-6 overflow-hidden">
@@ -57,7 +86,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = React.memo(({ isLoa
 
             {/* Subtext */}
             <p className="text-xs sm:text-sm lg:text-[14px] text-[#55505a] leading-relaxed m-0 font-medium">
-              Over <strong className="text-[#141219] font-black">50,000+ verified surprises</strong> unboxed. Every hand-poured candle and bath treat has a genuine prize sealed safely inside.
+              Every hand-poured candle and bath treat has a genuine prize sealed safely inside.
             </p>
           </div>
 
@@ -65,7 +94,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = React.memo(({ isLoa
           <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 p-3 sm:p-3.5 rounded-[18px] bg-white/95 backdrop-blur-md border border-[#ebdce6] shadow-sm shrink-0">
             <div className="flex items-center gap-2 pr-3 border-r border-[#f0e4eb]">
               <div className="text-2xl sm:text-3xl font-black text-[#141219] leading-none hero-title-font">
-                4.9
+                {avgRating}
               </div>
               <div>
                 <div className="flex items-center text-amber-400 gap-0.5">
@@ -74,7 +103,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = React.memo(({ isLoa
                   ))}
                 </div>
                 <span className="text-[10px] font-extrabold text-[#716d77] block mt-0.5">
-                  4,850+ Verified Reviews
+                  {reviews.length > 0 ? `${reviews.length} Verified Review${reviews.length === 1 ? '' : 's'}` : '0 Verified Reviews'}
                 </span>
               </div>
             </div>
@@ -86,7 +115,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = React.memo(({ isLoa
               </div>
               <div className="flex items-center gap-1.5 text-[#D30915]">
                 <Award className="w-3.5 h-3.5 text-[#D30915]" />
-                <span>$1.2M+ In Prizes Revealed</span>
+                <span>Real Prizes in Every Item</span>
               </div>
             </div>
           </div>
@@ -103,7 +132,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = React.memo(({ isLoa
                 : 'bg-white text-[#55505a] border border-[#e8dfe5] hover:border-[#D30915] hover:text-[#D30915] shadow-2xs hover:shadow-xs'
               }`}
           >
-            All Reveals ({reviewsData.length})
+            All Reveals ({reviews.length})
           </button>
 
           <button
@@ -161,6 +190,16 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = React.memo(({ isLoa
                 <Skeleton className="h-7 w-full rounded-[10px]" />
               </div>
             ))}
+          </div>
+        ) : filteredReviews.length === 0 ? (
+          <div className="py-12 px-4 rounded-[20px] bg-white border border-[#eedbe6] text-center mb-6">
+            <Sparkles className="w-10 h-10 text-[#D30915] mx-auto mb-3 opacity-60" />
+            <h3 className="text-base sm:text-lg font-black text-[#141219] mb-1 font-display">
+              No Customer Reviews Yet
+            </h3>
+            <p className="text-xs sm:text-sm text-[#716d77] max-w-md mx-auto">
+              Be the first to reveal an authentic cash or jewelry surprise and share your unboxing story!
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5 sm:gap-4 mb-6">
@@ -287,8 +326,10 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = React.memo(({ isLoa
                 <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
               ))}
             </div>
-            <strong className="text-xs font-black text-[#141219]">4.9 / 5.0 Rating</strong>
-            <span className="text-[10px] text-[#716d77]">4,850+ Genuine Unboxers</span>
+            <strong className="text-xs font-black text-[#141219]">{avgRating} / 5.0 Rating</strong>
+            <span className="text-[10px] text-[#716d77]">
+              {reviews.length > 0 ? `${reviews.length} Customer Reveal${reviews.length === 1 ? '' : 's'}` : '100% Genuine Reveals'}
+            </span>
           </div>
 
           <div className="p-2.5 rounded-[14px] bg-white/80 border border-[#f2e6ec] flex flex-col items-center justify-center">

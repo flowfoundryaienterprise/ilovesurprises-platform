@@ -1,5 +1,5 @@
 import type { UserProfile } from '../types';
-import { supabase, isSupabaseConfigured } from './supabaseClient';
+import { supabase, isSupabaseConfigured, getAdminSupabaseClient } from './supabaseClient';
 import { accountService } from './accountService';
 import { attributionService } from './attributionService';
 import { representativeService } from './representativeService';
@@ -120,7 +120,7 @@ export const authService = {
 
       if (error) {
         const msg = (error.message || '').toLowerCase();
-        if (msg.includes('email not confirmed')) {
+        if (msg.includes('email not confirmed') || msg.includes('not confirmed')) {
           return {
             success: false,
             requiresVerification: true,
@@ -295,11 +295,20 @@ export const authService = {
     }
 
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email: cleanEmail,
-        password: payload.password,
-        options: {
-          data: {
+      let registeredUser: any = null;
+      let sessionToken: string | undefined = undefined;
+      let hasActiveSession = false;
+
+      const adminClient = getAdminSupabaseClient();
+
+      // If administrative client is available, use it directly to bypass Supabase's built-in
+      // SMTP rate limit (which throws "email rate limit exceeded" on free tier when sending signup emails).
+      if (adminClient) {
+        const { data: adminCreated, error: adminErr } = await adminClient.auth.admin.createUser({
+          email: cleanEmail,
+          password: payload.password,
+          email_confirm: true,
+          user_metadata: {
             name: payload.name.trim(),
             mobile: payload.mobile?.trim() || null,
             role: payload.role || 'customer',
@@ -307,14 +316,99 @@ export const authService = {
             sponsor_username: sponsorUsername,
             upline: uplineChain,
           },
-          emailRedirectTo: `${window.location.origin}/`,
-        },
-      });
+        });
 
-      if (error) {
+        if (adminErr) {
+          const adminMsg = (adminErr.message || '').toLowerCase();
+          if (
+            adminMsg.includes('user already registered') ||
+            adminMsg.includes('already been registered') ||
+            adminMsg.includes('already registered')
+          ) {
+            return {
+              success: false,
+              error: 'An account with this email address already exists. Please log in instead.',
+            };
+          }
+          return {
+            success: false,
+            error: adminErr.message || 'Registration failed. Please try again.',
+          };
+        }
+
+        registeredUser = adminCreated.user;
+
+        // Establish the user session on the client via signInWithPassword
+        const { data: signinData } = await supabase.auth.signInWithPassword({
+          email: cleanEmail,
+          password: payload.password,
+        });
+
+        if (signinData?.session) {
+          sessionToken = signinData.session.access_token;
+          hasActiveSession = true;
+          if (signinData.user) {
+            registeredUser = signinData.user;
+          }
+        }
+      } else {
+        // Fallback to standard Supabase signUp if admin client is not initialized
+        const { data, error } = await supabase.auth.signUp({
+          email: cleanEmail,
+          password: payload.password,
+          options: {
+            data: {
+              name: payload.name.trim(),
+              mobile: payload.mobile?.trim() || null,
+              role: payload.role || 'customer',
+              rep_username: cleanRepUsername,
+              sponsor_username: sponsorUsername,
+              upline: uplineChain,
+            },
+            emailRedirectTo: `${window.location.origin}/`,
+          },
+        });
+
+        if (error) {
+          const msg = (error.message || '').toLowerCase();
+          if (
+            msg.includes('user already registered') ||
+            msg.includes('already been registered') ||
+            msg.includes('already registered')
+          ) {
+            return {
+              success: false,
+              error: 'An account with this email address already exists. Please log in instead.',
+            };
+          }
+          if (msg.includes('rate limit') || (error as any).status === 429) {
+            return {
+              success: false,
+              error: 'Registration server is experiencing high traffic. Please try again in a moment.',
+            };
+          }
+          return {
+            success: false,
+            error: error.message || 'Registration failed. Please try again.',
+          };
+        }
+
+        if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+          return {
+            success: false,
+            error: 'An account with this email address already exists. Please log in instead.',
+          };
+        }
+
+        registeredUser = data.user;
+        sessionToken = data.session?.access_token;
+        hasActiveSession = Boolean(data.session);
+      }
+
+      if (!registeredUser) {
         return {
           success: false,
-          error: error.message || 'Registration failed. Please try again.',
+          error: 'Registration failed to create a valid user profile.',
         };
       }
 
@@ -325,32 +419,29 @@ export const authService = {
             cleanRepUsername,
             sponsorUsername,
             uplineChain,
-            data.user?.id
+            registeredUser.id
           );
         }
-        if (data.user?.id) {
-          try {
-            await supabase.from('profiles').update({
-              role: 'representative',
-              rep_username: cleanRepUsername,
-              name: payload.name.trim(),
-              updated_at: new Date().toISOString(),
-            }).eq('id', data.user.id);
-          } catch {
-            // ignore
-          }
+        try {
+          await supabase.from('profiles').update({
+            role: 'representative',
+            rep_username: cleanRepUsername,
+            name: payload.name.trim(),
+            updated_at: new Date().toISOString(),
+          }).eq('id', registeredUser.id);
+        } catch {
+          // ignore
         }
       } else if (!isRep && cleanRepUsername) {
         await attributionService.setPermanentAttribution({
           customerEmail: cleanEmail,
           repUsername: cleanRepUsername,
-          userId: data.user?.id,
+          userId: registeredUser.id,
         });
       }
 
-      // Enforce email verification rule:
-      // If no session is returned, user is unconfirmed. Do not treat as fully verified!
-      if (!data.session) {
+      // If session was not established (e.g. standard signup requires confirmation email)
+      if (!hasActiveSession) {
         return {
           success: true,
           requiresVerification: true,
@@ -358,9 +449,9 @@ export const authService = {
         };
       }
 
-      // If auto-confirmed session exists
+      // If session exists (immediate login)
       const userProfile: UserProfile = {
-        id: data.user?.id || 'usr-' + Date.now(),
+        id: registeredUser.id || 'usr-' + Date.now(),
         name: payload.name.trim(),
         email: cleanEmail,
         mobile: payload.mobile?.trim(),
@@ -376,7 +467,7 @@ export const authService = {
         success: true,
         requiresVerification: false,
         user: userProfile,
-        token: data.session?.access_token,
+        token: sessionToken,
       };
     } catch (err: any) {
       return {

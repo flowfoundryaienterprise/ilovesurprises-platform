@@ -356,18 +356,24 @@ export const AdminReports: React.FC<AdminReportsProps> = ({
               </div>
 
               <div className="pt-4 h-52 flex items-end justify-between gap-2 px-2 pb-2 border-b border-gray-100">
-                {reportData.salesByDay.map((pt) => (
-                  <div key={pt.date} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end group">
-                    <span className="text-[10px] font-bold text-[#716d77] opacity-0 group-hover:opacity-100 transition-opacity">
-                      ${(pt.sales / 1000).toFixed(1)}k
-                    </span>
-                    <div
-                      style={{ height: `${(pt.sales / 10000) * 100}%` }}
-                      className="w-full max-w-[36px] bg-gradient-to-t from-[#D30915] to-[#ff7fa9] rounded-t-lg group-hover:brightness-110 transition-all"
-                    />
-                    <span className="text-xs font-bold text-[#55505a]">{pt.date}</span>
+                {reportData.salesByDay.length === 0 ? (
+                  <div className="w-full h-full flex flex-col items-center justify-center text-xs text-[#8a858f]">
+                    <span>No sales recorded yet.</span>
                   </div>
-                ))}
+                ) : (
+                  reportData.salesByDay.map((pt) => (
+                    <div key={pt.date} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end group">
+                      <span className="text-[10px] font-bold text-[#716d77] opacity-0 group-hover:opacity-100 transition-opacity">
+                        ${(pt.sales / 1000).toFixed(1)}k
+                      </span>
+                      <div
+                        style={{ height: `${(pt.sales / 10000) * 100}%` }}
+                        className="w-full max-w-[36px] bg-gradient-to-t from-[#D30915] to-[#ff7fa9] rounded-t-lg group-hover:brightness-110 transition-all"
+                      />
+                      <span className="text-xs font-bold text-[#55505a]">{pt.date}</span>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 
@@ -381,23 +387,29 @@ export const AdminReports: React.FC<AdminReportsProps> = ({
                   <p className="text-xs text-[#716d77] m-0">Traffic volume driving catalog reveals</p>
                 </div>
                 <span className="text-xs font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full">
-                  4.7% Avg Conversion
+                  {reportData.conversionRate}% Avg Conversion
                 </span>
               </div>
 
               <div className="pt-4 h-52 flex items-end justify-between gap-2 px-2 pb-2 border-b border-gray-100">
-                {reportData.trafficByDay.map((pt) => (
-                  <div key={pt.date} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end group">
-                    <span className="text-[10px] font-bold text-[#716d77] opacity-0 group-hover:opacity-100 transition-opacity">
-                      {pt.visitors}
-                    </span>
-                    <div
-                      style={{ height: `${(pt.visitors / 12000) * 100}%` }}
-                      className="w-full max-w-[36px] bg-gradient-to-t from-[#54217f] to-[#8d42d3] rounded-t-lg group-hover:brightness-110 transition-all"
-                    />
-                    <span className="text-xs font-bold text-[#55505a]">{pt.date}</span>
+                {reportData.trafficByDay.length === 0 ? (
+                  <div className="w-full h-full flex flex-col items-center justify-center text-xs text-[#8a858f]">
+                    <span>No traffic recorded yet.</span>
                   </div>
-                ))}
+                ) : (
+                  reportData.trafficByDay.map((pt) => (
+                    <div key={pt.date} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end group">
+                      <span className="text-[10px] font-bold text-[#716d77] opacity-0 group-hover:opacity-100 transition-opacity">
+                        {pt.visitors}
+                      </span>
+                      <div
+                        style={{ height: `${(pt.visitors / 12000) * 100}%` }}
+                        className="w-full max-w-[36px] bg-gradient-to-t from-[#54217f] to-[#8d42d3] rounded-t-lg group-hover:brightness-110 transition-all"
+                      />
+                      <span className="text-xs font-bold text-[#55505a]">{pt.date}</span>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -412,20 +424,26 @@ export const AdminReports: React.FC<AdminReportsProps> = ({
                 <span className="text-xs font-bold text-emerald-700">35% Program Total</span>
               </div>
               <div className="space-y-2 text-xs">
-                {reportData.tierDistribution.map((td) => (
-                  <div
-                    key={td.tier}
-                    className="p-2.5 rounded-xl bg-[#faf7f9] border border-[#f0e2ec] flex items-center justify-between"
-                  >
-                    <div>
-                      <div className="font-bold text-[#141219]">{td.tier} ({td.rate})</div>
-                      <div className="text-[11px] text-[#716d77]">{td.percentage}% of all commissions paid</div>
-                    </div>
-                    <div className="font-black text-sm text-[#141219]">
-                      ${td.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                    </div>
+                {reportData.tierDistribution.length === 0 ? (
+                  <div className="p-6 text-center text-xs text-[#8a858f]">
+                    No commission tiers recorded yet.
                   </div>
-                ))}
+                ) : (
+                  reportData.tierDistribution.map((td) => (
+                    <div
+                      key={td.tier}
+                      className="p-2.5 rounded-xl bg-[#faf7f9] border border-[#f0e2ec] flex items-center justify-between"
+                    >
+                      <div>
+                        <div className="font-bold text-[#141219]">{td.tier} ({td.rate})</div>
+                        <div className="text-[11px] text-[#716d77]">{td.percentage}% of all commissions paid</div>
+                      </div>
+                      <div className="font-black text-sm text-[#141219]">
+                        ${td.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 
@@ -437,23 +455,29 @@ export const AdminReports: React.FC<AdminReportsProps> = ({
                 <span className="text-xs font-bold text-[#D30915]">Recurring Revenue</span>
               </div>
               <div className="space-y-2 text-xs">
-                {reportData.membershipBreakdown.map((mb) => (
-                  <div
-                    key={mb.plan}
-                    className="p-3 rounded-xl bg-[#faf7f9] border border-[#f0e2ec] flex items-center justify-between"
-                  >
-                    <div>
-                      <div className="font-bold text-[#141219]">{mb.plan}</div>
-                      <div className="text-[11px] text-[#716d77]">{mb.count} active subscribers enrolled</div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-black text-sm text-[#D30915]">
-                        ${mb.revenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                      </div>
-                      <div className="text-[10px] text-[#716d77]">Plan volume</div>
-                    </div>
+                {reportData.membershipBreakdown.length === 0 ? (
+                  <div className="p-6 text-center text-xs text-[#8a858f]">
+                    No active membership subscriptions yet.
                   </div>
-                ))}
+                ) : (
+                  reportData.membershipBreakdown.map((mb) => (
+                    <div
+                      key={mb.plan}
+                      className="p-3 rounded-xl bg-[#faf7f9] border border-[#f0e2ec] flex items-center justify-between"
+                    >
+                      <div>
+                        <div className="font-bold text-[#141219]">{mb.plan}</div>
+                        <div className="text-[11px] text-[#716d77]">{mb.count} active subscribers enrolled</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-black text-sm text-[#D30915]">
+                          ${mb.revenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        </div>
+                        <div className="text-[10px] text-[#716d77]">Plan volume</div>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -510,7 +534,7 @@ export const AdminReports: React.FC<AdminReportsProps> = ({
                   {filteredOrders.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="text-center py-8 text-stone-400">
-                        No orders match your search criteria.
+                        {orders.length === 0 ? 'No orders yet' : 'No orders match your search criteria.'}
                       </td>
                     </tr>
                   ) : (
@@ -613,7 +637,7 @@ export const AdminReports: React.FC<AdminReportsProps> = ({
                   {filteredCustomers.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="text-center py-8 text-stone-400">
-                        No customers match your query.
+                        {customers.length === 0 ? 'No customers found' : 'No customers match your query.'}
                       </td>
                     </tr>
                   ) : (
@@ -703,7 +727,7 @@ export const AdminReports: React.FC<AdminReportsProps> = ({
                   {filteredCommissions.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="text-center py-8 text-stone-400">
-                        No commissions match your filter.
+                        {commissions.length === 0 ? 'No commissions yet' : 'No commissions match your filter.'}
                       </td>
                     </tr>
                   ) : (
@@ -783,7 +807,14 @@ export const AdminReports: React.FC<AdminReportsProps> = ({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 font-medium">
-                  {topAffiliatesList.map((rep, idx) => (
+                  {topAffiliatesList.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className="text-center py-8 text-stone-400">
+                        {representatives.length === 0 ? 'No representatives found' : 'No affiliates match your query.'}
+                      </td>
+                    </tr>
+                  ) : (
+                    topAffiliatesList.map((rep, idx) => (
                     <tr key={rep.id} className="hover:bg-[#fffbfd] transition-colors">
                       <td className="py-3 px-4 text-center">
                         <span
@@ -826,7 +857,7 @@ export const AdminReports: React.FC<AdminReportsProps> = ({
                         ${rep.totalCommissionsEarned.toFixed(2)}
                       </td>
                     </tr>
-                  ))}
+                  )))}
                 </tbody>
               </table>
             </div>

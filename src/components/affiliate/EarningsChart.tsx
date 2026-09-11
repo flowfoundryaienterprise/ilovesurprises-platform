@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Sparkles,
   TrendingUp,
   Layers,
   BarChart2,
-  Calendar,
   Flame,
   Info,
 } from 'lucide-react';
+import { affiliateService } from '../../services/affiliateService';
 
 interface ChartPoint {
   label: string;
@@ -17,43 +17,65 @@ interface ChartPoint {
   orders: number;
 }
 
-const MONTHLY_DATA: ChartPoint[] = [
-  { label: 'October 2025', shortLabel: 'Oct 2025', personal: 180, team: 90, orders: 22 },
-  { label: 'November 2025', shortLabel: 'Nov 2025', personal: 290, team: 150, orders: 36 },
-  { label: 'December 2025', shortLabel: 'Dec 2025', personal: 620, team: 380, orders: 78 },
-  { label: 'January 2026', shortLabel: 'Jan 2026', personal: 420, team: 260, orders: 48 },
-  { label: 'February 2026', shortLabel: 'Feb 2026', personal: 540, team: 340, orders: 64 },
-  { label: 'March 2026', shortLabel: 'Mar 2026', personal: 680, team: 420, orders: 86 },
-];
-
-const WEEKLY_DATA: ChartPoint[] = [
-  { label: 'Week 1 (Mar 1-7)', shortLabel: 'Week 1', personal: 140, team: 85, orders: 18 },
-  { label: 'Week 2 (Mar 8-14)', shortLabel: 'Week 2', personal: 190, team: 115, orders: 24 },
-  { label: 'Week 3 (Mar 15-21)', shortLabel: 'Week 3', personal: 165, team: 100, orders: 21 },
-  { label: 'Week 4 (Mar 22-28)', shortLabel: 'Week 4', personal: 220, team: 145, orders: 29 },
-];
-
-const DAILY_DATA: ChartPoint[] = [
-  { label: 'Monday', shortLabel: 'Mon', personal: 45, team: 25, orders: 5 },
-  { label: 'Tuesday', shortLabel: 'Tue', personal: 38, team: 20, orders: 4 },
-  { label: 'Wednesday', shortLabel: 'Wed', personal: 62, team: 38, orders: 7 },
-  { label: 'Thursday', shortLabel: 'Thu', personal: 52, team: 30, orders: 6 },
-  { label: 'Friday', shortLabel: 'Fri', personal: 84, team: 54, orders: 10 },
-  { label: 'Saturday', shortLabel: 'Sat', personal: 98, team: 68, orders: 12 },
-  { label: 'Sunday', shortLabel: 'Sun', personal: 90, team: 60, orders: 11 },
-];
-
 export const EarningsChart: React.FC = () => {
   const [timeframe, setTimeframe] = useState<'monthly' | 'weekly' | 'daily'>('monthly');
   const [viewStyle, setViewStyle] = useState<'stacked' | 'grouped'>('stacked');
   const [activeHoverIndex, setActiveHoverIndex] = useState<number | null>(null);
+  const chartContainerRef = React.useRef<HTMLDivElement>(null);
+  const isTouchRef = React.useRef(false);
 
-  const data =
-    timeframe === 'monthly'
-      ? MONTHLY_DATA
-      : timeframe === 'weekly'
-      ? WEEKLY_DATA
-      : DAILY_DATA;
+  const commissions = useMemo(() => affiliateService.getCommissions(), []);
+  const hasCommissions = commissions.length > 0;
+
+  const data: ChartPoint[] = useMemo(() => {
+    if (!hasCommissions) {
+      if (timeframe === 'daily') {
+        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        return days.map((d) => ({ label: d, shortLabel: d, personal: 0, team: 0, orders: 0 }));
+      } else if (timeframe === 'weekly') {
+        return [
+          { label: 'Week 1', shortLabel: 'W1', personal: 0, team: 0, orders: 0 },
+          { label: 'Week 2', shortLabel: 'W2', personal: 0, team: 0, orders: 0 },
+          { label: 'Week 3', shortLabel: 'W3', personal: 0, team: 0, orders: 0 },
+          { label: 'Week 4', shortLabel: 'W4', personal: 0, team: 0, orders: 0 },
+        ];
+      } else {
+        const months = ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
+        return months.map((m) => ({ label: m, shortLabel: m, personal: 0, team: 0, orders: 0 }));
+      }
+    }
+
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    return days.map((d) => {
+      let personal = 0;
+      let team = 0;
+      let orders = 0;
+      commissions.forEach((c) => {
+        if (c.level === 'personal') {
+          personal += c.commissionAmount;
+        } else {
+          team += c.commissionAmount;
+        }
+        orders += 1;
+      });
+      return { label: d, shortLabel: d, personal, team, orders };
+    });
+  }, [commissions, timeframe, hasCommissions]);
+
+  // Click outside to dismiss active tooltip on touch/click
+  React.useEffect(() => {
+    const handlePointerDownOutside = (e: MouseEvent | TouchEvent) => {
+      if (chartContainerRef.current && !chartContainerRef.current.contains(e.target as Node)) {
+        setActiveHoverIndex(null);
+      }
+    };
+    document.addEventListener('mousedown', handlePointerDownOutside);
+    document.addEventListener('touchstart', handlePointerDownOutside, { passive: true });
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDownOutside);
+      document.removeEventListener('touchstart', handlePointerDownOutside);
+    };
+  }, []);
 
   // Compute max values for responsive scaling
   const maxCombinedVal = Math.max(...data.map((d) => d.personal + d.team), 100);
@@ -67,9 +89,13 @@ export const EarningsChart: React.FC = () => {
 
   // Peak earning period
   const peakPeriod = [...data].sort((a, b) => b.personal + b.team - (a.personal + a.team))[0];
+  const activeItem = activeHoverIndex !== null ? data[activeHoverIndex] : null;
 
   return (
-    <div className="bg-gradient-to-b from-white via-[#fffdfd] to-[#fff8fb] rounded-[20px] sm:rounded-[28px] p-4 sm:p-7 lg:p-9 border-2 border-[#fecdd3] shadow-[0_12px_36px_rgba(211, 9, 21,0.06)] space-y-4 sm:space-y-7 relative overflow-hidden">
+    <div
+      ref={chartContainerRef}
+      className="bg-gradient-to-b from-white via-[#fffdfd] to-[#fff8fb] rounded-[20px] sm:rounded-[28px] p-4 sm:p-7 lg:p-9 border-2 border-[#fecdd3] shadow-[0_12px_36px_rgba(211,9,21,0.06)] space-y-4 sm:space-y-6 relative"
+    >
       {/* Soft Ambient Backlights */}
       <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-bl from-[#D30915]/8 to-transparent rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-1/4 w-72 h-72 bg-purple-500/8 rounded-full blur-3xl pointer-events-none" />
@@ -92,7 +118,13 @@ export const EarningsChart: React.FC = () => {
             Personal & 5-Tier Downline Revenue Growth
           </h3>
           <p className="text-xs sm:text-sm text-[#716d77] m-0 mt-1">
-            Total Revenue in Selected Period: <strong className="text-emerald-700 font-black">${totalPeriodEarnings.toFixed(2)}</strong> across <strong className="text-[#141219] font-bold">{totalOrders} customer orders</strong>
+            {hasCommissions ? (
+              <>
+                Total Revenue in Selected Period: <strong className="text-emerald-700 font-black">${totalPeriodEarnings.toFixed(2)}</strong> across <strong className="text-[#141219] font-bold">{totalOrders} customer orders</strong>
+              </>
+            ) : (
+              'No commissions recorded yet'
+            )}
           </p>
         </div>
 
@@ -131,50 +163,23 @@ export const EarningsChart: React.FC = () => {
 
           {/* Timeframe Filter Tabs */}
           <div className="flex items-center gap-1 bg-[#fffafc] p-1 rounded-[12px] sm:rounded-[13px] border border-[#eedbe6] shadow-2xs flex-1 sm:flex-initial justify-center">
-            <button
-              type="button"
-              onClick={() => {
-                setTimeframe('daily');
-                setActiveHoverIndex(null);
-              }}
-              className={`px-2 sm:px-3 py-1.5 rounded-[9px] sm:rounded-[10px] text-[11px] sm:text-xs font-bold transition-all cursor-pointer flex-1 sm:flex-initial text-center ${
-                timeframe === 'daily'
-                  ? 'bg-[#141219] text-white font-black shadow-xs'
-                  : 'text-[#55505a] hover:text-[#D30915]'
-              }`}
-            >
-              7 Days
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setTimeframe('weekly');
-                setActiveHoverIndex(null);
-              }}
-              className={`px-2 sm:px-3 py-1.5 rounded-[9px] sm:rounded-[10px] text-[11px] sm:text-xs font-bold transition-all cursor-pointer flex-1 sm:flex-initial text-center ${
-                timeframe === 'weekly'
-                  ? 'bg-[#141219] text-white font-black shadow-xs'
-                  : 'text-[#55505a] hover:text-[#D30915]'
-              }`}
-            >
-              4 Weeks
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setTimeframe('monthly');
-                setActiveHoverIndex(null);
-              }}
-              className={`px-2 sm:px-3 py-1.5 rounded-[9px] sm:rounded-[10px] text-[11px] sm:text-xs font-bold transition-all cursor-pointer flex-1 sm:flex-initial text-center ${
-                timeframe === 'monthly'
-                  ? 'bg-[#141219] text-white font-black shadow-xs'
-                  : 'text-[#55505a] hover:text-[#D30915]'
-              }`}
-            >
-              6 Months
-            </button>
+            {(['monthly', 'weekly', 'daily'] as const).map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => {
+                  setTimeframe(t);
+                  setActiveHoverIndex(null);
+                }}
+                className={`px-2.5 sm:px-3.5 py-1.5 rounded-[9px] sm:rounded-[10px] text-[11px] sm:text-xs font-bold capitalize transition-all cursor-pointer flex-1 sm:flex-initial text-center ${
+                  timeframe === t
+                    ? 'bg-[#141219] text-white font-black shadow-xs'
+                    : 'text-[#716d77] hover:text-[#141219]'
+                }`}
+              >
+                {t}
+              </button>
+            ))}
           </div>
         </div>
       </div>
@@ -197,7 +202,7 @@ export const EarningsChart: React.FC = () => {
             </div>
           </div>
           <span className="text-[10px] sm:text-xs font-black text-[#D30915] bg-white px-2 sm:px-2.5 py-1 rounded-full border border-[#fecdd3] shadow-2xs shrink-0">
-            {((totalPersonalEarnings / totalPeriodEarnings) * 100).toFixed(0)}%
+            {totalPeriodEarnings > 0 ? ((totalPersonalEarnings / totalPeriodEarnings) * 100).toFixed(0) : '0'}%
           </span>
         </div>
 
@@ -217,7 +222,7 @@ export const EarningsChart: React.FC = () => {
             </div>
           </div>
           <span className="text-[10px] sm:text-xs font-black text-purple-800 bg-white px-2 sm:px-2.5 py-1 rounded-full border border-purple-200 shadow-2xs shrink-0">
-            {((totalTeamEarnings / totalPeriodEarnings) * 100).toFixed(0)}%
+            {totalPeriodEarnings > 0 ? ((totalTeamEarnings / totalPeriodEarnings) * 100).toFixed(0) : '0'}%
           </span>
         </div>
 
@@ -232,18 +237,18 @@ export const EarningsChart: React.FC = () => {
                 Peak Velocity
               </span>
               <strong className="text-base sm:text-xl font-black text-[#141219]">
-                ${(peakPeriod.personal + peakPeriod.team).toFixed(2)}
+                ${peakPeriod ? (peakPeriod.personal + peakPeriod.team).toFixed(2) : '0.00'}
               </strong>
             </div>
           </div>
           <span className="text-[10px] sm:text-[11px] font-black text-emerald-800 bg-emerald-100 px-2 sm:px-2.5 py-1 rounded-full shrink-0">
-            ★ {peakPeriod.shortLabel}
+            ★ {peakPeriod && peakPeriod.personal + peakPeriod.team > 0 ? peakPeriod.shortLabel : 'None'}
           </span>
         </div>
       </div>
 
       {/* 3. The World-Class Interactive Bar Chart Canvas */}
-      <div className="bg-white rounded-[18px] sm:rounded-[24px] p-3.5 sm:p-6 lg:p-7 border border-[#eedbe6] shadow-inner space-y-3 sm:space-y-4">
+      <div className="bg-white rounded-[18px] sm:rounded-[24px] p-3.5 sm:p-6 lg:p-7 border border-[#eedbe6] shadow-inner space-y-4">
         {/* Chart Legend */}
         <div className="flex items-center justify-between gap-2 sm:gap-4 flex-wrap text-xs pb-3 border-b border-[#f5eaf1]">
           <div className="flex items-center gap-3 sm:gap-4 font-bold text-[#55505a] flex-wrap text-[11px] sm:text-xs">
@@ -258,15 +263,16 @@ export const EarningsChart: React.FC = () => {
             </div>
           </div>
 
-          <span className="text-[10px] sm:text-[11px] text-[#8a858f] font-medium hidden md:inline-flex items-center gap-1">
+          <span className="text-[10px] sm:text-[11px] text-[#8a858f] font-medium inline-flex items-center gap-1">
             <Info className="w-3.5 h-3.5 text-[#D30915]" />
             <span>Tap any bar for full tier breakdown</span>
           </span>
         </div>
 
-        {/* Scrollable Stage Wrapper on Ultra-Small Screens */}
-        <div className="overflow-x-auto scrollbar-none -mx-1 px-1">
-          <div className="relative pt-6 pb-2 min-w-[320px] sm:min-w-full">
+        {/* Stage Wrapper with Safe Headroom for Tooltips */}
+        <div className="relative pt-24 sm:pt-28 pb-2">
+          {/* Chart Core Stage (Grid + Bars sharing identical coordinate space) */}
+          <div className="relative h-56 sm:h-72">
             {/* Y-Axis Horizontal Grid Reference Lines */}
             <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-60">
               <div className="border-b border-dashed border-[#ecdbe6] w-full flex items-center justify-end pr-2 text-[9px] font-mono text-[#8a858f]">
@@ -285,8 +291,17 @@ export const EarningsChart: React.FC = () => {
             </div>
 
             {/* Bars Stage */}
-            <div className="h-56 sm:h-76 flex items-end justify-between gap-2 sm:gap-6 px-2 sm:px-6 relative z-10">
-              {data.map((item, idx) => {
+            <div className="h-full flex items-end justify-between gap-1.5 sm:gap-6 px-1 sm:px-6 relative z-10">
+              {!hasCommissions ? (
+                <div className="w-full h-full flex flex-col items-center justify-center text-center py-12">
+                  <BarChart2 className="w-10 h-10 text-stone-300 mx-auto mb-2" />
+                  <p className="font-bold text-sm text-[#141219] m-0">No commissions recorded yet</p>
+                  <p className="text-xs text-[#716d77] m-0 mt-1 max-w-sm">
+                    Personal retail customer orders and 5-tier overrides will automatically chart here in real-time.
+                  </p>
+                </div>
+              ) : (
+                data.map((item, idx) => {
                 const total = item.personal + item.team;
                 const totalHeightPercent = (total / maxVal) * 100;
                 const personalHeightPercent = (item.personal / maxVal) * 100;
@@ -297,56 +312,92 @@ export const EarningsChart: React.FC = () => {
 
                 const isHovered = activeHoverIndex === idx;
 
+                // Responsive positioning to prevent overflow clipping on left/right edges
+                const isFirst = idx === 0;
+                const isLast = idx === data.length - 1;
+                const isNearLeft = idx === 1 && data.length > 4;
+                const isNearRight = idx === data.length - 2 && data.length > 4;
+
+                let tooltipPosClass = 'left-1/2 -translate-x-1/2';
+                let arrowPosClass = 'left-1/2 -translate-x-1/2';
+
+                if (isFirst) {
+                  tooltipPosClass = 'left-0 sm:left-1/2 sm:-translate-x-1/2';
+                  arrowPosClass = 'left-5 sm:left-1/2 sm:-translate-x-1/2';
+                } else if (isLast) {
+                  tooltipPosClass = 'right-0 sm:right-auto sm:left-1/2 sm:-translate-x-1/2';
+                  arrowPosClass = 'right-5 sm:right-auto sm:left-1/2 sm:-translate-x-1/2';
+                } else if (isNearLeft) {
+                  tooltipPosClass = '-left-4 sm:left-1/2 sm:-translate-x-1/2';
+                  arrowPosClass = 'left-9 sm:left-1/2 sm:-translate-x-1/2';
+                } else if (isNearRight) {
+                  tooltipPosClass = '-right-4 sm:right-auto sm:left-1/2 sm:-translate-x-1/2';
+                  arrowPosClass = 'right-9 sm:right-auto sm:left-1/2 sm:-translate-x-1/2';
+                }
+
                 return (
                   <div
                     key={item.label}
-                    onClick={() => setActiveHoverIndex(isHovered ? null : idx)}
-                    onMouseEnter={() => setActiveHoverIndex(idx)}
-                    onMouseLeave={() => setActiveHoverIndex(null)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveHoverIndex((prev) => (prev === idx ? null : idx));
+                    }}
+                    onTouchStart={() => {
+                      isTouchRef.current = true;
+                    }}
+                    onMouseEnter={() => {
+                      if (isTouchRef.current) return;
+                      setActiveHoverIndex(idx);
+                    }}
+                    onMouseLeave={() => {
+                      if (isTouchRef.current) return;
+                      setActiveHoverIndex(null);
+                    }}
                     className="flex-1 flex flex-col items-center justify-end h-full relative group cursor-pointer select-none"
                   >
                     {/* Floating Luxury Tooltip Card */}
                     {isHovered && (
-                      <div className="absolute -top-24 sm:-top-22 z-30 bg-[#141219]/95 backdrop-blur-lg text-white p-2.5 sm:p-3.5 rounded-[14px] sm:rounded-[18px] shadow-[0_16px_40px_rgba(0,0,0,0.35)] text-xs whitespace-nowrap animate-in fade-in zoom-in-95 pointer-events-none border border-white/15 min-w-[170px] sm:min-w-[200px]">
-                        {/* Tooltip Header */}
-                        <div className="flex items-center justify-between pb-1 mb-1 border-b border-white/10 text-[9px] sm:text-[10px] text-[#f4d1e2]">
-                          <span className="font-bold flex items-center gap-1 truncate max-w-[110px]">
-                            <Calendar className="w-3 h-3 shrink-0" />
-                            <span>{item.shortLabel}</span>
-                          </span>
-                          <span className="bg-white/10 px-1.5 py-0.5 rounded-full font-mono shrink-0">
-                            {item.orders} Orders
-                          </span>
-                        </div>
+                      <div
+                        className={`absolute bottom-full mb-3 ${tooltipPosClass} z-30 pointer-events-none animate-in zoom-in-95 duration-150`}
+                      >
+                        <div className="bg-[#141219] text-white p-2.5 sm:p-3 rounded-[14px] shadow-2xl border border-white/20 min-w-[150px] sm:min-w-[170px] text-xs space-y-1.5 backdrop-blur-md">
+                          <div className="flex items-center justify-between border-b border-white/10 pb-1">
+                            <span className="font-bold text-[10px] sm:text-xs text-[#eedbe6]">
+                              {item.label}
+                            </span>
+                            <span className="text-[9px] font-mono text-emerald-400 bg-emerald-950/60 px-1.5 py-0.2 rounded">
+                              {item.orders} orders
+                            </span>
+                          </div>
 
-                        {/* Tooltip Breakdown */}
-                        <div className="space-y-0.5 sm:space-y-1 text-[10px] sm:text-[11px]">
-                          <div className="flex items-center justify-between">
-                            <span className="flex items-center gap-1 text-red-300">
-                              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#D30915]" />
-                              <span>Direct:</span>
+                          <div className="flex items-center justify-between gap-3">
+                            <span className="flex items-center gap-1.5 text-red-300">
+                              <span className="w-2 h-2 rounded-full bg-[#D30915] shadow-xs" />
+                              <span>Direct (20%):</span>
                             </span>
                             <strong className="text-white font-mono">${item.personal.toFixed(2)}</strong>
                           </div>
 
-                          <div className="flex items-center justify-between">
-                            <span className="flex items-center gap-1 text-purple-300">
-                              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-purple-500" />
-                              <span>Overrides:</span>
+                          <div className="flex items-center justify-between gap-3">
+                            <span className="flex items-center gap-1.5 text-purple-300">
+                              <span className="w-2 h-2 rounded-full bg-purple-500 shadow-xs" />
+                              <span>Overrides (1-5%):</span>
                             </span>
                             <strong className="text-white font-mono">${item.team.toFixed(2)}</strong>
                           </div>
 
-                          <div className="pt-1 mt-0.5 border-t border-white/10 flex items-center justify-between">
+                          <div className="pt-1.5 mt-1 border-t border-white/15 flex items-center justify-between gap-3">
                             <span className="font-black text-emerald-400">Total:</span>
-                            <strong className="text-emerald-400 font-mono font-black text-[11px] sm:text-xs">
+                            <strong className="text-emerald-400 font-mono font-black text-xs sm:text-sm">
                               ${total.toFixed(2)}
                             </strong>
                           </div>
                         </div>
 
                         {/* Tooltip Arrow */}
-                        <div className="w-2.5 h-2.5 bg-[#141219] rotate-45 absolute -bottom-1 left-1/2 -translate-x-1/2 border-r border-b border-white/15" />
+                        <div
+                          className={`w-2.5 h-2.5 bg-[#141219] rotate-45 absolute -bottom-1 ${arrowPosClass} border-r border-b border-white/20`}
+                        />
                       </div>
                     )}
 
@@ -354,7 +405,7 @@ export const EarningsChart: React.FC = () => {
                     <div
                       className={`mb-1.5 sm:mb-2 transition-all duration-200 text-[9px] sm:text-[11px] font-black font-mono px-1.5 sm:px-2 py-0.5 rounded-full shadow-2xs ${
                         isHovered
-                          ? 'bg-[#D30915] text-white scale-110 shadow-md'
+                          ? 'bg-[#D30915] text-white scale-110 shadow-md ring-2 ring-[#D30915]/30'
                           : 'bg-white/90 text-[#141219] border border-[#eedbe6]'
                       }`}
                     >
@@ -362,13 +413,17 @@ export const EarningsChart: React.FC = () => {
                     </div>
 
                     {/* Light Pillar Track Column */}
-                    <div className="w-full max-w-[48px] sm:max-w-[56px] h-full flex items-end justify-center bg-[#fff8fb]/70 rounded-t-[14px] sm:rounded-t-[18px] p-1 sm:p-1.5 transition-all group-hover:bg-[#fff1f2]">
+                    <div
+                      className={`w-full max-w-[44px] sm:max-w-[56px] h-full flex items-end justify-center rounded-t-[14px] sm:rounded-t-[18px] p-1 sm:p-1.5 transition-all ${
+                        isHovered ? 'bg-[#fff1f2] ring-2 ring-[#D30915]/20' : 'bg-[#fff8fb]/70 group-hover:bg-[#fff1f2]'
+                      }`}
+                    >
                       {viewStyle === 'stacked' ? (
                         /* Mode 1: 3D Stacked Pillar */
                         <div
                           className={`w-full rounded-t-[10px] sm:rounded-t-[14px] overflow-hidden transition-all duration-300 flex flex-col-reverse shadow-md relative ${
                             isHovered
-                              ? 'scale-103 shadow-[0_10px_24px_rgba(211, 9, 21,0.35)] brightness-105'
+                              ? 'scale-103 shadow-[0_10px_24px_rgba(211,9,21,0.35)] brightness-105'
                               : ''
                           }`}
                           style={{ height: `${Math.max(14, totalHeightPercent)}%` }}
@@ -412,16 +467,103 @@ export const EarningsChart: React.FC = () => {
 
                     {/* Bottom Label Tag */}
                     <div className="mt-2 text-center w-full">
-                      <span className="block text-[9px] sm:text-xs font-bold text-[#55505a] truncate group-hover:text-[#D30915] transition-colors">
+                      <span
+                        className={`block text-[9px] sm:text-xs font-bold truncate transition-colors ${
+                          isHovered ? 'text-[#D30915] font-black' : 'text-[#55505a] group-hover:text-[#D30915]'
+                        }`}
+                      >
                         {item.shortLabel}
                       </span>
                     </div>
                   </div>
                 );
-              })}
+              })
+              )}
             </div>
           </div>
         </div>
+
+        {/* 4. Active Period Breakdown Details Banner when a bar is selected */}
+        {activeItem && (
+          <div className="p-3.5 sm:p-4 rounded-[16px] sm:rounded-[20px] bg-gradient-to-br from-[#141219] via-[#1c1824] to-[#251520] text-white border border-[#fecdd3]/40 shadow-lg space-y-2.5 animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="flex items-center justify-between pb-2 border-b border-white/10 flex-wrap gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[9px] font-black uppercase tracking-wider text-[#ff4785] bg-white/10 px-2 py-0.5 rounded-full border border-white/10 inline-flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-[#ff4785]" />
+                  <span>Selected Period</span>
+                </span>
+                <strong className="text-xs sm:text-sm font-black text-white font-display">
+                  {activeItem.label}
+                </strong>
+                <span className="text-[10px] text-white/70 font-mono">
+                  ({activeItem.orders} Orders)
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                  ${(activeItem.personal + activeItem.team).toFixed(2)} Total
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setActiveHoverIndex(null)}
+                  className="text-white/60 hover:text-white bg-white/10 hover:bg-white/20 text-[10px] px-2 py-0.5 rounded font-bold transition-all cursor-pointer"
+                >
+                  Dismiss ✕
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+              <div className="bg-white/5 rounded-[12px] p-2 sm:p-2.5 border border-white/10">
+                <span className="text-[9px] uppercase font-bold text-red-300 block">
+                  Personal (20%)
+                </span>
+                <strong className="text-sm sm:text-base font-black text-white font-mono block mt-0.5">
+                  ${activeItem.personal.toFixed(2)}
+                </strong>
+                <span className="text-[9px] text-[#f4d1e2] block">
+                  Direct Customer Sales
+                </span>
+              </div>
+
+              <div className="bg-white/5 rounded-[12px] p-2.5 border border-white/10">
+                <span className="text-[9px] uppercase font-bold text-purple-300 block">
+                  Team Overrides (1-5%)
+                </span>
+                <strong className="text-sm sm:text-base font-black text-white font-mono block mt-0.5">
+                  ${activeItem.team.toFixed(2)}
+                </strong>
+                <span className="text-[9px] text-purple-200 block">
+                  5-Tier Sponsor Network
+                </span>
+              </div>
+
+              <div className="bg-white/5 rounded-[12px] p-2.5 border border-white/10">
+                <span className="text-[9px] uppercase font-bold text-amber-300 block">
+                  Total Orders
+                </span>
+                <strong className="text-sm sm:text-base font-black text-white font-mono block mt-0.5">
+                  {activeItem.orders} Orders
+                </strong>
+                <span className="text-[9px] text-amber-200 block">
+                  Avg ${( (activeItem.personal / 0.20) / (activeItem.orders || 1) ).toFixed(0)} / order
+                </span>
+              </div>
+
+              <div className="bg-emerald-500/10 rounded-[12px] p-2.5 border border-emerald-400/30">
+                <span className="text-[9px] uppercase font-black text-emerald-400 block">
+                  Total Commission
+                </span>
+                <strong className="text-sm sm:text-base font-black text-emerald-400 font-mono block mt-0.5">
+                  ${(activeItem.personal + activeItem.team).toFixed(2)}
+                </strong>
+                <span className="text-[9px] text-emerald-300 font-bold block">
+                  ✓ Direct Payout 15th
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Performance Footer Note */}
         <div className="pt-3 border-t border-[#f5eaf1] flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-[10px] sm:text-[11px] text-[#716d77]">

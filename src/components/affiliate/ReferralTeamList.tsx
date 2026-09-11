@@ -28,7 +28,7 @@ const DEFAULT_PROFILE_AVATAR = '/assets/ilovesurprises/Profile/profile%20image.w
 
 export const ReferralTeamList: React.FC<ReferralTeamListProps> = ({
   members,
-  repUsername = 'sarah_sparkles',
+  repUsername = '',
 }) => {
   const [search, setSearch] = useState('');
   const [levelFilter, setLevelFilter] = useState<string>('all');
@@ -163,9 +163,11 @@ export const ReferralTeamList: React.FC<ReferralTeamListProps> = ({
       {filteredMembers.length === 0 ? (
         <div className="text-center py-10 px-4 rounded-[18px] bg-[#fffafc] border border-dashed border-[#eedbe6]">
           <Users className="w-10 h-10 text-[#d9cbd5] mx-auto mb-2" />
-          <h4 className="text-sm font-black text-[#141219] mb-1">No Team Members Found</h4>
+          <h4 className="text-sm font-black text-[#141219] mb-1">
+            {members.length === 0 ? 'No downline team members yet' : 'No Team Members Found'}
+          </h4>
           <p className="text-xs text-[#716d77]">
-            Try clearing your search query or level filters.
+            {members.length === 0 ? 'Representatives who sign up using your referral link will appear in your 5-tier network.' : 'Try clearing your search query or level filters.'}
           </p>
         </div>
       ) : (

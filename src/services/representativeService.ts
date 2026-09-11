@@ -22,44 +22,7 @@ const ATTRIBUTION_STORAGE_KEY = 'ilovesurprises_attributed_rep_v1';
 const ATTRIBUTION_TIMESTAMP_KEY = 'ilovesurprises_rep_timestamp_v1';
 const DEFAULT_ATTRIBUTION_WINDOW_DAYS = 60;
 
-export const DEFAULT_REPRESENTATIVES: PublicRepresentative[] = [
-  {
-    id: 'rep-01',
-    name: 'Emily Watson',
-    repUsername: 'emily_sparkles',
-    avatar: '/assets/ilovesurprises/Profile/profile%20image.webp',
-    tagline: 'Bringing joy, aromatic scents & real cash reveals to your home ✨',
-    rank: 'Diamond Ambassador',
-    joinedYear: '2025',
-    storeUrl: 'https://ilovesurprises.com/emily_sparkles',
-    favoriteProduct: 'Tahitian Vanilla & Gold Cash Candle',
-    isSuspended: false,
-  },
-  {
-    id: 'rep-02',
-    name: 'Jessica Miller',
-    repUsername: 'jess_candles',
-    avatar: '/assets/ilovesurprises/Profile/profile%20image.webp',
-    tagline: 'Passionate about clean soy candles & genuine jewelry surprises 💍',
-    rank: 'Gold Leader',
-    joinedYear: '2025',
-    storeUrl: 'https://ilovesurprises.com/jess_candles',
-    favoriteProduct: 'Midnight Amber Diamond Ring Candle',
-    isSuspended: false,
-  },
-  {
-    id: 'rep-03',
-    name: 'Marcus Sterling',
-    repUsername: 'marcus_vip',
-    avatar: '/assets/ilovesurprises/Profile/profile%20image.webp',
-    tagline: 'Curating unforgettable unboxing moments & VIP gift experiences 🎁',
-    rank: 'Gold Leader',
-    joinedYear: '2025',
-    storeUrl: 'https://ilovesurprises.com/marcus_vip',
-    favoriteProduct: 'Lavender Dream Real Cash Bath Bomb',
-    isSuspended: false,
-  },
-];
+export const DEFAULT_REPRESENTATIVES: PublicRepresentative[] = [];
 
 export const representativeService = {
   /**
@@ -106,7 +69,7 @@ export const representativeService = {
    * Retrieves currently attributed representative from localStorage (if still within attribution window)
    */
   getAttributedRepresentative(): PublicRepresentative | null {
-    if (typeof window === 'undefined') return DEFAULT_REPRESENTATIVES[0];
+    if (typeof window === 'undefined') return null;
 
     try {
       // Check attribution window expiry
@@ -132,10 +95,7 @@ export const representativeService = {
       // Fallback
     }
 
-    // Default friendly representative for active customer shopping experience
-    const defaultRep = { ...DEFAULT_REPRESENTATIVES[0] };
-    defaultRep.isSuspended = this.isRepresentativeSuspended(defaultRep.repUsername);
-    return defaultRep;
+    return null;
   },
 
   /**

@@ -157,29 +157,35 @@ export const ShoppingWithRepBanner: React.FC<ShoppingWithRepBannerProps> = ({
                     Select Verified Consultant
                   </div>
                   <div className="max-h-56 overflow-y-auto divide-y divide-[#f9f5f7]">
-                    {DEFAULT_REPRESENTATIVES.map((item) => (
-                      <button
-                        key={item.id}
-                        type="button"
-                        onClick={() => handleSelectRep(item)}
-                        className={`w-full text-left px-3 py-2 flex items-center gap-2.5 hover:bg-[#fff5f6] transition-colors ${
-                          item.id === rep.id ? 'bg-[#fff0f2]' : ''
-                        }`}
-                      >
-                        <img
-                          src={item.avatar}
-                          alt={item.name}
-                          className="w-6 h-6 rounded-full object-cover ring-1 ring-[#D30915]/20"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-semibold text-[#141219] truncate">{item.name}</p>
-                          <p className="text-[10px] text-[#9c95a0] truncate">{item.rank}</p>
-                        </div>
-                        {item.id === rep.id && (
-                          <Check className="w-3.5 h-3.5 text-[#D30915] flex-shrink-0" />
-                        )}
-                      </button>
-                    ))}
+                    {DEFAULT_REPRESENTATIVES.length === 0 ? (
+                      <div className="p-4 text-center text-xs text-stone-400">
+                        No other consultants available
+                      </div>
+                    ) : (
+                      DEFAULT_REPRESENTATIVES.map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => handleSelectRep(item)}
+                          className={`w-full text-left px-3 py-2 flex items-center gap-2.5 hover:bg-[#fff5f6] transition-colors ${
+                            item.id === rep.id ? 'bg-[#fff0f2]' : ''
+                          }`}
+                        >
+                          <img
+                            src={item.avatar}
+                            alt={item.name}
+                            className="w-6 h-6 rounded-full object-cover ring-1 ring-[#D30915]/20"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-semibold text-[#141219] truncate">{item.name}</p>
+                            <p className="text-[10px] text-[#9c95a0] truncate">{item.rank}</p>
+                          </div>
+                          {item.id === rep.id && (
+                            <Check className="w-3.5 h-3.5 text-[#D30915] flex-shrink-0" />
+                          )}
+                        </button>
+                      ))
+                    )}
                   </div>
                 </div>
               )}

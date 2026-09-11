@@ -14,7 +14,6 @@ import { ProductGrid } from '../components/products/ProductGrid';
 import { productsData } from '../data/products';
 import { productService } from '../services/productService';
 import { deduplicateProducts } from '../utils/productUtils';
-import { sessionTracker } from '../utils/sessionTracker';
 import type { Product, CartItem, SurpriseType } from '../types';
 import {
   SlidersHorizontal,
@@ -148,7 +147,6 @@ export const Shop: React.FC<ShopProps> = ({
   onSelectProduct,
 }) => {
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
-  const [prevSearchQuery, setPrevSearchQuery] = useState(initialSearchQuery);
 
   // Active filters currently applied to the product catalog
   const [appliedFilters, setAppliedFilters] = useState<FilterState>(() => {
@@ -163,19 +161,6 @@ export const Shop: React.FC<ShopProps> = ({
 
   // Draft filters chosen in the sidebar / modal before pressing "Search by Filter"
   const [draftFilters, setDraftFilters] = useState<FilterState>(appliedFilters);
-  const [prevCategory, setPrevCategory] = useState(initialCategory);
-
-  // Skeleton only shows on first open & page refresh; subsequent visits in same session render immediately
-  const [isProductsLoading, setIsProductsLoading] = useState(() => sessionTracker.isFirstVisit('shop'));
-
-  useEffect(() => {
-    if (!isProductsLoading) return;
-    const timer = setTimeout(() => {
-      setIsProductsLoading(false);
-    }, 450);
-    return () => clearTimeout(timer);
-  }, [isProductsLoading]);
-
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [isMobileSortOpen, setIsMobileSortOpen] = useState(false);
   const [isDesktopFilterOpen, setIsDesktopFilterOpen] = useState(false);
@@ -204,7 +189,8 @@ export const Shop: React.FC<ShopProps> = ({
     }
   };
 
-  // Sync state if initial props change externally
+  const [currentPage, setCurrentPage] = useState(1);
+  const [prevCategory, setPrevCategory] = useState(initialCategory);
   if (initialCategory !== prevCategory) {
     setPrevCategory(initialCategory);
     const newInitial = {
@@ -216,18 +202,13 @@ export const Shop: React.FC<ShopProps> = ({
     };
     setAppliedFilters(newInitial);
     setDraftFilters(newInitial);
+    setCurrentPage(1);
   }
 
+  const [prevSearchQuery, setPrevSearchQuery] = useState(initialSearchQuery);
   if (initialSearchQuery !== prevSearchQuery) {
     setPrevSearchQuery(initialSearchQuery);
     setSearchQuery(initialSearchQuery);
-  }
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const [prevFilterKey, setPrevFilterKey] = useState(() => JSON.stringify({ appliedFilters, searchQuery }));
-  const currentFilterKey = JSON.stringify({ appliedFilters, searchQuery });
-  if (currentFilterKey !== prevFilterKey) {
-    setPrevFilterKey(currentFilterKey);
     setCurrentPage(1);
   }
   const [serverProducts, setServerProducts] = useState<Product[] | null>(null);
@@ -237,9 +218,6 @@ export const Shop: React.FC<ShopProps> = ({
 
   useEffect(() => {
     let isCancelled = false;
-    const loadTimer = setTimeout(() => {
-      if (!isCancelled) setIsFetchingProducts(true);
-    }, 0);
 
     const sortParam =
       appliedFilters.sortBy === 'price-asc'
@@ -280,7 +258,6 @@ export const Shop: React.FC<ShopProps> = ({
 
     return () => {
       isCancelled = true;
-      clearTimeout(loadTimer);
     };
   }, [currentPage, appliedFilters, searchQuery]);
 
@@ -290,7 +267,10 @@ export const Shop: React.FC<ShopProps> = ({
   }, [searchQuery, appliedFilters]);
 
   const activeProducts = useMemo(() => {
-    return deduplicateProducts(serverProducts ?? filteredProducts);
+    if (serverProducts !== null) {
+      return deduplicateProducts(serverProducts);
+    }
+    return deduplicateProducts(filteredProducts);
   }, [serverProducts, filteredProducts]);
 
   const displayTotalCount = serverTotal ?? productsData.length;
@@ -485,7 +465,7 @@ export const Shop: React.FC<ShopProps> = ({
       {/* Product Grid Area (Full width with stable layout) */}
       <div id="shop-product-grid" className="w-full">
         <ProductGrid
-          isLoading={isProductsLoading || isFetchingProducts}
+          isLoading={isFetchingProducts && !serverProducts}
           products={activeProducts}
           searchQuery={searchQuery}
           cart={cart}

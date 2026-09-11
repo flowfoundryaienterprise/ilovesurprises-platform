@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   TrendingUp,
   DollarSign,
@@ -29,15 +29,21 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({
 }) => {
   const [activeChartPeriod, setActiveChartPeriod] = useState<'7d' | '30d'>('7d');
 
-  const chartData = [
-    { day: 'Mon', sales: 4200, orders: 65, height: '45%' },
-    { day: 'Tue', sales: 5100, orders: 78, height: '54%' },
-    { day: 'Wed', sales: 6300, orders: 94, height: '67%' },
-    { day: 'Thu', sales: 5800, orders: 86, height: '61%' },
-    { day: 'Fri', sales: 7900, orders: 118, height: '84%' },
-    { day: 'Sat', sales: 9400, orders: 142, height: '100%' },
-    { day: 'Sun', sales: 8800, orders: 134, height: '93%' },
-  ];
+  const hasSales = kpis.grossRevenue > 0 && kpis.totalOrders > 0;
+
+  const chartData = useMemo(() => {
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    if (!hasSales) {
+      return days.map((day) => ({ day, sales: 0, orders: 0, height: '4px' }));
+    }
+    const avgDaily = kpis.grossRevenue / 7;
+    return days.map((day) => ({
+      day,
+      sales: avgDaily,
+      orders: Math.max(1, Math.round(kpis.totalOrders / 7)),
+      height: '50%',
+    }));
+  }, [hasSales, kpis.grossRevenue, kpis.totalOrders]);
 
   const handleExportSummary = () => {
     onShowToast('Exporting executive KPI summary report (CSV)...', {
@@ -273,7 +279,9 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({
               <span className="w-3 h-3 rounded-full bg-[#D30915]" />
               <span>Completed Orders</span>
             </div>
-            <span className="font-bold text-[#141219]">Peak day: Saturday ($9,400)</span>
+            <span className="font-bold text-[#141219]">
+              {hasSales ? 'Peak day: Saturday' : 'No sales recorded yet'}
+            </span>
           </div>
         </div>
 
@@ -292,21 +300,27 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({
           </div>
 
           <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
-            {activities.map((act) => (
-              <div
-                key={act.id}
-                className="p-3 rounded-xl bg-[#faf7f9] border border-[#f2e6ee] hover:bg-white hover:border-[#eedbe6] transition-all space-y-1 text-xs"
-              >
-                <div className="flex items-center justify-between">
-                  <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${act.badgeColor || 'bg-gray-100 text-gray-700'}`}>
-                    {act.badge}
-                  </span>
-                  <span className="text-[10px] text-[#8a858f]">{act.timestamp}</span>
-                </div>
-                <div className="font-bold text-[#141219]">{act.title}</div>
-                <div className="text-[11px] text-[#716d77] leading-relaxed">{act.description}</div>
+            {activities.length === 0 ? (
+              <div className="py-8 text-center text-xs text-[#8a858f] font-medium">
+                No recent activity yet
               </div>
-            ))}
+            ) : (
+              activities.map((act) => (
+                <div
+                  key={act.id}
+                  className="p-3 rounded-xl bg-[#faf7f9] border border-[#f2e6ee] hover:bg-white hover:border-[#eedbe6] transition-all space-y-1 text-xs"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${act.badgeColor || 'bg-gray-100 text-gray-700'}`}>
+                      {act.badge}
+                    </span>
+                    <span className="text-[10px] text-[#8a858f]">{act.timestamp}</span>
+                  </div>
+                  <div className="font-bold text-[#141219]">{act.title}</div>
+                  <div className="text-[11px] text-[#716d77] leading-relaxed">{act.description}</div>
+                </div>
+              ))
+            )}
           </div>
 
           <button

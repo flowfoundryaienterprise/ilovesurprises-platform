@@ -274,7 +274,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                 </div>
                 <span>{product.rating.toFixed(1)}</span>
                 <span className="text-[#8a858f] font-normal">
-                  ({product.reviewCount + (allReviews.length - reviewsData.length)} verified reviews)
+                  ({allReviews.length} verified {allReviews.length === 1 ? 'review' : 'reviews'})
                 </span>
               </div>
             </div>
@@ -616,7 +616,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                 ))}
               </div>
               <p className="text-xs text-[#716d77] m-0">
-                Based on <strong>{product.reviewCount + (allReviews.length - reviewsData.length)}</strong> authentic customer unboxings
+                Based on <strong>{allReviews.length}</strong> authentic customer {allReviews.length === 1 ? 'unboxing' : 'unboxings'}
               </p>
             </div>
 
@@ -660,11 +660,20 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
 
         {/* Customer Reviews List */}
         <div className="space-y-4">
-          {relevantReviews.map((rev) => (
-            <div
-              key={rev.id}
-              className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-white border border-[#eedbe6] shadow-xs space-y-3"
-            >
+          {relevantReviews.length === 0 ? (
+            <div className="p-8 sm:p-12 rounded-2xl sm:rounded-3xl bg-white border border-[#eedbe6] text-center space-y-3">
+              <Sparkles className="w-10 h-10 text-[#D30915] mx-auto opacity-50" />
+              <h4 className="text-base font-bold text-[#141219] m-0">No reviews for this product yet</h4>
+              <p className="text-xs text-[#716d77] max-w-md mx-auto m-0">
+                Be the first to reveal your surprise and share your authentic unboxing experience!
+              </p>
+            </div>
+          ) : (
+            relevantReviews.map((rev) => (
+              <div
+                key={rev.id}
+                className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-white border border-[#eedbe6] shadow-xs space-y-3"
+              >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-full bg-[#fff1f2] border border-[#fecdd3] flex items-center justify-center font-black text-xs text-[#D30915]">
@@ -712,7 +721,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                 </div>
               )}
             </div>
-          ))}
+          )))}
         </div>
       </section>
 

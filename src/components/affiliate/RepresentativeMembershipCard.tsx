@@ -21,12 +21,19 @@ interface RepresentativeMembershipCardProps {
 
 export const RepresentativeMembershipCard: React.FC<RepresentativeMembershipCardProps> = ({
   initialState = 'active',
-  repUsername = 'emily_sparkles',
+  repUsername = '',
   onShowToast,
 }) => {
   const [membershipState, setMembershipState] = useState<MembershipState>(initialState);
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'semi_annual' | 'annual'>('monthly');
   const [isProcessing, setIsProcessing] = useState(false);
+
+  const nextBillingDate = React.useMemo(() => {
+    const d = new Date();
+    d.setMonth(d.getMonth() + 1);
+    d.setDate(1);
+    return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  }, []);
 
   const handleRetryPayment = () => {
     setIsProcessing(true);
@@ -126,14 +133,14 @@ export const RepresentativeMembershipCard: React.FC<RepresentativeMembershipCard
 
             <div className="p-3.5 rounded-xl bg-[#fffafb] border border-[#f5e6ee]">
               <span className="text-[11px] text-[#8a858f] font-semibold block">Next Billing Date</span>
-              <span className="text-base font-black text-[#141219] block mt-0.5">April 1, 2026</span>
-              <span className="text-[10px] text-[#716d77] font-medium block mt-1">Via Visa •••• 4242</span>
+              <span className="text-base font-black text-[#141219] block mt-0.5">{nextBillingDate}</span>
+              <span className="text-[10px] text-[#716d77] font-medium block mt-1">Automatic recurring dues</span>
             </div>
 
             <div className="p-3.5 rounded-xl bg-[#fffafb] border border-[#f5e6ee]">
               <span className="text-[11px] text-[#8a858f] font-semibold block">Personal Storefront</span>
               <span className="text-xs font-mono font-bold text-[#D30915] block mt-0.5 truncate">
-                ilovesurprises.com/{repUsername}
+                {repUsername ? `ilovesurprises.com/${repUsername}` : 'Pending handle setup'}
               </span>
               <span className="text-[10px] text-emerald-700 font-bold flex items-center gap-1 mt-1">
                 <ShieldCheck className="w-3 h-3" /> Attributing 20% + 5 Levels

@@ -168,14 +168,14 @@ export const RepresentativeSubscriptionModal: React.FC<RepresentativeSubscriptio
 
   // Payment Form States
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'apple_pay' | 'paypal'>('card');
-  const [cardNumber, setCardNumber] = useState('4242 •••• •••• 4242');
-  const [cardExpiry, setCardExpiry] = useState('12/28');
-  const [cardCvc, setCardCvc] = useState('888');
-  const [cardholderName, setCardholderName] = useState(fullName || 'Sarah Jenkins');
-  const [streetAddress, setStreetAddress] = useState('742 Evergreen Terrace');
-  const [city, setCity] = useState('Springfield');
-  const [stateCode, setStateCode] = useState('OR');
-  const [zipCode, setZipCode] = useState('97477');
+  const [cardNumber, setCardNumber] = useState('');
+  const [cardExpiry, setCardExpiry] = useState('');
+  const [cardCvc, setCardCvc] = useState('');
+  const [cardholderName, setCardholderName] = useState(fullName || '');
+  const [streetAddress, setStreetAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [stateCode, setStateCode] = useState('');
+  const [zipCode, setZipCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
 

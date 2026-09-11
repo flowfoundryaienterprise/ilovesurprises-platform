@@ -31,7 +31,7 @@ export const AffiliateOverview: React.FC<AffiliateOverviewProps> = ({
   onNavigateTab,
 }) => {
   // Monthly Retail Qualification ($125 Requirement)
-  const qual = stats.monthlyQualification || qualificationService.getCachedQualification(stats.repUsername || 'sarah_sparkles');
+  const qual = stats.monthlyQualification || qualificationService.getCachedQualification(stats.repUsername || '');
   const currentSales = qual.qualifyingRetailSales;
   const threshold = qual.qualificationThreshold || 125.00;
   const isQualified = qual.isQualified;
@@ -48,36 +48,37 @@ export const AffiliateOverview: React.FC<AffiliateOverviewProps> = ({
     const personalVolume = personalCandlesSold * CANDLE_AVG_PRICE;
     const personalEarned = personalVolume * 0.20;
 
-    // 2. Level 1 Overrides: 5% (level1Reps * avgTeamCandlesSold)
+    // 2. Level 1 Overrides: 5%
     const l1Volume = level1Reps * avgTeamCandlesSold * CANDLE_AVG_PRICE;
     const l1Earned = l1Volume * 0.05;
 
-    // 3. Level 2 Overrides: 4% (Assuming each L1 sponsors 2 L2s)
+    // 3. Level 2 Overrides: 4% (Assume each L1 sponsors 2 L2s)
     const l2Reps = level1Reps * 2;
     const l2Volume = l2Reps * avgTeamCandlesSold * CANDLE_AVG_PRICE;
     const l2Earned = l2Volume * 0.04;
 
-    // 4. Level 3 Overrides: 3% (Assuming each L2 sponsors 2 L3s)
-    const l3Reps = l2Reps * 2;
+    // 4. Level 3 Overrides: 3% (Assume each L2 sponsors 1.5 L3s)
+    const l3Reps = Math.round(l2Reps * 1.5);
     const l3Volume = l3Reps * avgTeamCandlesSold * CANDLE_AVG_PRICE;
     const l3Earned = l3Volume * 0.03;
 
     // 5. Level 4 Overrides: 2%
-    const l4Reps = l3Reps * 1.5;
+    const l4Reps = Math.round(l3Reps * 1.2);
     const l4Volume = l4Reps * avgTeamCandlesSold * CANDLE_AVG_PRICE;
     const l4Earned = l4Volume * 0.02;
 
     // 6. Level 5 Overrides: 1%
-    const l5Reps = l4Reps * 1.5;
+    const l5Reps = Math.round(l4Reps * 1.0);
     const l5Volume = l5Reps * avgTeamCandlesSold * CANDLE_AVG_PRICE;
     const l5Earned = l5Volume * 0.01;
 
     const totalTeamEarned = l1Earned + l2Earned + l3Earned + l4Earned + l5Earned;
-    const grandTotal = personalEarned + totalTeamEarned;
-    const totalDownlineReps = Math.round(level1Reps + l2Reps + l3Reps + l4Reps + l5Reps);
+    const totalPotential = personalEarned + totalTeamEarned;
+    const totalNetworkSize = 1 + level1Reps + l2Reps + l3Reps + l4Reps + l5Reps;
+
+    const totalDownlineReps = level1Reps + l2Reps + l3Reps + l4Reps + l5Reps;
 
     return {
-      personalVolume,
       personalEarned,
       l1Earned,
       l2Earned,
@@ -85,16 +86,18 @@ export const AffiliateOverview: React.FC<AffiliateOverviewProps> = ({
       l4Earned,
       l5Earned,
       totalTeamEarned,
-      grandTotal,
+      totalPotential,
+      totalNetworkSize,
       totalDownlineReps,
+      grandTotal: totalPotential,
     };
   }, [personalCandlesSold, level1Reps, avgTeamCandlesSold]);
 
   return (
-    <div className="space-y-4 sm:space-y-6 animate-in fade-in duration-200">
-      {/* 1. Top KPI Metrics Grid (2x2 on mobile, 4-col on desktop) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
-        {/* Total Lifetime Earnings */}
+    <div className="space-y-4 sm:space-y-6 animate-in fade-in duration-300">
+      {/* 1. Stat Cards Grid (4 Columns) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 lg:gap-5">
+        {/* Total Earnings */}
         <div className="bg-white rounded-[18px] sm:rounded-[24px] p-3.5 sm:p-5 lg:p-6 border border-[#eedbe6] shadow-[0_4px_20px_rgba(50,31,63,0.03)] flex flex-col justify-between group hover:border-[#D30915]/40 transition-all relative overflow-hidden">
           <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
 
@@ -111,13 +114,21 @@ export const AffiliateOverview: React.FC<AffiliateOverviewProps> = ({
             <strong className="text-lg sm:text-2xl lg:text-[28px] font-black text-[#141219] tracking-tight block truncate">
               ${stats.totalEarnings.toFixed(2)}
             </strong>
-            <div className="flex items-center gap-1 sm:gap-1.5 text-[9px] sm:text-[10px] text-emerald-700 font-bold mt-1 sm:mt-1.5 flex-wrap">
-              <span className="bg-emerald-100 text-emerald-800 px-1.5 sm:px-2 py-0.5 rounded-full font-black flex items-center gap-0.5 sm:gap-1">
-                <TrendingUp className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                +18.4%
-              </span>
-              <span className="text-[#8a858f] hidden xs:inline">vs last month</span>
-            </div>
+            {stats.totalEarnings > 0 ? (
+              <div className="flex items-center gap-1 sm:gap-1.5 text-[9px] sm:text-[10px] text-emerald-700 font-bold mt-1 sm:mt-1.5 flex-wrap">
+                <span className="bg-emerald-100 text-emerald-800 px-1.5 sm:px-2 py-0.5 rounded-full font-black flex items-center gap-0.5 sm:gap-1">
+                  <TrendingUp className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                  Live
+                </span>
+                <span className="text-[#8a858f] hidden xs:inline">verified earnings</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1 sm:gap-1.5 text-[9px] sm:text-[10px] text-stone-500 font-medium mt-1 sm:mt-1.5 flex-wrap">
+                <span className="bg-stone-100 text-stone-600 px-1.5 sm:px-2 py-0.5 rounded-full font-bold">
+                  No earnings yet
+                </span>
+              </div>
+            )}
           </div>
         </div>
 

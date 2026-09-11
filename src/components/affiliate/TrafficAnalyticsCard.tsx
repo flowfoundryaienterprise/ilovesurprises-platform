@@ -14,17 +14,12 @@ interface TrafficAnalyticsCardProps {
 }
 
 export const TrafficAnalyticsCard: React.FC<TrafficAnalyticsCardProps> = ({ stats }) => {
-  const totalClicks = 1420;
-  const uniqueVisitors = 1180;
+  const totalClicks = 0;
+  const uniqueVisitors = 0;
   const conversions = Math.round(totalClicks * (stats.conversionRate / 100));
-  const avgOrderValue = 84.5;
+  const avgOrderValue = 0;
 
-  const trafficSources = [
-    { name: 'Instagram Bio & Stories', visits: 620, percent: 44, color: 'bg-[#D30915]' },
-    { name: 'TikTok Videos & Live', visits: 380, percent: 27, color: 'bg-purple-600' },
-    { name: 'Direct Storefront Link', visits: 240, percent: 17, color: 'bg-blue-600' },
-    { name: 'Personal QR Code Flyer', visits: 180, percent: 12, color: 'bg-emerald-600' },
-  ];
+  const trafficSources: Array<{ name: string; visits: number; percent: number; color: string }> = [];
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -39,8 +34,8 @@ export const TrafficAnalyticsCard: React.FC<TrafficAnalyticsCardProps> = ({ stat
             </div>
           </div>
           <div className="text-2xl sm:text-3xl font-black text-[#141219]">{totalClicks.toLocaleString()}</div>
-          <span className="text-[11px] text-emerald-700 font-bold flex items-center gap-1 mt-1">
-            +18.4% vs last 30 days
+          <span className="text-[11px] text-stone-500 font-medium block mt-1">
+            Storefront link visits
           </span>
         </div>
 
@@ -53,7 +48,7 @@ export const TrafficAnalyticsCard: React.FC<TrafficAnalyticsCardProps> = ({ stat
             </div>
           </div>
           <div className="text-2xl sm:text-3xl font-black text-[#141219]">{uniqueVisitors.toLocaleString()}</div>
-          <span className="text-[11px] text-[#716d77] font-medium block mt-1">83% first-time browsers</span>
+          <span className="text-[11px] text-[#716d77] font-medium block mt-1">Unique first-time visitors</span>
         </div>
 
         {/* Metric 3: Total Conversions */}
@@ -79,8 +74,8 @@ export const TrafficAnalyticsCard: React.FC<TrafficAnalyticsCardProps> = ({ stat
             </div>
           </div>
           <div className="text-2xl sm:text-3xl font-black text-[#141219]">{stats.conversionRate}%</div>
-          <span className="text-[11px] text-emerald-700 font-bold flex items-center gap-1 mt-1">
-            High-converting candle funnel
+          <span className="text-[11px] text-stone-500 font-medium block mt-1">
+            Storefront conversion
           </span>
         </div>
       </div>
@@ -97,24 +92,31 @@ export const TrafficAnalyticsCard: React.FC<TrafficAnalyticsCardProps> = ({ stat
           </p>
 
           <div className="space-y-3.5">
-            {trafficSources.map((source) => (
-              <div key={source.name} className="space-y-1">
-                <div className="flex items-center justify-between text-xs font-bold">
-                  <span className="text-[#141219]">{source.name}</span>
-                  <span className="text-[#716d77]">
-                    {source.visits} visits ({source.percent}%)
-                  </span>
-                </div>
-                <div className="w-full h-2 bg-[#f4edf2] rounded-full overflow-hidden">
-                  <div
-                    className={`h-full ${source.color} rounded-full transition-all duration-500`}
-                    style={{ width: `${source.percent}%` }}
-                  />
-                </div>
+            {trafficSources.length === 0 ? (
+              <div className="py-8 text-center text-xs text-[#716d77]">
+                No traffic sources recorded yet. Share your personal storefront link to start receiving customer visits.
               </div>
-            ))}
+            ) : (
+              trafficSources.map((source) => (
+                <div key={source.name} className="space-y-1">
+                  <div className="flex items-center justify-between text-xs font-bold">
+                    <span className="text-[#141219]">{source.name}</span>
+                    <span className="text-[#716d77]">
+                      {source.visits} visits ({source.percent}%)
+                    </span>
+                  </div>
+                  <div className="w-full h-2 bg-[#f4edf2] rounded-full overflow-hidden">
+                    <div
+                      className={`h-full ${source.color} rounded-full transition-all duration-500`}
+                      style={{ width: `${source.percent}%` }}
+                    />
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
+
 
         {/* Right: Attribution Window Rules Card */}
         <div className="lg:col-span-5 rounded-[22px] bg-gradient-to-br from-[#fffafb] via-white to-[#fff6f8] border border-[#f1dbe8] p-5 sm:p-6 shadow-2xs flex flex-col justify-between">

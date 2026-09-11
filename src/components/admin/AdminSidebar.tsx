@@ -43,8 +43,8 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   onCloseMobile,
   onSwitchRole,
   onReturnToStore,
-  pendingCommissionsCount = 2,
-  pendingRepsCount = 1,
+  pendingCommissionsCount = 0,
+  pendingRepsCount = 0,
 }) => {
   const currentRoleDef = ADMIN_ROLES_CONFIG[currentRole];
 

@@ -49,15 +49,15 @@ export const AdminAppraisals: React.FC<AdminAppraisalsProps> = ({ onShowToast })
     code: '',
     name: '',
     type: 'Ring' as JewelryType,
-    estimatedValue: 250,
+    estimatedValue: 0,
     image: PRESET_IMAGES[0].url,
-    material: 'Solid .925 Sterling Silver',
-    stone: 'AAA Cubic Zirconia',
-    cutSetting: 'Prong Setting',
+    material: '',
+    stone: '',
+    cutSetting: '',
     description: '',
     status: 'active' as AppraisalStatus,
     serialNumber: '',
-    inspectedDate: 'March 2026',
+    inspectedDate: '',
     customerName: '',
     customerEmail: '',
     orderId: '',
@@ -234,10 +234,10 @@ export const AdminAppraisals: React.FC<AdminAppraisalsProps> = ({ onShowToast })
   };
 
   const handleResetDefaults = () => {
-    if (window.confirm('Reset appraisal catalog to factory defaults? Any custom codes will be overwritten.')) {
+    if (window.confirm('Clear all local appraisal records?')) {
       appraisalService.resetToDefaults();
-      onShowToast('Appraisals catalog reset to defaults.', {
-        title: 'Reset Completed',
+      onShowToast('Appraisals catalog cleared.', {
+        title: 'Records Cleared',
         type: 'info',
       });
     }
@@ -265,10 +265,10 @@ export const AdminAppraisals: React.FC<AdminAppraisalsProps> = ({ onShowToast })
             type="button"
             onClick={handleResetDefaults}
             className="h-[40px] px-3.5 rounded-[12px] bg-white border border-[#eedbe6] hover:bg-stone-50 text-[#55505a] text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
-            title="Reset catalog to seed default records"
+            title="Clear all local appraisal records"
           >
             <RefreshCw className="w-3.5 h-3.5" />
-            <span>Reset Defaults</span>
+            <span>Clear Records</span>
           </button>
 
           <button
@@ -401,8 +401,8 @@ export const AdminAppraisals: React.FC<AdminAppraisalsProps> = ({ onShowToast })
                 <tr>
                   <td colSpan={7} className="py-10 text-center text-[#716d77]">
                     <Tag className="w-8 h-8 text-[#d3cad1] mx-auto mb-2" />
-                    <p className="font-bold">No appraisal records found</p>
-                    <p className="text-[11px]">Try adjusting your search query or filter.</p>
+                    <p className="font-bold">{appraisals.length === 0 ? 'No appraisal records yet' : 'No appraisal records found'}</p>
+                    <p className="text-[11px]">{appraisals.length === 0 ? 'Register authentic jewelry appraisal codes printed inside surprise candles for customer certificate verification.' : 'Try adjusting your search query or filter.'}</p>
                   </td>
                 </tr>
               ) : (

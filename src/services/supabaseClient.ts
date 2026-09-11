@@ -27,3 +27,22 @@ export const supabase: SupabaseClient<Database> = isSupabaseConfigured()
         autoRefreshToken: false,
       },
     });
+
+const serviceRoleKey =
+  import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY ||
+  import.meta.env.SUPABASE_SERVICE_ROLE_KEY ||
+  '';
+
+/**
+ * Provides an administrative Supabase client instance used exclusively for
+ * rate-limit fallback on user signup and automated operational routines.
+ */
+export const getAdminSupabaseClient = (): SupabaseClient<Database> | null => {
+  if (!serviceRoleKey || !supabaseUrl || !isSupabaseConfigured()) return null;
+  return createClient<Database>(supabaseUrl, serviceRoleKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  });
+};

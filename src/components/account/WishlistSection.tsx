@@ -4,6 +4,7 @@ import { ProductCardSkeleton } from '../ui/ProductCardSkeleton';
 import type { Product } from '../../types';
 import { productsData } from '../../data/products';
 import { deduplicateProducts } from '../../utils/productUtils';
+import { productService } from '../../services/productService';
 
 interface WishlistSectionProps {
   wishlistIds: string[];
@@ -20,16 +21,33 @@ export const WishlistSection: React.FC<WishlistSectionProps> = ({
   onSelectProduct,
   onNavigateToShop,
 }) => {
-  const [isLoading, setIsLoading] = useState(true);
+  const [liveProducts, setLiveProducts] = useState<Product[]>(() =>
+    deduplicateProducts(productsData.filter((p) => wishlistIds.includes(p.id)))
+  );
+  const [isLoading, setIsLoading] = useState(() => wishlistIds.length > 0);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 400);
-    return () => clearTimeout(timer);
-  }, []);
+    let isCancelled = false;
 
-  const wishlistProducts = deduplicateProducts(productsData.filter((p) => wishlistIds.includes(p.id)));
+    if (wishlistIds.length > 0) {
+      productService.getProductsByIds(wishlistIds).then((resolved) => {
+        if (!isCancelled && resolved.length > 0) {
+          setLiveProducts(resolved);
+        }
+      }).finally(() => {
+        if (!isCancelled) setIsLoading(false);
+      });
+    } else {
+      setLiveProducts([]);
+      setIsLoading(false);
+    }
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [wishlistIds]);
+
+  const wishlistProducts = liveProducts;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
