@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { ArrowRight, CheckCircle2, AlertCircle, ShieldCheck } from 'lucide-react';
 import { PasswordInput } from './PasswordInput';
 import { authService, evaluatePasswordStrength } from '../../services/auth';
@@ -19,6 +19,7 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
   }>({});
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const isSubmittingRef = useRef(false);
 
   const passwordStrength = evaluatePasswordStrength(newPassword);
 
@@ -43,8 +44,10 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmittingRef.current || isLoading) return;
     if (!validate()) return;
 
+    isSubmittingRef.current = true;
     setIsLoading(true);
     setErrors({});
 
@@ -58,6 +61,7 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
     } catch (err: any) {
       setErrors({ general: err?.message || 'Connection error. Please check your internet connection and try again.' });
     } finally {
+      isSubmittingRef.current = false;
       setIsLoading(false);
     }
   };

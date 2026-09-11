@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { User, Mail, ArrowRight, AlertCircle, ShieldCheck, CheckCircle2, RefreshCw, Users, Link2 } from 'lucide-react';
 import { PasswordInput } from './PasswordInput';
 import {
@@ -54,6 +54,20 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
   const [verificationSentEmail, setVerificationSentEmail] = useState<string | null>(null);
   const [resendStatus, setResendStatus] = useState<string | null>(null);
   const [isResending, setIsResending] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(60);
+
+  // Synchronous locks to prevent double-clicks or concurrent submissions before React re-render
+  const isSubmittingRef = useRef(false);
+  const isResendingRef = useRef(false);
+
+  // 60-second countdown timer for email verification resend to respect Supabase GoTrue rate limits
+  useEffect(() => {
+    if (!verificationSentEmail || resendCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setResendCooldown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [verificationSentEmail, resendCooldown]);
 
   const passwordStrength = evaluatePasswordStrength(password);
 
@@ -105,8 +119,11 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Synchronous guard: completely blocks duplicate / rapid double clicks
+    if (isSubmittingRef.current || isLoading) return;
     if (!validate()) return;
 
+    isSubmittingRef.current = true;
     setIsLoading(true);
     setErrors({});
     const cleanEmail = email.trim().toLowerCase();
@@ -125,30 +142,36 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
         onSuccess(res.user);
       } else if (res.success && res.requiresVerification) {
         setVerificationSentEmail(cleanEmail);
+        setResendCooldown(60);
       } else {
         setErrors({ general: res.error || 'Registration failed. Please try again.' });
       }
     } catch (err: any) {
       setErrors({ general: err?.message || 'Connection error. Please check your internet connection and try again.' });
     } finally {
+      isSubmittingRef.current = false;
       setIsLoading(false);
     }
   };
 
   const handleResendVerification = async () => {
-    if (!verificationSentEmail || isResending) return;
+    // Synchronous guard + cooldown enforcement: prevents duplicate clicks and Supabase rate limits
+    if (!verificationSentEmail || isResendingRef.current || isResending || resendCooldown > 0) return;
+    isResendingRef.current = true;
     setIsResending(true);
     setResendStatus(null);
     try {
       const res = await authService.resendVerification(verificationSentEmail);
       if (res.success) {
         setResendStatus('A new verification email has been sent. Please check your inbox!');
+        setResendCooldown(60);
       } else {
         setResendStatus(res.error || 'Failed to resend. Please try again shortly.');
       }
     } catch (err: any) {
       setResendStatus(err?.message || 'Connection error. Please check your internet connection and try again.');
     } finally {
+      isResendingRef.current = false;
       setIsResending(false);
     }
   };
@@ -201,14 +224,16 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
           <button
             type="button"
             onClick={handleResendVerification}
-            disabled={isResending}
-            className="w-full h-[40px] rounded-[13px] bg-white border border-[#e8dfe5] hover:border-[#D30915] text-[#716d77] hover:text-[#D30915] text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+            disabled={isResending || resendCooldown > 0}
+            className="w-full h-[40px] rounded-[13px] bg-white border border-[#e8dfe5] hover:border-[#D30915] text-[#716d77] hover:text-[#D30915] text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isResending ? (
               <>
                 <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                 <span>Resending Link...</span>
               </>
+            ) : resendCooldown > 0 ? (
+              <span>Resend Verification Email ({resendCooldown}s)</span>
             ) : (
               <span>Resend Verification Email</span>
             )}

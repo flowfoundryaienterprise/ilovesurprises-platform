@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Mail, ArrowRight, AlertCircle, ShieldCheck } from 'lucide-react';
 import { PasswordInput } from './PasswordInput';
 import { authService, isValidEmail } from '../../services/auth';
@@ -23,6 +23,18 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
   const [resendStatus, setResendStatus] = useState<string | null>(null);
   const [isResending, setIsResending] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+
+  const isSubmittingRef = useRef(false);
+  const isResendingRef = useRef(false);
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setResendCooldown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [resendCooldown]);
 
   const validate = (): boolean => {
     const newErrors: { email?: string; password?: string; general?: string } = {};
@@ -45,8 +57,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmittingRef.current || isLoading) return;
     if (!validate()) return;
 
+    isSubmittingRef.current = true;
     setIsLoading(true);
     setErrors({});
 
@@ -61,6 +75,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         onSuccess(res.user);
       } else if (res.requiresVerification) {
         setUnverifiedEmail(email.trim());
+        setResendCooldown(60);
         setErrors({ general: res.error || 'Your email address is not verified yet. Please check your inbox or resend the verification link.' });
       } else {
         setUnverifiedEmail(null);
@@ -69,24 +84,28 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     } catch (err: any) {
       setErrors({ general: err?.message || 'Connection error. Please check your internet connection and try again.' });
     } finally {
+      isSubmittingRef.current = false;
       setIsLoading(false);
     }
   };
 
   const handleResendVerification = async () => {
-    if (!unverifiedEmail || isResending) return;
+    if (!unverifiedEmail || isResendingRef.current || isResending || resendCooldown > 0) return;
+    isResendingRef.current = true;
     setIsResending(true);
     setResendStatus(null);
     try {
       const res = await authService.resendVerification(unverifiedEmail);
       if (res.success) {
         setResendStatus('Verification email resent! Please check your inbox.');
+        setResendCooldown(60);
       } else {
         setResendStatus(res.error || 'Failed to resend verification email.');
       }
     } catch (err: any) {
       setResendStatus(err?.message || 'Connection error. Please check your internet connection and try again.');
     } finally {
+      isResendingRef.current = false;
       setIsResending(false);
     }
   };
@@ -132,10 +151,14 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                 <button
                   type="button"
                   onClick={handleResendVerification}
-                  disabled={isResending}
-                  className="text-[11px] font-black text-[#D30915] underline hover:text-[#B60711] cursor-pointer disabled:opacity-50"
+                  disabled={isResending || resendCooldown > 0}
+                  className="text-[11px] font-black text-[#D30915] underline hover:text-[#B60711] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isResending ? 'Resending Link...' : 'Resend Verification Link'}
+                  {isResending
+                    ? 'Resending Link...'
+                    : resendCooldown > 0
+                    ? `Resend Verification Link (${resendCooldown}s)`
+                    : 'Resend Verification Link'}
                 </button>
               )}
             </div>

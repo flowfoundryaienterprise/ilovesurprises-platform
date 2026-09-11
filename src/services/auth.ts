@@ -123,13 +123,28 @@ export function mapAuthError(
   }
 
   // 3. 429 Rate Limits
-  if (status === 429 || msg.includes('rate limit') || code.includes('rate_limit')) {
+  if (
+    status === 429 ||
+    msg.includes('rate limit') ||
+    code.includes('rate_limit') ||
+    msg.includes('too many requests') ||
+    msg.includes('security purposes') ||
+    msg.includes('over_email_send_rate_limit')
+  ) {
+    // If Supabase returned a specific wait time, e.g. "For security purposes, you can only request this after 52 seconds."
+    if (msg.includes('security purposes') || (msg.includes('after') && msg.includes('second'))) {
+      return rawMsg;
+    }
+
     if (
       code === 'over_email_send_rate_limit' ||
       msg.includes('email rate limit') ||
       msg.includes('email send') ||
       msg.includes('over_email_send_rate_limit')
     ) {
+      if (context === 'resend_verification') {
+        return 'Email verification rate limit reached. For security, please wait 60 seconds before requesting another verification email.';
+      }
       return 'Email rate limit exceeded. Too many requests have been submitted. Please wait a few moments before trying again, or log in if your account is already created.';
     }
     if (context === 'login') {
@@ -182,6 +197,11 @@ export function mapAuthError(
   // 9. Fallback
   return rawMsg || 'Authentication failed. Please try again.';
 }
+
+// In-flight request tracking to guarantee only ONE network request per email
+const inFlightRegistrations = new Set<string>();
+const inFlightPasswordResets = new Set<string>();
+const inFlightResends = new Set<string>();
 
 /**
  * Auth Service layer directly integrated with Supabase Auth
@@ -316,6 +336,16 @@ export const authService = {
     }
 
     const cleanEmail = payload.email.trim().toLowerCase();
+
+    // Guard: Prevent concurrent duplicate registrations for the same email
+    if (inFlightRegistrations.has(cleanEmail)) {
+      return {
+        success: false,
+        error: 'A registration request for this email is already being processed. Please wait a moment.',
+      };
+    }
+
+    inFlightRegistrations.add(cleanEmail);
     const isRep = payload.role === 'representative';
     let cleanRepUsername: string | null = null;
     let sponsorUsername: string | null = null;
@@ -479,6 +509,8 @@ export const authService = {
         success: false,
         error: mapAuthError(err, 'register'),
       };
+    } finally {
+      inFlightRegistrations.delete(cleanEmail);
     }
   },
 
@@ -503,6 +535,15 @@ export const authService = {
       };
     }
 
+    if (inFlightPasswordResets.has(cleanEmail)) {
+      return {
+        success: false,
+        message: '',
+        error: 'A password reset request is already being processed. Please wait a moment.',
+      };
+    }
+
+    inFlightPasswordResets.add(cleanEmail);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
         redirectTo: `${window.location.origin}/?type=recovery`,
@@ -526,6 +567,8 @@ export const authService = {
         message: '',
         error: mapAuthError(err, 'forgot_password'),
       };
+    } finally {
+      inFlightPasswordResets.delete(cleanEmail);
     }
   },
 
@@ -578,6 +621,14 @@ export const authService = {
       return { success: false, error: 'Please enter a valid email address.' };
     }
 
+    if (inFlightResends.has(cleanEmail)) {
+      return {
+        success: false,
+        error: 'A verification email request is already being processed. Please wait a moment.',
+      };
+    }
+
+    inFlightResends.add(cleanEmail);
     try {
       const { error } = await supabase.auth.resend({
         type: 'signup',
@@ -593,6 +644,8 @@ export const authService = {
       return { success: true, message: `Verification email has been resent to ${cleanEmail}.` };
     } catch (err: any) {
       return { success: false, error: mapAuthError(err, 'resend_verification') };
+    } finally {
+      inFlightResends.delete(cleanEmail);
     }
   },
 

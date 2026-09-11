@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Mail, ArrowLeft, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
 import { authService, isValidEmail } from '../../services/auth';
 
@@ -13,9 +13,21 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+
+  const isSubmittingRef = useRef(false);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setInterval(() => {
+      setCooldown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [cooldown]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmittingRef.current || isLoading || cooldown > 0) return;
     if (!identifier.trim()) {
       setError('Please enter your registered email address.');
       return;
@@ -26,6 +38,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
       return;
     }
 
+    isSubmittingRef.current = true;
     setIsLoading(true);
     setError(null);
 
@@ -33,12 +46,14 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
       const res = await authService.forgotPassword(identifier.trim());
       if (res.success) {
         setSuccessMessage(res.message);
+        setCooldown(60);
       } else {
         setError(res.error || 'Unable to process request. Please try again.');
       }
     } catch (err: any) {
       setError(err?.message || 'Connection error. Please check your internet connection and try again.');
     } finally {
+      isSubmittingRef.current = false;
       setIsLoading(false);
     }
   };
@@ -140,7 +155,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
 
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || cooldown > 0}
             className="w-full h-[44px] sm:h-[46px] rounded-[14px] bg-gradient-to-r from-[#D30915] to-[#B60711] hover:from-[#B60711] hover:to-[#96050e] text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-[0_8px_22px_rgba(211,9,21,0.28)] hover:shadow-[0_12px_28px_rgba(211,9,21,0.38)] hover:-translate-y-0.5 active:translate-y-0 active:scale-97 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer flex items-center justify-center gap-2"
           >
             {isLoading ? (
@@ -148,6 +163,8 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
                 <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 <span>Sending Instructions...</span>
               </div>
+            ) : cooldown > 0 ? (
+              <span>Wait ({cooldown}s)</span>
             ) : (
               <>
                 <span>Send Reset Link</span>
