@@ -1,5 +1,5 @@
 import type { UserProfile } from '../types';
-import { supabase, isSupabaseConfigured, getAdminSupabaseClient } from './supabaseClient';
+import { supabase, isSupabaseConfigured } from './supabaseClient';
 import { accountService } from './accountService';
 import { attributionService } from './attributionService';
 import { representativeService } from './representativeService';
@@ -108,7 +108,7 @@ export const authService = {
     if (!isSupabaseConfigured()) {
       return {
         success: false,
-        error: 'Authentication service is currently offline. Please check your Supabase configuration.',
+        error: 'Authentication service is temporarily unavailable. Please try again.',
       };
     }
 
@@ -195,9 +195,18 @@ export const authService = {
         token: data.session?.access_token,
       };
     } catch (err: any) {
+      const msg = (err?.message || '').toLowerCase();
+      const isOfflineOrNetwork =
+        msg.includes('failed to fetch') ||
+        msg.includes('network') ||
+        msg.includes('connection') ||
+        msg.includes('abort') ||
+        msg.includes('offline');
       return {
         success: false,
-        error: err?.message || 'Network error occurred. Please try again.',
+        error: isOfflineOrNetwork
+          ? 'Authentication service is temporarily unavailable. Please try again.'
+          : err?.message || 'Authentication service is temporarily unavailable. Please try again.',
       };
     }
   },
@@ -230,7 +239,7 @@ export const authService = {
     if (!isSupabaseConfigured()) {
       return {
         success: false,
-        error: 'Authentication service is currently offline.',
+        error: 'Authentication service is temporarily unavailable. Please try again.',
       };
     }
 
@@ -295,20 +304,11 @@ export const authService = {
     }
 
     try {
-      let registeredUser: any = null;
-      let sessionToken: string | undefined = undefined;
-      let hasActiveSession = false;
-
-      const adminClient = getAdminSupabaseClient();
-
-      // If administrative client is available, use it directly to bypass Supabase's built-in
-      // SMTP rate limit (which throws "email rate limit exceeded" on free tier when sending signup emails).
-      if (adminClient) {
-        const { data: adminCreated, error: adminErr } = await adminClient.auth.admin.createUser({
-          email: cleanEmail,
-          password: payload.password,
-          email_confirm: true,
-          user_metadata: {
+      const { data, error } = await supabase.auth.signUp({
+        email: cleanEmail,
+        password: payload.password,
+        options: {
+          data: {
             name: payload.name.trim(),
             mobile: payload.mobile?.trim() || null,
             role: payload.role || 'customer',
@@ -316,94 +316,52 @@ export const authService = {
             sponsor_username: sponsorUsername,
             upline: uplineChain,
           },
-        });
+          emailRedirectTo: `${window.location.origin}/`,
+        },
+      });
 
-        if (adminErr) {
-          const adminMsg = (adminErr.message || '').toLowerCase();
-          if (
-            adminMsg.includes('user already registered') ||
-            adminMsg.includes('already been registered') ||
-            adminMsg.includes('already registered')
-          ) {
-            return {
-              success: false,
-              error: 'An account with this email address already exists. Please log in instead.',
-            };
-          }
-          return {
-            success: false,
-            error: adminErr.message || 'Registration failed. Please try again.',
-          };
-        }
-
-        registeredUser = adminCreated.user;
-
-        // Establish the user session on the client via signInWithPassword
-        const { data: signinData } = await supabase.auth.signInWithPassword({
-          email: cleanEmail,
-          password: payload.password,
-        });
-
-        if (signinData?.session) {
-          sessionToken = signinData.session.access_token;
-          hasActiveSession = true;
-          if (signinData.user) {
-            registeredUser = signinData.user;
-          }
-        }
-      } else {
-        // Fallback to standard Supabase signUp if admin client is not initialized
-        const { data, error } = await supabase.auth.signUp({
-          email: cleanEmail,
-          password: payload.password,
-          options: {
-            data: {
-              name: payload.name.trim(),
-              mobile: payload.mobile?.trim() || null,
-              role: payload.role || 'customer',
-              rep_username: cleanRepUsername,
-              sponsor_username: sponsorUsername,
-              upline: uplineChain,
-            },
-            emailRedirectTo: `${window.location.origin}/`,
-          },
-        });
-
-        if (error) {
-          const msg = (error.message || '').toLowerCase();
-          if (
-            msg.includes('user already registered') ||
-            msg.includes('already been registered') ||
-            msg.includes('already registered')
-          ) {
-            return {
-              success: false,
-              error: 'An account with this email address already exists. Please log in instead.',
-            };
-          }
-          if (msg.includes('rate limit') || (error as any).status === 429) {
-            return {
-              success: false,
-              error: 'Registration server is experiencing high traffic. Please try again in a moment.',
-            };
-          }
-          return {
-            success: false,
-            error: error.message || 'Registration failed. Please try again.',
-          };
-        }
-
-        if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+      if (error) {
+        const msg = (error.message || '').toLowerCase();
+        if (
+          msg.includes('user already registered') ||
+          msg.includes('already been registered') ||
+          msg.includes('already registered')
+        ) {
           return {
             success: false,
             error: 'An account with this email address already exists. Please log in instead.',
           };
         }
-
-        registeredUser = data.user;
-        sessionToken = data.session?.access_token;
-        hasActiveSession = Boolean(data.session);
+        if (msg.includes('rate limit') || (error as any).status === 429) {
+          return {
+            success: false,
+            error: 'Registration server is experiencing high traffic. Please try again in a moment.',
+          };
+        }
+        const isOfflineOrNetwork =
+          msg.includes('failed to fetch') ||
+          msg.includes('network') ||
+          msg.includes('connection') ||
+          msg.includes('abort') ||
+          msg.includes('offline');
+        return {
+          success: false,
+          error: isOfflineOrNetwork
+            ? 'Authentication service is temporarily unavailable. Please try again.'
+            : error.message || 'Registration failed. Please try again.',
+        };
       }
+
+      if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+        return {
+          success: false,
+          error: 'An account with this email address already exists. Please log in instead.',
+        };
+      }
+
+      const registeredUser = data.user;
+      const sessionToken = data.session?.access_token;
+      const hasActiveSession = Boolean(data.session);
 
       if (!registeredUser) {
         return {
@@ -470,9 +428,18 @@ export const authService = {
         token: sessionToken,
       };
     } catch (err: any) {
+      const msg = (err?.message || '').toLowerCase();
+      const isOfflineOrNetwork =
+        msg.includes('failed to fetch') ||
+        msg.includes('network') ||
+        msg.includes('connection') ||
+        msg.includes('abort') ||
+        msg.includes('offline');
       return {
         success: false,
-        error: err?.message || 'Network error occurred during registration.',
+        error: isOfflineOrNetwork
+          ? 'Authentication service is temporarily unavailable. Please try again.'
+          : err?.message || 'Authentication service is temporarily unavailable. Please try again.',
       };
     }
   },
@@ -494,7 +461,7 @@ export const authService = {
       return {
         success: false,
         message: '',
-        error: 'Authentication service is currently offline.',
+        error: 'Authentication service is temporarily unavailable. Please try again.',
       };
     }
 
@@ -511,10 +478,16 @@ export const authService = {
             error: 'Reset email rate limit reached. If you recently requested a reset, please check your inbox or try again shortly.',
           };
         }
+        const isOfflineOrNetwork =
+          error.message.toLowerCase().includes('failed to fetch') ||
+          error.message.toLowerCase().includes('network') ||
+          error.message.toLowerCase().includes('offline');
         return {
           success: false,
           message: '',
-          error: error.message || 'Unable to send password reset instructions.',
+          error: isOfflineOrNetwork
+            ? 'Authentication service is temporarily unavailable. Please try again.'
+            : error.message || 'Unable to send password reset instructions.',
         };
       }
 
@@ -523,10 +496,19 @@ export const authService = {
         message: `Password reset instructions have been sent to ${cleanEmail}. Please check your inbox.`,
       };
     } catch (err: any) {
+      const msg = (err?.message || '').toLowerCase();
+      const isOfflineOrNetwork =
+        msg.includes('failed to fetch') ||
+        msg.includes('network') ||
+        msg.includes('connection') ||
+        msg.includes('abort') ||
+        msg.includes('offline');
       return {
         success: false,
         message: '',
-        error: err?.message || 'Network error occurred.',
+        error: isOfflineOrNetwork
+          ? 'Authentication service is temporarily unavailable. Please try again.'
+          : err?.message || 'Authentication service is temporarily unavailable. Please try again.',
       };
     }
   },
@@ -618,7 +600,7 @@ export const authService = {
     if (!isSupabaseConfigured()) {
       return {
         success: false,
-        error: 'Authentication service is currently offline. Please check your Supabase configuration.',
+        error: 'Authentication service is temporarily unavailable. Please try again.',
       };
     }
 

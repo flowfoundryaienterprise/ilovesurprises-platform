@@ -1,8 +1,15 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '../types/supabase';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const supabaseUrl =
+  import.meta.env.VITE_SUPABASE_URL ||
+  (typeof window !== 'undefined' && (window as any).__ENV__?.VITE_SUPABASE_URL) ||
+  '';
+
+const supabaseAnonKey =
+  import.meta.env.VITE_SUPABASE_ANON_KEY ||
+  (typeof window !== 'undefined' && (window as any).__ENV__?.VITE_SUPABASE_ANON_KEY) ||
+  '';
 
 export const isSupabaseConfigured = (): boolean => {
   return Boolean(
@@ -28,21 +35,3 @@ export const supabase: SupabaseClient<Database> = isSupabaseConfigured()
       },
     });
 
-const serviceRoleKey =
-  import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY ||
-  import.meta.env.SUPABASE_SERVICE_ROLE_KEY ||
-  '';
-
-/**
- * Provides an administrative Supabase client instance used exclusively for
- * rate-limit fallback on user signup and automated operational routines.
- */
-export const getAdminSupabaseClient = (): SupabaseClient<Database> | null => {
-  if (!serviceRoleKey || !supabaseUrl || !isSupabaseConfigured()) return null;
-  return createClient<Database>(supabaseUrl, serviceRoleKey, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
-  });
-};
