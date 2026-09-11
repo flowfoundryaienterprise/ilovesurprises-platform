@@ -128,8 +128,8 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
       } else {
         setErrors({ general: res.error || 'Registration failed. Please try again.' });
       }
-    } catch {
-      setErrors({ general: 'Network error. Please try again in a moment.' });
+    } catch (err: any) {
+      setErrors({ general: err?.message || 'Connection error. Please check your internet connection and try again.' });
     } finally {
       setIsLoading(false);
     }
@@ -146,8 +146,8 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
       } else {
         setResendStatus(res.error || 'Failed to resend. Please try again shortly.');
       }
-    } catch {
-      setResendStatus('Network error occurred. Please try again.');
+    } catch (err: any) {
+      setResendStatus(err?.message || 'Connection error. Please check your internet connection and try again.');
     } finally {
       setIsResending(false);
     }

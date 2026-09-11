@@ -90,6 +90,100 @@ export function isValidMobile(mobile: string): boolean {
 }
 
 /**
+ * Maps Supabase Auth errors to truthful, user-friendly, and actionable messages.
+ * Prevents masking rate limits or real errors as generic "server traffic" issues.
+ */
+export function mapAuthError(
+  error: any,
+  context: 'login' | 'register' | 'forgot_password' | 'reset_password' | 'resend_verification' = 'register'
+): string {
+  if (!error) return 'An unexpected authentication error occurred. Please try again.';
+
+  const rawMsg = (error.message || error.error_description || error.msg || '');
+  const msg = rawMsg.toLowerCase();
+  const status = Number(error.status || error.statusCode || 0);
+  const code = (error.code || error.error_code || '').toLowerCase();
+
+  // 1. Network Failure / Connection Error
+  const isNetworkFailure =
+    msg.includes('failed to fetch') ||
+    msg.includes('network') ||
+    msg.includes('connection') ||
+    msg.includes('offline') ||
+    msg.includes('abort') ||
+    code.includes('network');
+
+  if (isNetworkFailure) {
+    return 'Connection error. Unable to reach the authentication service. Please check your internet connection and try again.';
+  }
+
+  // 2. Supabase Unavailable / 5xx Server Errors
+  if (status >= 500) {
+    return 'Authentication service is temporarily unavailable. Please try again in a few moments.';
+  }
+
+  // 3. 429 Rate Limits
+  if (status === 429 || msg.includes('rate limit') || code.includes('rate_limit')) {
+    if (
+      code === 'over_email_send_rate_limit' ||
+      msg.includes('email rate limit') ||
+      msg.includes('email send') ||
+      msg.includes('over_email_send_rate_limit')
+    ) {
+      return 'Email rate limit exceeded. Too many requests have been submitted. Please wait a few moments before trying again, or log in if your account is already created.';
+    }
+    if (context === 'login') {
+      return 'Too many sign-in attempts. Please wait a few moments and try again.';
+    }
+    if (context === 'forgot_password') {
+      return 'Reset email rate limit reached. If you recently requested a reset, please check your inbox or try again shortly.';
+    }
+    return 'Rate limit reached. Too many requests have been submitted. Please wait a few moments and try again.';
+  }
+
+  // 4. Invalid Credentials (Wrong password or nonexistent email)
+  if (
+    code === 'invalid_credentials' ||
+    msg.includes('invalid login credentials') ||
+    msg.includes('invalid credentials')
+  ) {
+    return 'Invalid email or password. Please double-check your credentials and try again.';
+  }
+
+  // 5. Existing Email / Account Already Exists
+  if (
+    code === 'user_already_exists' ||
+    msg.includes('user already registered') ||
+    msg.includes('already been registered') ||
+    msg.includes('already registered')
+  ) {
+    return 'An account with this email address already exists. Please log in instead.';
+  }
+
+  // 6. Unconfirmed Email
+  if (
+    code === 'email_not_confirmed' ||
+    msg.includes('email not confirmed') ||
+    msg.includes('not confirmed')
+  ) {
+    return 'Your email address is not verified yet. Please check your inbox for the confirmation link.';
+  }
+
+  // 7. Account Suspended / Banned
+  if (msg.includes('suspended') || msg.includes('banned') || msg.includes('disabled')) {
+    return 'This account has been suspended. Please contact customer concierge.';
+  }
+
+  // 8. Explicit validation error messages from Supabase (400 / 422)
+  if (rawMsg && (status === 400 || status === 422)) {
+    return rawMsg;
+  }
+
+  // 9. Fallback
+  return rawMsg || 'Authentication failed. Please try again.';
+}
+
+/**
  * Auth Service layer directly integrated with Supabase Auth
  */
 export const authService = {
@@ -119,29 +213,16 @@ export const authService = {
       });
 
       if (error) {
-        const msg = (error.message || '').toLowerCase();
-        if (msg.includes('email not confirmed') || msg.includes('not confirmed')) {
-          return {
-            success: false,
-            requiresVerification: true,
-            error: 'Your email address is not verified yet. Please check your inbox for the confirmation link.',
-          };
-        }
-        if (msg.includes('invalid login credentials')) {
-          return {
-            success: false,
-            error: 'Invalid email or password. Please double-check your credentials and try again.',
-          };
-        }
-        if (msg.includes('suspended') || msg.includes('banned') || msg.includes('disabled')) {
-          return {
-            success: false,
-            error: 'This account has been suspended. Please contact customer concierge.',
-          };
-        }
+        const errorMsg = mapAuthError(error, 'login');
+        const isUnconfirmed =
+          (error.message || '').toLowerCase().includes('email not confirmed') ||
+          (error.message || '').toLowerCase().includes('not confirmed') ||
+          (error as any).code === 'email_not_confirmed';
+
         return {
           success: false,
-          error: error.message || 'Unable to sign in. Please verify your credentials.',
+          requiresVerification: isUnconfirmed,
+          error: errorMsg,
         };
       }
 
@@ -195,18 +276,9 @@ export const authService = {
         token: data.session?.access_token,
       };
     } catch (err: any) {
-      const msg = (err?.message || '').toLowerCase();
-      const isOfflineOrNetwork =
-        msg.includes('failed to fetch') ||
-        msg.includes('network') ||
-        msg.includes('connection') ||
-        msg.includes('abort') ||
-        msg.includes('offline');
       return {
         success: false,
-        error: isOfflineOrNetwork
-          ? 'Authentication service is temporarily unavailable. Please try again.'
-          : err?.message || 'Authentication service is temporarily unavailable. Please try again.',
+        error: mapAuthError(err, 'login'),
       };
     }
   },
@@ -249,61 +321,61 @@ export const authService = {
     let sponsorUsername: string | null = null;
     let uplineChain: string[] = [];
 
-    if (isRep) {
-      if (!payload.repUsername?.trim()) {
-        return {
-          success: false,
-          error: 'Please choose a unique representative username / vanity handle.',
-        };
-      }
-
-      cleanRepUsername = sponsorService.normalizeUsername(payload.repUsername);
-      const validation = sponsorService.validateUsername(cleanRepUsername);
-      if (!validation.valid) {
-        return {
-          success: false,
-          error: validation.error || 'Invalid representative username format.',
-        };
-      }
-
-      const available = await sponsorService.isUsernameAvailable(cleanRepUsername);
-      if (!available) {
-        return {
-          success: false,
-          error: `The representative username "${cleanRepUsername}" is already taken. Please choose another vanity handle.`,
-        };
-      }
-
-      // Resolve sponsor
-      const resolvedSponsor = await sponsorService.resolveSponsor(payload.sponsorUsername);
-      if (resolvedSponsor) {
-        sponsorUsername = resolvedSponsor.username;
-        try {
-          uplineChain = await sponsorService.buildUpline(resolvedSponsor.username, cleanRepUsername);
-        } catch (cycleErr: any) {
+    try {
+      if (isRep) {
+        if (!payload.repUsername?.trim()) {
           return {
             success: false,
-            error: cycleErr.message || 'Invalid sponsor hierarchy. Circular relationships are not allowed.',
+            error: 'Please choose a unique representative username / vanity handle.',
           };
         }
-      }
-    } else {
-      // Resolve lifetime attribution for newly registered customer
-      let assignedRep = payload.repUsername?.trim().toLowerCase();
-      if (!assignedRep) {
-        const sessionRep = representativeService.getAttributedRepresentative()?.repUsername;
-        const attribution = await attributionService.resolveAttributionForCheckout({
-          customerEmail: cleanEmail,
-          currentSessionRep: sessionRep,
-        });
-        if (attribution.repUsername) {
-          assignedRep = attribution.repUsername;
-        }
-      }
-      cleanRepUsername = assignedRep || null;
-    }
 
-    try {
+        cleanRepUsername = sponsorService.normalizeUsername(payload.repUsername);
+        const validation = sponsorService.validateUsername(cleanRepUsername);
+        if (!validation.valid) {
+          return {
+            success: false,
+            error: validation.error || 'Invalid representative username format.',
+          };
+        }
+
+        const available = await sponsorService.isUsernameAvailable(cleanRepUsername);
+        if (!available) {
+          return {
+            success: false,
+            error: `The representative username "${cleanRepUsername}" is already taken. Please choose another vanity handle.`,
+          };
+        }
+
+        // Resolve sponsor
+        const resolvedSponsor = await sponsorService.resolveSponsor(payload.sponsorUsername);
+        if (resolvedSponsor) {
+          sponsorUsername = resolvedSponsor.username;
+          try {
+            uplineChain = await sponsorService.buildUpline(resolvedSponsor.username, cleanRepUsername);
+          } catch (cycleErr: any) {
+            return {
+              success: false,
+              error: cycleErr.message || 'Invalid sponsor hierarchy. Circular relationships are not allowed.',
+            };
+          }
+        }
+      } else {
+        // Resolve lifetime attribution for newly registered customer
+        let assignedRep = payload.repUsername?.trim().toLowerCase();
+        if (!assignedRep) {
+          const sessionRep = representativeService.getAttributedRepresentative()?.repUsername;
+          const attribution = await attributionService.resolveAttributionForCheckout({
+            customerEmail: cleanEmail,
+            currentSessionRep: sessionRep,
+          });
+          if (attribution.repUsername) {
+            assignedRep = attribution.repUsername;
+          }
+        }
+        cleanRepUsername = assignedRep || null;
+      }
+
       const { data, error } = await supabase.auth.signUp({
         email: cleanEmail,
         password: payload.password,
@@ -321,34 +393,9 @@ export const authService = {
       });
 
       if (error) {
-        const msg = (error.message || '').toLowerCase();
-        if (
-          msg.includes('user already registered') ||
-          msg.includes('already been registered') ||
-          msg.includes('already registered')
-        ) {
-          return {
-            success: false,
-            error: 'An account with this email address already exists. Please log in instead.',
-          };
-        }
-        if (msg.includes('rate limit') || (error as any).status === 429) {
-          return {
-            success: false,
-            error: 'Registration server is experiencing high traffic. Please try again in a moment.',
-          };
-        }
-        const isOfflineOrNetwork =
-          msg.includes('failed to fetch') ||
-          msg.includes('network') ||
-          msg.includes('connection') ||
-          msg.includes('abort') ||
-          msg.includes('offline');
         return {
           success: false,
-          error: isOfflineOrNetwork
-            ? 'Authentication service is temporarily unavailable. Please try again.'
-            : error.message || 'Registration failed. Please try again.',
+          error: mapAuthError(error, 'register'),
         };
       }
 
@@ -428,18 +475,9 @@ export const authService = {
         token: sessionToken,
       };
     } catch (err: any) {
-      const msg = (err?.message || '').toLowerCase();
-      const isOfflineOrNetwork =
-        msg.includes('failed to fetch') ||
-        msg.includes('network') ||
-        msg.includes('connection') ||
-        msg.includes('abort') ||
-        msg.includes('offline');
       return {
         success: false,
-        error: isOfflineOrNetwork
-          ? 'Authentication service is temporarily unavailable. Please try again.'
-          : err?.message || 'Authentication service is temporarily unavailable. Please try again.',
+        error: mapAuthError(err, 'register'),
       };
     }
   },
@@ -471,23 +509,10 @@ export const authService = {
       });
 
       if (error) {
-        if (error.message.toLowerCase().includes('rate limit')) {
-          return {
-            success: false,
-            message: '',
-            error: 'Reset email rate limit reached. If you recently requested a reset, please check your inbox or try again shortly.',
-          };
-        }
-        const isOfflineOrNetwork =
-          error.message.toLowerCase().includes('failed to fetch') ||
-          error.message.toLowerCase().includes('network') ||
-          error.message.toLowerCase().includes('offline');
         return {
           success: false,
           message: '',
-          error: isOfflineOrNetwork
-            ? 'Authentication service is temporarily unavailable. Please try again.'
-            : error.message || 'Unable to send password reset instructions.',
+          error: mapAuthError(error, 'forgot_password'),
         };
       }
 
@@ -496,19 +521,10 @@ export const authService = {
         message: `Password reset instructions have been sent to ${cleanEmail}. Please check your inbox.`,
       };
     } catch (err: any) {
-      const msg = (err?.message || '').toLowerCase();
-      const isOfflineOrNetwork =
-        msg.includes('failed to fetch') ||
-        msg.includes('network') ||
-        msg.includes('connection') ||
-        msg.includes('abort') ||
-        msg.includes('offline');
       return {
         success: false,
         message: '',
-        error: isOfflineOrNetwork
-          ? 'Authentication service is temporarily unavailable. Please try again.'
-          : err?.message || 'Authentication service is temporarily unavailable. Please try again.',
+        error: mapAuthError(err, 'forgot_password'),
       };
     }
   },
@@ -532,7 +548,7 @@ export const authService = {
       if (error) {
         return {
           success: false,
-          error: error.message || 'Failed to update password. Your reset link may have expired.',
+          error: mapAuthError(error, 'reset_password'),
         };
       }
 
@@ -548,7 +564,7 @@ export const authService = {
     } catch (err: any) {
       return {
         success: false,
-        error: err?.message || 'Network error occurred during password update.',
+        error: mapAuthError(err, 'reset_password'),
       };
     }
   },
@@ -572,11 +588,11 @@ export const authService = {
       });
 
       if (error) {
-        return { success: false, error: error.message };
+        return { success: false, error: mapAuthError(error, 'resend_verification') };
       }
       return { success: true, message: `Verification email has been resent to ${cleanEmail}.` };
     } catch (err: any) {
-      return { success: false, error: err?.message || 'Failed to resend verification email.' };
+      return { success: false, error: mapAuthError(err, 'resend_verification') };
     }
   },
 

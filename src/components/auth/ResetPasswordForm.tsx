@@ -55,8 +55,8 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
       } else {
         setErrors({ general: res.error || 'Failed to update password. Please request a new reset link.' });
       }
-    } catch {
-      setErrors({ general: 'Network error occurred while updating your password. Please try again.' });
+    } catch (err: any) {
+      setErrors({ general: err?.message || 'Connection error. Please check your internet connection and try again.' });
     } finally {
       setIsLoading(false);
     }

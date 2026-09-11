@@ -36,8 +36,8 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
       } else {
         setError(res.error || 'Unable to process request. Please try again.');
       }
-    } catch {
-      setError('Network error. Please try again in a moment.');
+    } catch (err: any) {
+      setError(err?.message || 'Connection error. Please check your internet connection and try again.');
     } finally {
       setIsLoading(false);
     }

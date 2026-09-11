@@ -66,8 +66,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         setUnverifiedEmail(null);
         setErrors({ general: res.error || 'Unable to sign in. Please verify your credentials.' });
       }
-    } catch {
-      setErrors({ general: 'Network error. Please try again in a moment.' });
+    } catch (err: any) {
+      setErrors({ general: err?.message || 'Connection error. Please check your internet connection and try again.' });
     } finally {
       setIsLoading(false);
     }
@@ -84,8 +84,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       } else {
         setResendStatus(res.error || 'Failed to resend verification email.');
       }
-    } catch {
-      setResendStatus('Network error occurred. Please try again.');
+    } catch (err: any) {
+      setResendStatus(err?.message || 'Connection error. Please check your internet connection and try again.');
     } finally {
       setIsResending(false);
     }
