@@ -1425,8 +1425,8 @@ export const adminService = {
     const defaultStaff: AdminStaffUser[] = [
       {
         id: 'staff-primary-admin',
-        email: 'cookuwithcomali336@gmail.com',
-        name: 'Janarthanan (Founder & Admin)',
+        email: 'flowfoundry.aisolutions@gmail.com',
+        name: 'Harsha (Founder & Admin)',
         role: 'super_admin',
         avatarUrl: '/assets/ilovesurprises/avatars/founder.png',
         lastActive: 'Just now',
@@ -1488,7 +1488,7 @@ export const adminService = {
         let assignedRole: AdminRole = 'support_rep';
         if (overrides[p.id]) {
           assignedRole = overrides[p.id];
-        } else if (p.role === 'admin' || p.email === 'cookuwithcomali336@gmail.com') {
+        } else if (p.role === 'admin' || p.email === 'flowfoundry.aisolutions@gmail.com' || p.email === 'cookuwithcomali336@gmail.com') {
           assignedRole = 'super_admin';
         } else if ((p.role as string) === 'representative' || (p.role as string) === 'rep') {
           assignedRole = 'affiliate_manager';

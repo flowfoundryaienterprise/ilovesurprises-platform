@@ -228,7 +228,9 @@ export const AdminPermissions: React.FC<AdminPermissionsProps> = ({
               ) : (
                 staffList.map((staff) => {
                   const config = ADMIN_ROLES_CONFIG[staff.role];
-                  const isFounder = staff.email === 'cookuwithcomali336@gmail.com';
+                  const isFounder =
+                    staff.email === 'flowfoundry.aisolutions@gmail.com' ||
+                    staff.email === 'cookuwithcomali336@gmail.com';
 
                 return (
                   <tr key={staff.id} className="hover:bg-[#fffbfd] transition-colors">
