@@ -1,0 +1,616 @@
+[
+  {
+    "navId": "funny-cash-candles",
+    "navName": "Funny Cash Candles",
+    "navSlug": "funny-cash-candles",
+    "frontendQueryCount": 4201,
+    "bestMatchesInDB": [
+      {
+        "id": "364395589",
+        "handle": "monogram-candles",
+        "title": "Monogram Candles | Monogrammed Jewelry Candles®",
+        "count": 26
+      },
+      {
+        "id": "150965509",
+        "handle": "companion-candles",
+        "title": "Companion Candles",
+        "count": 92
+      },
+      {
+        "id": "96756613",
+        "handle": "emoji-jewel-candles",
+        "title": "Emoji Candles |  Jewelry + Candles + Emojis!®",
+        "count": 41
+      }
+    ]
+  },
+  {
+    "navId": "soda-pop-cash-candles",
+    "navName": "Soda Pop Cash Candles",
+    "navSlug": "soda-pop-cash-candles",
+    "frontendQueryCount": 18,
+    "bestMatchesInDB": [
+      {
+        "id": "364395589",
+        "handle": "monogram-candles",
+        "title": "Monogram Candles | Monogrammed Jewelry Candles®",
+        "count": 26
+      },
+      {
+        "id": "150965509",
+        "handle": "companion-candles",
+        "title": "Companion Candles",
+        "count": 92
+      },
+      {
+        "id": "96756613",
+        "handle": "emoji-jewel-candles",
+        "title": "Emoji Candles |  Jewelry + Candles + Emojis!®",
+        "count": 41
+      }
+    ]
+  },
+  {
+    "navId": "coffee-mug-cash-candles",
+    "navName": "Coffee Mug Cash Candles",
+    "navSlug": "coffee-mug-cash-candles",
+    "frontendQueryCount": 205,
+    "bestMatchesInDB": [
+      {
+        "id": "364395589",
+        "handle": "monogram-candles",
+        "title": "Monogram Candles | Monogrammed Jewelry Candles®",
+        "count": 26
+      },
+      {
+        "id": "150965509",
+        "handle": "companion-candles",
+        "title": "Companion Candles",
+        "count": 92
+      },
+      {
+        "id": "96756613",
+        "handle": "emoji-jewel-candles",
+        "title": "Emoji Candles |  Jewelry + Candles + Emojis!®",
+        "count": 41
+      }
+    ]
+  },
+  {
+    "navId": "surprise-rose-bear-bundle",
+    "navName": "Surprise Rose Bear / Cash Bath Bomb Bundle",
+    "navSlug": "surprise-rose-bear-cash-bath-bomb-bundle",
+    "frontendQueryCount": 3481,
+    "bestMatchesInDB": [
+      {
+        "id": "359312645",
+        "handle": "valentines-jewelry-bath-bombs",
+        "title": "Valentine's Jewelry Bath Bombs",
+        "count": 4
+      },
+      {
+        "id": "380989189",
+        "handle": "chalkboard-jewelry-bath-bombs",
+        "title": "Chalkboard Jewelry Bath Bombs",
+        "count": 12
+      },
+      {
+        "id": "355843717",
+        "handle": "ring-bath-bombs",
+        "title": "Ring Bath Bombs  - Ring Bombs - Bath Bombs With Rings",
+        "count": 26
+      }
+    ]
+  },
+  {
+    "navId": "cash-bath-bomb-tube-bundles",
+    "navName": "Cash Bath Bomb Tube Bundles",
+    "navSlug": "cash-bath-bomb-tube-bundles",
+    "frontendQueryCount": 17687,
+    "bestMatchesInDB": [
+      {
+        "id": "359312645",
+        "handle": "valentines-jewelry-bath-bombs",
+        "title": "Valentine's Jewelry Bath Bombs",
+        "count": 4
+      },
+      {
+        "id": "380989189",
+        "handle": "chalkboard-jewelry-bath-bombs",
+        "title": "Chalkboard Jewelry Bath Bombs",
+        "count": 12
+      },
+      {
+        "id": "355843717",
+        "handle": "ring-bath-bombs",
+        "title": "Ring Bath Bombs  - Ring Bombs - Bath Bombs With Rings",
+        "count": 26
+      }
+    ]
+  },
+  {
+    "navId": "cash-bath-soaks",
+    "navName": "Cash Bath Soaks",
+    "navSlug": "cash-bath-soaks",
+    "frontendQueryCount": 17687,
+    "bestMatchesInDB": [
+      {
+        "id": "359312645",
+        "handle": "valentines-jewelry-bath-bombs",
+        "title": "Valentine's Jewelry Bath Bombs",
+        "count": 4
+      },
+      {
+        "id": "380989189",
+        "handle": "chalkboard-jewelry-bath-bombs",
+        "title": "Chalkboard Jewelry Bath Bombs",
+        "count": 12
+      },
+      {
+        "id": "355843717",
+        "handle": "ring-bath-bombs",
+        "title": "Ring Bath Bombs  - Ring Bombs - Bath Bombs With Rings",
+        "count": 26
+      }
+    ]
+  },
+  {
+    "navId": "goat-milk-cash-money-soaps",
+    "navName": "Goat Milk Cash Money Soaps",
+    "navSlug": "goat-milk-cash-money-soaps",
+    "frontendQueryCount": 94,
+    "bestMatchesInDB": [
+      {
+        "id": "87773773870",
+        "handle": "cash-bath-bomb-twin-packs",
+        "title": "Cash Bath Bomb Twin Packs",
+        "count": 52
+      },
+      {
+        "id": "380988677",
+        "handle": "cash-bath-bomb-jars",
+        "title": "Cash Bath Bomb Jars",
+        "count": 55
+      },
+      {
+        "id": "408559493",
+        "handle": "jewelry-cash-slimes",
+        "title": "Jewelry & Cash Slimes",
+        "count": 22
+      }
+    ]
+  },
+  {
+    "navId": "cash-mystery-bars",
+    "navName": "Cash Mystery Soap Bars",
+    "navSlug": "cash-mystery-soap-bars",
+    "frontendQueryCount": 17687,
+    "bestMatchesInDB": [
+      {
+        "id": "87773773870",
+        "handle": "cash-bath-bomb-twin-packs",
+        "title": "Cash Bath Bomb Twin Packs",
+        "count": 52
+      },
+      {
+        "id": "380988677",
+        "handle": "cash-bath-bomb-jars",
+        "title": "Cash Bath Bomb Jars",
+        "count": 55
+      },
+      {
+        "id": "408559493",
+        "handle": "jewelry-cash-slimes",
+        "title": "Jewelry & Cash Slimes",
+        "count": 22
+      }
+    ]
+  },
+  {
+    "navId": "artisan-herbal-soaps",
+    "navName": "Artisan Herbal Soaps",
+    "navSlug": "artisan-herbal-soaps",
+    "frontendQueryCount": 0,
+    "bestMatchesInDB": [
+      {
+        "id": "293183258813",
+        "handle": "money-soaps",
+        "title": "Cash Money Goat Milk Soaps - Goats Milk Soap",
+        "count": 92
+      },
+      {
+        "id": "293483675837",
+        "handle": "astrology-birthday-cash-money-soaps",
+        "title": "Astrology Birthday Cash Money Soaps (2-PACKS)",
+        "count": 12
+      },
+      {
+        "id": "328863940797",
+        "handle": "goat-milk-soaps",
+        "title": "Goat Milk Soaps",
+        "count": 98
+      }
+    ]
+  },
+  {
+    "navId": "soap-bundles-gift-sets",
+    "navName": "Soap Bundles & Gift Sets",
+    "navSlug": "soap-bundles-gift-sets",
+    "frontendQueryCount": 133,
+    "bestMatchesInDB": [
+      {
+        "id": "394327493",
+        "handle": "gifts-for-dad",
+        "title": "Gifts for Dad",
+        "count": 3
+      },
+      {
+        "id": "113190981",
+        "handle": "gift-card",
+        "title": "Gift Card",
+        "count": 15
+      },
+      {
+        "id": "375667781",
+        "handle": "housewarming-gifts",
+        "title": "Housewarming Gifts",
+        "count": 0
+      }
+    ]
+  },
+  {
+    "navId": "mystery-rings",
+    "navName": "Mystery Rings",
+    "navSlug": "mystery-rings",
+    "frontendQueryCount": 14,
+    "bestMatchesInDB": [
+      {
+        "id": "355843717",
+        "handle": "ring-bath-bombs",
+        "title": "Ring Bath Bombs  - Ring Bombs - Bath Bombs With Rings",
+        "count": 26
+      },
+      {
+        "id": "359520005",
+        "handle": "ring-bombs",
+        "title": "Ring Bath Bombs | Ring Bombs | Rings In Bath Bombs",
+        "count": 25
+      },
+      {
+        "id": "291067068605",
+        "handle": "earring-candles",
+        "title": "Earring Candles - A Pair Of Earrings In Every Candle",
+        "count": 44
+      }
+    ]
+  },
+  {
+    "navId": "necklaces-pendants",
+    "navName": "Necklaces & Pendants",
+    "navSlug": "necklaces-pendants",
+    "frontendQueryCount": 45,
+    "bestMatchesInDB": []
+  },
+  {
+    "navId": "bracelets-bangles",
+    "navName": "Bracelets & Bangles",
+    "navSlug": "bracelets-bangles",
+    "frontendQueryCount": 48,
+    "bestMatchesInDB": []
+  },
+  {
+    "navId": "earrings",
+    "navName": "Earrings & Studs",
+    "navSlug": "earrings-studs",
+    "frontendQueryCount": 46,
+    "bestMatchesInDB": [
+      {
+        "id": "291067068605",
+        "handle": "earring-candles",
+        "title": "Earring Candles - A Pair Of Earrings In Every Candle",
+        "count": 44
+      }
+    ]
+  },
+  {
+    "navId": "cash-jewelry",
+    "navName": "Cash Jewelry",
+    "navSlug": "cash-jewelry",
+    "frontendQueryCount": 17687,
+    "bestMatchesInDB": [
+      {
+        "id": "359312645",
+        "handle": "valentines-jewelry-bath-bombs",
+        "title": "Valentine's Jewelry Bath Bombs",
+        "count": 4
+      },
+      {
+        "id": "364395589",
+        "handle": "monogram-candles",
+        "title": "Monogram Candles | Monogrammed Jewelry Candles®",
+        "count": 26
+      },
+      {
+        "id": "380989189",
+        "handle": "chalkboard-jewelry-bath-bombs",
+        "title": "Chalkboard Jewelry Bath Bombs",
+        "count": 12
+      }
+    ]
+  },
+  {
+    "navId": "mens-jewelry",
+    "navName": "Men’s Jewelry",
+    "navSlug": "mens-jewelry",
+    "frontendQueryCount": 0,
+    "bestMatchesInDB": [
+      {
+        "id": "359312645",
+        "handle": "valentines-jewelry-bath-bombs",
+        "title": "Valentine's Jewelry Bath Bombs",
+        "count": 4
+      },
+      {
+        "id": "364395589",
+        "handle": "monogram-candles",
+        "title": "Monogram Candles | Monogrammed Jewelry Candles®",
+        "count": 26
+      },
+      {
+        "id": "380989189",
+        "handle": "chalkboard-jewelry-bath-bombs",
+        "title": "Chalkboard Jewelry Bath Bombs",
+        "count": 12
+      }
+    ]
+  },
+  {
+    "navId": "surprise-jewelry-bundles",
+    "navName": "Surprise Jewelry Bundles",
+    "navSlug": "surprise-jewelry-bundles",
+    "frontendQueryCount": 3481,
+    "bestMatchesInDB": [
+      {
+        "id": "359312645",
+        "handle": "valentines-jewelry-bath-bombs",
+        "title": "Valentine's Jewelry Bath Bombs",
+        "count": 4
+      },
+      {
+        "id": "364395589",
+        "handle": "monogram-candles",
+        "title": "Monogram Candles | Monogrammed Jewelry Candles®",
+        "count": 26
+      },
+      {
+        "id": "380989189",
+        "handle": "chalkboard-jewelry-bath-bombs",
+        "title": "Chalkboard Jewelry Bath Bombs",
+        "count": 12
+      }
+    ]
+  },
+  {
+    "navId": "gummy-surprise-pouches",
+    "navName": "Gummy Surprise Pouches",
+    "navSlug": "gummy-surprise-pouches",
+    "frontendQueryCount": 52,
+    "bestMatchesInDB": [
+      {
+        "id": "874119173",
+        "handle": "toy-slimes",
+        "title": "Toy Slimes® - Toy Surprise Slimes",
+        "count": 23
+      },
+      {
+        "id": "874086405",
+        "handle": "toy-doh",
+        "title": "Toy Doh®- Toy Surprise Doh",
+        "count": 23
+      },
+      {
+        "id": "684851205",
+        "handle": "jewelry-greeting-cards-22",
+        "title": "Jewelry Greeting Cards | A jewelry surprise in every greeting card!®",
+        "count": 137
+      }
+    ]
+  },
+  {
+    "navId": "sweet-treat-bundles",
+    "navName": "Sweet Treat Bundles",
+    "navSlug": "sweet-treat-bundles",
+    "frontendQueryCount": 290,
+    "bestMatchesInDB": [
+      {
+        "id": "243238600893",
+        "handle": "cash-sugar-scrubs-a-sweet-cash-surprise-1",
+        "title": "Cash Sugar Scrubs - Real cash in every jar of sugar scrubs.",
+        "count": 10
+      },
+      {
+        "id": "287719981245",
+        "handle": "cash-bath-bombs-bundles",
+        "title": "Cash Bath Bombs Tubes (2-PACK BUNDLES)",
+        "count": 26
+      },
+      {
+        "id": "328863711421",
+        "handle": "surprise-jewelry-wax-melt-bundles",
+        "title": "GIANT Jewelry Wax Melt Bundles",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "navId": "gourmet-chocolate-bars",
+    "navName": "Gourmet Chocolate Bars",
+    "navSlug": "gourmet-chocolate-bars",
+    "frontendQueryCount": 0,
+    "bestMatchesInDB": [
+      {
+        "id": "167930495022",
+        "handle": "zodiac-cash-chocolates",
+        "title": "Zodiac Cash Chocolates",
+        "count": 12
+      },
+      {
+        "id": "167930527790",
+        "handle": "zodiac-chocolates",
+        "title": "Zodiac Chocolates",
+        "count": 12
+      },
+      {
+        "id": "167930036270",
+        "handle": "zodiac-jewelry-chocolates",
+        "title": "Zodiac Jewelry Chocolates",
+        "count": 12
+      }
+    ]
+  },
+  {
+    "navId": "luxury-reveal-gift-boxes",
+    "navName": "Luxury Reveal Gift Boxes",
+    "navSlug": "luxury-reveal-gift-boxes",
+    "frontendQueryCount": 198,
+    "bestMatchesInDB": [
+      {
+        "id": "394327493",
+        "handle": "gifts-for-dad",
+        "title": "Gifts for Dad",
+        "count": 3
+      },
+      {
+        "id": "113190981",
+        "handle": "gift-card",
+        "title": "Gift Card",
+        "count": 15
+      },
+      {
+        "id": "375667781",
+        "handle": "housewarming-gifts",
+        "title": "Housewarming Gifts",
+        "count": 0
+      }
+    ]
+  },
+  {
+    "navId": "cereal-bowl-slimes",
+    "navName": "Cereal Bowl Slimes",
+    "navSlug": "cereal-bowl-slimes",
+    "frontendQueryCount": 477,
+    "bestMatchesInDB": [
+      {
+        "id": "874119173",
+        "handle": "toy-slimes",
+        "title": "Toy Slimes® - Toy Surprise Slimes",
+        "count": 23
+      },
+      {
+        "id": "408559493",
+        "handle": "jewelry-cash-slimes",
+        "title": "Jewelry & Cash Slimes",
+        "count": 22
+      },
+      {
+        "id": "243239977149",
+        "handle": "cash-slimes-a-cash-surprise-in-every-jar-of-slime",
+        "title": "Cash Slimes® | A Cash Surprise in Every Jar of Slime!",
+        "count": 11
+      }
+    ]
+  },
+  {
+    "navId": "birthday-surprise-cards",
+    "navName": "Birthday Surprise Cards",
+    "navSlug": "birthday-surprise-cards",
+    "frontendQueryCount": 4936,
+    "bestMatchesInDB": [
+      {
+        "id": "87204757550",
+        "handle": "happy-birthday-jewelry-wax-melts",
+        "title": "Happy Birthday Jewelry Wax Melts",
+        "count": 26
+      },
+      {
+        "id": "874119173",
+        "handle": "toy-slimes",
+        "title": "Toy Slimes® - Toy Surprise Slimes",
+        "count": 23
+      },
+      {
+        "id": "162501132334",
+        "handle": "happy-birthday-jewelry-candle",
+        "title": "Happy Birthday Age Jewelry Candles",
+        "count": 120
+      }
+    ]
+  },
+  {
+    "navId": "holiday-celebration-cards",
+    "navName": "Holiday & Celebration Cards",
+    "navSlug": "holiday-celebration-cards",
+    "frontendQueryCount": 131,
+    "bestMatchesInDB": [
+      {
+        "id": "1359904773",
+        "handle": "valentines-day-cards",
+        "title": "Valentine's Day Cards",
+        "count": 10
+      },
+      {
+        "id": "411757829",
+        "handle": "holiday-greeting-candles",
+        "title": "Holiday Greeting Candles | Special Greeting Candles for the Holidays!",
+        "count": 12
+      },
+      {
+        "id": "684916741",
+        "handle": "jewelry-cash-greeting-cards",
+        "title": "Jewelry & Cash Greeting Cards",
+        "count": 161
+      }
+    ]
+  },
+  {
+    "navId": "affiliate",
+    "navName": "Affiliate Program",
+    "navSlug": "affiliate",
+    "frontendQueryCount": 0,
+    "bestMatchesInDB": []
+  },
+  {
+    "navId": "appraisal",
+    "navName": "Appraise Jewelry",
+    "navSlug": "appraise-your-jewelry",
+    "frontendQueryCount": 0,
+    "bestMatchesInDB": [
+      {
+        "id": "359312645",
+        "handle": "valentines-jewelry-bath-bombs",
+        "title": "Valentine's Jewelry Bath Bombs",
+        "count": 4
+      },
+      {
+        "id": "364395589",
+        "handle": "monogram-candles",
+        "title": "Monogram Candles | Monogrammed Jewelry Candles®",
+        "count": 26
+      },
+      {
+        "id": "380989189",
+        "handle": "chalkboard-jewelry-bath-bombs",
+        "title": "Chalkboard Jewelry Bath Bombs",
+        "count": 12
+      }
+    ]
+  },
+  {
+    "navId": "contact",
+    "navName": "Contact",
+    "navSlug": "contact",
+    "frontendQueryCount": 0,
+    "bestMatchesInDB": []
+  }
+]

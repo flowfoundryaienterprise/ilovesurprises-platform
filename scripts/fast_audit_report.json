@@ -1,0 +1,1298 @@
+{
+  "totalSupabaseCollections": 460,
+  "emptyCollectionsInDBCount": 6,
+  "emptyCollectionsInDB": [
+    {
+      "id": "375667781",
+      "handle": "housewarming-gifts",
+      "title": "Housewarming Gifts",
+      "products_count": 0
+    },
+    {
+      "id": "375665861",
+      "handle": "fragrant-jewels",
+      "title": "Fragrant Jewels",
+      "products_count": 0
+    },
+    {
+      "id": "375669765",
+      "handle": "secret-jewels",
+      "title": "Secret Jewels",
+      "products_count": 0
+    },
+    {
+      "id": "375669317",
+      "handle": "jewel-scents",
+      "title": "Jewel Scent",
+      "products_count": 0
+    },
+    {
+      "id": "375667397",
+      "handle": "gifts-for-girlfriend",
+      "title": "Gifts For Girlfriend",
+      "products_count": 0
+    },
+    {
+      "id": "401916485",
+      "handle": "whipped-jewelry-lotions",
+      "title": "Whipped Jewelry Lotions",
+      "products_count": 0
+    }
+  ],
+  "featuredCollectionsAudit": [
+    {
+      "cardId": "cash-candles",
+      "cardTitle": "Cash Candles",
+      "categoryKey": "Cash Candles",
+      "matchedCol": {
+        "id": "328977285309",
+        "handle": "cash-candles",
+        "title": "Cash Candles - The Original Cash Candle Experience",
+        "reportedCount": 495,
+        "actualMapped": 495,
+        "hasBodyHtml": true,
+        "hasImage": false
+      }
+    },
+    {
+      "cardId": "trending-collection",
+      "cardTitle": "Trending Collection",
+      "categoryKey": "Trending",
+      "matchedCol": "NOT_FOUND_IN_DB"
+    },
+    {
+      "cardId": "zodiac-cash-money-candles",
+      "cardTitle": "ZODIAC CASH MONEY CANDLES",
+      "categoryKey": "ZODIAC CASH MONEY CANDLES",
+      "matchedCol": {
+        "id": "160030261294",
+        "handle": "zodiac-cash-money-candles",
+        "title": "Zodiac Cash Money Candles",
+        "reportedCount": 12,
+        "actualMapped": 12,
+        "hasBodyHtml": true,
+        "hasImage": false
+      }
+    }
+  ],
+  "randomCollectionsAudit": [
+    {
+      "index": 5,
+      "id": "328979447997",
+      "handle": "luxury-gifts",
+      "title": "Luxury Gifts and Luxury Gift Ideas",
+      "products_count": 41351,
+      "actualMapped": 41351,
+      "hasBodyHtml": true,
+      "hasImage": false,
+      "sampleProducts": [
+        {
+          "id": "7503780165",
+          "handle": "bedtime-spa-jewelry-wine-candle",
+          "title": "Bedtime Spa Jewelry Wine Candle"
+        },
+        {
+          "id": "7503503173",
+          "handle": "amazon-rainforest-jewelry-wine-candle",
+          "title": "Amazon Rainforest Jewelry Wine Candle"
+        },
+        {
+          "id": "7120158853",
+          "handle": "letter-t-monogram-bath-bombs",
+          "title": "Letter T Monogram Bath Bombs"
+        }
+      ]
+    },
+    {
+      "index": 15,
+      "id": "328914731197",
+      "handle": "candle",
+      "title": "Candle Craftsmanship That Elevates Every Space",
+      "products_count": 28878,
+      "actualMapped": 28878,
+      "hasBodyHtml": true,
+      "hasImage": false,
+      "sampleProducts": [
+        {
+          "id": "98395370",
+          "handle": "chocolate-chip-cookies-jewelry-candle",
+          "title": "Chocolate Chip Cookies Jewelry Candle"
+        },
+        {
+          "id": "7403589893",
+          "handle": "jamaican-me-crazy-cash-money-candle",
+          "title": "Jamaican Me Crazy! Cash Money Candle"
+        },
+        {
+          "id": "98398556",
+          "handle": "french-vanilla-jewelry-candle",
+          "title": "French Vanilla Jewelry Candle"
+        }
+      ]
+    },
+    {
+      "index": 35,
+      "id": "394327621",
+      "handle": "animal-gifts",
+      "title": "Animal Gifts",
+      "products_count": 2454,
+      "actualMapped": 2454,
+      "hasBodyHtml": true,
+      "hasImage": false,
+      "sampleProducts": [
+        {
+          "id": "4489617342510",
+          "handle": "pray-for-terre-haute-candle",
+          "title": "Pray For Terre haute Candle"
+        },
+        {
+          "id": "4489500950574",
+          "handle": "pray-for-delaware-candle",
+          "title": "Pray For Delaware Candle"
+        },
+        {
+          "id": "4489500622894",
+          "handle": "pray-for-del-rio-candle",
+          "title": "Pray For Del Rio Candle"
+        }
+      ]
+    },
+    {
+      "index": 75,
+      "id": "293810012349",
+      "handle": "mental-healthy-cash-wax-melts",
+      "title": "Mental Healthy Cash Wax Melts",
+      "products_count": 299,
+      "actualMapped": 299,
+      "hasBodyHtml": false,
+      "hasImage": false,
+      "sampleProducts": [
+        {
+          "id": "7488181534909",
+          "handle": "you-are-enough-mental-health-cash-wax-melts",
+          "title": "YOU ARE ENOUGH | MENTAL HEALTH CASH WAX MELTS"
+        },
+        {
+          "id": "7488181993661",
+          "handle": "mind-over-matter-mental-health-cash-wax-melts",
+          "title": "MIND OVER MATTER | MENTAL HEALTH CASH WAX MELTS"
+        },
+        {
+          "id": "7488182026429",
+          "handle": "be-kind-to-your-mind-mental-health-cash-wax-melts",
+          "title": "BE KIND TO YOUR MIND | MENTAL HEALTH CASH WAX MELTS"
+        }
+      ]
+    },
+    {
+      "index": 120,
+      "id": "240589832381",
+      "handle": "country-wax-melts-1",
+      "title": "Country Wax Melts",
+      "products_count": 194,
+      "actualMapped": 194,
+      "hasBodyHtml": false,
+      "hasImage": false,
+      "sampleProducts": [
+        {
+          "id": "6148661936317",
+          "handle": "afghanistan-country-wax-melts",
+          "title": "Afghanistan Country Wax Melts"
+        },
+        {
+          "id": "6148666458301",
+          "handle": "albania-country-wax-melts",
+          "title": "Albania Country Wax Melts"
+        },
+        {
+          "id": "6148667474109",
+          "handle": "algeria-country-wax-melts",
+          "title": "Algeria Country Wax Melts"
+        }
+      ]
+    },
+    {
+      "index": 180,
+      "id": "261000364221",
+      "handle": "city-bitcoin-candles",
+      "title": "City Bitcoin Candles",
+      "products_count": 111,
+      "actualMapped": 111,
+      "hasBodyHtml": true,
+      "hasImage": false,
+      "sampleProducts": [
+        {
+          "id": "6551490789565",
+          "handle": "winston-salem-city-bitcoin-candles",
+          "title": "Winston Salem City Bitcoin Candles"
+        },
+        {
+          "id": "6551490625725",
+          "handle": "windy-city-bitcoin-candles",
+          "title": "Windy City Bitcoin Candles"
+        },
+        {
+          "id": "6551490363581",
+          "handle": "wichita-city-bitcoin-candles",
+          "title": "Wichita City Bitcoin Candles"
+        }
+      ]
+    },
+    {
+      "index": 240,
+      "id": "243236733117",
+      "handle": "jewelry-wax-melts",
+      "title": "Jewelry Wax Melts",
+      "products_count": 87,
+      "actualMapped": 87,
+      "hasBodyHtml": true,
+      "hasImage": false,
+      "sampleProducts": [
+        {
+          "id": "1847725654062",
+          "handle": "bahama-mama-jumbo-jewelry-wax-melt",
+          "title": "Bahama Mama Jewelry Wax Melt"
+        },
+        {
+          "id": "1847723261998",
+          "handle": "better-than-sex-jumbo-jewelry-wax-melt",
+          "title": "Better Than Sex Jewelry Wax Melt"
+        },
+        {
+          "id": "1847724310574",
+          "handle": "lick-me-all-over-jumbo-jewelry-wax-melt",
+          "title": "Lick Me All Over Jewelry Wax Melt"
+        }
+      ]
+    },
+    {
+      "index": 310,
+      "id": "243750305981",
+      "handle": "dogecoin-candles",
+      "title": "DogeCoin Candles",
+      "products_count": 45,
+      "actualMapped": 45,
+      "hasBodyHtml": true,
+      "hasImage": false,
+      "sampleProducts": [
+        {
+          "id": "6203403796669",
+          "handle": "to-the-moon-dogecandles",
+          "title": "To The Moon DogeCandles"
+        },
+        {
+          "id": "6203396128957",
+          "handle": "rainbow-life-dogecandles",
+          "title": "Rainbow Life DogeCandles"
+        },
+        {
+          "id": "6203390296253",
+          "handle": "lavender-vanilla-dogecandles",
+          "title": "Lavender Vanilla DogeCandles"
+        }
+      ]
+    },
+    {
+      "index": 380,
+      "id": "408559493",
+      "handle": "jewelry-cash-slimes",
+      "title": "Jewelry & Cash Slimes",
+      "products_count": 22,
+      "actualMapped": 22,
+      "hasBodyHtml": false,
+      "hasImage": false,
+      "sampleProducts": [
+        {
+          "id": "9036653445",
+          "handle": "cotton-candy-cash-slime",
+          "title": "Carnival Cotton Candy Cash Slime"
+        },
+        {
+          "id": "9036653253",
+          "handle": "birthday-cake-cash-slime",
+          "title": "Birthday Cake Cash Slime"
+        },
+        {
+          "id": "9036654981",
+          "handle": "tiki-party-cash-slime",
+          "title": "Tiki Party Cash Slime"
+        }
+      ]
+    },
+    {
+      "index": 440,
+      "id": "243240108221",
+      "handle": "toy-surprise-bath-bombs-1",
+      "title": "Toy Surprise Bath Bombs",
+      "products_count": 9,
+      "actualMapped": 9,
+      "hasBodyHtml": true,
+      "hasImage": false,
+      "sampleProducts": [
+        {
+          "id": "527742599214",
+          "handle": "cotton-candy-dandy-single-toy-surprise-bath-bomb",
+          "title": "Cotton Candy Dandy Toy Surprise Bath Bomb"
+        },
+        {
+          "id": "527742894126",
+          "handle": "extraordinary-strawberry-single-toy-surprise-bath-bomb",
+          "title": "Extraordinary Strawberry Toy Surprise Bath Bomb"
+        },
+        {
+          "id": "527742500910",
+          "handle": "birthday-cake-single-toy-surprise-bath-bomb",
+          "title": "Birthday Cake Toy Surprise Bath Bomb"
+        }
+      ]
+    }
+  ],
+  "navigationAudit": {
+    "totalItems": 67,
+    "blankCount": 6,
+    "blankItems": [
+      {
+        "navId": "artisan-herbal-soaps",
+        "navName": "Artisan Herbal Soaps",
+        "navSlug": "artisan-herbal-soaps",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 0,
+        "isFrontendBlank": true
+      },
+      {
+        "navId": "mens-jewelry",
+        "navName": "Men’s Jewelry",
+        "navSlug": "mens-jewelry",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 0,
+        "isFrontendBlank": true
+      },
+      {
+        "navId": "gourmet-chocolate-bars",
+        "navName": "Gourmet Chocolate Bars",
+        "navSlug": "gourmet-chocolate-bars",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 0,
+        "isFrontendBlank": true
+      },
+      {
+        "navId": "affiliate",
+        "navName": "Affiliate Program",
+        "navSlug": "affiliate",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 0,
+        "isFrontendBlank": true
+      },
+      {
+        "navId": "appraisal",
+        "navName": "Appraise Jewelry",
+        "navSlug": "appraise-your-jewelry",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 0,
+        "isFrontendBlank": true
+      },
+      {
+        "navId": "contact",
+        "navName": "Contact",
+        "navSlug": "contact",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 0,
+        "isFrontendBlank": true
+      }
+    ],
+    "missingFromDBCount": 27,
+    "missingFromDBItems": [
+      {
+        "navId": "funny-cash-candles",
+        "navName": "Funny Cash Candles",
+        "navSlug": "funny-cash-candles",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 4201,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "soda-pop-cash-candles",
+        "navName": "Soda Pop Cash Candles",
+        "navSlug": "soda-pop-cash-candles",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 18,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "coffee-mug-cash-candles",
+        "navName": "Coffee Mug Cash Candles",
+        "navSlug": "coffee-mug-cash-candles",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 205,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "surprise-rose-bear-bundle",
+        "navName": "Surprise Rose Bear / Cash Bath Bomb Bundle",
+        "navSlug": "surprise-rose-bear-cash-bath-bomb-bundle",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 3481,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "cash-bath-bomb-tube-bundles",
+        "navName": "Cash Bath Bomb Tube Bundles",
+        "navSlug": "cash-bath-bomb-tube-bundles",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 17687,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "cash-bath-soaks",
+        "navName": "Cash Bath Soaks",
+        "navSlug": "cash-bath-soaks",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 17687,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "goat-milk-cash-money-soaps",
+        "navName": "Goat Milk Cash Money Soaps",
+        "navSlug": "goat-milk-cash-money-soaps",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 94,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "cash-mystery-bars",
+        "navName": "Cash Mystery Soap Bars",
+        "navSlug": "cash-mystery-soap-bars",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 17687,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "artisan-herbal-soaps",
+        "navName": "Artisan Herbal Soaps",
+        "navSlug": "artisan-herbal-soaps",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 0,
+        "isFrontendBlank": true
+      },
+      {
+        "navId": "soap-bundles-gift-sets",
+        "navName": "Soap Bundles & Gift Sets",
+        "navSlug": "soap-bundles-gift-sets",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 133,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "mystery-rings",
+        "navName": "Mystery Rings",
+        "navSlug": "mystery-rings",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 14,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "necklaces-pendants",
+        "navName": "Necklaces & Pendants",
+        "navSlug": "necklaces-pendants",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 45,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "bracelets-bangles",
+        "navName": "Bracelets & Bangles",
+        "navSlug": "bracelets-bangles",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 48,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "earrings",
+        "navName": "Earrings & Studs",
+        "navSlug": "earrings-studs",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 46,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "cash-jewelry",
+        "navName": "Cash Jewelry",
+        "navSlug": "cash-jewelry",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 17687,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "mens-jewelry",
+        "navName": "Men’s Jewelry",
+        "navSlug": "mens-jewelry",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 0,
+        "isFrontendBlank": true
+      },
+      {
+        "navId": "surprise-jewelry-bundles",
+        "navName": "Surprise Jewelry Bundles",
+        "navSlug": "surprise-jewelry-bundles",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 3481,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "gummy-surprise-pouches",
+        "navName": "Gummy Surprise Pouches",
+        "navSlug": "gummy-surprise-pouches",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 52,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "sweet-treat-bundles",
+        "navName": "Sweet Treat Bundles",
+        "navSlug": "sweet-treat-bundles",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 290,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "gourmet-chocolate-bars",
+        "navName": "Gourmet Chocolate Bars",
+        "navSlug": "gourmet-chocolate-bars",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 0,
+        "isFrontendBlank": true
+      },
+      {
+        "navId": "luxury-reveal-gift-boxes",
+        "navName": "Luxury Reveal Gift Boxes",
+        "navSlug": "luxury-reveal-gift-boxes",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 198,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "cereal-bowl-slimes",
+        "navName": "Cereal Bowl Slimes",
+        "navSlug": "cereal-bowl-slimes",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 477,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "birthday-surprise-cards",
+        "navName": "Birthday Surprise Cards",
+        "navSlug": "birthday-surprise-cards",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 4936,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "holiday-celebration-cards",
+        "navName": "Holiday & Celebration Cards",
+        "navSlug": "holiday-celebration-cards",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 131,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "affiliate",
+        "navName": "Affiliate Program",
+        "navSlug": "affiliate",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 0,
+        "isFrontendBlank": true
+      },
+      {
+        "navId": "appraisal",
+        "navName": "Appraise Jewelry",
+        "navSlug": "appraise-your-jewelry",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 0,
+        "isFrontendBlank": true
+      },
+      {
+        "navId": "contact",
+        "navName": "Contact",
+        "navSlug": "contact",
+        "matchedCollection": null,
+        "actualMappedInDB": 0,
+        "frontendQueryCount": 0,
+        "isFrontendBlank": true
+      }
+    ],
+    "matchedItems": [
+      {
+        "navId": "home",
+        "navName": "Home",
+        "navSlug": "home",
+        "matchedCollection": {
+          "id": "328914239677",
+          "handle": "wax-melts",
+          "title": "Wax Melts, Wax Tarts & Premium Home Fragrance",
+          "reportedCount": 8376,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 8376,
+        "frontendQueryCount": 898,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "candles",
+        "navName": "Candles",
+        "navSlug": "candles",
+        "matchedCollection": {
+          "id": "328912175293",
+          "handle": "candles",
+          "title": "#1 Candle Store for Premium Soy & Essential Oil Candles",
+          "reportedCount": 28878,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 28878,
+        "frontendQueryCount": 29526,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "cash-candles",
+        "navName": "Cash Candles",
+        "navSlug": "cash-candles",
+        "matchedCollection": {
+          "id": "328977285309",
+          "handle": "cash-candles",
+          "title": "Cash Candles - The Original Cash Candle Experience",
+          "reportedCount": 495,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 495,
+        "frontendQueryCount": 17687,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "jewelry-candles",
+        "navName": "Jewelry Candles",
+        "navSlug": "jewelry-candles",
+        "matchedCollection": {
+          "id": "243230834877",
+          "handle": "jewelry-candles",
+          "title": "Jewelry Candles",
+          "reportedCount": 100,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 100,
+        "frontendQueryCount": 18478,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "military-cash-candles",
+        "navName": "Military Cash Candles",
+        "navSlug": "military-cash-candles",
+        "matchedCollection": {
+          "id": "283496513725",
+          "handle": "military-cash-candles",
+          "title": "Military Cash Candles",
+          "reportedCount": 86,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 86,
+        "frontendQueryCount": 353,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "cereal-bowl-candles",
+        "navName": "Cereal Bowl Candles",
+        "navSlug": "cereal-bowl-candles",
+        "matchedCollection": {
+          "id": "308409630909",
+          "handle": "jewelry-cereal-candles",
+          "title": "Jewelry Cereal Bowl Candles - Jewelry Cereal Candles",
+          "reportedCount": 59,
+          "hasBodyHtml": true,
+          "hasImage": true
+        },
+        "actualMappedInDB": 59,
+        "frontendQueryCount": 477,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "cereal-cash-candles",
+        "navName": "Cereal Cash Candles",
+        "navSlug": "cereal-cash-candles",
+        "matchedCollection": {
+          "id": "308027261117",
+          "handle": "cereal-candles-cereal-cash-candles",
+          "title": "Cereal Cash Candles",
+          "reportedCount": 61,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 61,
+        "frontendQueryCount": 477,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "jewelry-cereal-candles",
+        "navName": "Jewelry Cereal Candles",
+        "navSlug": "jewelry-cereal-candles",
+        "matchedCollection": {
+          "id": "308409630909",
+          "handle": "jewelry-cereal-candles",
+          "title": "Jewelry Cereal Bowl Candles - Jewelry Cereal Candles",
+          "reportedCount": 59,
+          "hasBodyHtml": true,
+          "hasImage": true
+        },
+        "actualMappedInDB": 59,
+        "frontendQueryCount": 477,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "foodie-cash-candles",
+        "navName": "Foodie Cash Candles",
+        "navSlug": "foodie-cash-candles",
+        "matchedCollection": {
+          "id": "293683331261",
+          "handle": "foodie-jewelry-candles-jewelry-candles-for-foodies",
+          "title": "Foodie Cash Candles - Cash Candles for Foodies!",
+          "reportedCount": 443,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 443,
+        "frontendQueryCount": 1391,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "wine-bottle-cash-candles",
+        "navName": "Wine Bottle Cash Candles",
+        "navSlug": "wine-bottle-cash-candles",
+        "matchedCollection": {
+          "id": "297987473597",
+          "handle": "wine-bottle-cash-candles",
+          "title": "Wine Bottle Cash Candles",
+          "reportedCount": 24,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 24,
+        "frontendQueryCount": 179,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "zodiac-cash-candles",
+        "navName": "Zodiac Cash Candles",
+        "navSlug": "zodiac-cash-candles",
+        "matchedCollection": {
+          "id": "329067626685",
+          "handle": "zodiac",
+          "title": "Zodiac",
+          "reportedCount": 251,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 251,
+        "frontendQueryCount": 251,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "astrology-birthdate-cash-candles",
+        "navName": "Astrology BirthDATE Cash Candles",
+        "navSlug": "astrology-birthdate-cash-candles",
+        "matchedCollection": {
+          "id": "290762129597",
+          "handle": "astrology-birthdate-cash-candles",
+          "title": "Astrology Birthdate Cash Candles",
+          "reportedCount": 12,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 12,
+        "frontendQueryCount": 4936,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "anime-cash-candles",
+        "navName": "Anime Cash Candles",
+        "navSlug": "anime-cash-candles",
+        "matchedCollection": {
+          "id": "285012263101",
+          "handle": "cash-anime-candles",
+          "title": "Anime Cash Candles",
+          "reportedCount": 249,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 249,
+        "frontendQueryCount": 1053,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "wax-melts",
+        "navName": "Wax Melts",
+        "navSlug": "wax-melts",
+        "matchedCollection": {
+          "id": "328914239677",
+          "handle": "wax-melts",
+          "title": "Wax Melts, Wax Tarts & Premium Home Fragrance",
+          "reportedCount": 8376,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 8376,
+        "frontendQueryCount": 8037,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "cereal-bowl-wax-melts",
+        "navName": "Cereal Bowl Wax Melts",
+        "navSlug": "cereal-bowl-wax-melts",
+        "matchedCollection": {
+          "id": "308630454461",
+          "handle": "cereal-bowl-wax-melts",
+          "title": "Cereal Bowl Wax Melts - Cereal Bowl Melts",
+          "reportedCount": 51,
+          "hasBodyHtml": true,
+          "hasImage": true
+        },
+        "actualMappedInDB": 51,
+        "frontendQueryCount": 477,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "cash-wax-melts",
+        "navName": "Cash Wax Melts",
+        "navSlug": "cash-wax-melts",
+        "matchedCollection": {
+          "id": "293598757053",
+          "handle": "cash-wax-melts",
+          "title": "Cash Wax Melts - Money Wax Melts (Figurines)",
+          "reportedCount": 111,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 111,
+        "frontendQueryCount": 17687,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "jewelry-wax-melts",
+        "navName": "Jewelry Wax Melts",
+        "navSlug": "jewelry-wax-melts",
+        "matchedCollection": {
+          "id": "243236733117",
+          "handle": "jewelry-wax-melts",
+          "title": "Jewelry Wax Melts",
+          "reportedCount": 87,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 87,
+        "frontendQueryCount": 18478,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "wax-melt-bundles",
+        "navName": "Wax Melt Bundles",
+        "navSlug": "wax-melt-bundles",
+        "matchedCollection": {
+          "id": "329533358269",
+          "handle": "cash-surprise-bear-and-cash-wax-melt-bundles",
+          "title": "Cash Surprise Bear And Cash Wax Melt Bundles",
+          "reportedCount": 27,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 27,
+        "frontendQueryCount": 8037,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "bath-bombs",
+        "navName": "Bath + Bombs",
+        "navSlug": "bath-bombs",
+        "matchedCollection": {
+          "id": "328913158333",
+          "handle": "bath-bombs",
+          "title": "Bath Bombs That Redefine the Bath Bomb Experience",
+          "reportedCount": 9068,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 9068,
+        "frontendQueryCount": 9046,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "cash-bath-bombs",
+        "navName": "Cash Bath Bombs",
+        "navSlug": "cash-bath-bombs",
+        "matchedCollection": {
+          "id": "243234767037",
+          "handle": "cash-bath-bombs",
+          "title": "Cash Bath Bombs - Money Bath Bombs",
+          "reportedCount": 26,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 26,
+        "frontendQueryCount": 17687,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "astrology-cash-bath-bombs",
+        "navName": "Astrology Cash Bath Bombs",
+        "navSlug": "astrology-cash-bath-bombs",
+        "matchedCollection": {
+          "id": "287958139069",
+          "handle": "astrology-cash-bath-bombs",
+          "title": "Astrology Cash Bath Bombs",
+          "reportedCount": 12,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 12,
+        "frontendQueryCount": 4936,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "jewelry-bath-bombs",
+        "navName": "Jewelry Bath Bombs",
+        "navSlug": "jewelry-bath-bombs",
+        "matchedCollection": {
+          "id": "243234275517",
+          "handle": "jewelry-bath-bombs",
+          "title": "Jewelry Bath Bombs",
+          "reportedCount": 26,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 26,
+        "frontendQueryCount": 18478,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "cash-sugar-scrubs",
+        "navName": "Cash Sugar Scrubs",
+        "navSlug": "cash-sugar-scrubs",
+        "matchedCollection": {
+          "id": "303934931133",
+          "handle": "sugar-scrubs",
+          "title": "Cash Sugar Scrubs",
+          "reportedCount": 22,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 22,
+        "frontendQueryCount": 17687,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "jewelry-sugar-scrubs",
+        "navName": "Jewelry Sugar Scrubs",
+        "navSlug": "jewelry-sugar-scrubs",
+        "matchedCollection": {
+          "id": "243238568125",
+          "handle": "jewelry-sugar-scrubs-1",
+          "title": "Jewelry Sugar Scrubs",
+          "reportedCount": 20,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 20,
+        "frontendQueryCount": 18478,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "soaps",
+        "navName": "Soaps",
+        "navSlug": "soaps",
+        "matchedCollection": {
+          "id": "328981250237",
+          "handle": "non-toxic-candles",
+          "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+          "reportedCount": 32379,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 32379,
+        "frontendQueryCount": 133,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "jewelry",
+        "navName": "Jewelry",
+        "navSlug": "jewelry",
+        "matchedCollection": {
+          "id": "328914501821",
+          "handle": "jewelry",
+          "title": "Jewelry That Makes Every Moment Shine",
+          "reportedCount": 18476,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 18476,
+        "frontendQueryCount": 18478,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "zodiac-birthstone-jewelry",
+        "navName": "Zodiac & Birthstone Jewelry",
+        "navSlug": "zodiac-birthstone-jewelry",
+        "matchedCollection": {
+          "id": "329067626685",
+          "handle": "zodiac",
+          "title": "Zodiac",
+          "reportedCount": 251,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 251,
+        "frontendQueryCount": 251,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "candy",
+        "navName": "Candy",
+        "navSlug": "candy",
+        "matchedCollection": {
+          "id": "329665446077",
+          "handle": "candy",
+          "title": "Cash Candy for Mom 💖🍬",
+          "reportedCount": 300,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 300,
+        "frontendQueryCount": 2099,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "cash-candy",
+        "navName": "Cash Candy",
+        "navSlug": "cash-candy",
+        "matchedCollection": {
+          "id": "162829434926",
+          "handle": "cash-candy",
+          "title": "Cash Candy",
+          "reportedCount": 28,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 28,
+        "frontendQueryCount": 17687,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "jewelry-candy",
+        "navName": "Jewelry Candy",
+        "navSlug": "jewelry-candy",
+        "matchedCollection": {
+          "id": "162829402158",
+          "handle": "jewelry-candy",
+          "title": "Jewelry Candy",
+          "reportedCount": 28,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 28,
+        "frontendQueryCount": 18478,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "chocolates",
+        "navName": "Chocolates",
+        "navSlug": "chocolates",
+        "matchedCollection": {
+          "id": "162829631534",
+          "handle": "chocolates",
+          "title": "Chocolates Tubes",
+          "reportedCount": 28,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 28,
+        "frontendQueryCount": 3054,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "cash-chocolates",
+        "navName": "Cash Chocolates",
+        "navSlug": "cash-chocolates",
+        "matchedCollection": {
+          "id": "162829598766",
+          "handle": "cash-chocolates",
+          "title": "Cash Chocolates",
+          "reportedCount": 28,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 28,
+        "frontendQueryCount": 17687,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "jewelry-chocolate",
+        "navName": "Jewelry Chocolate",
+        "navSlug": "jewelry-chocolate",
+        "matchedCollection": {
+          "id": "167544225838",
+          "handle": "city-jewelry-chocolates",
+          "title": "City Jewelry Chocolates",
+          "reportedCount": 481,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 481,
+        "frontendQueryCount": 18478,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "slimes",
+        "navName": "Slimes",
+        "navSlug": "slimes",
+        "matchedCollection": {
+          "id": "328914043069",
+          "handle": "slimes",
+          "title": "Slime and Premium Slimes for endless fun",
+          "reportedCount": 1652,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 1652,
+        "frontendQueryCount": 1652,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "cash-slimes",
+        "navName": "Cash Slimes",
+        "navSlug": "cash-slimes",
+        "matchedCollection": {
+          "id": "293882626237",
+          "handle": "mental-health-cash-slimes",
+          "title": "MENTAL HEALTH CASH SLIMES",
+          "reportedCount": 294,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 294,
+        "frontendQueryCount": 17687,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "astrology-cash-slimes",
+        "navName": "Astrology Cash Slimes",
+        "navSlug": "astrology-cash-slimes",
+        "matchedCollection": {
+          "id": "293863555261",
+          "handle": "astrology-cash-slimes",
+          "title": "ASTROLOGY CASH SLIMES",
+          "reportedCount": 12,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 12,
+        "frontendQueryCount": 4936,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "jewelry-slimes",
+        "navName": "Jewelry Slimes",
+        "navSlug": "jewelry-slimes",
+        "matchedCollection": {
+          "id": "293882691773",
+          "handle": "mental-health-jewelry-slimes",
+          "title": "MENTAL HEALTH JEWELRY SLIMES",
+          "reportedCount": 299,
+          "hasBodyHtml": false,
+          "hasImage": false
+        },
+        "actualMappedInDB": 299,
+        "frontendQueryCount": 18478,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "cards",
+        "navName": "Cards",
+        "navSlug": "cards",
+        "matchedCollection": {
+          "id": "328913682621",
+          "handle": "greeting-cards",
+          "title": "Greeting Cards That Say It Better",
+          "reportedCount": 688,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 688,
+        "frontendQueryCount": 1133,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "funny-cash-greeting-cards",
+        "navName": "Funny Cash Greeting Cards",
+        "navSlug": "funny-cash-greeting-cards",
+        "matchedCollection": {
+          "id": "290423210173",
+          "handle": "funny-cash-greeting-cards",
+          "title": "Funny Cash Greeting Cards",
+          "reportedCount": 257,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 257,
+        "frontendQueryCount": 4201,
+        "isFrontendBlank": false
+      },
+      {
+        "navId": "jewelry-greeting-cards",
+        "navName": "Jewelry Greeting Cards",
+        "navSlug": "jewelry-greeting-cards",
+        "matchedCollection": {
+          "id": "243239583933",
+          "handle": "jewelry-greeting-cards-1",
+          "title": "Jewelry Greeting Cards",
+          "reportedCount": 137,
+          "hasBodyHtml": true,
+          "hasImage": false
+        },
+        "actualMappedInDB": 137,
+        "frontendQueryCount": 18478,
+        "isFrontendBlank": false
+      }
+    ]
+  }
+}

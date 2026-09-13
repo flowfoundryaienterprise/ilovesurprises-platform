@@ -1,0 +1,2385 @@
+[
+  {
+    "navId": "home",
+    "navName": "Home",
+    "navSlug": "home",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "328914239677",
+        "handle": "wax-melts",
+        "title": "Wax Melts, Wax Tarts & Premium Home Fragrance",
+        "count": 8376
+      },
+      {
+        "id": "328914895037",
+        "handle": "wax-tarts",
+        "title": "Wax Tarts for Long-Lasting Home Fragrance",
+        "count": 7952
+      },
+      {
+        "id": "168271020078",
+        "handle": "dog-cash-candle",
+        "title": "House Is Not A Home Dog Cash Candles",
+        "count": 197
+      },
+      {
+        "id": "216922053",
+        "handle": "home-state-demonyms-jewelry-candles",
+        "title": "Home State Demonyms Jewelry Candles",
+        "count": 97
+      }
+    ]
+  },
+  {
+    "navId": "candles",
+    "navName": "Candles",
+    "navSlug": "candles",
+    "exactHandleMatch": {
+      "id": "328912175293",
+      "handle": "candles",
+      "title": "#1 Candle Store for Premium Soy & Essential Oil Candles",
+      "count": 28878
+    },
+    "topDBCandidates": [
+      {
+        "id": "329080733885",
+        "handle": "surprise-candles",
+        "title": "Surprise Candles",
+        "count": 44105
+      },
+      {
+        "id": "329080701117",
+        "handle": "candles-near-me",
+        "title": "Candles Near Me",
+        "count": 44105
+      },
+      {
+        "id": "329211412669",
+        "handle": "scented-candles",
+        "title": "Scented Candles",
+        "count": 37228
+      },
+      {
+        "id": "329042460861",
+        "handle": "wholesale-bulk-candles",
+        "title": "Wholesale Bulk Candles",
+        "count": 33389
+      },
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      }
+    ]
+  },
+  {
+    "navId": "cash-candles",
+    "navName": "Cash Candles",
+    "navSlug": "cash-candles",
+    "exactHandleMatch": {
+      "id": "328977285309",
+      "handle": "cash-candles",
+      "title": "Cash Candles - The Original Cash Candle Experience",
+      "count": 495
+    },
+    "topDBCandidates": [
+      {
+        "id": "329080733885",
+        "handle": "surprise-candles",
+        "title": "Surprise Candles",
+        "count": 44105
+      },
+      {
+        "id": "329080701117",
+        "handle": "candles-near-me",
+        "title": "Candles Near Me",
+        "count": 44105
+      },
+      {
+        "id": "329211412669",
+        "handle": "scented-candles",
+        "title": "Scented Candles",
+        "count": 37228
+      },
+      {
+        "id": "329042460861",
+        "handle": "wholesale-bulk-candles",
+        "title": "Wholesale Bulk Candles",
+        "count": 33389
+      },
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      }
+    ]
+  },
+  {
+    "navId": "jewelry-candles",
+    "navName": "Jewelry Candles",
+    "navSlug": "jewelry-candles",
+    "exactHandleMatch": {
+      "id": "243230834877",
+      "handle": "jewelry-candles",
+      "title": "Jewelry Candles",
+      "count": 100
+    },
+    "topDBCandidates": [
+      {
+        "id": "329080733885",
+        "handle": "surprise-candles",
+        "title": "Surprise Candles",
+        "count": 44105
+      },
+      {
+        "id": "329080701117",
+        "handle": "candles-near-me",
+        "title": "Candles Near Me",
+        "count": 44105
+      },
+      {
+        "id": "329211412669",
+        "handle": "scented-candles",
+        "title": "Scented Candles",
+        "count": 37228
+      },
+      {
+        "id": "329042460861",
+        "handle": "wholesale-bulk-candles",
+        "title": "Wholesale Bulk Candles",
+        "count": 33389
+      },
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      }
+    ]
+  },
+  {
+    "navId": "funny-cash-candles",
+    "navName": "Funny Cash Candles",
+    "navSlug": "funny-cash-candles",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "329080733885",
+        "handle": "surprise-candles",
+        "title": "Surprise Candles",
+        "count": 44105
+      },
+      {
+        "id": "329080701117",
+        "handle": "candles-near-me",
+        "title": "Candles Near Me",
+        "count": 44105
+      },
+      {
+        "id": "329211412669",
+        "handle": "scented-candles",
+        "title": "Scented Candles",
+        "count": 37228
+      },
+      {
+        "id": "329042460861",
+        "handle": "wholesale-bulk-candles",
+        "title": "Wholesale Bulk Candles",
+        "count": 33389
+      },
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      }
+    ]
+  },
+  {
+    "navId": "military-cash-candles",
+    "navName": "Military Cash Candles",
+    "navSlug": "military-cash-candles",
+    "exactHandleMatch": {
+      "id": "283496513725",
+      "handle": "military-cash-candles",
+      "title": "Military Cash Candles",
+      "count": 86
+    },
+    "topDBCandidates": [
+      {
+        "id": "329080733885",
+        "handle": "surprise-candles",
+        "title": "Surprise Candles",
+        "count": 44105
+      },
+      {
+        "id": "329080701117",
+        "handle": "candles-near-me",
+        "title": "Candles Near Me",
+        "count": 44105
+      },
+      {
+        "id": "329211412669",
+        "handle": "scented-candles",
+        "title": "Scented Candles",
+        "count": 37228
+      },
+      {
+        "id": "329042460861",
+        "handle": "wholesale-bulk-candles",
+        "title": "Wholesale Bulk Candles",
+        "count": 33389
+      },
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      }
+    ]
+  },
+  {
+    "navId": "soda-pop-cash-candles",
+    "navName": "Soda Pop Cash Candles",
+    "navSlug": "soda-pop-cash-candles",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "329080733885",
+        "handle": "surprise-candles",
+        "title": "Surprise Candles",
+        "count": 44105
+      },
+      {
+        "id": "329080701117",
+        "handle": "candles-near-me",
+        "title": "Candles Near Me",
+        "count": 44105
+      },
+      {
+        "id": "329211412669",
+        "handle": "scented-candles",
+        "title": "Scented Candles",
+        "count": 37228
+      },
+      {
+        "id": "329042460861",
+        "handle": "wholesale-bulk-candles",
+        "title": "Wholesale Bulk Candles",
+        "count": 33389
+      },
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      }
+    ]
+  },
+  {
+    "navId": "cereal-bowl-candles",
+    "navName": "Cereal Bowl Candles",
+    "navSlug": "cereal-bowl-candles",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "329080733885",
+        "handle": "surprise-candles",
+        "title": "Surprise Candles",
+        "count": 44105
+      },
+      {
+        "id": "329080701117",
+        "handle": "candles-near-me",
+        "title": "Candles Near Me",
+        "count": 44105
+      },
+      {
+        "id": "329211412669",
+        "handle": "scented-candles",
+        "title": "Scented Candles",
+        "count": 37228
+      },
+      {
+        "id": "329042460861",
+        "handle": "wholesale-bulk-candles",
+        "title": "Wholesale Bulk Candles",
+        "count": 33389
+      },
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      }
+    ]
+  },
+  {
+    "navId": "cereal-cash-candles",
+    "navName": "Cereal Cash Candles",
+    "navSlug": "cereal-cash-candles",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "329080733885",
+        "handle": "surprise-candles",
+        "title": "Surprise Candles",
+        "count": 44105
+      },
+      {
+        "id": "329080701117",
+        "handle": "candles-near-me",
+        "title": "Candles Near Me",
+        "count": 44105
+      },
+      {
+        "id": "329211412669",
+        "handle": "scented-candles",
+        "title": "Scented Candles",
+        "count": 37228
+      },
+      {
+        "id": "329042460861",
+        "handle": "wholesale-bulk-candles",
+        "title": "Wholesale Bulk Candles",
+        "count": 33389
+      },
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      }
+    ]
+  },
+  {
+    "navId": "jewelry-cereal-candles",
+    "navName": "Jewelry Cereal Candles",
+    "navSlug": "jewelry-cereal-candles",
+    "exactHandleMatch": {
+      "id": "308409630909",
+      "handle": "jewelry-cereal-candles",
+      "title": "Jewelry Cereal Bowl Candles - Jewelry Cereal Candles",
+      "count": 59
+    },
+    "topDBCandidates": [
+      {
+        "id": "329080733885",
+        "handle": "surprise-candles",
+        "title": "Surprise Candles",
+        "count": 44105
+      },
+      {
+        "id": "329080701117",
+        "handle": "candles-near-me",
+        "title": "Candles Near Me",
+        "count": 44105
+      },
+      {
+        "id": "329211412669",
+        "handle": "scented-candles",
+        "title": "Scented Candles",
+        "count": 37228
+      },
+      {
+        "id": "329042460861",
+        "handle": "wholesale-bulk-candles",
+        "title": "Wholesale Bulk Candles",
+        "count": 33389
+      },
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      }
+    ]
+  },
+  {
+    "navId": "coffee-mug-cash-candles",
+    "navName": "Coffee Mug Cash Candles",
+    "navSlug": "coffee-mug-cash-candles",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "329080733885",
+        "handle": "surprise-candles",
+        "title": "Surprise Candles",
+        "count": 44105
+      },
+      {
+        "id": "329080701117",
+        "handle": "candles-near-me",
+        "title": "Candles Near Me",
+        "count": 44105
+      },
+      {
+        "id": "329211412669",
+        "handle": "scented-candles",
+        "title": "Scented Candles",
+        "count": 37228
+      },
+      {
+        "id": "329042460861",
+        "handle": "wholesale-bulk-candles",
+        "title": "Wholesale Bulk Candles",
+        "count": 33389
+      },
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      }
+    ]
+  },
+  {
+    "navId": "foodie-cash-candles",
+    "navName": "Foodie Cash Candles",
+    "navSlug": "foodie-cash-candles",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "329080733885",
+        "handle": "surprise-candles",
+        "title": "Surprise Candles",
+        "count": 44105
+      },
+      {
+        "id": "329080701117",
+        "handle": "candles-near-me",
+        "title": "Candles Near Me",
+        "count": 44105
+      },
+      {
+        "id": "329211412669",
+        "handle": "scented-candles",
+        "title": "Scented Candles",
+        "count": 37228
+      },
+      {
+        "id": "329042460861",
+        "handle": "wholesale-bulk-candles",
+        "title": "Wholesale Bulk Candles",
+        "count": 33389
+      },
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      }
+    ]
+  },
+  {
+    "navId": "wine-bottle-cash-candles",
+    "navName": "Wine Bottle Cash Candles",
+    "navSlug": "wine-bottle-cash-candles",
+    "exactHandleMatch": {
+      "id": "297987473597",
+      "handle": "wine-bottle-cash-candles",
+      "title": "Wine Bottle Cash Candles",
+      "count": 24
+    },
+    "topDBCandidates": [
+      {
+        "id": "329080733885",
+        "handle": "surprise-candles",
+        "title": "Surprise Candles",
+        "count": 44105
+      },
+      {
+        "id": "329080701117",
+        "handle": "candles-near-me",
+        "title": "Candles Near Me",
+        "count": 44105
+      },
+      {
+        "id": "329211412669",
+        "handle": "scented-candles",
+        "title": "Scented Candles",
+        "count": 37228
+      },
+      {
+        "id": "329042460861",
+        "handle": "wholesale-bulk-candles",
+        "title": "Wholesale Bulk Candles",
+        "count": 33389
+      },
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      }
+    ]
+  },
+  {
+    "navId": "zodiac-cash-candles",
+    "navName": "Zodiac Cash Candles",
+    "navSlug": "zodiac-cash-candles",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "329080733885",
+        "handle": "surprise-candles",
+        "title": "Surprise Candles",
+        "count": 44105
+      },
+      {
+        "id": "329080701117",
+        "handle": "candles-near-me",
+        "title": "Candles Near Me",
+        "count": 44105
+      },
+      {
+        "id": "329211412669",
+        "handle": "scented-candles",
+        "title": "Scented Candles",
+        "count": 37228
+      },
+      {
+        "id": "329042460861",
+        "handle": "wholesale-bulk-candles",
+        "title": "Wholesale Bulk Candles",
+        "count": 33389
+      },
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      }
+    ]
+  },
+  {
+    "navId": "astrology-birthdate-cash-candles",
+    "navName": "Astrology BirthDATE Cash Candles",
+    "navSlug": "astrology-birthdate-cash-candles",
+    "exactHandleMatch": {
+      "id": "290762129597",
+      "handle": "astrology-birthdate-cash-candles",
+      "title": "Astrology Birthdate Cash Candles",
+      "count": 12
+    },
+    "topDBCandidates": [
+      {
+        "id": "329080733885",
+        "handle": "surprise-candles",
+        "title": "Surprise Candles",
+        "count": 44105
+      },
+      {
+        "id": "329080701117",
+        "handle": "candles-near-me",
+        "title": "Candles Near Me",
+        "count": 44105
+      },
+      {
+        "id": "329211412669",
+        "handle": "scented-candles",
+        "title": "Scented Candles",
+        "count": 37228
+      },
+      {
+        "id": "329042460861",
+        "handle": "wholesale-bulk-candles",
+        "title": "Wholesale Bulk Candles",
+        "count": 33389
+      },
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      }
+    ]
+  },
+  {
+    "navId": "anime-cash-candles",
+    "navName": "Anime Cash Candles",
+    "navSlug": "anime-cash-candles",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "329080733885",
+        "handle": "surprise-candles",
+        "title": "Surprise Candles",
+        "count": 44105
+      },
+      {
+        "id": "329080701117",
+        "handle": "candles-near-me",
+        "title": "Candles Near Me",
+        "count": 44105
+      },
+      {
+        "id": "329211412669",
+        "handle": "scented-candles",
+        "title": "Scented Candles",
+        "count": 37228
+      },
+      {
+        "id": "329042460861",
+        "handle": "wholesale-bulk-candles",
+        "title": "Wholesale Bulk Candles",
+        "count": 33389
+      },
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      }
+    ]
+  },
+  {
+    "navId": "wax-melts",
+    "navName": "Wax Melts",
+    "navSlug": "wax-melts",
+    "exactHandleMatch": {
+      "id": "328914239677",
+      "handle": "wax-melts",
+      "title": "Wax Melts, Wax Tarts & Premium Home Fragrance",
+      "count": 8376
+    },
+    "topDBCandidates": [
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      },
+      {
+        "id": "328914239677",
+        "handle": "wax-melts",
+        "title": "Wax Melts, Wax Tarts & Premium Home Fragrance",
+        "count": 8376
+      },
+      {
+        "id": "291434823869",
+        "handle": "funny-jewelry-bear-wax-melts",
+        "title": "Funny Jewelry Bear Wax Melts",
+        "count": 535
+      },
+      {
+        "id": "293810012349",
+        "handle": "mental-healthy-cash-wax-melts",
+        "title": "Mental Healthy Cash Wax Melts",
+        "count": 299
+      },
+      {
+        "id": "293801230525",
+        "handle": "mental-healthy-wax-melts",
+        "title": "Mental Healthy Wax Melts",
+        "count": 299
+      }
+    ]
+  },
+  {
+    "navId": "cereal-bowl-wax-melts",
+    "navName": "Cereal Bowl Wax Melts",
+    "navSlug": "cereal-bowl-wax-melts",
+    "exactHandleMatch": {
+      "id": "308630454461",
+      "handle": "cereal-bowl-wax-melts",
+      "title": "Cereal Bowl Wax Melts - Cereal Bowl Melts",
+      "count": 51
+    },
+    "topDBCandidates": [
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      },
+      {
+        "id": "328914239677",
+        "handle": "wax-melts",
+        "title": "Wax Melts, Wax Tarts & Premium Home Fragrance",
+        "count": 8376
+      },
+      {
+        "id": "291434823869",
+        "handle": "funny-jewelry-bear-wax-melts",
+        "title": "Funny Jewelry Bear Wax Melts",
+        "count": 535
+      },
+      {
+        "id": "293810012349",
+        "handle": "mental-healthy-cash-wax-melts",
+        "title": "Mental Healthy Cash Wax Melts",
+        "count": 299
+      },
+      {
+        "id": "293801230525",
+        "handle": "mental-healthy-wax-melts",
+        "title": "Mental Healthy Wax Melts",
+        "count": 299
+      }
+    ]
+  },
+  {
+    "navId": "cash-wax-melts",
+    "navName": "Cash Wax Melts",
+    "navSlug": "cash-wax-melts",
+    "exactHandleMatch": {
+      "id": "293598757053",
+      "handle": "cash-wax-melts",
+      "title": "Cash Wax Melts - Money Wax Melts (Figurines)",
+      "count": 111
+    },
+    "topDBCandidates": [
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      },
+      {
+        "id": "328914239677",
+        "handle": "wax-melts",
+        "title": "Wax Melts, Wax Tarts & Premium Home Fragrance",
+        "count": 8376
+      },
+      {
+        "id": "291434823869",
+        "handle": "funny-jewelry-bear-wax-melts",
+        "title": "Funny Jewelry Bear Wax Melts",
+        "count": 535
+      },
+      {
+        "id": "293810012349",
+        "handle": "mental-healthy-cash-wax-melts",
+        "title": "Mental Healthy Cash Wax Melts",
+        "count": 299
+      },
+      {
+        "id": "293801230525",
+        "handle": "mental-healthy-wax-melts",
+        "title": "Mental Healthy Wax Melts",
+        "count": 299
+      }
+    ]
+  },
+  {
+    "navId": "jewelry-wax-melts",
+    "navName": "Jewelry Wax Melts",
+    "navSlug": "jewelry-wax-melts",
+    "exactHandleMatch": {
+      "id": "243236733117",
+      "handle": "jewelry-wax-melts",
+      "title": "Jewelry Wax Melts",
+      "count": 87
+    },
+    "topDBCandidates": [
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      },
+      {
+        "id": "328914239677",
+        "handle": "wax-melts",
+        "title": "Wax Melts, Wax Tarts & Premium Home Fragrance",
+        "count": 8376
+      },
+      {
+        "id": "291434823869",
+        "handle": "funny-jewelry-bear-wax-melts",
+        "title": "Funny Jewelry Bear Wax Melts",
+        "count": 535
+      },
+      {
+        "id": "293810012349",
+        "handle": "mental-healthy-cash-wax-melts",
+        "title": "Mental Healthy Cash Wax Melts",
+        "count": 299
+      },
+      {
+        "id": "293801230525",
+        "handle": "mental-healthy-wax-melts",
+        "title": "Mental Healthy Wax Melts",
+        "count": 299
+      }
+    ]
+  },
+  {
+    "navId": "wax-melt-bundles",
+    "navName": "Wax Melt Bundles",
+    "navSlug": "wax-melt-bundles",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      },
+      {
+        "id": "328914239677",
+        "handle": "wax-melts",
+        "title": "Wax Melts, Wax Tarts & Premium Home Fragrance",
+        "count": 8376
+      },
+      {
+        "id": "291434823869",
+        "handle": "funny-jewelry-bear-wax-melts",
+        "title": "Funny Jewelry Bear Wax Melts",
+        "count": 535
+      },
+      {
+        "id": "293810012349",
+        "handle": "mental-healthy-cash-wax-melts",
+        "title": "Mental Healthy Cash Wax Melts",
+        "count": 299
+      },
+      {
+        "id": "293801230525",
+        "handle": "mental-healthy-wax-melts",
+        "title": "Mental Healthy Wax Melts",
+        "count": 299
+      }
+    ]
+  },
+  {
+    "navId": "bath-bombs",
+    "navName": "Bath + Bombs",
+    "navSlug": "bath-bombs",
+    "exactHandleMatch": {
+      "id": "328913158333",
+      "handle": "bath-bombs",
+      "title": "Bath Bombs That Redefine the Bath Bomb Experience",
+      "count": 9068
+    },
+    "topDBCandidates": [
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      },
+      {
+        "id": "328913158333",
+        "handle": "bath-bombs",
+        "title": "Bath Bombs That Redefine the Bath Bomb Experience",
+        "count": 9068
+      },
+      {
+        "id": "328979710141",
+        "handle": "bath",
+        "title": "Bath Bombs and Luxury Bath Soaks",
+        "count": 9046
+      },
+      {
+        "id": "329216262333",
+        "handle": "money-bombs",
+        "title": "Money Bombs",
+        "count": 5903
+      },
+      {
+        "id": "328930459837",
+        "handle": "money-bath-bombs",
+        "title": "Money Bath Bombs with REAL Cash Inside",
+        "count": 2384
+      }
+    ]
+  },
+  {
+    "navId": "cash-bath-bombs",
+    "navName": "Cash Bath Bombs",
+    "navSlug": "cash-bath-bombs",
+    "exactHandleMatch": {
+      "id": "243234767037",
+      "handle": "cash-bath-bombs",
+      "title": "Cash Bath Bombs - Money Bath Bombs",
+      "count": 26
+    },
+    "topDBCandidates": [
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      },
+      {
+        "id": "328913158333",
+        "handle": "bath-bombs",
+        "title": "Bath Bombs That Redefine the Bath Bomb Experience",
+        "count": 9068
+      },
+      {
+        "id": "328979710141",
+        "handle": "bath",
+        "title": "Bath Bombs and Luxury Bath Soaks",
+        "count": 9046
+      },
+      {
+        "id": "329216262333",
+        "handle": "money-bombs",
+        "title": "Money Bombs",
+        "count": 5903
+      },
+      {
+        "id": "328930459837",
+        "handle": "money-bath-bombs",
+        "title": "Money Bath Bombs with REAL Cash Inside",
+        "count": 2384
+      }
+    ]
+  },
+  {
+    "navId": "surprise-rose-bear-bundle",
+    "navName": "Surprise Rose Bear / Cash Bath Bomb Bundle",
+    "navSlug": "surprise-rose-bear-cash-bath-bomb-bundle",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "329080733885",
+        "handle": "surprise-candles",
+        "title": "Surprise Candles",
+        "count": 44105
+      },
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      },
+      {
+        "id": "328913158333",
+        "handle": "bath-bombs",
+        "title": "Bath Bombs That Redefine the Bath Bomb Experience",
+        "count": 9068
+      },
+      {
+        "id": "328979710141",
+        "handle": "bath",
+        "title": "Bath Bombs and Luxury Bath Soaks",
+        "count": 9046
+      },
+      {
+        "id": "328912601277",
+        "handle": "ring-candles",
+        "title": "Ring Candles & Surprise Ring Candle Collection",
+        "count": 6868
+      }
+    ]
+  },
+  {
+    "navId": "astrology-cash-bath-bombs",
+    "navName": "Astrology Cash Bath Bombs",
+    "navSlug": "astrology-cash-bath-bombs",
+    "exactHandleMatch": {
+      "id": "287958139069",
+      "handle": "astrology-cash-bath-bombs",
+      "title": "Astrology Cash Bath Bombs",
+      "count": 12
+    },
+    "topDBCandidates": [
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      },
+      {
+        "id": "328913158333",
+        "handle": "bath-bombs",
+        "title": "Bath Bombs That Redefine the Bath Bomb Experience",
+        "count": 9068
+      },
+      {
+        "id": "328979710141",
+        "handle": "bath",
+        "title": "Bath Bombs and Luxury Bath Soaks",
+        "count": 9046
+      },
+      {
+        "id": "329216262333",
+        "handle": "money-bombs",
+        "title": "Money Bombs",
+        "count": 5903
+      },
+      {
+        "id": "328930459837",
+        "handle": "money-bath-bombs",
+        "title": "Money Bath Bombs with REAL Cash Inside",
+        "count": 2384
+      }
+    ]
+  },
+  {
+    "navId": "cash-bath-bomb-tube-bundles",
+    "navName": "Cash Bath Bomb Tube Bundles",
+    "navSlug": "cash-bath-bomb-tube-bundles",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      },
+      {
+        "id": "328913158333",
+        "handle": "bath-bombs",
+        "title": "Bath Bombs That Redefine the Bath Bomb Experience",
+        "count": 9068
+      },
+      {
+        "id": "328979710141",
+        "handle": "bath",
+        "title": "Bath Bombs and Luxury Bath Soaks",
+        "count": 9046
+      },
+      {
+        "id": "329216262333",
+        "handle": "money-bombs",
+        "title": "Money Bombs",
+        "count": 5903
+      },
+      {
+        "id": "328930459837",
+        "handle": "money-bath-bombs",
+        "title": "Money Bath Bombs with REAL Cash Inside",
+        "count": 2384
+      }
+    ]
+  },
+  {
+    "navId": "jewelry-bath-bombs",
+    "navName": "Jewelry Bath Bombs",
+    "navSlug": "jewelry-bath-bombs",
+    "exactHandleMatch": {
+      "id": "243234275517",
+      "handle": "jewelry-bath-bombs",
+      "title": "Jewelry Bath Bombs",
+      "count": 26
+    },
+    "topDBCandidates": [
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      },
+      {
+        "id": "328913158333",
+        "handle": "bath-bombs",
+        "title": "Bath Bombs That Redefine the Bath Bomb Experience",
+        "count": 9068
+      },
+      {
+        "id": "328979710141",
+        "handle": "bath",
+        "title": "Bath Bombs and Luxury Bath Soaks",
+        "count": 9046
+      },
+      {
+        "id": "329216262333",
+        "handle": "money-bombs",
+        "title": "Money Bombs",
+        "count": 5903
+      },
+      {
+        "id": "328930459837",
+        "handle": "money-bath-bombs",
+        "title": "Money Bath Bombs with REAL Cash Inside",
+        "count": 2384
+      }
+    ]
+  },
+  {
+    "navId": "cash-sugar-scrubs",
+    "navName": "Cash Sugar Scrubs",
+    "navSlug": "cash-sugar-scrubs",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "303934931133",
+        "handle": "sugar-scrubs",
+        "title": "Cash Sugar Scrubs",
+        "count": 22
+      },
+      {
+        "id": "243238568125",
+        "handle": "jewelry-sugar-scrubs-1",
+        "title": "Jewelry Sugar Scrubs",
+        "count": 20
+      },
+      {
+        "id": "243238600893",
+        "handle": "cash-sugar-scrubs-a-sweet-cash-surprise-1",
+        "title": "Cash Sugar Scrubs - Real cash in every jar of sugar scrubs.",
+        "count": 10
+      }
+    ]
+  },
+  {
+    "navId": "jewelry-sugar-scrubs",
+    "navName": "Jewelry Sugar Scrubs",
+    "navSlug": "jewelry-sugar-scrubs",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "303934931133",
+        "handle": "sugar-scrubs",
+        "title": "Cash Sugar Scrubs",
+        "count": 22
+      },
+      {
+        "id": "243238568125",
+        "handle": "jewelry-sugar-scrubs-1",
+        "title": "Jewelry Sugar Scrubs",
+        "count": 20
+      },
+      {
+        "id": "243238600893",
+        "handle": "cash-sugar-scrubs-a-sweet-cash-surprise-1",
+        "title": "Cash Sugar Scrubs - Real cash in every jar of sugar scrubs.",
+        "count": 10
+      }
+    ]
+  },
+  {
+    "navId": "cash-bath-soaks",
+    "navName": "Cash Bath Soaks",
+    "navSlug": "cash-bath-soaks",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      },
+      {
+        "id": "328913158333",
+        "handle": "bath-bombs",
+        "title": "Bath Bombs That Redefine the Bath Bomb Experience",
+        "count": 9068
+      },
+      {
+        "id": "328979710141",
+        "handle": "bath",
+        "title": "Bath Bombs and Luxury Bath Soaks",
+        "count": 9046
+      },
+      {
+        "id": "328930459837",
+        "handle": "money-bath-bombs",
+        "title": "Money Bath Bombs with REAL Cash Inside",
+        "count": 2384
+      },
+      {
+        "id": "293845008573",
+        "handle": "mental-health-bath-bombs",
+        "title": "MENTAL HEALTH BATH BOMBS",
+        "count": 298
+      }
+    ]
+  },
+  {
+    "navId": "soaps",
+    "navName": "Soaps",
+    "navSlug": "soaps",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      },
+      {
+        "id": "328912961725",
+        "handle": "soap",
+        "title": "Soap & Premium Soaps for Everyday Luxury",
+        "count": 133
+      },
+      {
+        "id": "328863940797",
+        "handle": "goat-milk-soaps",
+        "title": "Goat Milk Soaps",
+        "count": 98
+      },
+      {
+        "id": "293183258813",
+        "handle": "money-soaps",
+        "title": "Cash Money Goat Milk Soaps - Goats Milk Soap",
+        "count": 92
+      },
+      {
+        "id": "293483675837",
+        "handle": "astrology-birthday-cash-money-soaps",
+        "title": "Astrology Birthday Cash Money Soaps (2-PACKS)",
+        "count": 12
+      }
+    ]
+  },
+  {
+    "navId": "goat-milk-cash-money-soaps",
+    "navName": "Goat Milk Cash Money Soaps",
+    "navSlug": "goat-milk-cash-money-soaps",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      },
+      {
+        "id": "329216262333",
+        "handle": "money-bombs",
+        "title": "Money Bombs",
+        "count": 5903
+      },
+      {
+        "id": "328930459837",
+        "handle": "money-bath-bombs",
+        "title": "Money Bath Bombs with REAL Cash Inside",
+        "count": 2384
+      },
+      {
+        "id": "286475452605",
+        "handle": "funny-candle",
+        "title": "Funny Money Candles",
+        "count": 835
+      },
+      {
+        "id": "328977318077",
+        "handle": "money-candles",
+        "title": "Money Candles",
+        "count": 495
+      }
+    ]
+  },
+  {
+    "navId": "cash-mystery-bars",
+    "navName": "Cash Mystery Soap Bars",
+    "navSlug": "cash-mystery-soap-bars",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      },
+      {
+        "id": "328912961725",
+        "handle": "soap",
+        "title": "Soap & Premium Soaps for Everyday Luxury",
+        "count": 133
+      },
+      {
+        "id": "328933605565",
+        "handle": "goat-milk-soap",
+        "title": "Goat Milk Soap made for sensitive, healthy skin",
+        "count": 133
+      },
+      {
+        "id": "328863940797",
+        "handle": "goat-milk-soaps",
+        "title": "Goat Milk Soaps",
+        "count": 98
+      },
+      {
+        "id": "293183258813",
+        "handle": "money-soaps",
+        "title": "Cash Money Goat Milk Soaps - Goats Milk Soap",
+        "count": 92
+      }
+    ]
+  },
+  {
+    "navId": "artisan-herbal-soaps",
+    "navName": "Artisan Herbal Soaps",
+    "navSlug": "artisan-herbal-soaps",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "328981250237",
+        "handle": "non-toxic-candles",
+        "title": "Non-Toxic Candles, Bath Bombs, Wax Melts &amp; Soaps You Can Trust",
+        "count": 32379
+      },
+      {
+        "id": "328912961725",
+        "handle": "soap",
+        "title": "Soap & Premium Soaps for Everyday Luxury",
+        "count": 133
+      },
+      {
+        "id": "328863940797",
+        "handle": "goat-milk-soaps",
+        "title": "Goat Milk Soaps",
+        "count": 98
+      },
+      {
+        "id": "293183258813",
+        "handle": "money-soaps",
+        "title": "Cash Money Goat Milk Soaps - Goats Milk Soap",
+        "count": 92
+      },
+      {
+        "id": "293483675837",
+        "handle": "astrology-birthday-cash-money-soaps",
+        "title": "Astrology Birthday Cash Money Soaps (2-PACKS)",
+        "count": 12
+      }
+    ]
+  },
+  {
+    "navId": "soap-bundles-gift-sets",
+    "navName": "Soap Bundles & Gift Sets",
+    "navSlug": "soap-bundles-gift-sets",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "328913060029",
+        "handle": "gifts-for-her",
+        "title": "Gifts For Her She'll Never Forget",
+        "count": 44105
+      },
+      {
+        "id": "329080602813",
+        "handle": "gifts-for-him",
+        "title": "Gifts For Him",
+        "count": 44105
+      },
+      {
+        "id": "328979447997",
+        "handle": "luxury-gifts",
+        "title": "Luxury Gifts and Luxury Gift Ideas",
+        "count": 41351
+      },
+      {
+        "id": "328913879229",
+        "handle": "christmas-gifts",
+        "title": "Christmas Gifts Everyone Will Love",
+        "count": 37268
+      },
+      {
+        "id": "328913322173",
+        "handle": "gifts",
+        "title": "Gifts for Every Occasion & Everyone You Love",
+        "count": 34026
+      }
+    ]
+  },
+  {
+    "navId": "jewelry",
+    "navName": "Jewelry",
+    "navSlug": "jewelry",
+    "exactHandleMatch": {
+      "id": "328914501821",
+      "handle": "jewelry",
+      "title": "Jewelry That Makes Every Moment Shine",
+      "count": 18476
+    },
+    "topDBCandidates": []
+  },
+  {
+    "navId": "mystery-rings",
+    "navName": "Mystery Rings",
+    "navSlug": "mystery-rings",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "291067068605",
+        "handle": "earring-candles",
+        "title": "Earring Candles - A Pair Of Earrings In Every Candle",
+        "count": 44
+      },
+      {
+        "id": "355843717",
+        "handle": "ring-bath-bombs",
+        "title": "Ring Bath Bombs  - Ring Bombs - Bath Bombs With Rings",
+        "count": 26
+      },
+      {
+        "id": "359520005",
+        "handle": "ring-bombs",
+        "title": "Ring Bath Bombs | Ring Bombs | Rings In Bath Bombs",
+        "count": 25
+      },
+      {
+        "id": "327772831933",
+        "handle": "jewelry-surprise-mystery-boxes",
+        "title": "Jewelry Surprise Mystery Boxes",
+        "count": 8
+      },
+      {
+        "id": "306551914685",
+        "handle": "jewelry-candles-1",
+        "title": "Mystery Jewelry Surprise Boxes",
+        "count": 8
+      }
+    ]
+  },
+  {
+    "navId": "necklaces-pendants",
+    "navName": "Necklaces & Pendants",
+    "navSlug": "necklaces-pendants",
+    "exactHandleMatch": null,
+    "topDBCandidates": []
+  },
+  {
+    "navId": "bracelets-bangles",
+    "navName": "Bracelets & Bangles",
+    "navSlug": "bracelets-bangles",
+    "exactHandleMatch": null,
+    "topDBCandidates": []
+  },
+  {
+    "navId": "earrings",
+    "navName": "Earrings & Studs",
+    "navSlug": "earrings-studs",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "291067068605",
+        "handle": "earring-candles",
+        "title": "Earring Candles - A Pair Of Earrings In Every Candle",
+        "count": 44
+      }
+    ]
+  },
+  {
+    "navId": "cash-jewelry",
+    "navName": "Cash Jewelry",
+    "navSlug": "cash-jewelry",
+    "exactHandleMatch": null,
+    "topDBCandidates": []
+  },
+  {
+    "navId": "zodiac-birthstone-jewelry",
+    "navName": "Zodiac & Birthstone Jewelry",
+    "navSlug": "zodiac-birthstone-jewelry",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "329067626685",
+        "handle": "zodiac",
+        "title": "Zodiac",
+        "count": 251
+      },
+      {
+        "id": "329068609725",
+        "handle": "zodiac-candles",
+        "title": "Zodiac Candles",
+        "count": 251
+      },
+      {
+        "id": "283371274429",
+        "handle": "beer-cash-candles-zodiac-sign-collections",
+        "title": "Beer Cash Candles | Zodiac Sign Collections",
+        "count": 12
+      },
+      {
+        "id": "243237879997",
+        "handle": "zodiac-cash-wax-melts-1",
+        "title": "Zodiac Cash Wax Melts",
+        "count": 12
+      },
+      {
+        "id": "167930036270",
+        "handle": "zodiac-jewelry-chocolates",
+        "title": "Zodiac Jewelry Chocolates",
+        "count": 12
+      }
+    ]
+  },
+  {
+    "navId": "mens-jewelry",
+    "navName": "Men’s Jewelry",
+    "navSlug": "mens-jewelry",
+    "exactHandleMatch": null,
+    "topDBCandidates": []
+  },
+  {
+    "navId": "surprise-jewelry-bundles",
+    "navName": "Surprise Jewelry Bundles",
+    "navSlug": "surprise-jewelry-bundles",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "329080733885",
+        "handle": "surprise-candles",
+        "title": "Surprise Candles",
+        "count": 44105
+      },
+      {
+        "id": "328912601277",
+        "handle": "ring-candles",
+        "title": "Ring Candles & Surprise Ring Candle Collection",
+        "count": 6868
+      },
+      {
+        "id": "328914567357",
+        "handle": "surprise-gifts",
+        "title": "Surprise Gifts That Make Every Moment Unforgettable",
+        "count": 3481
+      },
+      {
+        "id": "292872716477",
+        "handle": "legends-were-born-happy-birthday-cash-surprise-candle",
+        "title": "Legends Were Born Happy Birthday Cash Surprise Candle (1930-2023)",
+        "count": 1129
+      },
+      {
+        "id": "292837228733",
+        "handle": "legends-were-born-happy-birthday-jewelry-surprise-candle",
+        "title": "Legends Were Born Happy Birthday Jewelry Surprise Candle",
+        "count": 846
+      }
+    ]
+  },
+  {
+    "navId": "candy",
+    "navName": "Candy",
+    "navSlug": "candy",
+    "exactHandleMatch": {
+      "id": "329665446077",
+      "handle": "candy",
+      "title": "Cash Candy for Mom 💖🍬",
+      "count": 300
+    },
+    "topDBCandidates": [
+      {
+        "id": "329665446077",
+        "handle": "candy",
+        "title": "Cash Candy for Mom 💖🍬",
+        "count": 300
+      },
+      {
+        "id": "240454303933",
+        "handle": "jewelry-country-candy",
+        "title": "Jewelry Country Candy",
+        "count": 195
+      },
+      {
+        "id": "240454336701",
+        "handle": "cash-country-candy",
+        "title": "Cash Country Candy",
+        "count": 194
+      },
+      {
+        "id": "240454369469",
+        "handle": "country-candy",
+        "title": "Country Candy",
+        "count": 194
+      },
+      {
+        "id": "240203956413",
+        "handle": "cash-state-candy",
+        "title": "Cash State Candy",
+        "count": 100
+      }
+    ]
+  },
+  {
+    "navId": "cash-candy",
+    "navName": "Cash Candy",
+    "navSlug": "cash-candy",
+    "exactHandleMatch": {
+      "id": "162829434926",
+      "handle": "cash-candy",
+      "title": "Cash Candy",
+      "count": 28
+    },
+    "topDBCandidates": [
+      {
+        "id": "329665446077",
+        "handle": "candy",
+        "title": "Cash Candy for Mom 💖🍬",
+        "count": 300
+      },
+      {
+        "id": "240454303933",
+        "handle": "jewelry-country-candy",
+        "title": "Jewelry Country Candy",
+        "count": 195
+      },
+      {
+        "id": "240454336701",
+        "handle": "cash-country-candy",
+        "title": "Cash Country Candy",
+        "count": 194
+      },
+      {
+        "id": "240454369469",
+        "handle": "country-candy",
+        "title": "Country Candy",
+        "count": 194
+      },
+      {
+        "id": "240203956413",
+        "handle": "cash-state-candy",
+        "title": "Cash State Candy",
+        "count": 100
+      }
+    ]
+  },
+  {
+    "navId": "jewelry-candy",
+    "navName": "Jewelry Candy",
+    "navSlug": "jewelry-candy",
+    "exactHandleMatch": {
+      "id": "162829402158",
+      "handle": "jewelry-candy",
+      "title": "Jewelry Candy",
+      "count": 28
+    },
+    "topDBCandidates": [
+      {
+        "id": "329665446077",
+        "handle": "candy",
+        "title": "Cash Candy for Mom 💖🍬",
+        "count": 300
+      },
+      {
+        "id": "240454303933",
+        "handle": "jewelry-country-candy",
+        "title": "Jewelry Country Candy",
+        "count": 195
+      },
+      {
+        "id": "240454336701",
+        "handle": "cash-country-candy",
+        "title": "Cash Country Candy",
+        "count": 194
+      },
+      {
+        "id": "240454369469",
+        "handle": "country-candy",
+        "title": "Country Candy",
+        "count": 194
+      },
+      {
+        "id": "240203956413",
+        "handle": "cash-state-candy",
+        "title": "Cash State Candy",
+        "count": 100
+      }
+    ]
+  },
+  {
+    "navId": "gummy-surprise-pouches",
+    "navName": "Gummy Surprise Pouches",
+    "navSlug": "gummy-surprise-pouches",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "329080733885",
+        "handle": "surprise-candles",
+        "title": "Surprise Candles",
+        "count": 44105
+      },
+      {
+        "id": "328912601277",
+        "handle": "ring-candles",
+        "title": "Ring Candles & Surprise Ring Candle Collection",
+        "count": 6868
+      },
+      {
+        "id": "328914567357",
+        "handle": "surprise-gifts",
+        "title": "Surprise Gifts That Make Every Moment Unforgettable",
+        "count": 3481
+      },
+      {
+        "id": "292872716477",
+        "handle": "legends-were-born-happy-birthday-cash-surprise-candle",
+        "title": "Legends Were Born Happy Birthday Cash Surprise Candle (1930-2023)",
+        "count": 1129
+      },
+      {
+        "id": "292837228733",
+        "handle": "legends-were-born-happy-birthday-jewelry-surprise-candle",
+        "title": "Legends Were Born Happy Birthday Jewelry Surprise Candle",
+        "count": 846
+      }
+    ]
+  },
+  {
+    "navId": "sweet-treat-bundles",
+    "navName": "Sweet Treat Bundles",
+    "navSlug": "sweet-treat-bundles",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "329067593917",
+        "handle": "sweets-candies-confectionery",
+        "title": "Sweets-Candies-Confectionery",
+        "count": 4310
+      },
+      {
+        "id": "328862302397",
+        "handle": "cash-wax-melt-surprise-bundles",
+        "title": "Best Selling Surprise Bundles",
+        "count": 135
+      },
+      {
+        "id": "330362224829",
+        "handle": "valentines-day-gift-bundles",
+        "title": "Bear Themed Gift Bundles",
+        "count": 66
+      },
+      {
+        "id": "329533358269",
+        "handle": "cash-surprise-bear-and-cash-wax-melt-bundles",
+        "title": "Cash Surprise Bear And Cash Wax Melt Bundles",
+        "count": 27
+      },
+      {
+        "id": "287719981245",
+        "handle": "cash-bath-bombs-bundles",
+        "title": "Cash Bath Bombs Tubes (2-PACK BUNDLES)",
+        "count": 26
+      }
+    ]
+  },
+  {
+    "navId": "chocolates",
+    "navName": "Chocolates",
+    "navSlug": "chocolates",
+    "exactHandleMatch": {
+      "id": "162829631534",
+      "handle": "chocolates",
+      "title": "Chocolates Tubes",
+      "count": 28
+    },
+    "topDBCandidates": [
+      {
+        "id": "167544389678",
+        "handle": "city-cash-chocolates",
+        "title": "City Cash Chocolates",
+        "count": 483
+      },
+      {
+        "id": "167544553518",
+        "handle": "city-chocolates",
+        "title": "City Chocolates",
+        "count": 483
+      },
+      {
+        "id": "167544225838",
+        "handle": "city-jewelry-chocolates",
+        "title": "City Jewelry Chocolates",
+        "count": 481
+      },
+      {
+        "id": "240580690109",
+        "handle": "country-chocolates",
+        "title": "Country Chocolates",
+        "count": 194
+      },
+      {
+        "id": "240580591805",
+        "handle": "cash-country-chocolates",
+        "title": "Cash Country Chocolates",
+        "count": 194
+      }
+    ]
+  },
+  {
+    "navId": "cash-chocolates",
+    "navName": "Cash Chocolates",
+    "navSlug": "cash-chocolates",
+    "exactHandleMatch": {
+      "id": "162829598766",
+      "handle": "cash-chocolates",
+      "title": "Cash Chocolates",
+      "count": 28
+    },
+    "topDBCandidates": [
+      {
+        "id": "167544389678",
+        "handle": "city-cash-chocolates",
+        "title": "City Cash Chocolates",
+        "count": 483
+      },
+      {
+        "id": "167544553518",
+        "handle": "city-chocolates",
+        "title": "City Chocolates",
+        "count": 483
+      },
+      {
+        "id": "167544225838",
+        "handle": "city-jewelry-chocolates",
+        "title": "City Jewelry Chocolates",
+        "count": 481
+      },
+      {
+        "id": "240580690109",
+        "handle": "country-chocolates",
+        "title": "Country Chocolates",
+        "count": 194
+      },
+      {
+        "id": "240580591805",
+        "handle": "cash-country-chocolates",
+        "title": "Cash Country Chocolates",
+        "count": 194
+      }
+    ]
+  },
+  {
+    "navId": "jewelry-chocolate",
+    "navName": "Jewelry Chocolate",
+    "navSlug": "jewelry-chocolate",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "167544389678",
+        "handle": "city-cash-chocolates",
+        "title": "City Cash Chocolates",
+        "count": 483
+      },
+      {
+        "id": "167544553518",
+        "handle": "city-chocolates",
+        "title": "City Chocolates",
+        "count": 483
+      },
+      {
+        "id": "167544225838",
+        "handle": "city-jewelry-chocolates",
+        "title": "City Jewelry Chocolates",
+        "count": 481
+      },
+      {
+        "id": "240580690109",
+        "handle": "country-chocolates",
+        "title": "Country Chocolates",
+        "count": 194
+      },
+      {
+        "id": "240580591805",
+        "handle": "cash-country-chocolates",
+        "title": "Cash Country Chocolates",
+        "count": 194
+      }
+    ]
+  },
+  {
+    "navId": "gourmet-chocolate-bars",
+    "navName": "Gourmet Chocolate Bars",
+    "navSlug": "gourmet-chocolate-bars",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "167544389678",
+        "handle": "city-cash-chocolates",
+        "title": "City Cash Chocolates",
+        "count": 483
+      },
+      {
+        "id": "167544553518",
+        "handle": "city-chocolates",
+        "title": "City Chocolates",
+        "count": 483
+      },
+      {
+        "id": "167544225838",
+        "handle": "city-jewelry-chocolates",
+        "title": "City Jewelry Chocolates",
+        "count": 481
+      },
+      {
+        "id": "240580690109",
+        "handle": "country-chocolates",
+        "title": "Country Chocolates",
+        "count": 194
+      },
+      {
+        "id": "240580591805",
+        "handle": "cash-country-chocolates",
+        "title": "Cash Country Chocolates",
+        "count": 194
+      }
+    ]
+  },
+  {
+    "navId": "luxury-reveal-gift-boxes",
+    "navName": "Luxury Reveal Gift Boxes",
+    "navSlug": "luxury-reveal-gift-boxes",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "328913060029",
+        "handle": "gifts-for-her",
+        "title": "Gifts For Her She'll Never Forget",
+        "count": 44105
+      },
+      {
+        "id": "329080602813",
+        "handle": "gifts-for-him",
+        "title": "Gifts For Him",
+        "count": 44105
+      },
+      {
+        "id": "328979447997",
+        "handle": "luxury-gifts",
+        "title": "Luxury Gifts and Luxury Gift Ideas",
+        "count": 41351
+      },
+      {
+        "id": "328980627645",
+        "handle": "luxury",
+        "title": "Luxury and Luxuries You'll Love",
+        "count": 40575
+      },
+      {
+        "id": "328913879229",
+        "handle": "christmas-gifts",
+        "title": "Christmas Gifts Everyone Will Love",
+        "count": 37268
+      }
+    ]
+  },
+  {
+    "navId": "slimes",
+    "navName": "Slimes",
+    "navSlug": "slimes",
+    "exactHandleMatch": {
+      "id": "328914043069",
+      "handle": "slimes",
+      "title": "Slime and Premium Slimes for endless fun",
+      "count": 1652
+    },
+    "topDBCandidates": [
+      {
+        "id": "328914043069",
+        "handle": "slimes",
+        "title": "Slime and Premium Slimes for endless fun",
+        "count": 1652
+      },
+      {
+        "id": "293882691773",
+        "handle": "mental-health-jewelry-slimes",
+        "title": "MENTAL HEALTH JEWELRY SLIMES",
+        "count": 299
+      },
+      {
+        "id": "293882659005",
+        "handle": "mental-health-slimes",
+        "title": "MENTAL HEALTH SLIMES",
+        "count": 297
+      },
+      {
+        "id": "293882626237",
+        "handle": "mental-health-cash-slimes",
+        "title": "MENTAL HEALTH CASH SLIMES",
+        "count": 294
+      },
+      {
+        "id": "308874903741",
+        "handle": "cash-cereal-slimes",
+        "title": "Cash Cereal Slimes - Money Cereal Slimes",
+        "count": 62
+      }
+    ]
+  },
+  {
+    "navId": "cash-slimes",
+    "navName": "Cash Slimes",
+    "navSlug": "cash-slimes",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "328914043069",
+        "handle": "slimes",
+        "title": "Slime and Premium Slimes for endless fun",
+        "count": 1652
+      },
+      {
+        "id": "293882691773",
+        "handle": "mental-health-jewelry-slimes",
+        "title": "MENTAL HEALTH JEWELRY SLIMES",
+        "count": 299
+      },
+      {
+        "id": "293882659005",
+        "handle": "mental-health-slimes",
+        "title": "MENTAL HEALTH SLIMES",
+        "count": 297
+      },
+      {
+        "id": "293882626237",
+        "handle": "mental-health-cash-slimes",
+        "title": "MENTAL HEALTH CASH SLIMES",
+        "count": 294
+      },
+      {
+        "id": "308874903741",
+        "handle": "cash-cereal-slimes",
+        "title": "Cash Cereal Slimes - Money Cereal Slimes",
+        "count": 62
+      }
+    ]
+  },
+  {
+    "navId": "cereal-bowl-slimes",
+    "navName": "Cereal Bowl Slimes",
+    "navSlug": "cereal-bowl-slimes",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "328914043069",
+        "handle": "slimes",
+        "title": "Slime and Premium Slimes for endless fun",
+        "count": 1652
+      },
+      {
+        "id": "293882691773",
+        "handle": "mental-health-jewelry-slimes",
+        "title": "MENTAL HEALTH JEWELRY SLIMES",
+        "count": 299
+      },
+      {
+        "id": "293882659005",
+        "handle": "mental-health-slimes",
+        "title": "MENTAL HEALTH SLIMES",
+        "count": 297
+      },
+      {
+        "id": "293882626237",
+        "handle": "mental-health-cash-slimes",
+        "title": "MENTAL HEALTH CASH SLIMES",
+        "count": 294
+      },
+      {
+        "id": "308874903741",
+        "handle": "cash-cereal-slimes",
+        "title": "Cash Cereal Slimes - Money Cereal Slimes",
+        "count": 62
+      }
+    ]
+  },
+  {
+    "navId": "astrology-cash-slimes",
+    "navName": "Astrology Cash Slimes",
+    "navSlug": "astrology-cash-slimes",
+    "exactHandleMatch": {
+      "id": "293863555261",
+      "handle": "astrology-cash-slimes",
+      "title": "ASTROLOGY CASH SLIMES",
+      "count": 12
+    },
+    "topDBCandidates": [
+      {
+        "id": "328914043069",
+        "handle": "slimes",
+        "title": "Slime and Premium Slimes for endless fun",
+        "count": 1652
+      },
+      {
+        "id": "293882691773",
+        "handle": "mental-health-jewelry-slimes",
+        "title": "MENTAL HEALTH JEWELRY SLIMES",
+        "count": 299
+      },
+      {
+        "id": "293882659005",
+        "handle": "mental-health-slimes",
+        "title": "MENTAL HEALTH SLIMES",
+        "count": 297
+      },
+      {
+        "id": "293882626237",
+        "handle": "mental-health-cash-slimes",
+        "title": "MENTAL HEALTH CASH SLIMES",
+        "count": 294
+      },
+      {
+        "id": "329068708029",
+        "handle": "astrology",
+        "title": "Astrology and Astrology Candles",
+        "count": 229
+      }
+    ]
+  },
+  {
+    "navId": "jewelry-slimes",
+    "navName": "Jewelry Slimes",
+    "navSlug": "jewelry-slimes",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "328914043069",
+        "handle": "slimes",
+        "title": "Slime and Premium Slimes for endless fun",
+        "count": 1652
+      },
+      {
+        "id": "293882691773",
+        "handle": "mental-health-jewelry-slimes",
+        "title": "MENTAL HEALTH JEWELRY SLIMES",
+        "count": 299
+      },
+      {
+        "id": "293882659005",
+        "handle": "mental-health-slimes",
+        "title": "MENTAL HEALTH SLIMES",
+        "count": 297
+      },
+      {
+        "id": "293882626237",
+        "handle": "mental-health-cash-slimes",
+        "title": "MENTAL HEALTH CASH SLIMES",
+        "count": 294
+      },
+      {
+        "id": "308874903741",
+        "handle": "cash-cereal-slimes",
+        "title": "Cash Cereal Slimes - Money Cereal Slimes",
+        "count": 62
+      }
+    ]
+  },
+  {
+    "navId": "cards",
+    "navName": "Cards",
+    "navSlug": "cards",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "328913682621",
+        "handle": "greeting-cards",
+        "title": "Greeting Cards That Say It Better",
+        "count": 688
+      },
+      {
+        "id": "290401812669",
+        "handle": "funny-greeting-cards",
+        "title": "Funny Greeting Cards",
+        "count": 293
+      },
+      {
+        "id": "290423210173",
+        "handle": "funny-cash-greeting-cards",
+        "title": "Funny Cash Greeting Cards",
+        "count": 257
+      },
+      {
+        "id": "684916741",
+        "handle": "jewelry-cash-greeting-cards",
+        "title": "Jewelry & Cash Greeting Cards",
+        "count": 161
+      },
+      {
+        "id": "243239583933",
+        "handle": "jewelry-greeting-cards-1",
+        "title": "Jewelry Greeting Cards",
+        "count": 137
+      }
+    ]
+  },
+  {
+    "navId": "funny-cash-greeting-cards",
+    "navName": "Funny Cash Greeting Cards",
+    "navSlug": "funny-cash-greeting-cards",
+    "exactHandleMatch": {
+      "id": "290423210173",
+      "handle": "funny-cash-greeting-cards",
+      "title": "Funny Cash Greeting Cards",
+      "count": 257
+    },
+    "topDBCandidates": [
+      {
+        "id": "328987082941",
+        "handle": "funny-gifts",
+        "title": "Funny Gifts and Funny Candles",
+        "count": 4201
+      },
+      {
+        "id": "286307418301",
+        "handle": "funny-candles",
+        "title": "Funny Candles - Candles With Funny Sayings - Funny Candle",
+        "count": 1198
+      },
+      {
+        "id": "286510252221",
+        "handle": "funnycandles",
+        "title": "Jewelry Funny Candles - Funny Candles - Funny Gifts",
+        "count": 858
+      },
+      {
+        "id": "286475452605",
+        "handle": "funny-candle",
+        "title": "Funny Money Candles",
+        "count": 835
+      },
+      {
+        "id": "328913682621",
+        "handle": "greeting-cards",
+        "title": "Greeting Cards That Say It Better",
+        "count": 688
+      }
+    ]
+  },
+  {
+    "navId": "jewelry-greeting-cards",
+    "navName": "Jewelry Greeting Cards",
+    "navSlug": "jewelry-greeting-cards",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "328913682621",
+        "handle": "greeting-cards",
+        "title": "Greeting Cards That Say It Better",
+        "count": 688
+      },
+      {
+        "id": "290401812669",
+        "handle": "funny-greeting-cards",
+        "title": "Funny Greeting Cards",
+        "count": 293
+      },
+      {
+        "id": "290423210173",
+        "handle": "funny-cash-greeting-cards",
+        "title": "Funny Cash Greeting Cards",
+        "count": 257
+      },
+      {
+        "id": "243231654077",
+        "handle": "greeting-candles-a-jewelry-candle-for-every-occasion",
+        "title": "Greeting Candles | A Jewelry Candle for EVERY Occasion!®",
+        "count": 179
+      },
+      {
+        "id": "684916741",
+        "handle": "jewelry-cash-greeting-cards",
+        "title": "Jewelry & Cash Greeting Cards",
+        "count": 161
+      }
+    ]
+  },
+  {
+    "navId": "birthday-surprise-cards",
+    "navName": "Birthday Surprise Cards",
+    "navSlug": "birthday-surprise-cards",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "329080733885",
+        "handle": "surprise-candles",
+        "title": "Surprise Candles",
+        "count": 44105
+      },
+      {
+        "id": "329080537277",
+        "handle": "birthday-gift",
+        "title": "Birthday Gifts",
+        "count": 33389
+      },
+      {
+        "id": "329042198717",
+        "handle": "birthday-gifts",
+        "title": "Birthday Gifts",
+        "count": 27452
+      },
+      {
+        "id": "328912601277",
+        "handle": "ring-candles",
+        "title": "Ring Candles & Surprise Ring Candle Collection",
+        "count": 6868
+      },
+      {
+        "id": "328914567357",
+        "handle": "surprise-gifts",
+        "title": "Surprise Gifts That Make Every Moment Unforgettable",
+        "count": 3481
+      }
+    ]
+  },
+  {
+    "navId": "holiday-celebration-cards",
+    "navName": "Holiday & Celebration Cards",
+    "navSlug": "holiday-celebration-cards",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "328913682621",
+        "handle": "greeting-cards",
+        "title": "Greeting Cards That Say It Better",
+        "count": 688
+      },
+      {
+        "id": "290401812669",
+        "handle": "funny-greeting-cards",
+        "title": "Funny Greeting Cards",
+        "count": 293
+      },
+      {
+        "id": "290423210173",
+        "handle": "funny-cash-greeting-cards",
+        "title": "Funny Cash Greeting Cards",
+        "count": 257
+      },
+      {
+        "id": "684916741",
+        "handle": "jewelry-cash-greeting-cards",
+        "title": "Jewelry & Cash Greeting Cards",
+        "count": 161
+      },
+      {
+        "id": "243239583933",
+        "handle": "jewelry-greeting-cards-1",
+        "title": "Jewelry Greeting Cards",
+        "count": 137
+      }
+    ]
+  },
+  {
+    "navId": "affiliate",
+    "navName": "Affiliate Program",
+    "navSlug": "affiliate",
+    "exactHandleMatch": null,
+    "topDBCandidates": []
+  },
+  {
+    "navId": "appraisal",
+    "navName": "Appraise Jewelry",
+    "navSlug": "appraise-your-jewelry",
+    "exactHandleMatch": null,
+    "topDBCandidates": [
+      {
+        "id": "86701539374",
+        "handle": "city-jewelry-candles",
+        "title": "City Jewelry Candles - Your City With Jewelry Candles!",
+        "count": 624
+      },
+      {
+        "id": "76686852142",
+        "handle": "city-candles",
+        "title": "City Candles - Find YOUR City!",
+        "count": 623
+      },
+      {
+        "id": "243237257405",
+        "handle": "zodiac-jewelry-wax-melts-jewelry-wax-melts-with-your-zodiac-sign-1",
+        "title": "Zodiac Jewelry Wax Melts | Jewelry Wax Melts With Your Zodiac Sign!",
+        "count": 12
+      }
+    ]
+  },
+  {
+    "navId": "contact",
+    "navName": "Contact",
+    "navSlug": "contact",
+    "exactHandleMatch": null,
+    "topDBCandidates": []
+  }
+]
