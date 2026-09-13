@@ -133,6 +133,22 @@ export function SEOHead({ view, product, category, repUsername, accountTab }: SE
         };
         break;
 
+      case 'collection':
+        seo = {
+          title: `Collections ${BRAND_SUFFIX}`,
+          description:
+            'Explore authentic handcrafted surprise reveal collections with real cash prizes or fine jewelry inside.',
+          canonical: `${SITE_ORIGIN}/collections`,
+          isPrivate: false,
+          ogType: 'website',
+          ogImage: DEFAULT_IMAGE,
+          breadcrumbs: [
+            { name: 'Home', url: `${SITE_ORIGIN}/` },
+            { name: 'Collections', url: `${SITE_ORIGIN}/collections` },
+          ],
+        };
+        break;
+
       case 'categories': {
         const isSpecific = category && category !== 'All Surprises';
         const catSEO = getCategorySEO(isSpecific ? category : undefined);

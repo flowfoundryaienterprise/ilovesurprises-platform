@@ -12,6 +12,38 @@ export interface Category {
 
 export type SurpriseType = 'jewelry' | 'cash' | 'trinket' | 'charm' | 'mystery';
 
+export interface Collection {
+  id: string;
+  handle: string;
+  title: string;
+  bodyHtml?: string;
+  productsCount: number;
+  imageUrl?: string;
+  sortOrder?: string;
+}
+
+export interface ProductVariant {
+  variantId: string;
+  productId: string;
+  title?: string;
+  price: number;
+  compareAtPrice?: number;
+  sku?: string;
+  inStock?: boolean;
+  option1Name?: string;
+  option1Value?: string;
+  option2Name?: string;
+  option2Value?: string;
+  option3Name?: string;
+  option3Value?: string;
+}
+
+export interface ProductOption {
+  name: string;
+  position: number;
+  values: string[];
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -24,6 +56,9 @@ export interface Product {
   rating: number;
   reviewCount: number;
   image: string;
+  images?: string[];
+  variants?: ProductVariant[];
+  options?: ProductOption[];
   badge?: string;
   isNew?: boolean;
   isBestSeller?: boolean;

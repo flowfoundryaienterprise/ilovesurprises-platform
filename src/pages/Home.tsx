@@ -14,6 +14,7 @@ interface HomeProps {
   searchQuery?: string;
   selectedCategory?: string;
   onSelectCategory?: (category: string) => void;
+  onSelectCollection?: (handle: string) => void;
   onNavigateToShop?: () => void;
   onViewAllCategories?: () => void;
   onAddToCart: (product: Product) => void;
@@ -28,6 +29,7 @@ export const Home: React.FC<HomeProps> = ({
   searchQuery: _searchQuery = '',
   selectedCategory = 'All Surprises',
   onSelectCategory,
+  onSelectCollection,
   onNavigateToShop,
   onViewAllCategories,
   onAddToCart,
@@ -69,6 +71,7 @@ export const Home: React.FC<HomeProps> = ({
       <div className="transition-all duration-300">
         <FeaturedCollectionsSection
           onSelectCategory={onSelectCategory}
+          onSelectCollection={onSelectCollection}
           onSelectProduct={onSelectProduct}
         />
       </div>

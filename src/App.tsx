@@ -9,6 +9,7 @@ import { ToastNotification, type ToastData } from './components/ui/ToastNotifica
 import { Home } from './pages/Home';
 import { Shop } from './pages/Shop';
 import { ProductDetails } from './pages/ProductDetails';
+import { CollectionPage } from './pages/Collection';
 import type { AccountTab } from './pages/Account';
 import type { Product, CartItem, UserProfile, Order } from './types';
 import type { AdminTab } from './types/admin';
@@ -59,6 +60,7 @@ function PageLoadingFallback() {
 export type AppView =
   | 'home'
   | 'shop'
+  | 'collection'
   | 'categories'
   | 'product-details'
   | 'checkout'
@@ -86,6 +88,7 @@ export function App() {
     const path = window.location.pathname;
     if (path === '/admin/login') return 'admin-login';
     if (path === '/admin' || path.startsWith('/admin/')) return 'admin';
+    if (path.startsWith('/collections/') || path.startsWith('/collection/')) return 'collection';
     if (path === '/shop') return 'shop';
     if (path === '/categories') return 'categories';
     if (path.startsWith('/product/')) return 'product-details';
@@ -163,6 +166,18 @@ export function App() {
     return window.location.pathname.startsWith('/product/');
   });
   const [productLoadingError, setProductLoadingError] = useState<boolean>(false);
+
+  const [selectedCollectionHandle, setSelectedCollectionHandle] = useState<string>(() => {
+    if (typeof window === 'undefined') return '';
+    const path = window.location.pathname;
+    if (path.startsWith('/collections/')) {
+      return path.replace('/collections/', '').replace(/\/$/, '').trim();
+    }
+    if (path.startsWith('/collection/')) {
+      return path.replace('/collection/', '').replace(/\/$/, '').trim();
+    }
+    return '';
+  });
 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(() => {
     if (typeof window === 'undefined') return null;
@@ -492,6 +507,7 @@ export function App() {
     const titles: Record<AppView, string> = {
       home: 'ILoveSurprises.com | Luxury Jewelry & Real Cash Reveal Candles',
       shop: 'Shop Surprise Candles & Melts | ILoveSurprises.com',
+      collection: 'Collection | ILoveSurprises.com',
       categories: 'Browse Surprise Categories | Candles, Melts & Bath | ILoveSurprises.com',
       'product-details': selectedProduct ? `${selectedProduct.name} | ILoveSurprises.com` : 'Product Details | ILoveSurprises.com',
       checkout: 'Secure SSL Checkout | ILoveSurprises.com',
@@ -515,6 +531,7 @@ export function App() {
     const descriptions: Record<AppView, string> = {
       home: 'Discover hand-poured soy candles and luxury bath treats with real cash ($2 - $2,500) or fine jewelry hidden inside every item.',
       shop: 'Explore our full collection of aroma soy candles, bath bombs, wax melts, and mystery boxes with genuine surprise reveals.',
+      collection: 'Explore authentic handcrafted surprise reveals with guaranteed real cash ($2 - $2,500) or fine jewelry inside.',
       categories: 'Shop by surprise category: Cash Candles, Jewelry Candles, Wax Melts, and Curated Monthly Surprise Boxes.',
       'product-details': selectedProduct?.description || 'Handcrafted luxury soy candle with guaranteed hidden surprises inside.',
       checkout: 'Complete your purchase with 256-bit SSL encrypted checkout and 100% win guarantee protection.',
@@ -643,6 +660,9 @@ export function App() {
           setSelectedProduct(null);
         } else if (eventState.category) {
           setSelectedCategory(eventState.category);
+        }
+        if (eventState.collectionHandle) {
+          setSelectedCollectionHandle(eventState.collectionHandle);
         }
         if (eventState.productId || eventState.productSlug) {
           const identifier = (eventState.productSlug || eventState.productId) as string;
@@ -784,6 +804,11 @@ export function App() {
         } else if (path === '/faqs' || path === '/faq') {
           setCurrentView('faqs');
           window.scrollTo({ top: scrollPositions.current['faqs'] || 0, behavior: 'smooth' });
+        } else if (path.startsWith('/collections/') || path.startsWith('/collection/')) {
+          const handle = path.replace(/^\/collections?\//, '').replace(/\/$/, '').trim();
+          setSelectedCollectionHandle(handle);
+          setCurrentView('collection');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         } else if (path.startsWith('/product/')) {
           const slug = path.replace('/product/', '').trim();
           setCurrentView('product-details');
@@ -1143,6 +1168,21 @@ export function App() {
     }
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('ils_route_change'));
+    }
+  };
+
+  const handleNavigateToCollection = (handle: string, direction: 'forward' | 'backward' = 'forward') => {
+    scrollPositions.current[currentView] = window.scrollY;
+    setNavDirection(direction);
+    const cleanHandle = handle.replace(/^\/collections?\//, '').replace(/\/$/, '').trim();
+    setSelectedCollectionHandle(cleanHandle);
+    setCurrentView('collection');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (window.history.pushState) {
+      window.history.pushState({ view: 'collection', collectionHandle: cleanHandle }, '', `/collections/${cleanHandle}`);
+    }
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('ils_route_change', { detail: { route: 'collection', handle: cleanHandle } }));
     }
   };
 
@@ -1551,6 +1591,7 @@ export function App() {
             onNavigateToAdmin={() => handleNavigateToAdmin('overview')}
             onSelectProduct={handleSelectProduct}
             onSelectCategory={(category) => handleNavigateToShop(category)}
+            onSelectCollection={handleNavigateToCollection}
           />
 
           {/* Main Dynamic View: Shopping pages (Home, Categories, Shop, Product Details, Account, etc.) */}
@@ -1563,12 +1604,29 @@ export function App() {
                   searchQuery={searchQuery}
                   selectedCategory={selectedCategory}
                   onSelectCategory={(cat) => handleNavigateToShop(cat, 'forward')}
+                  onSelectCollection={handleNavigateToCollection}
                   onNavigateToShop={() => handleNavigateToShop('All Surprises', 'forward')}
                   onViewAllCategories={() => handleNavigateToCategories('forward')}
                   onAddToCart={handleAddToCart}
                   onUpdateQuantity={handleUpdateQuantity}
                   onWishlistToggle={handleWishlistToggle}
                   onSelectProduct={handleSelectProduct}
+                />
+              </div>
+            )}
+
+            {currentView === 'collection' && (
+              <div key={`page-collection-${selectedCollectionHandle}`} className={transitionClass}>
+                <CollectionPage
+                  collectionHandle={selectedCollectionHandle}
+                  cart={cart}
+                  wishlistIds={wishlistIds}
+                  onBackToHome={() => handleNavigateToHome('backward')}
+                  onAddToCart={handleAddToCart}
+                  onUpdateQuantity={handleUpdateQuantity}
+                  onWishlistToggle={handleWishlistToggle}
+                  onSelectProduct={handleSelectProduct}
+                  onNavigateToShop={() => handleNavigateToShop('All Surprises', 'forward')}
                 />
               </div>
             )}

@@ -7,11 +7,13 @@ import type { Product } from '../../types';
 
 interface FeaturedCollectionsSectionProps {
   onSelectCategory?: (category: string) => void;
+  onSelectCollection?: (handle: string) => void;
   onSelectProduct?: (product: Product) => void;
 }
 
 export const FeaturedCollectionsSection: React.FC<FeaturedCollectionsSectionProps> = ({
   onSelectCategory,
+  onSelectCollection,
   onSelectProduct: _onSelectProduct,
 }) => {
   const [homepageConfig, setHomepageConfig] = useState(() => adminService.getHomepageContent());
@@ -148,7 +150,13 @@ export const FeaturedCollectionsSection: React.FC<FeaturedCollectionsSectionProp
           return (
             <div
               key={col.id}
-              onClick={() => onSelectCategory?.(col.categoryKey)}
+              onClick={() => {
+                if (onSelectCollection) {
+                  onSelectCollection(col.id);
+                } else if (onSelectCategory) {
+                  onSelectCategory(col.categoryKey);
+                }
+              }}
               className={`group relative rounded-2xl sm:rounded-2xl border border-[#eee7ed] ${col.accentBorder} overflow-hidden shadow-[0_4px_16px_rgba(50,31,63,0.06)] hover:shadow-[0_14px_32px_rgba(211,9,21,0.16)] transition-all duration-300 cursor-pointer flex flex-col justify-between isolate`}
               style={{
                 position: 'relative',

@@ -67,7 +67,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
   onShowToast,
 }) => {
   const [quantity, setQuantity] = useState(1);
-  const [selectedSize, setSelectedSize] = useState('Classic 14oz');
+  const [selectedSize] = useState('Classic 14oz');
 
   // Detect whether this is a jewelry surprise product
   const isJewelrySurprise = useMemo(() => {
@@ -80,7 +80,50 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
     );
   }, [product]);
 
-  // Jewelry Variant States (Ring Size & Jewelry Type)
+  // Dynamic Options (from Supabase/Shopify authoritative schema)
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (product.options && product.options.length > 0) {
+      const initial: Record<string, string> = {};
+      product.options.forEach((opt) => {
+        if (opt.values && opt.values.length > 0) {
+          initial[opt.name] = opt.values[0];
+        }
+      });
+      setSelectedOptions(initial);
+    } else {
+      setSelectedOptions({});
+    }
+  }, [product.id, product.options]);
+
+  // Find matching variant based on selected options
+  const matchedVariant = useMemo(() => {
+    if (!product.variants || product.variants.length === 0) return null;
+    if (!product.options || product.options.length === 0) return product.variants[0];
+
+    return (
+      product.variants.find((v) => {
+        if (v.option1Name && selectedOptions[v.option1Name] && v.option1Value !== selectedOptions[v.option1Name]) {
+          return false;
+        }
+        if (v.option2Name && selectedOptions[v.option2Name] && v.option2Value !== selectedOptions[v.option2Name]) {
+          return false;
+        }
+        if (v.option3Name && selectedOptions[v.option3Name] && v.option3Value !== selectedOptions[v.option3Name]) {
+          return false;
+        }
+        return true;
+      }) || product.variants[0]
+    );
+  }, [product.variants, product.options, selectedOptions]);
+
+  const currentPrice = matchedVariant?.price ?? product.price;
+  const currentCompareAtPrice = matchedVariant?.compareAtPrice ?? product.originalPrice;
+  const currentSku = matchedVariant?.sku ?? product.sku;
+  const isVariantInStock = matchedVariant ? matchedVariant.inStock : product.inStock;
+
+  // Jewelry Variant States (Ring Size & Jewelry Type fallback)
   const [selectedJewelryType, setSelectedJewelryType] = useState<string>('Ring');
   const [selectedRingSize, setSelectedRingSize] = useState<number>(7);
 
@@ -122,8 +165,8 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
   }, [product.id]);
 
   const discountPercent =
-    product.originalPrice && product.originalPrice > product.price
-      ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+    currentCompareAtPrice && currentCompareAtPrice > currentPrice
+      ? Math.round(((currentCompareAtPrice - currentPrice) / currentCompareAtPrice) * 100)
       : null;
 
   // Filter reviews for this product or category
@@ -143,28 +186,54 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
     return deduplicateProducts(filtered).slice(0, 4);
   }, [product.category, product.id, product.slug]);
 
+  // Authentic alternate images strictly for THIS product (never cross-pollinating with different products)
   const alternateImages = useMemo(() => {
-    return relatedProducts.slice(0, 3).map((p) => p.image);
-  }, [relatedProducts]);
+    if (product.images && product.images.length > 1) {
+      return product.images.slice(1);
+    }
+    return [];
+  }, [product.images]);
 
   const handleAddToCartClick = () => {
-    onAddToCart(product, quantity, {
+    const customizedProduct = {
+      ...product,
+      price: currentPrice,
+      originalPrice: currentCompareAtPrice || undefined,
+      sku: currentSku || undefined,
+    };
+    onAddToCart(customizedProduct, quantity, {
       selectedRingSize: isJewelrySurprise && selectedJewelryType === 'Ring' ? selectedRingSize : undefined,
       selectedJewelryType: isJewelrySurprise ? selectedJewelryType : undefined,
-      selectedSize,
+      selectedSize:
+        product.options && product.options.length > 0
+          ? Object.entries(selectedOptions)
+              .map(([k, v]) => `${k}: ${v}`)
+              .join(', ')
+          : selectedSize,
     });
   };
 
   const handleBuyNowClick = () => {
+    const customizedProduct = {
+      ...product,
+      price: currentPrice,
+      originalPrice: currentCompareAtPrice || undefined,
+      sku: currentSku || undefined,
+    };
     const options = {
       selectedRingSize: isJewelrySurprise && selectedJewelryType === 'Ring' ? selectedRingSize : undefined,
       selectedJewelryType: isJewelrySurprise ? selectedJewelryType : undefined,
-      selectedSize,
+      selectedSize:
+        product.options && product.options.length > 0
+          ? Object.entries(selectedOptions)
+              .map(([k, v]) => `${k}: ${v}`)
+              .join(', ')
+          : selectedSize,
     };
     if (onBuyNow) {
-      onBuyNow(product, quantity, options);
+      onBuyNow(customizedProduct, quantity, options);
     } else {
-      onAddToCart(product, quantity, options);
+      onAddToCart(customizedProduct, quantity, options);
       onOpenCart?.();
     }
   };
@@ -299,14 +368,14 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
             </h1>
 
             {/* Price & Savings Pill */}
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-5">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-3">
               <div className="text-2xl sm:text-3xl font-black text-[#141219]">
-                ${product.price.toFixed(2)}
+                ${currentPrice.toFixed(2)}
               </div>
 
-              {product.originalPrice && (
+              {currentCompareAtPrice && currentCompareAtPrice > currentPrice && (
                 <div className="text-sm sm:text-base text-[#8a858f] line-through font-medium">
-                  ${product.originalPrice.toFixed(2)}
+                  ${currentCompareAtPrice.toFixed(2)}
                 </div>
               )}
 
@@ -316,10 +385,21 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                 </span>
               )}
 
-              <span className="text-[10.5px] sm:text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 shrink-0">
-                In Stock & Ready to Ship
+              <span className={`text-[10.5px] sm:text-xs font-bold px-2.5 py-0.5 rounded-full border shrink-0 ${
+                isVariantInStock
+                  ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
+                  : 'text-amber-700 bg-amber-50 border-amber-200'
+              }`}>
+                {isVariantInStock ? 'In Stock & Ready to Ship' : 'Limited Stock'}
               </span>
             </div>
+
+            {/* Authoritative SKU display (Preserve blank/null if blank/null in authoritative source) */}
+            {currentSku && (
+              <div className="text-[11px] text-[#8a858f] font-mono mb-4">
+                SKU: <span className="text-[#36323b] font-bold">{currentSku}</span>
+              </div>
+            )}
 
             {/* Surprise Reveal Guarantee Feature Card */}
             <div className="p-4 rounded-[18px] bg-gradient-to-r from-[#fff5f5] via-[#fff8fb] to-[#fff5f5] border border-[#fecdd3] mb-6 shadow-2xs">
@@ -347,8 +427,43 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
               </p>
             </div>
 
-            {/* SECTION 1 REQUIREMENT: JEWELRY VARIANTS SELECTION */}
-            {isJewelrySurprise && (
+            {/* AUTHORITATIVE PRODUCT OPTIONS (From Supabase / Shopify Schema) */}
+            {product.options && product.options.length > 0 ? (
+              <div className="mb-6 space-y-4">
+                {product.options.map((opt) => {
+                  const currentVal = selectedOptions[opt.name] || opt.values[0];
+                  return (
+                    <div key={opt.name} className="p-3.5 rounded-[16px] bg-[#fffbfd] border border-[#eedbe6]">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[11px] font-black uppercase tracking-wider text-[#141219]">
+                          {opt.name}:
+                        </span>
+                        <span className="text-xs font-bold text-[#D30915]">{currentVal}</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {opt.values.map((val) => {
+                          const isSelected = currentVal === val;
+                          return (
+                            <button
+                              key={val}
+                              type="button"
+                              onClick={() => setSelectedOptions((prev) => ({ ...prev, [opt.name]: val }))}
+                              className={`py-2 px-3 rounded-[12px] text-xs font-bold border transition-all cursor-pointer ${
+                                isSelected
+                                  ? 'border-[#D30915] bg-[#fff1f2] text-[#D30915] font-black shadow-xs ring-2 ring-[#D30915]/15'
+                                  : 'border-[#ebdce5] bg-white text-[#55505a] hover:border-[#f1b8cb] hover:bg-[#fffdfd]'
+                              }`}
+                            >
+                              {val}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : isJewelrySurprise ? (
               <div className="mb-6 p-4 rounded-[18px] bg-[#fffbfd] border border-[#eedbe6] space-y-4">
                 {/* Jewelry Type Selector */}
                 <div>
@@ -420,7 +535,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                   </div>
                 )}
               </div>
-            )}
+            ) : null}
 
             {/* Scent Notes & Aroma Profile */}
             {product.scentNotes && product.scentNotes.length > 0 && (
@@ -441,47 +556,22 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
               </div>
             )}
 
-            {/* Size / Jar Selection */}
-            <div className="mb-6">
-              <span className="block text-[11px] font-black uppercase tracking-wider text-[#8a858f] mb-2">
-                Select Option / Size
-              </span>
-              <div className="grid grid-cols-3 gap-1.5 sm:flex sm:flex-wrap sm:gap-2">
-                {[
-                  { label: 'Classic 14oz', value: 'Classic 14oz', sub: 'Standard' },
-                  { label: 'Deluxe 21oz', value: 'Deluxe 21oz (+$8)', sub: '+$8.00' },
-                  { label: 'Travel 8oz', value: 'Mini Travel 8oz (-$6)', sub: '-$6.00' },
-                ].map((sizeItem) => (
-                  <button
-                    key={sizeItem.value}
-                    type="button"
-                    onClick={() => setSelectedSize(sizeItem.value)}
-                    className={`py-2 px-1.5 sm:px-3.5 rounded-[12px] text-center border transition-all cursor-pointer flex flex-col items-center justify-center ${
-                      selectedSize === sizeItem.value
-                        ? 'border-[#D30915] bg-[#fff1f2] text-[#D30915] font-black shadow-xs ring-2 ring-[#D30915]/15'
-                        : 'border-[#ebdce5] bg-white text-[#55505a] hover:border-[#f1b8cb]'
-                    }`}
-                  >
-                    <span className="text-[11px] sm:text-xs font-bold truncate max-w-full">
-                      {sizeItem.label}
-                    </span>
-                    <span className="text-[9px] sm:text-[10px] opacity-75 font-medium">
-                      {sizeItem.sub}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Description */}
+            {/* Authoritative Description & Write-up (Preserves HTML from Shopify/Supabase) */}
             <div className="mb-6">
               <span className="block text-[11px] font-black uppercase tracking-wider text-[#8a858f] mb-1.5">
                 Product Details & Experience
               </span>
-              <p className="text-xs sm:text-sm text-[#55505a] leading-relaxed m-0 font-medium">
-                {product.description ||
-                  'Crafted with 100% natural organic soy wax, clean aromatic oils, and lead-free cotton wicks for a long-lasting, clean burn. Hand-poured in the USA.'}
-              </p>
+              {product.description && product.description.includes('<') ? (
+                <div
+                  className="text-xs sm:text-sm text-[#55505a] leading-relaxed font-medium space-y-2 [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_li]:mb-1 [&_iframe]:w-full [&_iframe]:max-w-[560px] [&_iframe]:aspect-video [&_iframe]:rounded-xl [&_iframe]:my-3"
+                  dangerouslySetInnerHTML={{ __html: product.description }}
+                />
+              ) : (
+                <p className="text-xs sm:text-sm text-[#55505a] leading-relaxed m-0 font-medium">
+                  {product.description ||
+                    'Crafted with 100% natural organic soy wax, clean aromatic oils, and lead-free cotton wicks for a long-lasting, clean burn. Hand-poured in the USA.'}
+                </p>
+              )}
             </div>
 
             {/* Quantity Stepper & Add to Cart Controls */}

@@ -46,6 +46,7 @@ export interface HeaderProps {
   activeView?:
     | 'home'
     | 'shop'
+    | 'collection'
     | 'categories'
     | 'product-details'
     | 'checkout'
@@ -91,6 +92,7 @@ export interface HeaderProps {
   onNavigateToAdmin?: () => void;
   onSelectProduct?: (product: Product) => void;
   onSelectCategory?: (category: string) => void;
+  onSelectCollection?: (handle: string) => void;
 }
 
 export interface NavItem {
@@ -165,6 +167,7 @@ export const Header: React.FC<HeaderProps> = ({
   onNavigateToAdmin,
   onSelectProduct,
   onSelectCategory,
+  onSelectCollection,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [matchingProducts, setMatchingProducts] = useState<Product[]>([]);
@@ -295,6 +298,11 @@ export const Header: React.FC<HeaderProps> = ({
       return;
     }
 
+    if (onSelectCollection && cat.slug && cat.slug !== 'shop') {
+      onSelectCollection(cat.slug);
+      return;
+    }
+
     if (onSelectCategory) {
       onSelectCategory(cat.viewAllCategory || cat.name);
     } else {
@@ -308,6 +316,12 @@ export const Header: React.FC<HeaderProps> = ({
     setActiveMegaCategory(null);
     setDisplayedMegaCategory(null);
     closeMobileMenu();
+
+    if (onSelectCollection && sub.slug) {
+      onSelectCollection(sub.slug);
+      return;
+    }
+
     if (onSelectCategory) {
       onSelectCategory(sub.name);
     } else if (onSearch) {

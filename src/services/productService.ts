@@ -1,15 +1,16 @@
 import { supabase, isSupabaseConfigured } from './supabaseClient';
-import type { Product, SurpriseType } from '../types';
+import type { Product, SurpriseType, Collection, ProductVariant, ProductOption } from '../types';
 import { productsData } from '../data/products';
 import { categoriesData } from '../data/categories';
 import { deduplicateProducts, rankProductsBySearch } from '../utils/productUtils';
 
 /**
  * Authoritative production Supabase catalog query columns.
- * Selects 1st-class product attributes, joined variant pricing/sku, and ordered image gallery.
+ * Selects 1st-class product attributes, joined variant pricing/sku/options, and ordered image gallery.
  */
 export const CARD_SELECT_COLUMNS =
-  'product_id, handle, title, body_html, total_inventory_qty, category_name, product_variants(variant_id, price, compare_at_price, sku), product_images(image_url, position)';
+  'product_id, handle, title, body_html, total_inventory_qty, category_name, product_variants(variant_id, price, compare_at_price, sku, option1_name, option1_value, option2_name, option2_value, option3_name, option3_value), product_images(image_url, position, alt_text)';
+
 
 /**
  * In-memory LRU/TTL Query Cache to deliver instant (< 5ms) responses on repeated queries,
@@ -125,16 +126,69 @@ export function mapRowToProduct(row: any): Product {
 
   // Image resolution from product_images relation or fallback
   let rawImage: string | null = null;
+  let allImages: string[] = [];
   if (Array.isArray(row.product_images) && row.product_images.length > 0) {
     const sortedImages = [...row.product_images].sort(
       (a: any, b: any) => (a.position || 0) - (b.position || 0)
     );
     rawImage = sortedImages[0]?.image_url || null;
+    allImages = sortedImages.map((img: any) => img.image_url).filter(Boolean);
   }
   if (!rawImage && row.image) {
     rawImage = row.image;
+    allImages = [row.image];
   }
   const resolvedImage = resolveProductImage(rawImage, name, categoryName);
+  if (allImages.length === 0 && resolvedImage) {
+    allImages = [resolvedImage];
+  }
+
+  // Variant list and option values mapping
+  let variants: ProductVariant[] | undefined = undefined;
+  let options: ProductOption[] | undefined = undefined;
+
+  if (Array.isArray(row.product_variants) && row.product_variants.length > 0) {
+    variants = row.product_variants.map((v: any) => ({
+      variantId: String(v.variant_id || ''),
+      productId: id,
+      title: v.title || [v.option1_value, v.option2_value, v.option3_value].filter(Boolean).join(' / ') || undefined,
+      price: Number(v.price) || price,
+      compareAtPrice: v.compare_at_price ? Number(v.compare_at_price) : undefined,
+      sku: v.sku || undefined,
+      inStock: v.inventory_qty !== undefined && v.inventory_qty !== null ? v.inventory_qty > 0 : true,
+      option1Name: v.option1_name || undefined,
+      option1Value: v.option1_value || undefined,
+      option2Name: v.option2_name || undefined,
+      option2Value: v.option2_value || undefined,
+      option3Name: v.option3_name || undefined,
+      option3Value: v.option3_value || undefined,
+    }));
+
+    const optMap = new Map<string, { name: string; position: number; values: Set<string> }>();
+    if (variants) {
+      variants.forEach((v) => {
+        if (v.option1Name && v.option1Value && v.option1Value !== 'Default Title') {
+          if (!optMap.has(v.option1Name)) optMap.set(v.option1Name, { name: v.option1Name, position: 1, values: new Set() });
+          optMap.get(v.option1Name)!.values.add(v.option1Value);
+        }
+        if (v.option2Name && v.option2Value) {
+          if (!optMap.has(v.option2Name)) optMap.set(v.option2Name, { name: v.option2Name, position: 2, values: new Set() });
+          optMap.get(v.option2Name)!.values.add(v.option2Value);
+        }
+        if (v.option3Name && v.option3Value) {
+          if (!optMap.has(v.option3Name)) optMap.set(v.option3Name, { name: v.option3Name, position: 3, values: new Set() });
+          optMap.get(v.option3Name)!.values.add(v.option3Value);
+        }
+      });
+    }
+    if (optMap.size > 0) {
+      options = Array.from(optMap.values()).map((o) => ({
+        name: o.name,
+        position: o.position,
+        values: Array.from(o.values),
+      }));
+    }
+  }
 
   // In-stock determination from total_inventory_qty or boolean
   let inStock = true;
@@ -188,6 +242,9 @@ export function mapRowToProduct(row: any): Product {
     rating: Number(row.rating) || 4.8,
     reviewCount: Number(row.review_count) || 24,
     image: resolvedImage,
+    images: allImages,
+    variants,
+    options,
     badge:
       row.badge ||
       (inStock && price > 0
@@ -210,6 +267,21 @@ export function mapRowToProduct(row: any): Product {
   if (prod.id) productSlugCache.set(prod.id.toLowerCase(), prod);
 
   return prod;
+}
+
+/**
+ * Maps a Supabase collections table row to frontend Collection model.
+ */
+export function mapRowToCollection(row: any): Collection {
+  return {
+    id: String(row.collection_id || row.id || ''),
+    handle: String(row.handle || ''),
+    title: String(row.title || 'Collection'),
+    bodyHtml: row.body_html || undefined,
+    productsCount: Number(row.products_count) || 0,
+    imageUrl: row.image_url || undefined,
+    sortOrder: row.sort_order || undefined,
+  };
 }
 
 export interface GetProductsParams {
@@ -888,6 +960,199 @@ export const productService = {
     // Fallback: standard product fetch
     const fallback = await this.getProducts({ limit });
     return fallback.products;
+  },
+
+  /**
+   * Retrieves collection metadata by handle or ID from Supabase.
+   * Handles alias normalization (e.g., cash-candle -> cash-candles).
+   */
+  async getCollectionByHandle(handle: string): Promise<Collection | null> {
+    if (!handle) return null;
+    const clean = handle.trim().toLowerCase();
+
+    // Map common navigation aliases to authoritative database handles
+    const ALIAS_MAP: Record<string, string> = {
+      'cash-candle': 'cash-candles',
+      'cash-candles': 'cash-candles',
+      'cash-money-candle': 'cash-money-candles',
+      'cash-money-candles': 'cash-money-candles',
+      'money-candles': 'money-candles',
+      'zodiac-cash-candles': 'zodiac-cash-money-candles',
+      'zodiac-cash-money-candles': 'zodiac-cash-money-candles',
+      'zodiac': 'zodiac-cash-money-candles',
+      'funny-cash-candles': 'funny-candle',
+      'funny-candle': 'funny-candle',
+      'military-cash-candles': 'military-cash-candles',
+      'soda-pop-cash-candles': 'soda-pop-candles-soda-candles-soda-cash-candles-soda-money-candles',
+      'cereal-bowl-candles': 'cereal-bowl-candles',
+      'cereal-cash-candles': 'cereal-candles-cereal-cash-candles',
+      'coffee-mug-cash-candles': 'cash-coffee-candles-coffee-mug-candles',
+      'foodie-cash-candles': 'foodie-jewelry-candles-jewelry-candles-for-foodies',
+      'wine-bottle-cash-candles': 'wine-bottle-cash-candles',
+      'anime-cash-candles': 'cash-anime-candles',
+      'astrology-birthdate-cash-candles': 'astrology-birthdate-cash-candles',
+      'cash-wax-melts': 'cash-wax-melts',
+      'jewelry-wax-melts': 'jewelry-wax-melts',
+      'cereal-bowl-wax-melts': 'cereal-bowl-cash-wax-melts-cereal-bowl-melts',
+      'wax-melt-bundles': 'cash-wax-melt-surprise-bundles',
+      'cash-bath-bombs': 'money-bath-bombs',
+      'jewelry-bath-bombs': 'ring-bath-bombs',
+      'cash-sugar-scrubs': 'sugar-scrubs',
+      'cash-bath-soaks': 'money-bath-salts',
+      'cash-candy': 'candy',
+      'cash-candy-tubes': 'cash-candy-tubes',
+      'candy': 'candy',
+      'goat-milk-soaps': 'goat-milk-soaps',
+      'money-soaps': 'money-soaps',
+      'cash-cereal-slimes': 'cash-cereal-slimes',
+      'jewelry-cash-slimes': 'jewelry-cash-slimes',
+      'candles': 'candles',
+      'wax-melts': 'wax-melts',
+      'jewelry': 'jewelry',
+      'bath-bombs': 'money-bath-bombs',
+    };
+
+    const targetHandle = ALIAS_MAP[clean] || clean;
+
+    if (isSupabaseConfigured()) {
+      try {
+        // 1. Exact handle match
+        const { data: exactCol } = await (supabase as any)
+          .from('collections')
+          .select('*')
+          .eq('handle', targetHandle)
+          .maybeSingle();
+
+        if (exactCol) return mapRowToCollection(exactCol);
+
+        // 2. Case-insensitive handle match
+        const { data: ilikeCol } = await (supabase as any)
+          .from('collections')
+          .select('*')
+          .ilike('handle', targetHandle)
+          .maybeSingle();
+
+        if (ilikeCol) return mapRowToCollection(ilikeCol);
+
+        // 3. Match by collection_id
+        const { data: idCol } = await (supabase as any)
+          .from('collections')
+          .select('*')
+          .eq('collection_id', clean)
+          .maybeSingle();
+
+        if (idCol) return mapRowToCollection(idCol);
+
+        // 4. Try original handle if targetHandle was an alias that failed
+        if (targetHandle !== clean) {
+          const { data: origCol } = await (supabase as any)
+            .from('collections')
+            .select('*')
+            .eq('handle', clean)
+            .maybeSingle();
+
+          if (origCol) return mapRowToCollection(origCol);
+        }
+      } catch (err) {
+        console.warn('Error fetching collection by handle:', err);
+      }
+    }
+
+    return null;
+  },
+
+  /**
+   * Retrieves products belonging strictly to an authoritative collection from Supabase.
+   * Utilizes product_collections join to ensure ONLY authentic collection products are returned.
+   */
+  async getProductsByCollection(
+    handleOrId: string,
+    params: {
+      page?: number;
+      limit?: number;
+      sort?: 'featured' | 'price-asc' | 'price-desc' | 'newest' | 'best-sellers';
+    } = {}
+  ): Promise<{
+    collection: Collection | null;
+    products: Product[];
+    total: number;
+    page: number;
+    totalPages: number;
+  }> {
+    const page = Math.max(1, params.page || 1);
+    const limit = params.limit || 24;
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+
+    const col = await this.getCollectionByHandle(handleOrId);
+    if (!col) {
+      return {
+        collection: null,
+        products: [],
+        total: 0,
+        page,
+        totalPages: 1,
+      };
+    }
+
+    const cacheKey = `col_prods_${col.id}_${page}_${limit}_${params.sort || 'featured'}`;
+    const cached = queryCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < QUERY_CACHE_TTL_MS) {
+      return cached.result as any;
+    }
+
+    if (isSupabaseConfigured()) {
+      try {
+        let query = (supabase as any)
+          .from('product_collections')
+          .select(`product_id, products(${CARD_SELECT_COLUMNS})`, { count: 'exact' })
+          .eq('collection_id', col.id);
+
+        if (params.sort === 'newest') {
+          query = query.order('product_id', { ascending: false });
+        } else {
+          query = query.order('product_id', { ascending: true });
+        }
+
+        const { data, count, error } = await query.range(from, to);
+
+        if (!error && data) {
+          let prods = data
+            .map((r: any) => r.products)
+            .filter(Boolean)
+            .map(mapRowToProduct);
+
+          // Apply client-side sorting for price if requested
+          if (params.sort === 'price-asc') {
+            prods.sort((a: Product, b: Product) => a.price - b.price);
+          } else if (params.sort === 'price-desc') {
+            prods.sort((a: Product, b: Product) => b.price - a.price);
+          }
+
+          const total = count !== null && count !== undefined ? count : col.productsCount;
+          const result = {
+            collection: col,
+            products: deduplicateProducts(prods),
+            total,
+            page,
+            totalPages: Math.max(1, Math.ceil(total / limit)),
+          };
+
+          queryCache.set(cacheKey, { result: result as any, timestamp: Date.now() });
+          return result;
+        }
+      } catch (err) {
+        console.warn(`Error fetching products for collection ${col.handle}:`, err);
+      }
+    }
+
+    return {
+      collection: col,
+      products: [],
+      total: 0,
+      page,
+      totalPages: 1,
+    };
   },
 
   /**
