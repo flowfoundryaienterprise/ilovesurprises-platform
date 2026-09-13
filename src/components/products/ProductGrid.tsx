@@ -77,7 +77,7 @@ export const ProductGrid: React.FC<ProductGridProps> = React.memo(({
   if (isLoading) {
     return (
       <div
-        className={`grid gap-3.5 sm:gap-4 lg:gap-5 w-full transition-all duration-300 ${gridClasses}`}
+        className={`grid gap-2.5 sm:gap-4 lg:gap-5 w-full transition-all duration-300 ${gridClasses}`}
         role="status"
         aria-label="Loading products"
       >
@@ -115,7 +115,7 @@ export const ProductGrid: React.FC<ProductGridProps> = React.memo(({
   }
 
   return (
-    <div className={`grid gap-3.5 sm:gap-4 lg:gap-5 w-full transition-all duration-300 ${gridClasses}`}>
+    <div className={`grid gap-2.5 sm:gap-4 lg:gap-5 w-full transition-all duration-300 ${gridClasses}`}>
       {displayedProducts.map((product) => {
         const qty = cartQuantityMap[product.id] || 0;
         const isWishlisted = wishlistSet.has(product.id);

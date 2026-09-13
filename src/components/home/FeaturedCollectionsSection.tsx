@@ -1,7 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Sparkles, ArrowRight, DollarSign, Flame } from 'lucide-react';
 import { categoriesData } from '../../data/categories';
 import { productsData } from '../../data/products';
+import { adminService } from '../../services/adminService';
 import type { Product } from '../../types';
 
 interface FeaturedCollectionsSectionProps {
@@ -13,6 +14,16 @@ export const FeaturedCollectionsSection: React.FC<FeaturedCollectionsSectionProp
   onSelectCategory,
   onSelectProduct: _onSelectProduct,
 }) => {
+  const [homepageConfig, setHomepageConfig] = useState(() => adminService.getHomepageContent());
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setHomepageConfig(adminService.getHomepageContent());
+    };
+    window.addEventListener('ils_homepage_content_updated', handleUpdate);
+    return () => window.removeEventListener('ils_homepage_content_updated', handleUpdate);
+  }, []);
+
   // Find real category metadata
   const cashCandlesCat = useMemo(
     () => categoriesData.find((c) => c.id === 'cat-cash-candles') || categoriesData[1],
@@ -25,49 +36,70 @@ export const FeaturedCollectionsSection: React.FC<FeaturedCollectionsSectionProp
     []
   );
 
-  const collections = [
-    {
-      id: 'cash-candles',
-      title: 'Cash Candles',
-      categoryKey: 'Cash Candles',
-      badge: 'Win Up To $2,500',
-      badgeIcon: DollarSign,
-      badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-      tagline: 'Real cash prizes ($2 – $2,500) hidden inside every candle',
-      itemCount: cashCandlesCat?.itemCount || 10986,
-      image:
-        cashCandlesCat?.image ||
-        '/assets/ilovesurprises/categories/Coke_CSH_Sodapop-CND_JC.jpg',
-      accentBorder: 'hover:border-emerald-400',
-      ctaText: 'Shop Cash Candles',
-    },
-    {
-      id: 'trending-collection',
-      title: 'Trending Collection',
-      categoryKey: 'Trending',
-      badge: 'Most Loved Reveals',
-      badgeIcon: Flame,
-      badgeColor: 'bg-amber-50 text-amber-700 border-amber-200',
-      tagline: 'The most viral & top-rated customer surprise reveals',
-      itemCount: productsData.filter((p) => p.isBestSeller).length > 0 ? 500 : 120,
-      image: '/assets/ilovesurprises/categories/1_Mockup_Jewelry_JewelryCandles_93d459aa-d530-474d-ba4c-32fb9af4f94c.jpg',
-      accentBorder: 'hover:border-amber-400',
-      ctaText: 'Explore Trending',
-    },
-    {
-      id: 'zodiac-cash-money-candles',
-      title: 'ZODIAC CASH MONEY CANDLES',
-      categoryKey: 'ZODIAC CASH MONEY CANDLES',
-      badge: 'Real Cash Inside',
-      badgeIcon: Sparkles,
-      badgeColor: 'bg-purple-50 text-purple-700 border-purple-200',
-      tagline: 'Astrology horoscope cash candles with real money prizes up to $2,500',
-      itemCount: zodiacCount,
-      image: '/assets/ilovesurprises/categories/AQUARIUSZODIACCANDLE.webp',
-      accentBorder: 'hover:border-[#D30915]',
-      ctaText: 'Shop Zodiac Cash Candles',
-    },
-  ];
+  const collections = useMemo(() => {
+    const cards = homepageConfig.featuredCards.filter((c) => c.active);
+    if (cards.length === 0) {
+      return [
+        {
+          id: 'cash-candles',
+          title: 'Cash Candles',
+          categoryKey: 'Cash Candles',
+          badge: 'Win Up To $2,500',
+          badgeIcon: DollarSign,
+          badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+          tagline: 'Real cash prizes ($2 – $2,500) hidden inside every candle',
+          itemCount: cashCandlesCat?.itemCount || 10986,
+          image: cashCandlesCat?.image || '/assets/ilovesurprises/categories/Coke_CSH_Sodapop-CND_JC.jpg',
+          accentBorder: 'hover:border-emerald-400',
+          ctaText: 'Shop Cash Candles',
+        },
+        {
+          id: 'trending-collection',
+          title: 'Trending Collection',
+          categoryKey: 'Trending',
+          badge: 'Most Loved Reveals',
+          badgeIcon: Flame,
+          badgeColor: 'bg-amber-50 text-amber-700 border-amber-200',
+          tagline: 'The most viral & top-rated customer surprise reveals',
+          itemCount: productsData.filter((p) => p.isBestSeller).length > 0 ? 500 : 120,
+          image: '/assets/ilovesurprises/categories/1_Mockup_Jewelry_JewelryCandles_93d459aa-d530-474d-ba4c-32fb9af4f94c.jpg',
+          accentBorder: 'hover:border-amber-400',
+          ctaText: 'Explore Trending',
+        },
+        {
+          id: 'zodiac-cash-money-candles',
+          title: 'ZODIAC CASH MONEY CANDLES',
+          categoryKey: 'ZODIAC CASH MONEY CANDLES',
+          badge: 'Real Cash Inside',
+          badgeIcon: Sparkles,
+          badgeColor: 'bg-purple-50 text-purple-700 border-purple-200',
+          tagline: 'Astrology horoscope cash candles with real money prizes up to $2,500',
+          itemCount: zodiacCount,
+          image: '/assets/ilovesurprises/categories/AQUARIUSZODIACCANDLE.webp',
+          accentBorder: 'hover:border-[#D30915]',
+          ctaText: 'Shop Zodiac Cash Candles',
+        },
+      ];
+    }
+
+    return cards.map((c) => {
+      let icon = Sparkles;
+      let badgeColor = 'bg-purple-50 text-purple-700 border-purple-200';
+      if (c.id === 'cash-candles' || c.categoryKey.toLowerCase().includes('cash')) {
+        icon = DollarSign;
+        badgeColor = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+      } else if (c.id === 'trending-collection' || c.categoryKey.toLowerCase().includes('trend')) {
+        icon = Flame;
+        badgeColor = 'bg-amber-50 text-amber-700 border-amber-200';
+      }
+
+      return {
+        ...c,
+        badgeIcon: icon,
+        badgeColor,
+      };
+    });
+  }, [homepageConfig, cashCandlesCat, zodiacCount]);
 
   return (
     <section

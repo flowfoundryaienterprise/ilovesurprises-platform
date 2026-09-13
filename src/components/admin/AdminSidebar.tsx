@@ -15,6 +15,10 @@ import {
   X,
   UserCheck,
   Gem,
+  Package,
+  Layers,
+  Layout,
+  LogOut,
 } from 'lucide-react';
 import type { AdminTab, AdminRole } from '../../types/admin';
 import { ADMIN_ROLES_CONFIG } from '../../services/adminService';
@@ -29,6 +33,7 @@ interface AdminSidebarProps {
   onCloseMobile: () => void;
   onSwitchRole: (role: AdminRole) => void;
   onReturnToStore: () => void;
+  onLogout?: () => void;
   pendingCommissionsCount?: number;
   pendingRepsCount?: number;
 }
@@ -43,6 +48,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   onCloseMobile,
   onSwitchRole,
   onReturnToStore,
+  onLogout,
   pendingCommissionsCount = 0,
   pendingRepsCount = 0,
 }) => {
@@ -55,7 +61,11 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     badge?: string;
     badgeColor?: string;
   }[] = [
-    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+    { id: 'overview', label: 'Executive Overview', icon: LayoutDashboard },
+    { id: 'products', label: 'Products & Stock', icon: Package },
+    { id: 'collections', label: 'Collections', icon: Layers },
+    { id: 'orders', label: 'Orders & Shipping', icon: ShoppingBag },
+    { id: 'customers', label: 'Customer Registry', icon: UserCheck },
     {
       id: 'representatives',
       label: 'Representatives',
@@ -63,8 +73,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       badge: pendingRepsCount > 0 ? `${pendingRepsCount}` : undefined,
       badgeColor: 'bg-red-100 text-[#D30915]',
     },
-    { id: 'memberships', label: 'Memberships', icon: CreditCard },
-    { id: 'commerce', label: 'Commerce & Orders', icon: ShoppingBag },
+    { id: 'memberships', label: 'VIP Memberships', icon: CreditCard },
     { id: 'appraisals', label: 'Jewelry Appraisals', icon: Gem },
     {
       id: 'commissions',
@@ -73,9 +82,10 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       badge: pendingCommissionsCount > 0 ? `${pendingCommissionsCount}` : undefined,
       badgeColor: 'bg-amber-100 text-amber-900',
     },
+    { id: 'content', label: 'Homepage Content', icon: Layout },
     { id: 'reports', label: 'Analytics & Reports', icon: BarChart3 },
+    { id: 'permissions', label: 'Roles & Staff', icon: ShieldCheck },
     { id: 'settings', label: 'System Settings', icon: Settings },
-    { id: 'permissions', label: 'Roles & Permissions', icon: ShieldCheck },
   ];
 
   const sidebarContent = (
@@ -156,6 +166,8 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           return (
             <button
               key={item.id}
+              id={`admin-nav-${item.id}`}
+              data-tab={item.id}
               type="button"
               onClick={() => {
                 onSelectTab(item.id);
@@ -228,6 +240,21 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           <ExternalLink className="w-3.5 h-3.5 shrink-0" />
           {(!isCollapsed || isMobileOpen) && <span>Exit to Storefront</span>}
         </button>
+
+        {onLogout && (
+          <button
+            type="button"
+            onClick={onLogout}
+            id="admin-sidebar-logout-btn"
+            className={`w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-rose-200 hover:border-[#D30915] bg-white hover:bg-rose-50 text-xs font-bold text-[#D30915] shadow-2xs hover:shadow-xs active:scale-95 transition-all cursor-pointer ${
+              isCollapsed && !isMobileOpen ? 'px-1' : ''
+            }`}
+            title="Sign Out of Admin Suite"
+          >
+            <LogOut className="w-3.5 h-3.5 shrink-0 text-[#D30915]" />
+            {(!isCollapsed || isMobileOpen) && <span>Sign Out</span>}
+          </button>
+        )}
       </div>
     </div>
   );

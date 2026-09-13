@@ -12,7 +12,8 @@ import {
   CheckCircle2,
   Download,
 } from 'lucide-react';
-import type { AdminKPIs, AdminActivityItem, AdminTab } from '../../types/admin';
+import type { AdminKPIs, AdminActivityItem, AdminTab, AdminCollectionItem, RepresentativeAdminRecord } from '../../types/admin';
+import { adminService } from '../../services/adminService';
 
 interface AdminOverviewProps {
   kpis: AdminKPIs;
@@ -90,7 +91,153 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({
         </div>
       </div>
 
-      {/* 2. Key Performance Indicators (KPIs) Grid */}
+      {/* 2. Seven Core Overview Cards (Requirement 1) */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-black uppercase text-[#716d77] tracking-wider">
+            Operational Overview & Shortcuts
+          </span>
+          <span className="text-[11px] text-[#716d77]">Click any card to jump directly to management</span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-2.5 sm:gap-3">
+          {/* Card 1: Products */}
+          <div
+            onClick={() => onNavigateTab('products')}
+            className="bg-white rounded-2xl border border-[#eedbe6] p-3.5 shadow-xs hover:border-[#D30915] transition-all cursor-pointer group space-y-1"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-[#716d77]">Products</span>
+              <div className="w-7 h-7 rounded-lg bg-red-50 text-[#D30915] flex items-center justify-center group-hover:bg-[#D30915] group-hover:text-white transition-colors">
+                <ShoppingBag className="w-3.5 h-3.5" />
+              </div>
+            </div>
+            <div className="text-xl font-black text-[#141219]">
+              {adminService.getCommerceProducts().length.toLocaleString()}
+            </div>
+            <div className="text-[10px] text-emerald-700 font-bold flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              <span>Catalog Active</span>
+            </div>
+          </div>
+
+          {/* Card 2: Collections */}
+          <div
+            onClick={() => onNavigateTab('collections')}
+            className="bg-white rounded-2xl border border-[#eedbe6] p-3.5 shadow-xs hover:border-[#D30915] transition-all cursor-pointer group space-y-1"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-[#716d77]">Collections</span>
+              <div className="w-7 h-7 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center group-hover:bg-purple-700 group-hover:text-white transition-colors">
+                <Sparkles className="w-3.5 h-3.5" />
+              </div>
+            </div>
+            <div className="text-xl font-black text-[#141219]">
+              {adminService.getCollections().length}
+            </div>
+            <div className="text-[10px] text-purple-700 font-bold">
+              {adminService.getCollections().filter((c: AdminCollectionItem) => c.featured).length} Featured
+            </div>
+          </div>
+
+          {/* Card 3: Orders */}
+          <div
+            onClick={() => onNavigateTab('orders')}
+            className="bg-white rounded-2xl border border-[#eedbe6] p-3.5 shadow-xs hover:border-[#D30915] transition-all cursor-pointer group space-y-1"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-[#716d77]">Orders</span>
+              <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                <ShoppingBag className="w-3.5 h-3.5" />
+              </div>
+            </div>
+            <div className="text-xl font-black text-[#141219]">
+              {kpis.totalOrders}
+            </div>
+            <div className="text-[10px] text-[#716d77] font-medium">
+              ${kpis.grossRevenue.toFixed(0)} volume
+            </div>
+          </div>
+
+          {/* Card 4: Customers */}
+          <div
+            onClick={() => onNavigateTab('customers')}
+            className="bg-white rounded-2xl border border-[#eedbe6] p-3.5 shadow-xs hover:border-[#D30915] transition-all cursor-pointer group space-y-1"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-[#716d77]">Customers</span>
+              <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center group-hover:bg-emerald-700 group-hover:text-white transition-colors">
+                <Users className="w-3.5 h-3.5" />
+              </div>
+            </div>
+            <div className="text-xl font-black text-[#141219]">
+              {adminService.getCustomers().length}
+            </div>
+            <div className="text-[10px] text-emerald-700 font-bold">
+              Active Profiles
+            </div>
+          </div>
+
+          {/* Card 5: Affiliates & Reps */}
+          <div
+            onClick={() => onNavigateTab('representatives')}
+            className="bg-white rounded-2xl border border-[#eedbe6] p-3.5 shadow-xs hover:border-[#D30915] transition-all cursor-pointer group space-y-1"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-[#716d77]">Affiliates</span>
+              <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center group-hover:bg-amber-700 group-hover:text-white transition-colors">
+                <Users className="w-3.5 h-3.5" />
+              </div>
+            </div>
+            <div className="text-xl font-black text-[#141219]">
+              {kpis.activeRepresentatives}
+            </div>
+            <div className="text-[10px] text-amber-800 font-bold">
+              {adminService.getRepresentatives().filter((r: RepresentativeAdminRecord) => r.approvalStatus === 'pending').length} Pending
+            </div>
+          </div>
+
+          {/* Card 6: Commissions */}
+          <div
+            onClick={() => onNavigateTab('commissions')}
+            className="bg-white rounded-2xl border border-[#eedbe6] p-3.5 shadow-xs hover:border-[#D30915] transition-all cursor-pointer group space-y-1"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-[#716d77]">Commissions</span>
+              <div className="w-7 h-7 rounded-lg bg-rose-50 text-rose-700 flex items-center justify-center group-hover:bg-rose-700 group-hover:text-white transition-colors">
+                <Percent className="w-3.5 h-3.5" />
+              </div>
+            </div>
+            <div className="text-xl font-black text-[#D30915]">
+              ${kpis.pendingCommissionLiability.toFixed(0)}
+            </div>
+            <div className="text-[10px] text-[#716d77] font-medium">
+              Pending Ledger
+            </div>
+          </div>
+
+          {/* Card 7: Appraisals */}
+          <div
+            onClick={() => onNavigateTab('appraisals')}
+            className="bg-white rounded-2xl border border-[#eedbe6] p-3.5 shadow-xs hover:border-[#D30915] transition-all cursor-pointer group space-y-1 col-span-2 sm:col-span-1"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-[#716d77]">Appraisals</span>
+              <div className="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center group-hover:bg-indigo-700 group-hover:text-white transition-colors">
+                <Sparkles className="w-3.5 h-3.5" />
+              </div>
+            </div>
+            <div className="text-xl font-black text-[#141219]">
+              50+
+            </div>
+            <div className="text-[10px] text-indigo-700 font-bold">
+              Certificates
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Primary Financial Metrics Bar */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* KPI 1: Gross Sales */}
         <div className="bg-white rounded-2xl border border-[#eedbe6] p-4 sm:p-5 shadow-xs relative overflow-hidden">
@@ -112,7 +259,10 @@ export const AdminOverview: React.FC<AdminOverviewProps> = ({
         </div>
 
         {/* KPI 2: Total Orders */}
-        <div className="bg-white rounded-2xl border border-[#eedbe6] p-4 sm:p-5 shadow-xs relative overflow-hidden">
+        <div
+          onClick={() => onNavigateTab('orders')}
+          className="bg-white rounded-2xl border border-[#eedbe6] p-4 sm:p-5 shadow-xs relative overflow-hidden cursor-pointer hover:border-[#D30915] transition-all"
+        >
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-[#716d77]">Total Orders</span>
             <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">

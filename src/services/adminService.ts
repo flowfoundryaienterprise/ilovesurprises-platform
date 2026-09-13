@@ -17,6 +17,8 @@ import type {
   AdminReportData,
   AdminSettingsData,
   AdminOrderItem,
+  HomepageContentConfig,
+  AdminStaffUser,
 } from '../types/admin';
 import { productsData } from '../data/products';
 import { categoriesData } from '../data/categories';
@@ -32,6 +34,8 @@ const ADMIN_DISCOUNTS_KEY = 'ils_admin_discounts_v1';
 const ADMIN_SETTINGS_KEY = 'ils_admin_settings_v1';
 const ADMIN_PRODUCTS_OVERRIDE_KEY = 'ils_admin_products_override_v1';
 const ADMIN_COLLECTIONS_OVERRIDE_KEY = 'ils_admin_collections_override_v1';
+const ADMIN_HOMEPAGE_CONTENT_KEY = 'ils_admin_homepage_content_v1';
+const ADMIN_STAFF_OVERRIDE_KEY = 'ils_admin_staff_override_v1';
 
 export const ADMIN_ROLES_CONFIG: Record<AdminRole, AdminRoleDefinition> = {
   super_admin: {
@@ -39,7 +43,22 @@ export const ADMIN_ROLES_CONFIG: Record<AdminRole, AdminRoleDefinition> = {
     name: 'Super Administrator',
     badge: 'Full Access',
     description: 'Unrestricted control over commerce, reps, payouts, settings, and permissions.',
-    allowedTabs: ['overview', 'representatives', 'memberships', 'commerce', 'commissions', 'reports', 'settings', 'permissions', 'appraisals'],
+    allowedTabs: [
+      'overview',
+      'products',
+      'collections',
+      'orders',
+      'customers',
+      'representatives',
+      'memberships',
+      'commerce',
+      'commissions',
+      'reports',
+      'content',
+      'settings',
+      'permissions',
+      'appraisals',
+    ],
     canEdit: true,
     canApprovePayouts: true,
     canManageSettings: true,
@@ -49,7 +68,18 @@ export const ADMIN_ROLES_CONFIG: Record<AdminRole, AdminRoleDefinition> = {
     name: 'Store Manager',
     badge: 'Commerce & Ops',
     description: 'Manages catalog, inventory, order refunds, discount promotions, and sales reports. Restricted from MLM and financial settings.',
-    allowedTabs: ['overview', 'commerce', 'reports', 'appraisals', 'representatives'],
+    allowedTabs: [
+      'overview',
+      'products',
+      'collections',
+      'orders',
+      'customers',
+      'commerce',
+      'content',
+      'reports',
+      'appraisals',
+      'representatives',
+    ],
     canEdit: true,
     canApprovePayouts: false,
     canManageSettings: false,
@@ -59,7 +89,14 @@ export const ADMIN_ROLES_CONFIG: Record<AdminRole, AdminRoleDefinition> = {
     name: 'Affiliate & Rep Director',
     badge: 'Downline & Comms',
     description: 'Manages reps, approvals, memberships, downline tiers, and commission ledgers.',
-    allowedTabs: ['overview', 'representatives', 'memberships', 'commissions', 'reports'],
+    allowedTabs: [
+      'overview',
+      'representatives',
+      'memberships',
+      'commissions',
+      'reports',
+      'customers',
+    ],
     canEdit: true,
     canApprovePayouts: true,
     canManageSettings: false,
@@ -69,7 +106,18 @@ export const ADMIN_ROLES_CONFIG: Record<AdminRole, AdminRoleDefinition> = {
     name: 'Customer Support Lead',
     badge: 'Read & Assist',
     description: 'Access to customer orders, lookup reps, memberships, and refunds processing. Read-only permissions.',
-    allowedTabs: ['overview', 'commerce', 'representatives', 'memberships', 'appraisals', 'reports'],
+    allowedTabs: [
+      'overview',
+      'products',
+      'collections',
+      'orders',
+      'customers',
+      'commerce',
+      'representatives',
+      'memberships',
+      'appraisals',
+      'reports',
+    ],
     canEdit: false,
     canApprovePayouts: false,
     canManageSettings: false,
@@ -1282,6 +1330,196 @@ export const adminService = {
         window.dispatchEvent(new CustomEvent('ils_admin_updated'));
       } catch (err) {
         console.error('Failed to save settings', err);
+      }
+    }
+  },
+
+  // Homepage Content Management
+  getHomepageContent(): HomepageContentConfig {
+    const DEFAULT_CONTENT: HomepageContentConfig = {
+      announcementText: '⚡ FREE SHIPPING ON SURPRISE CANDLE ORDERS OVER $50 + REAL CASH PRIZES IN EVERY CANDLE!',
+      announcementActive: true,
+      announcementLink: '/shop',
+      promoBannerText: 'Use code SURPRISE15 at checkout for 15% OFF your first surprise candle reveal!',
+      promoBannerCode: 'SURPRISE15',
+      promoBannerActive: true,
+      featuredCards: [
+        {
+          id: 'cash-candles',
+          title: 'Cash Candles',
+          categoryKey: 'Cash Candles',
+          badge: 'Win Up To $2,500',
+          tagline: 'Real cash prizes ($2 – $2,500) hidden inside every candle',
+          ctaText: 'Shop Cash Candles',
+          image: '/assets/ilovesurprises/categories/Coke_CSH_Sodapop-CND_JC.jpg',
+          itemCount: 10986,
+          accentBorder: 'hover:border-emerald-400',
+          active: true,
+        },
+        {
+          id: 'trending-collection',
+          title: 'Trending Collection',
+          categoryKey: 'Trending',
+          badge: 'Most Loved Reveals',
+          tagline: 'The most viral & top-rated customer surprise reveals',
+          ctaText: 'Explore Trending',
+          image: '/assets/ilovesurprises/categories/1_Mockup_Jewelry_JewelryCandles_93d459aa-d530-474d-ba4c-32fb9af4f94c.jpg',
+          itemCount: 500,
+          accentBorder: 'hover:border-amber-400',
+          active: true,
+        },
+        {
+          id: 'zodiac-cash-money-candles',
+          title: 'ZODIAC CASH MONEY CANDLES',
+          categoryKey: 'ZODIAC CASH MONEY CANDLES',
+          badge: 'Real Cash Inside',
+          tagline: 'Astrology horoscope cash candles with real money prizes up to $2,500',
+          ctaText: 'Shop Zodiac Cash Candles',
+          image: '/assets/ilovesurprises/categories/AQUARIUSZODIACCANDLE.webp',
+          itemCount: 12,
+          accentBorder: 'hover:border-[#D30915]',
+          active: true,
+        },
+      ],
+    };
+
+    if (typeof window === 'undefined') return DEFAULT_CONTENT;
+    try {
+      const stored = localStorage.getItem(ADMIN_HOMEPAGE_CONTENT_KEY);
+      if (stored) return JSON.parse(stored);
+      localStorage.setItem(ADMIN_HOMEPAGE_CONTENT_KEY, JSON.stringify(DEFAULT_CONTENT));
+      return DEFAULT_CONTENT;
+    } catch {
+      return DEFAULT_CONTENT;
+    }
+  },
+
+  saveHomepageContent(content: HomepageContentConfig): void {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(ADMIN_HOMEPAGE_CONTENT_KEY, JSON.stringify(content));
+        window.dispatchEvent(new CustomEvent('ils_homepage_content_updated'));
+        window.dispatchEvent(new CustomEvent('ils_admin_updated'));
+      } catch (err) {
+        console.error('Failed to save homepage content', err);
+      }
+    }
+  },
+
+  resetHomepageContent(): HomepageContentConfig {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem(ADMIN_HOMEPAGE_CONTENT_KEY);
+      } catch {
+        // ignore
+      }
+    }
+    const def = this.getHomepageContent();
+    window.dispatchEvent(new CustomEvent('ils_homepage_content_updated'));
+    window.dispatchEvent(new CustomEvent('ils_admin_updated'));
+    return def;
+  },
+
+  // Staff Administration (Super Admin / Manager RBAC)
+  async getStaffAdmins(): Promise<AdminStaffUser[]> {
+    const defaultStaff: AdminStaffUser[] = [
+      {
+        id: 'staff-primary-admin',
+        email: 'cookuwithcomali336@gmail.com',
+        name: 'Janarthanan (Founder & Admin)',
+        role: 'super_admin',
+        avatarUrl: '/assets/ilovesurprises/avatars/founder.png',
+        lastActive: 'Just now',
+        createdAt: '2026-09-08T11:03:23Z',
+      },
+      {
+        id: 'staff-store-mgr',
+        email: 'manager@ilovesurprises-live.com',
+        name: 'Store Operations Manager',
+        role: 'store_manager',
+        avatarUrl: '/assets/ilovesurprises/avatars/manager.png',
+        lastActive: '2 hours ago',
+        createdAt: '2026-09-09T14:00:00Z',
+      },
+      {
+        id: 'staff-affiliate-dir',
+        email: 'affiliates@ilovesurprises-live.com',
+        name: 'Affiliate & Rep Director',
+        role: 'affiliate_manager',
+        avatarUrl: '/assets/ilovesurprises/avatars/affiliate-lead.png',
+        lastActive: 'Yesterday',
+        createdAt: '2026-09-10T09:30:00Z',
+      },
+      {
+        id: 'staff-support-lead',
+        email: 'support@ilovesurprises-live.com',
+        name: 'Customer Support Lead',
+        role: 'support_rep',
+        avatarUrl: '/assets/ilovesurprises/avatars/support.png',
+        lastActive: '3 hours ago',
+        createdAt: '2026-09-10T12:00:00Z',
+      },
+    ];
+
+    if (!isSupabaseConfigured() || !supabase) {
+      return defaultStaff;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, email, name, role, avatar_url, created_at, updated_at')
+        .order('created_at', { ascending: true });
+
+      if (error || !data || data.length === 0) {
+        return defaultStaff;
+      }
+
+      // Check stored role overrides
+      let overrides: Record<string, AdminRole> = {};
+      try {
+        const storedOverrides = localStorage.getItem(ADMIN_STAFF_OVERRIDE_KEY);
+        if (storedOverrides) overrides = JSON.parse(storedOverrides);
+      } catch {
+        // ignore
+      }
+
+      return data.map((p) => {
+        let assignedRole: AdminRole = 'support_rep';
+        if (overrides[p.id]) {
+          assignedRole = overrides[p.id];
+        } else if (p.role === 'admin' || p.email === 'cookuwithcomali336@gmail.com') {
+          assignedRole = 'super_admin';
+        } else if ((p.role as string) === 'representative' || (p.role as string) === 'rep') {
+          assignedRole = 'affiliate_manager';
+        }
+
+        return {
+          id: p.id,
+          email: p.email || 'no-email@ilovesurprises.com',
+          name: p.name || 'Staff User',
+          role: assignedRole,
+          avatarUrl: p.avatar_url || undefined,
+          lastActive: 'Active today',
+          createdAt: p.created_at || new Date().toISOString(),
+        };
+      });
+    } catch {
+      return defaultStaff;
+    }
+  },
+
+  async updateStaffRole(staffId: string, newRole: AdminRole): Promise<void> {
+    if (typeof window !== 'undefined') {
+      try {
+        let overrides: Record<string, AdminRole> = {};
+        const stored = localStorage.getItem(ADMIN_STAFF_OVERRIDE_KEY);
+        if (stored) overrides = JSON.parse(stored);
+        overrides[staffId] = newRole;
+        localStorage.setItem(ADMIN_STAFF_OVERRIDE_KEY, JSON.stringify(overrides));
+        window.dispatchEvent(new CustomEvent('ils_admin_updated'));
+      } catch (err) {
+        console.error('Failed to update staff role', err);
       }
     }
   },

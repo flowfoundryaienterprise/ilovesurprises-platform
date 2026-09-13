@@ -4,6 +4,7 @@ import {
   ShieldCheck,
   ArrowLeft,
   ChevronRight,
+  LogOut,
 } from 'lucide-react';
 import type {
   AdminTab,
@@ -25,6 +26,11 @@ import type {
 import { adminService, ADMIN_ROLES_CONFIG } from '../services/adminService';
 import { AdminSidebar } from '../components/admin/AdminSidebar';
 import { AdminOverview } from '../components/admin/AdminOverview';
+import { AdminProducts } from '../components/admin/AdminProducts';
+import { AdminCollections } from '../components/admin/AdminCollections';
+import { AdminOrders } from '../components/admin/AdminOrders';
+import { AdminCustomers } from '../components/admin/AdminCustomers';
+import { AdminContent } from '../components/admin/AdminContent';
 import { AdminRepresentatives } from '../components/admin/AdminRepresentatives';
 import { AdminMemberships } from '../components/admin/AdminMemberships';
 import { AdminCommerce } from '../components/admin/AdminCommerce';
@@ -39,12 +45,14 @@ import { AdminKpiSkeleton, AdminTableSkeleton } from '../components/admin/AdminS
 interface AdminDashboardProps {
   initialTab?: AdminTab;
   onNavigateToHome: () => void;
+  onLogout?: () => void;
   onShowToast: (message: string, options?: { title?: string; type?: 'success' | 'info' }) => void;
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   initialTab = 'overview',
   onNavigateToHome,
+  onLogout,
   onShowToast,
 }) => {
   const [activeTab, setActiveTab] = useState<AdminTab>(initialTab);
@@ -97,6 +105,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       setKpis(liveKPIs);
     });
   }, []);
+
+  // Sync initialTab prop when changed externally
+  useEffect(() => {
+    if (initialTab && initialTab !== activeTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
 
   // Subscribe to service updates
   useEffect(() => {
@@ -264,6 +279,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         onCloseMobile={() => setIsMobileSidebarOpen(false)}
         onSwitchRole={handleSwitchRole}
         onReturnToStore={onNavigateToHome}
+        onLogout={onLogout}
         pendingCommissionsCount={commissions.filter((c) => c.status === 'pending').length}
         pendingRepsCount={representatives.filter((r) => r.approvalStatus === 'pending').length}
       />
@@ -310,6 +326,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <ArrowLeft className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Storefront</span>
             </button>
+
+            {/* Header Sign Out Button */}
+            {onLogout && (
+              <button
+                type="button"
+                onClick={onLogout}
+                id="admin-header-logout-btn"
+                className="px-3 py-1.5 rounded-xl border border-rose-200 hover:border-[#D30915] bg-white hover:bg-rose-50 text-xs font-bold text-[#D30915] transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                title="Sign out of Admin Suite"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Sign Out</span>
+              </button>
+            )}
           </div>
         </header>
 
@@ -334,6 +364,57 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   kpis={kpis}
                   activities={activities}
                   onNavigateTab={handleTabSelect}
+                  onShowToast={onShowToast}
+                />
+              )}
+
+              {activeTab === 'products' && (
+                <AdminProducts
+                  products={products}
+                  collections={collections}
+                  canEdit={ADMIN_ROLES_CONFIG[currentRole].canEdit}
+                  onAddProduct={handleAddProduct}
+                  onEditProduct={handleEditProduct}
+                  onDeleteProduct={handleDeleteProduct}
+                  onToggleProductStatus={handleToggleProductStatus}
+                  onShowToast={onShowToast}
+                />
+              )}
+
+              {activeTab === 'collections' && (
+                <AdminCollections
+                  collections={collections}
+                  products={products}
+                  canEdit={ADMIN_ROLES_CONFIG[currentRole].canEdit}
+                  onCreateCollection={handleCreateCollection}
+                  onEditCollection={handleEditCollection}
+                  onDeleteCollection={handleDeleteCollection}
+                  onToggleCollectionFeatured={handleToggleCollectionFeatured}
+                  onReorderCollections={handleReorderCollections}
+                  onAssignProductToCollection={handleAssignProductToCollection}
+                  onRemoveProductFromCollection={handleRemoveProductFromCollection}
+                  onShowToast={onShowToast}
+                />
+              )}
+
+              {activeTab === 'orders' && (
+                <AdminOrders
+                  orders={orders}
+                  onProcessRefund={handleProcessRefund}
+                  onShowToast={onShowToast}
+                />
+              )}
+
+              {activeTab === 'customers' && (
+                <AdminCustomers
+                  customers={customers}
+                  orders={orders}
+                  onShowToast={onShowToast}
+                />
+              )}
+
+              {activeTab === 'content' && (
+                <AdminContent
                   onShowToast={onShowToast}
                 />
               )}

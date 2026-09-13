@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ShieldCheck,
   Check,
   X,
   Lock,
+  UserCheck,
+  Shield,
 } from 'lucide-react';
-import type { AdminRole, AdminTab } from '../../types/admin';
+import type { AdminRole, AdminTab, AdminStaffUser } from '../../types/admin';
 import { adminService, ADMIN_ROLES_CONFIG } from '../../services/adminService';
 
 interface AdminPermissionsProps {
@@ -23,17 +25,45 @@ export const AdminPermissions: React.FC<AdminPermissionsProps> = ({
 }) => {
   const ALL_ROLES: AdminRole[] = ['super_admin', 'store_manager', 'affiliate_manager', 'support_rep'];
   const [roleConfigs, setRoleConfigs] = useState(() => adminService.getRoleDefinitions());
+  const [staffList, setStaffList] = useState<AdminStaffUser[]>([]);
+  const [isLoadingStaff, setIsLoadingStaff] = useState(true);
+
+  useEffect(() => {
+    adminService.getStaffAdmins().then((users) => {
+      setStaffList(users);
+      setIsLoadingStaff(false);
+    });
+  }, []);
+
+  const handleUpdateStaffRole = async (staffId: string, newRole: AdminRole, staffName: string) => {
+    if (currentRole !== 'super_admin') {
+      onShowToast('Only Super Admin can assign administrative roles', { type: 'info' });
+      return;
+    }
+    await adminService.updateStaffRole(staffId, newRole);
+    setStaffList((prev) =>
+      prev.map((s) => (s.id === staffId ? { ...s, role: newRole } : s))
+    );
+    onShowToast(`Assigned ${ADMIN_ROLES_CONFIG[newRole].name} to ${staffName}`, {
+      type: 'success',
+    });
+  };
 
   const PERMISSION_GROUPS: {
     tab: AdminTab;
     label: string;
     description: string;
   }[] = [
-    { tab: 'overview', label: 'Executive Overview', description: 'Platform sales velocity, MRR, live activity feeds' },
-    { tab: 'representatives', label: 'Representatives Management', description: 'Downline audit, approval/rejection, account suspension' },
+    { tab: 'overview', label: 'Executive Overview', description: 'Platform sales velocity, MRR, 7 KPI cards, live activity feeds' },
+    { tab: 'products', label: 'Product Catalog', description: 'Catalog items, inventory thresholds, multi-variants, photo gallery' },
+    { tab: 'collections', label: 'Collections Management', description: 'Storefront showcases, content writeups, product mapping' },
+    { tab: 'orders', label: 'Orders & Fulfillment', description: 'Customer checkouts, carrier tracking, order manifests, refunds' },
+    { tab: 'customers', label: 'Customer Registry', description: 'Customer profiles, order history, lifetime spend, referrer links' },
+    { tab: 'representatives', label: 'Representatives Directory', description: 'Downline audit, approval/rejection, account suspension' },
     { tab: 'memberships', label: 'Memberships & Billing', description: '$19.99/mo, 6-mo & 12-mo plans, grace periods' },
-    { tab: 'commerce', label: 'Commerce & Orders', description: 'Catalog products, collections, customers, refunds, discount promos' },
-    { tab: 'commissions', label: 'Commissions & Ledger', description: '35% multi-tier distribution ledger, payouts, clawbacks' },
+    { tab: 'appraisals', label: 'Jewelry Appraisals', description: 'Appraisal requests, certificate lookup, valuation audits' },
+    { tab: 'commissions', label: 'Commissions Ledger', description: '35% multi-tier distribution ledger, payouts, clawbacks' },
+    { tab: 'content', label: 'Homepage Content', description: 'Cash Candles, Trending, Zodiac showcase cards, announcements' },
     { tab: 'reports', label: 'Analytics & Reports', description: 'Detailed sales reports, traffic conversion, MRR, CSV exports' },
     { tab: 'settings', label: 'System Configuration', description: 'Attribution windows, restricted usernames, starter kits, gateways' },
     { tab: 'permissions', label: 'Roles & Access Control', description: 'Role assignment, security privileges, role simulation' },
@@ -144,7 +174,120 @@ export const AdminPermissions: React.FC<AdminPermissionsProps> = ({
         </div>
       </div>
 
-      {/* 2. RBAC Permissions Matrix Table */}
+      {/* 2. Administrative Staff Accounts (Requirement 9) */}
+      <div className="bg-white rounded-2xl sm:rounded-3xl border border-[#eedbe6] shadow-xs overflow-hidden">
+        <div className="p-4 sm:p-5 border-b border-[#eedbe6] flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <UserCheck className="w-5 h-5 text-[#D30915]" />
+              <h3 className="text-base font-black text-[#141219] hero-title-font m-0">
+                Administrative Staff & Role Assignments
+              </h3>
+            </div>
+            <p className="text-xs text-[#716d77] m-0 mt-0.5">
+              Verified administrative personnel connected to Supabase authentication. Super Admin can assign operational roles.
+            </p>
+          </div>
+          <span className="text-xs font-bold text-[#D30915] bg-[#fff1f2] px-2.5 py-1 rounded-full">
+            {staffList.length} Operators
+          </span>
+        </div>
+
+        {/* Security Architecture Callout (Requirement 9) */}
+        <div className="p-3.5 bg-amber-50/70 border-b border-amber-200/60 flex items-start gap-2.5 text-xs text-amber-900">
+          <Shield className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+          <div className="leading-relaxed">
+            <strong className="font-bold">Enterprise Security Policy:</strong> Admin navigation and UI visibility provide an intuitive, role-tailored workflow. All sensitive data mutations (financial commission approval, catalog teardown, customer profile edits) are independently protected by Supabase Row-Level Security (RLS) and database privileges.
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs text-[#141219]">
+            <thead className="bg-[#fdf9fb] border-b border-[#eedbe6] text-[10px] font-extrabold uppercase text-[#716d77] tracking-wider">
+              <tr>
+                <th className="py-3 px-4">Staff Member</th>
+                <th className="py-3 px-3">Email Address</th>
+                <th className="py-3 px-3">Assigned Role</th>
+                <th className="py-3 px-3">Role Capabilities</th>
+                <th className="py-3 px-4 text-right">Modify Assignment</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#f5eaf1] font-medium">
+              {isLoadingStaff ? (
+                <tr>
+                  <td colSpan={5} className="py-6 text-center text-xs text-[#716d77]">
+                    Loading staff members from Supabase directory...
+                  </td>
+                </tr>
+              ) : staffList.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-6 text-center text-xs text-[#716d77]">
+                    No staff records found.
+                  </td>
+                </tr>
+              ) : (
+                staffList.map((staff) => {
+                  const config = ADMIN_ROLES_CONFIG[staff.role];
+                  const isFounder = staff.email === 'cookuwithcomali336@gmail.com';
+
+                return (
+                  <tr key={staff.id} className="hover:bg-[#fffbfd] transition-colors">
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-full bg-[#fff1f2] border border-[#eedbe6] text-[#D30915] flex items-center justify-center font-bold text-xs shrink-0">
+                          {staff.name.slice(0, 2).toUpperCase()}
+                        </div>
+                        <div>
+                          <div className="font-bold text-[#141219]">{staff.name}</div>
+                          {isFounder && (
+                            <span className="inline-block text-[9px] font-black uppercase text-[#D30915] bg-[#fff1f2] px-1.5 py-0.2 rounded">
+                              Founder & Primary
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+
+                    <td className="py-3 px-3 font-mono text-xs text-[#716d77]">{staff.email}</td>
+
+                    <td className="py-3 px-3">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-[#faf7f9] border border-[#eedbe6] text-[#141219]">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#D30915]" />
+                        <span>{config.name}</span>
+                      </span>
+                    </td>
+
+                    <td className="py-3 px-3 text-[#716d77] text-[11px] max-w-xs">
+                      {config.description}
+                    </td>
+
+                    <td className="py-3 px-4 text-right">
+                      {isFounder ? (
+                        <span className="text-[11px] font-bold text-[#716d77] italic">Immutable Super Admin</span>
+                      ) : (
+                        <select
+                          disabled={currentRole !== 'super_admin'}
+                          value={staff.role}
+                          onChange={(e) => handleUpdateStaffRole(staff.id, e.target.value as AdminRole, staff.name)}
+                          className="h-8 px-2.5 rounded-lg bg-[#faf7f9] border border-[#eedbe6] text-xs font-bold text-[#141219] disabled:opacity-40"
+                        >
+                          <option value="super_admin">Super Administrator</option>
+                          <option value="store_manager">Store Manager</option>
+                          <option value="affiliate_manager">Affiliate Director</option>
+                          <option value="support_rep">Customer Support</option>
+                        </select>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* 3. RBAC Permissions Matrix Table */}
       <div className="bg-white rounded-2xl sm:rounded-3xl border border-[#eedbe6] shadow-xs overflow-hidden">
         <div className="p-4 sm:p-5 border-b border-[#eedbe6] flex items-center justify-between">
           <div>

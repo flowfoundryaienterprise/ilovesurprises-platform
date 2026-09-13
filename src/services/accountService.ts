@@ -259,7 +259,18 @@ export const accountService = {
       const stored = localStorage.getItem(USER_STORAGE_KEY);
       if (!stored) return null;
       const parsed: UserProfile = JSON.parse(stored);
-      if (!parsed.avatar || parsed.avatar.includes('/reviews/') || parsed.avatar.includes('unsplash.com') || parsed.avatar.startsWith('http')) {
+      const isGoogleOrRemoteAvatar =
+        parsed.avatar &&
+        (parsed.avatar.includes('googleusercontent.com') ||
+          parsed.avatar.includes('firebase') ||
+          (parsed.avatar.startsWith('https://') && !parsed.avatar.includes('unsplash.com')));
+
+      if (
+        !parsed.avatar ||
+        parsed.avatar.includes('/reviews/') ||
+        parsed.avatar.includes('unsplash.com') ||
+        (!isGoogleOrRemoteAvatar && parsed.avatar.startsWith('http'))
+      ) {
         parsed.avatar = '/assets/ilovesurprises/Profile/profile%20image.webp';
       }
       return parsed;

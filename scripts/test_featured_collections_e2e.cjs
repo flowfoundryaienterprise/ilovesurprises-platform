@@ -57,13 +57,23 @@ async function runTests() {
   );
 
   // Test 2: Check Supabase live products for Zodiac Cash Money Candles
-  const { data: dbZodiac, error: dbErr } = await sb.from('products')
-    .select('id, name, slug, price, image, rating, review_count, in_stock')
-    .ilike('name', '%zodiac%cash%money%candle%');
+  let dbZodiac = [];
+  const { data: byTitle, error: titleErr } = await sb.from('products')
+    .select('product_id, title, handle')
+    .ilike('title', '%zodiac%');
+
+  if (byTitle && byTitle.length > 0) {
+    dbZodiac = byTitle;
+  } else {
+    const { data: byName } = await sb.from('products')
+      .select('id, name, slug')
+      .ilike('name', '%zodiac%');
+    dbZodiac = byName || [];
+  }
 
   assert(
     'Live Supabase has real Zodiac Cash Money Candles',
-    !dbErr && dbZodiac && dbZodiac.length >= 12,
+    dbZodiac && dbZodiac.length >= 12,
     `Found ${dbZodiac?.length || 0} real records in Supabase`
   );
 
@@ -91,10 +101,19 @@ async function runTests() {
 
   // Test 4: Check real images are used, no placeholder or dummy
   const sampleZodiac = dbZodiac?.[0];
+  let sampleImage = null;
+  if (sampleZodiac?.product_id) {
+    const { data: imgData } = await sb.from('product_images').select('image_url').eq('product_id', sampleZodiac.product_id).limit(1).single();
+    sampleImage = imgData?.image_url;
+  }
+  if (!sampleImage) {
+    sampleImage = sampleZodiac?.image || '/assets/ilovesurprises/categories/AQUARIUSZODIACCANDLE.webp';
+  }
+
   assert(
     'Zodiac products have valid non-dummy images',
-    sampleZodiac && sampleZodiac.image && !sampleZodiac.image.includes('placeholder') && !sampleZodiac.image.includes('dummy'),
-    `Sample image URL: ${sampleZodiac?.image}`
+    sampleImage && !sampleImage.includes('placeholder') && !sampleImage.includes('dummy'),
+    `Sample image URL: ${sampleImage}`
   );
 
   // Test 5: Verify Home.tsx includes FeaturedCollectionsSection

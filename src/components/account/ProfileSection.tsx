@@ -32,7 +32,12 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
   onShowToast,
 }) => {
   const getCleanAvatar = (avatarUrl?: string) => {
-    if (!avatarUrl || avatarUrl.includes('unsplash.com') || avatarUrl.startsWith('http')) {
+    const isGoogleOrRemote =
+      avatarUrl &&
+      (avatarUrl.includes('googleusercontent.com') ||
+        avatarUrl.includes('firebase') ||
+        (avatarUrl.startsWith('https://') && !avatarUrl.includes('unsplash.com')));
+    if (!avatarUrl || avatarUrl.includes('unsplash.com') || (!isGoogleOrRemote && avatarUrl.startsWith('http'))) {
       return DEFAULT_PROFILE_AVATAR;
     }
     return avatarUrl;

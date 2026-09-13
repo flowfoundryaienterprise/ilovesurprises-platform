@@ -1,0 +1,14 @@
+{
+  "completedTables": {
+    "staging_collections": true,
+    "staging_collection_conditions": true,
+    "staging_collection_metafields": true,
+    "staging_products": true,
+    "staging_product_options": true,
+    "staging_product_option_values": true,
+    "staging_product_variants": true,
+    "staging_product_images": true,
+    "staging_product_collections": true
+  },
+  "tableProgress": {}
+}

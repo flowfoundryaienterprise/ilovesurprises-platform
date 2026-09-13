@@ -2,11 +2,16 @@ export type AdminRole = 'super_admin' | 'store_manager' | 'affiliate_manager' | 
 
 export type AdminTab =
   | 'overview'
+  | 'products'
+  | 'collections'
+  | 'orders'
+  | 'customers'
   | 'representatives'
   | 'memberships'
   | 'commerce'
   | 'commissions'
   | 'reports'
+  | 'content'
   | 'settings'
   | 'permissions'
   | 'appraisals';
@@ -104,6 +109,22 @@ export interface MembershipAdminRecord {
   paymentMethodSnippet: string; // e.g. "Visa ending in •••• 4242"
 }
 
+export interface AdminProductOption {
+  name: string;
+  values: string[];
+}
+
+export interface AdminProductVariant {
+  id: string;
+  sku: string;
+  title: string;
+  price: number;
+  compareAtPrice?: number;
+  stock: number;
+  options: Record<string, string>;
+  image?: string;
+}
+
 export interface AdminProductItem {
   id: string;
   name: string;
@@ -117,6 +138,9 @@ export interface AdminProductItem {
   surpriseType: string;
   surpriseValue?: string;
   image: string;
+  images?: string[];
+  options?: AdminProductOption[];
+  variants?: AdminProductVariant[];
   rating: number;
   reviewCount: number;
   status: 'active' | 'draft' | 'archived';
@@ -132,6 +156,9 @@ export interface AdminCollectionItem {
   orderIndex?: number;
   image: string;
   tagline: string;
+  description?: string;
+  seoTitle?: string;
+  seoDescription?: string;
 }
 
 export interface AdminOrderItem {
@@ -262,3 +289,37 @@ export interface AdminSettingsData {
     vipPerkText: string;
   };
 }
+
+export interface HomepageFeaturedCard {
+  id: string;
+  title: string;
+  categoryKey: string;
+  badge: string;
+  tagline: string;
+  ctaText: string;
+  image: string;
+  itemCount: number;
+  accentBorder: string;
+  active: boolean;
+}
+
+export interface HomepageContentConfig {
+  announcementText: string;
+  announcementActive: boolean;
+  announcementLink?: string;
+  promoBannerText: string;
+  promoBannerCode?: string;
+  promoBannerActive: boolean;
+  featuredCards: HomepageFeaturedCard[];
+}
+
+export interface AdminStaffUser {
+  id: string;
+  email: string;
+  name: string;
+  role: AdminRole;
+  avatarUrl?: string;
+  lastActive?: string;
+  createdAt: string;
+}
+

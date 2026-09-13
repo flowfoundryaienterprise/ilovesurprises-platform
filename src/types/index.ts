@@ -87,3 +87,19 @@ export interface UserProfile {
 export * from './order';
 export * from './affiliate';
 export * from './admin';
+
+export interface LoginPayload {
+  identifier: string; // Email
+  password: string;
+  rememberMe?: boolean;
+}
+
+export interface RegisterPayload {
+  name: string;
+  email: string;
+  mobile?: string;
+  password: string;
+  role?: 'customer' | 'representative';
+  repUsername?: string;
+  sponsorUsername?: string;
+}

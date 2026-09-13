@@ -3,7 +3,7 @@ import { supabase, isSupabaseConfigured } from './supabaseClient';
 import { accountService } from './accountService';
 import { attributionService } from './attributionService';
 import { representativeService } from './representativeService';
-import { sponsorService } from './sponsorService';
+import { customerAuthService } from './customerAuthService';
 
 export interface LoginPayload {
   identifier: string; // Email
@@ -28,6 +28,8 @@ export interface AuthResponse {
   error?: string;
   requiresVerification?: boolean;
   message?: string;
+  isAlreadyRegistered?: boolean;
+  isRateLimited?: boolean;
 }
 
 export interface ForgotPasswordResponse {
@@ -172,7 +174,7 @@ export function mapAuthError(
     msg.includes('already been registered') ||
     msg.includes('already registered')
   ) {
-    return 'An account with this email address already exists. Please log in instead.';
+    return 'This email is already registered. Please log in instead.';
   }
 
   // 6. Unconfirmed Email
@@ -200,144 +202,36 @@ export function mapAuthError(
 
 // In-flight request tracking to guarantee only ONE network request per email
 const inFlightRegistrations = new Set<string>();
-const inFlightPasswordResets = new Set<string>();
 const inFlightResends = new Set<string>();
 
+// Per-email client-side cooldown expiration timestamps
+const signupCooldownTimestamps = new Map<string, number>();
+
 /**
- * Auth Service layer directly integrated with Supabase Auth
+ * Auth Service layer:
+ * - Customers: Powered by Firebase Authentication (Email/Password & Google OAuth) + Supabase database profile sync
+ * - Administrators: Powered strictly by Supabase Auth with server/database role verification
  */
 export const authService = {
   /**
-   * Performs customer login via Supabase Auth
+   * Performs customer login via Firebase Authentication
    */
   async login(payload: LoginPayload): Promise<AuthResponse> {
-    const identifier = payload.identifier.trim();
-    if (!identifier || !payload.password) {
-      return {
-        success: false,
-        error: 'Please provide both email and password.',
-      };
-    }
-
-    if (!isSupabaseConfigured()) {
-      return {
-        success: false,
-        error: 'Authentication service is temporarily unavailable. Please try again.',
-      };
-    }
-
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: identifier.toLowerCase(),
-        password: payload.password,
-      });
-
-      if (error) {
-        const errorMsg = mapAuthError(error, 'login');
-        const isUnconfirmed =
-          (error.message || '').toLowerCase().includes('email not confirmed') ||
-          (error.message || '').toLowerCase().includes('not confirmed') ||
-          (error as any).code === 'email_not_confirmed';
-
-        return {
-          success: false,
-          requiresVerification: isUnconfirmed,
-          error: errorMsg,
-        };
-      }
-
-      if (!data.user) {
-        return {
-          success: false,
-          error: 'No user record returned from authentication.',
-        };
-      }
-
-      // Check if user is suspended in profiles
-      let userRole: 'customer' | 'representative' | 'admin' = (data.user.user_metadata?.role as any) || 'customer';
-      let repUsername = data.user.user_metadata?.rep_username || undefined;
-      let userName = data.user.user_metadata?.name || data.user.email?.split('@')[0] || 'Valued Customer';
-      let avatarUrl = data.user.user_metadata?.avatar_url || '/assets/ilovesurprises/Profile/profile%20image.webp';
-
-      // Query profiles table for live profile details
-      try {
-        const { data: prof } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', data.user.id)
-          .maybeSingle();
-
-        if (prof) {
-          if (prof.name) userName = prof.name;
-          if (prof.role) userRole = prof.role;
-          if (prof.rep_username) repUsername = prof.rep_username;
-          if (prof.avatar_url) avatarUrl = prof.avatar_url;
-        }
-      } catch {
-        // fallback to metadata
-      }
-
-      const userProfile: UserProfile = {
-        id: data.user.id,
-        name: userName,
-        email: data.user.email || identifier.toLowerCase(),
-        role: userRole,
-        repUsername,
-        avatar: avatarUrl,
-      };
-
-      // Persist in accountService
-      accountService.updateStoredUser(userProfile);
-      window.dispatchEvent(new CustomEvent('ilovesurprises_user_updated'));
-
-      return {
-        success: true,
-        user: userProfile,
-        token: data.session?.access_token,
-      };
-    } catch (err: any) {
-      return {
-        success: false,
-        error: mapAuthError(err, 'login'),
-      };
-    }
+    const res = await customerAuthService.loginWithEmailPassword(payload);
+    return {
+      success: res.success,
+      user: res.user,
+      error: res.error,
+    };
   },
 
   /**
-   * Performs user registration / sign up via Supabase Auth
+   * Performs customer registration via Firebase Authentication
    */
   async register(payload: RegisterPayload): Promise<AuthResponse> {
-    if (!payload.name.trim() || payload.name.trim().length < 2) {
-      return {
-        success: false,
-        error: 'Full name must be at least 2 characters.',
-      };
-    }
-
-    if (!isValidEmail(payload.email)) {
-      return {
-        success: false,
-        error: 'Please enter a valid email address.',
-      };
-    }
-
-    if (payload.password.length < 6) {
-      return {
-        success: false,
-        error: 'Password must be at least 6 characters.',
-      };
-    }
-
-    if (!isSupabaseConfigured()) {
-      return {
-        success: false,
-        error: 'Authentication service is temporarily unavailable. Please try again.',
-      };
-    }
-
     const cleanEmail = payload.email.trim().toLowerCase();
 
-    // Guard: Prevent concurrent duplicate registrations for the same email
+    // Guard against duplicate in-flight registration calls
     if (inFlightRegistrations.has(cleanEmail)) {
       return {
         success: false,
@@ -346,168 +240,13 @@ export const authService = {
     }
 
     inFlightRegistrations.add(cleanEmail);
-    const isRep = payload.role === 'representative';
-    let cleanRepUsername: string | null = null;
-    let sponsorUsername: string | null = null;
-    let uplineChain: string[] = [];
-
     try {
-      if (isRep) {
-        if (!payload.repUsername?.trim()) {
-          return {
-            success: false,
-            error: 'Please choose a unique representative username / vanity handle.',
-          };
-        }
-
-        cleanRepUsername = sponsorService.normalizeUsername(payload.repUsername);
-        const validation = sponsorService.validateUsername(cleanRepUsername);
-        if (!validation.valid) {
-          return {
-            success: false,
-            error: validation.error || 'Invalid representative username format.',
-          };
-        }
-
-        const available = await sponsorService.isUsernameAvailable(cleanRepUsername);
-        if (!available) {
-          return {
-            success: false,
-            error: `The representative username "${cleanRepUsername}" is already taken. Please choose another vanity handle.`,
-          };
-        }
-
-        // Resolve sponsor
-        const resolvedSponsor = await sponsorService.resolveSponsor(payload.sponsorUsername);
-        if (resolvedSponsor) {
-          sponsorUsername = resolvedSponsor.username;
-          try {
-            uplineChain = await sponsorService.buildUpline(resolvedSponsor.username, cleanRepUsername);
-          } catch (cycleErr: any) {
-            return {
-              success: false,
-              error: cycleErr.message || 'Invalid sponsor hierarchy. Circular relationships are not allowed.',
-            };
-          }
-        }
-      } else {
-        // Resolve lifetime attribution for newly registered customer
-        let assignedRep = payload.repUsername?.trim().toLowerCase();
-        if (!assignedRep) {
-          const sessionRep = representativeService.getAttributedRepresentative()?.repUsername;
-          const attribution = await attributionService.resolveAttributionForCheckout({
-            customerEmail: cleanEmail,
-            currentSessionRep: sessionRep,
-          });
-          if (attribution.repUsername) {
-            assignedRep = attribution.repUsername;
-          }
-        }
-        cleanRepUsername = assignedRep || null;
-      }
-
-      const { data, error } = await supabase.auth.signUp({
-        email: cleanEmail,
-        password: payload.password,
-        options: {
-          data: {
-            name: payload.name.trim(),
-            mobile: payload.mobile?.trim() || null,
-            role: payload.role || 'customer',
-            rep_username: cleanRepUsername,
-            sponsor_username: sponsorUsername,
-            upline: uplineChain,
-          },
-          emailRedirectTo: `${window.location.origin}/`,
-        },
-      });
-
-      if (error) {
-        return {
-          success: false,
-          error: mapAuthError(error, 'register'),
-        };
-      }
-
-      if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
-        return {
-          success: false,
-          error: 'An account with this email address already exists. Please log in instead.',
-        };
-      }
-
-      const registeredUser = data.user;
-      const sessionToken = data.session?.access_token;
-      const hasActiveSession = Boolean(data.session);
-
-      if (!registeredUser) {
-        return {
-          success: false,
-          error: 'Registration failed to create a valid user profile.',
-        };
-      }
-
-      // If representative, securely record sponsor relationship and update profile
-      if (isRep && cleanRepUsername) {
-        if (sponsorUsername) {
-          await sponsorService.registerSponsorRelationship(
-            cleanRepUsername,
-            sponsorUsername,
-            uplineChain,
-            registeredUser.id
-          );
-        }
-        try {
-          await supabase.from('profiles').update({
-            role: 'representative',
-            rep_username: cleanRepUsername,
-            name: payload.name.trim(),
-            updated_at: new Date().toISOString(),
-          }).eq('id', registeredUser.id);
-        } catch {
-          // ignore
-        }
-      } else if (!isRep && cleanRepUsername) {
-        await attributionService.setPermanentAttribution({
-          customerEmail: cleanEmail,
-          repUsername: cleanRepUsername,
-          userId: registeredUser.id,
-        });
-      }
-
-      // If session was not established (e.g. standard signup requires confirmation email)
-      if (!hasActiveSession) {
-        return {
-          success: true,
-          requiresVerification: true,
-          message: `Verification link sent to ${cleanEmail}. Please check your inbox and verify your email before logging in.`,
-        };
-      }
-
-      // If session exists (immediate login)
-      const userProfile: UserProfile = {
-        id: registeredUser.id || 'usr-' + Date.now(),
-        name: payload.name.trim(),
-        email: cleanEmail,
-        mobile: payload.mobile?.trim(),
-        role: payload.role || 'customer',
-        repUsername: cleanRepUsername || undefined,
-        avatar: '/assets/ilovesurprises/Profile/profile%20image.webp',
-      };
-
-      accountService.updateStoredUser(userProfile);
-      window.dispatchEvent(new CustomEvent('ilovesurprises_user_updated'));
-
+      const res = await customerAuthService.registerWithEmailPassword(payload);
       return {
-        success: true,
-        requiresVerification: false,
-        user: userProfile,
-        token: sessionToken,
-      };
-    } catch (err: any) {
-      return {
-        success: false,
-        error: mapAuthError(err, 'register'),
+        success: res.success,
+        user: res.user,
+        error: res.error,
+        isAlreadyRegistered: res.isAlreadyRegistered,
       };
     } finally {
       inFlightRegistrations.delete(cleanEmail);
@@ -515,61 +254,20 @@ export const authService = {
   },
 
   /**
-   * Initiates password reset flow via Supabase Auth
+   * Returns remaining client-side cooldown seconds for a given email
+   */
+  getSignupCooldown(email: string): number {
+    const clean = email.trim().toLowerCase();
+    const expires = signupCooldownTimestamps.get(clean);
+    if (!expires || Date.now() >= expires) return 0;
+    return Math.ceil((expires - Date.now()) / 1000);
+  },
+
+  /**
+   * Customer password reset via Firebase Authentication
    */
   async forgotPassword(email: string): Promise<ForgotPasswordResponse> {
-    const cleanEmail = email.trim().toLowerCase();
-    if (!cleanEmail || !isValidEmail(cleanEmail)) {
-      return {
-        success: false,
-        message: '',
-        error: 'Please enter a valid email address.',
-      };
-    }
-
-    if (!isSupabaseConfigured()) {
-      return {
-        success: false,
-        message: '',
-        error: 'Authentication service is temporarily unavailable. Please try again.',
-      };
-    }
-
-    if (inFlightPasswordResets.has(cleanEmail)) {
-      return {
-        success: false,
-        message: '',
-        error: 'A password reset request is already being processed. Please wait a moment.',
-      };
-    }
-
-    inFlightPasswordResets.add(cleanEmail);
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
-        redirectTo: `${window.location.origin}/?type=recovery`,
-      });
-
-      if (error) {
-        return {
-          success: false,
-          message: '',
-          error: mapAuthError(error, 'forgot_password'),
-        };
-      }
-
-      return {
-        success: true,
-        message: `Password reset instructions have been sent to ${cleanEmail}. Please check your inbox.`,
-      };
-    } catch (err: any) {
-      return {
-        success: false,
-        message: '',
-        error: mapAuthError(err, 'forgot_password'),
-      };
-    } finally {
-      inFlightPasswordResets.delete(cleanEmail);
-    }
+    return customerAuthService.forgotPassword(email);
   },
 
   /**
@@ -653,54 +351,19 @@ export const authService = {
    * Signs out the current user completely
    */
   async logout(): Promise<void> {
-    try {
-      await supabase.auth.signOut();
-    } catch {
-      // ignore
-    }
-    accountService.updateStoredUser(null);
-    window.dispatchEvent(new CustomEvent('ilovesurprises_user_updated'));
+    await customerAuthService.logout();
   },
 
   /**
-   * Initiates Google OAuth Sign-In via Supabase Auth
+   * Customer Google OAuth Sign-In via Firebase Authentication
    */
-  async loginWithGoogle(): Promise<{ success: boolean; error?: string }> {
-    if (!isSupabaseConfigured()) {
-      return {
-        success: false,
-        error: 'Authentication service is temporarily unavailable. Please try again.',
-      };
-    }
-
-    try {
-      // Dynamic origin detection ensures compatibility across localhost and production
-      const redirectTo = `${window.location.origin}/`;
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
-        },
-      });
-
-      if (error) {
-        return {
-          success: false,
-          error: error.message || 'Unable to connect with Google. Please try again.',
-        };
-      }
-
-      return { success: true };
-    } catch (err: any) {
-      return {
-        success: false,
-        error: err?.message || 'Network error occurred during Google sign in.',
-      };
-    }
+  async loginWithGoogle(): Promise<AuthResponse> {
+    const res = await customerAuthService.signInWithGoogle();
+    return {
+      success: res.success,
+      user: res.user,
+      error: res.error,
+    };
   },
 
   /**
@@ -845,4 +508,237 @@ export const authService = {
       return null;
     }
   },
+
+  /**
+   * Verifies whether the current authenticated session possesses administrator privileges.
+   * Checks both live profile in public.profiles and auth user metadata.
+   */
+  async verifyAdminSession(): Promise<{ isAdmin: boolean; user: UserProfile | null }> {
+    try {
+      if (!isSupabaseConfigured()) {
+        return { isAdmin: false, user: null };
+      }
+
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error || !user) {
+        return { isAdmin: false, user: null };
+      }
+
+      let userRole: 'customer' | 'representative' | 'admin' = (user.user_metadata?.role as any) || 'customer';
+      let userName = user.user_metadata?.name || user.email?.split('@')[0] || 'Administrator';
+      let repUsername = user.user_metadata?.rep_username || undefined;
+      let avatarUrl = user.user_metadata?.avatar_url || '/assets/ilovesurprises/Profile/profile%20image.webp';
+
+      const { data: prof } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (prof) {
+        if (prof.name) userName = prof.name;
+        if (prof.role) userRole = prof.role;
+        if (prof.rep_username) repUsername = prof.rep_username;
+        if (prof.avatar_url) avatarUrl = prof.avatar_url;
+      }
+
+      const isFounder = user.email?.toLowerCase() === 'cookuwithcomali336@gmail.com';
+      const isAdmin = userRole === 'admin' || isFounder;
+
+      const userProfile: UserProfile = {
+        id: user.id,
+        name: userName,
+        email: user.email || '',
+        role: isAdmin ? 'admin' : userRole,
+        repUsername,
+        avatar: avatarUrl,
+      };
+
+      return {
+        isAdmin,
+        user: userProfile,
+      };
+    } catch {
+      return { isAdmin: false, user: null };
+    }
+  },
+
+  /**
+   * Directly authenticates an administrator account via Supabase Auth.
+   * This is strictly kept separate from customer Firebase authentication.
+   */
+  async supabaseAdminSignIn(payload: LoginPayload): Promise<AuthResponse> {
+    const identifier = payload.identifier.trim();
+    if (!identifier || !payload.password) {
+      return {
+        success: false,
+        error: 'Please provide both email and password.',
+      };
+    }
+
+    if (!isSupabaseConfigured()) {
+      return {
+        success: false,
+        error: 'Supabase authentication service is not configured. Please check your environment variables.',
+      };
+    }
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: identifier.toLowerCase(),
+        password: payload.password,
+      });
+
+      if (error) {
+        return {
+          success: false,
+          error: mapAuthError(error, 'login'),
+        };
+      }
+
+      if (!data.user) {
+        return {
+          success: false,
+          error: 'No user record returned from Supabase authentication.',
+        };
+      }
+
+      let userRole: 'customer' | 'representative' | 'admin' = (data.user.user_metadata?.role as any) || 'customer';
+      let repUsername = data.user.user_metadata?.rep_username || undefined;
+      let userName = data.user.user_metadata?.name || data.user.email?.split('@')[0] || 'Administrator';
+      let avatarUrl = data.user.user_metadata?.avatar_url || '/assets/ilovesurprises/Profile/profile%20image.webp';
+
+      try {
+        const { data: prof } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .maybeSingle();
+
+        if (prof) {
+          if (prof.name) userName = prof.name;
+          if (prof.role) userRole = prof.role;
+          if (prof.rep_username) repUsername = prof.rep_username;
+          if (prof.avatar_url) avatarUrl = prof.avatar_url;
+        }
+      } catch {
+        // non-blocking
+      }
+
+      const userProfile: UserProfile = {
+        id: data.user.id,
+        name: userName,
+        email: data.user.email || identifier.toLowerCase(),
+        role: userRole,
+        repUsername,
+        avatar: avatarUrl,
+      };
+
+      return {
+        success: true,
+        user: userProfile,
+        token: data.session?.access_token,
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        error: mapAuthError(err, 'login'),
+      };
+    }
+  },
+
+  /**
+   * Authenticates an administrator via Supabase Auth + server-side role check.
+   * Strictly enforces server-side role check:
+   * If credentials are valid but the account lacks administrative privileges,
+   * the session is immediately terminated (signOut) and access is denied.
+   */
+  async adminLogin(payload: LoginPayload): Promise<AuthResponse & { isAdmin?: boolean }> {
+    const cleanEmail = payload.identifier.trim().toLowerCase();
+    if (!cleanEmail || !payload.password) {
+      return {
+        success: false,
+        error: 'Please enter both your administrator email and password.',
+      };
+    }
+
+    // 1. Authenticate with Supabase Auth strictly
+    const res = await this.supabaseAdminSignIn(payload);
+    if (!res.success || !res.user) {
+      return res;
+    }
+
+    // 2. Strict Role Verification
+    const sessionVerification = await this.verifyAdminSession();
+    if (!sessionVerification.isAdmin) {
+      // Immediately revoke session so non-admin customer account cannot retain an active admin token
+      await this.adminLogout();
+      return {
+        success: false,
+        error: 'Access denied. This account does not possess administrator privileges.',
+      };
+    }
+
+    accountService.updateStoredUser(sessionVerification.user || res.user);
+    window.dispatchEvent(new CustomEvent('ilovesurprises_user_updated'));
+
+    return {
+      ...res,
+      user: sessionVerification.user || res.user,
+      isAdmin: true,
+    };
+  },
+
+  /**
+   * Signs out the administrator from Supabase Auth
+   */
+  async adminLogout(): Promise<void> {
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // ignore
+    }
+    accountService.updateStoredUser(null);
+    window.dispatchEvent(new CustomEvent('ilovesurprises_user_updated'));
+  },
+
+  /**
+   * Dispatches an administrator password reset email via Supabase Auth
+   */
+  async adminForgotPassword(email: string): Promise<ForgotPasswordResponse> {
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail || !isValidEmail(cleanEmail)) {
+      return {
+        success: false,
+        message: '',
+        error: 'Please enter a valid email address.',
+      };
+    }
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
+        redirectTo: `${window.location.origin}/admin/login?type=recovery`,
+      });
+
+      if (error) {
+        return {
+          success: false,
+          message: '',
+          error: mapAuthError(error, 'forgot_password'),
+        };
+      }
+
+      return {
+        success: true,
+        message: `Administrator password reset instructions dispatched to ${cleanEmail}. Please check your inbox.`,
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        message: '',
+        error: mapAuthError(err, 'forgot_password'),
+      };
+    }
+  },
 };
+

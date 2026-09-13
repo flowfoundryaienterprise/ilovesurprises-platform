@@ -213,16 +213,22 @@ export const sponsorService = {
         try {
           const { data } = await supabase
             .from('profiles')
-            .select('id')
+            .select('id, sponsor_username')
             .eq('rep_username', currentSponsor)
             .maybeSingle();
 
-          if (data) {
-            // Check auth user metadata if available
-            const { data: userData } = await supabase.auth.getUser();
-            const userMeta = userData?.user?.user_metadata;
-            if (userMeta?.sponsor_username && userMeta.rep_username === currentSponsor) {
-              nextSponsor = userMeta.sponsor_username;
+          if (data && (data as any).sponsor_username) {
+            nextSponsor = (data as any).sponsor_username;
+          } else if (data) {
+            // Fallback: Check auth user metadata if available
+            try {
+              const { data: userData } = await supabase.auth.getUser();
+              const userMeta = userData?.user?.user_metadata;
+              if (userMeta?.sponsor_username && userMeta.rep_username === currentSponsor) {
+                nextSponsor = userMeta.sponsor_username;
+              }
+            } catch {
+              // ignore
             }
           }
         } catch {

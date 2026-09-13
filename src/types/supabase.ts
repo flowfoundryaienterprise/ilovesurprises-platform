@@ -50,25 +50,37 @@ export interface Database {
       };
       products: {
         Row: {
-          id: string;
-          name: string;
-          slug: string;
-          category_id: string | null;
-          price: number;
-          original_price: number | null;
-          surprise_type: string;
-          surprise_value: string | null;
-          rating: number;
-          review_count: number;
-          image: string;
-          badge: string | null;
-          is_new: boolean;
-          is_best_seller: boolean;
-          in_stock: boolean;
-          scent_notes: Json | null;
-          description: string | null;
-          created_at: string | null;
-          updated_at: string | null;
+          product_id?: string;
+          id?: string;
+          title?: string;
+          name?: string;
+          handle?: string;
+          slug?: string;
+          body_html?: string | null;
+          description?: string | null;
+          total_inventory_qty?: number | null;
+          category_id?: string | null;
+          category_name?: string | null;
+          vendor?: string | null;
+          product_type?: string | null;
+          tags?: string | null;
+          status?: string | null;
+          published?: boolean | null;
+          published_at?: string | null;
+          price?: number;
+          original_price?: number | null;
+          surprise_type?: string;
+          surprise_value?: string | null;
+          rating?: number;
+          review_count?: number;
+          image?: string;
+          badge?: string | null;
+          is_new?: boolean;
+          is_best_seller?: boolean;
+          in_stock?: boolean;
+          scent_notes?: Json | null;
+          created_at?: string | null;
+          updated_at?: string | null;
         };
         Insert: {
           id: string;
@@ -117,33 +129,39 @@ export interface Database {
       profiles: {
         Row: {
           id: string;
+          firebase_uid: string | null;
           name: string;
           email: string;
           mobile: string | null;
           role: 'customer' | 'representative' | 'admin';
           rep_username: string | null;
+          sponsor_username: string | null;
           avatar_url: string | null;
           created_at: string | null;
           updated_at: string | null;
         };
         Insert: {
           id: string;
+          firebase_uid?: string | null;
           name: string;
           email: string;
           mobile?: string | null;
           role?: 'customer' | 'representative' | 'admin';
           rep_username?: string | null;
+          sponsor_username?: string | null;
           avatar_url?: string | null;
           created_at?: string | null;
           updated_at?: string | null;
         };
         Update: {
           id?: string;
+          firebase_uid?: string | null;
           name?: string;
           email?: string;
           mobile?: string | null;
           role?: 'customer' | 'representative' | 'admin';
           rep_username?: string | null;
+          sponsor_username?: string | null;
           avatar_url?: string | null;
           created_at?: string | null;
           updated_at?: string | null;

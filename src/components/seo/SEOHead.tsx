@@ -324,6 +324,18 @@ export function SEOHead({ view, product, category, repUsername, accountTab }: SE
         };
         break;
 
+      case 'admin-login':
+        seo = {
+          title: `Admin Login ${BRAND_SUFFIX}`,
+          description: 'Restricted administrative sign-in portal for I Love Surprises.',
+          canonical: `${SITE_ORIGIN}/admin/login`,
+          isPrivate: true,
+          ogType: 'website',
+          ogImage: DEFAULT_IMAGE,
+          breadcrumbs: [],
+        };
+        break;
+
       case 'refund-policy':
         seo = {
           title: `Refund & Return Policy ${BRAND_SUFFIX}`,

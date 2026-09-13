@@ -1,21 +1,31 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Mail, ArrowRight, AlertCircle, ShieldCheck } from 'lucide-react';
 import { PasswordInput } from './PasswordInput';
+import { GoogleAuthButton } from './GoogleAuthButton';
 import { authService, isValidEmail } from '../../services/auth';
 import type { UserProfile } from '../../types';
 
 interface LoginFormProps {
+  initialEmail?: string;
   onSuccess: (user: UserProfile) => void;
   onSwitchToSignUp: () => void;
   onSwitchToForgotPassword: () => void;
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({
+  initialEmail = '',
   onSuccess,
   onSwitchToSignUp,
   onSwitchToForgotPassword,
 }) => {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(initialEmail);
+  const [prevInitialEmail, setPrevInitialEmail] = useState(initialEmail);
+
+  if (initialEmail && initialEmail !== prevInitialEmail) {
+    setPrevInitialEmail(initialEmail);
+    setEmail(initialEmail);
+  }
+
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
   const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({});
@@ -165,6 +175,23 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           )}
         </div>
       )}
+
+      {/* Continue with Google */}
+      <div className="mb-4">
+        <GoogleAuthButton
+          onSuccess={(user) => onSuccess(user)}
+          onError={(err) => setErrors({ general: err })}
+          disabled={isLoading}
+        />
+      </div>
+
+      {/* Modern OR Divider */}
+      <div className="relative flex items-center justify-center my-4">
+        <div className="w-full border-t border-[#ebdce5]" />
+        <span className="bg-white px-3 text-[11px] font-bold text-[#8a858f] uppercase tracking-wider select-none shrink-0">
+          OR
+        </span>
+      </div>
 
       {/* Login Form */}
       <form onSubmit={handleSubmit} noValidate className="space-y-3.5">

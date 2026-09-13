@@ -23,6 +23,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [isClosing, setIsClosing] = useState(false);
   const [view, setView] = useState<'login' | 'signup' | 'forgot' | 'reset'>(initialMode);
   const [prevInitialMode, setPrevInitialMode] = useState(initialMode);
+  const [prefillEmail, setPrefillEmail] = useState('');
 
   if (initialMode !== prevInitialMode) {
     setPrevInitialMode(initialMode);
@@ -109,6 +110,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         <div className="transition-all duration-300 ease-out">
           {view === 'login' && (
             <LoginForm
+              initialEmail={prefillEmail}
               onSuccess={handleAuthSuccess}
               onSwitchToSignUp={() => setView('signup')}
               onSwitchToForgotPassword={() => setView('forgot')}
@@ -118,7 +120,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           {view === 'signup' && (
             <SignUpForm
               onSuccess={handleAuthSuccess}
-              onSwitchToLogin={() => setView('login')}
+              onSwitchToLogin={(prefEmail) => {
+                if (prefEmail) setPrefillEmail(prefEmail);
+                setView('login');
+              }}
             />
           )}
 

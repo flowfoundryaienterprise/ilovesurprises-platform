@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Sparkles,
   Search,
@@ -23,6 +23,7 @@ import {
 import type { PublicAppraisalResult } from '../types/appraisal';
 import { appraisalService } from '../services/appraisalService';
 import { supabase } from '../services/supabaseClient';
+import { accountService } from '../services/accountService';
 
 interface AppraiseJewelryProps {
   onNavigateToShop?: () => void;
@@ -56,8 +57,8 @@ export const AppraiseJewelry: React.FC<AppraiseJewelryProps> = ({
   const [activeTab, setActiveTab] = useState<'submit' | 'lookup'>('submit');
 
   // Form states for "What to Submit"
-  const [customerName, setCustomerName] = useState('');
-  const [email, setEmail] = useState('');
+  const [customerName, setCustomerName] = useState(() => accountService.getStoredUser()?.name || '');
+  const [email, setEmail] = useState(() => accountService.getStoredUser()?.email || '');
   const [orderNumber, setOrderNumber] = useState('');
   const [productName, setProductName] = useState('');
   const [jewelryType, setJewelryType] = useState('Ring');
@@ -82,16 +83,6 @@ export const AppraiseJewelry: React.FC<AppraiseJewelryProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const resultCardRef = useRef<HTMLDivElement>(null);
-
-  // Autofill user email / name if authenticated
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (data?.user) {
-        if (data.user.email) setEmail(data.user.email);
-        if (data.user.user_metadata?.name) setCustomerName(data.user.user_metadata.name);
-      }
-    });
-  }, []);
 
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { User, Mail, ArrowRight, AlertCircle, ShieldCheck, CheckCircle2, RefreshCw, Users, Link2 } from 'lucide-react';
 import { PasswordInput } from './PasswordInput';
+import { GoogleAuthButton } from './GoogleAuthButton';
 import {
   authService,
   evaluatePasswordStrength,
@@ -11,7 +12,7 @@ import type { UserProfile } from '../../types';
 
 interface SignUpFormProps {
   onSuccess: (user: UserProfile) => void;
-  onSwitchToLogin: () => void;
+  onSwitchToLogin: (prefillEmail?: string) => void;
 }
 
 export const SignUpForm: React.FC<SignUpFormProps> = ({
@@ -51,6 +52,9 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
     general?: string;
   }>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [submitCooldown, setSubmitCooldown] = useState(0);
+  const [isAlreadyRegistered, setIsAlreadyRegistered] = useState(false);
+  const [isRateLimited, setIsRateLimited] = useState(false);
   const [verificationSentEmail, setVerificationSentEmail] = useState<string | null>(null);
   const [resendStatus, setResendStatus] = useState<string | null>(null);
   const [isResending, setIsResending] = useState(false);
@@ -59,6 +63,15 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
   // Synchronous locks to prevent double-clicks or concurrent submissions before React re-render
   const isSubmittingRef = useRef(false);
   const isResendingRef = useRef(false);
+
+  // Countdown timer for submit cooldown to prevent repeated signup attempts
+  useEffect(() => {
+    if (submitCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setSubmitCooldown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [submitCooldown]);
 
   // 60-second countdown timer for email verification resend to respect Supabase GoTrue rate limits
   useEffect(() => {
@@ -70,6 +83,16 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
   }, [verificationSentEmail, resendCooldown]);
 
   const passwordStrength = evaluatePasswordStrength(password);
+
+  const handleEmailChange = (newVal: string) => {
+    setEmail(newVal);
+    if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
+    if (isAlreadyRegistered) setIsAlreadyRegistered(false);
+    if (isRateLimited) setIsRateLimited(false);
+    if (errors.general) setErrors((prev) => ({ ...prev, general: undefined }));
+    const remaining = authService.getSignupCooldown(newVal);
+    setSubmitCooldown(remaining);
+  };
 
   const validate = (): boolean => {
     const newErrors: typeof errors = {};
@@ -119,12 +142,14 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Synchronous guard: completely blocks duplicate / rapid double clicks
-    if (isSubmittingRef.current || isLoading) return;
+    // Synchronous guard: completely blocks duplicate / rapid double clicks and submissions during cooldown
+    if (isSubmittingRef.current || isLoading || submitCooldown > 0) return;
     if (!validate()) return;
 
     isSubmittingRef.current = true;
     setIsLoading(true);
+    setIsAlreadyRegistered(false);
+    setIsRateLimited(false);
     setErrors({});
     const cleanEmail = email.trim().toLowerCase();
 
@@ -144,9 +169,23 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
         setVerificationSentEmail(cleanEmail);
         setResendCooldown(60);
       } else {
+        const remainingCd = authService.getSignupCooldown(cleanEmail);
+        if (remainingCd > 0) {
+          setSubmitCooldown(remainingCd);
+        }
+        if (res.isAlreadyRegistered) {
+          setIsAlreadyRegistered(true);
+        }
+        if (res.isRateLimited) {
+          setIsRateLimited(true);
+        }
         setErrors({ general: res.error || 'Registration failed. Please try again.' });
       }
     } catch (err: any) {
+      const remainingCd = authService.getSignupCooldown(cleanEmail);
+      if (remainingCd > 0) {
+        setSubmitCooldown(remainingCd);
+      }
       setErrors({ general: err?.message || 'Connection error. Please check your internet connection and try again.' });
     } finally {
       isSubmittingRef.current = false;
@@ -214,7 +253,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
         <div className="space-y-2.5 pt-2">
           <button
             type="button"
-            onClick={onSwitchToLogin}
+            onClick={() => onSwitchToLogin(verificationSentEmail)}
             className="w-full h-[44px] rounded-[13px] bg-[#D30915] hover:bg-[#B60711] text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-[0_8px_20px_rgba(211,9,21,0.28)] hover:shadow-[0_12px_28px_rgba(211,9,21,0.38)] hover:-translate-y-0.5 active:scale-97 transition-all cursor-pointer flex items-center justify-center gap-2"
           >
             <span>Proceed to Login</span>
@@ -276,11 +315,55 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
 
       {/* General Error Banner */}
       {errors.general && (
-        <div className="mb-3.5 p-3 rounded-[13px] bg-red-50 border border-red-200 text-red-700 text-xs font-semibold flex items-center gap-2 animate-in fade-in duration-200">
-          <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
-          <span>{errors.general}</span>
+        <div
+          className={`mb-3.5 p-3 sm:p-3.5 rounded-[14px] text-xs font-semibold flex flex-col gap-2.5 animate-in fade-in duration-200 ${
+            isAlreadyRegistered
+              ? 'bg-amber-50 border border-amber-200 text-amber-900'
+              : 'bg-red-50 border border-red-200 text-red-700'
+          }`}
+          role="alert"
+        >
+          <div className="flex items-start gap-2.5">
+            <AlertCircle className={`w-4 h-4 shrink-0 mt-0.5 ${isAlreadyRegistered ? 'text-amber-600' : 'text-red-500'}`} />
+            <div className="flex-1 leading-relaxed">
+              <span>{errors.general}</span>
+            </div>
+          </div>
+
+          {(isAlreadyRegistered || isRateLimited || errors.general.toLowerCase().includes('log in') || errors.general.toLowerCase().includes('already registered')) && (
+            <div className="pt-2 border-t border-black/5 flex items-center justify-between gap-2">
+              <span className="text-[11px] text-[#55505a] font-medium">
+                {isAlreadyRegistered ? 'Already have an account?' : 'Have an existing account?'}
+              </span>
+              <button
+                type="button"
+                onClick={() => onSwitchToLogin(email.trim().toLowerCase())}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-[#D30915] hover:bg-[#B60711] text-white text-[11px] font-black uppercase tracking-wider shadow-xs hover:shadow-sm active:scale-95 transition-all cursor-pointer"
+              >
+                <span>Log In</span>
+                <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
+          )}
         </div>
       )}
+
+      {/* Continue with Google */}
+      <div className="mb-4">
+        <GoogleAuthButton
+          onSuccess={(user) => onSuccess(user)}
+          onError={(err) => setErrors({ general: err })}
+          disabled={isLoading}
+        />
+      </div>
+
+      {/* Modern OR Divider */}
+      <div className="relative flex items-center justify-center my-4">
+        <div className="w-full border-t border-[#ebdce5]" />
+        <span className="bg-white px-3 text-[11px] font-bold text-[#8a858f] uppercase tracking-wider select-none shrink-0">
+          OR
+        </span>
+      </div>
 
       {/* Account Type Toggle */}
       <div className="grid grid-cols-2 p-1 rounded-[13px] bg-[#fff1f2] border border-[#fecdd3] mb-3.5">
@@ -361,10 +444,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
               disabled={isLoading}
               placeholder="example@gmail.com"
               value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
-              }}
+              onChange={(e) => handleEmailChange(e.target.value)}
               className={`w-full h-[40px] sm:h-[42px] pl-10 pr-3 rounded-[12px] bg-[#fffafb] border text-xs sm:text-sm font-medium text-[#141219] placeholder:text-[#9c95a0] transition-all outline-none disabled:opacity-50 ${errors.email
                 ? 'border-red-400 focus:border-red-500 focus:bg-white focus:ring-2 focus:ring-red-100'
                 : 'border-[#ebdce5] hover:border-[#f1b8cb] focus:border-[#D30915] focus:bg-white focus:ring-2 focus:ring-[#D30915]/10'
@@ -518,13 +598,18 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
         {/* Submit CTA */}
         <button
           type="submit"
-          disabled={isLoading}
+          disabled={isLoading || submitCooldown > 0}
           className="w-full h-[44px] sm:h-[46px] rounded-[14px] bg-gradient-to-r from-[#D30915] to-[#B60711] hover:from-[#B60711] hover:to-[#96050e] text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-[0_8px_22px_rgba(211,9,21,0.28)] hover:shadow-[0_12px_28px_rgba(211,9,21,0.38)] hover:-translate-y-0.5 active:translate-y-0 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 mt-3.5"
         >
           {isLoading ? (
             <div className="flex items-center gap-2">
               <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
               <span>Creating Account...</span>
+            </div>
+          ) : submitCooldown > 0 ? (
+            <div className="flex items-center gap-2">
+              <RefreshCw className="w-4 h-4 animate-spin" />
+              <span>Please wait ({submitCooldown}s)</span>
             </div>
           ) : (
             <>
@@ -541,7 +626,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
           Already have an account?{' '}
           <button
             type="button"
-            onClick={onSwitchToLogin}
+            onClick={() => onSwitchToLogin(email.trim().toLowerCase())}
             className="text-xs font-black text-[#D30915] hover:text-[#B60711] hover:underline focus:outline-none cursor-pointer ml-1 active:scale-95 transition-all"
           >
             Login

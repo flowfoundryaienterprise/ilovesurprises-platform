@@ -19,10 +19,12 @@ import { representativeService } from './services/representativeService';
 import { SEOHead } from './components/seo/SEOHead';
 import { supabase } from './services/supabaseClient';
 import { authService } from './services/auth';
+import { customerAuthService } from './services/customerAuthService';
 import { Sparkles, ArrowRight } from 'lucide-react';
 
 // Route-level code splitting for rapid initial load and 144Hz responsiveness
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard').then((m) => ({ default: m.AdminDashboard })));
+const AdminLogin = lazy(() => import('./pages/AdminLogin').then((m) => ({ default: m.AdminLogin })));
 const AffiliateDashboard = lazy(() => import('./pages/AffiliateDashboard').then((m) => ({ default: m.AffiliateDashboard })));
 const Account = lazy(() => import('./pages/Account').then((m) => ({ default: m.Account })));
 const Checkout = lazy(() => import('./pages/Checkout').then((m) => ({ default: m.Checkout })));
@@ -67,6 +69,7 @@ export type AppView =
   | 'contact'
   | 'rewards'
   | 'admin'
+  | 'admin-login'
   | 'appraisal'
   | 'refund-policy'
   | 'terms'
@@ -81,7 +84,8 @@ export function App() {
   const [currentView, setCurrentView] = useState<AppView>(() => {
     if (typeof window === 'undefined') return 'home';
     const path = window.location.pathname;
-    if (path === '/admin') return 'admin';
+    if (path === '/admin/login') return 'admin-login';
+    if (path === '/admin' || path.startsWith('/admin/')) return 'admin';
     if (path === '/shop') return 'shop';
     if (path === '/categories') return 'categories';
     if (path.startsWith('/product/')) return 'product-details';
@@ -117,8 +121,10 @@ export function App() {
     const trimmedPath = path.startsWith('/rep/') ? path.replace('/rep/', '') : path.slice(1);
     if (
       trimmedPath &&
+      !trimmedPath.startsWith('admin') &&
       ![
         'admin',
+        'admin/login',
         'shop',
         'categories',
         'checkout',
@@ -211,15 +217,29 @@ export function App() {
     const tab = params.get('tab');
     if (
       tab &&
-      ['overview', 'representatives', 'memberships', 'commerce', 'appraisals', 'commissions', 'reports', 'settings', 'permissions'].includes(
-        tab
-      )
+      [
+        'overview',
+        'products',
+        'collections',
+        'orders',
+        'customers',
+        'representatives',
+        'memberships',
+        'commerce',
+        'appraisals',
+        'commissions',
+        'content',
+        'reports',
+        'settings',
+        'permissions',
+      ].includes(tab)
     ) {
       return tab as AdminTab;
     }
     return 'overview';
   });
   const [highlightOrderId, setHighlightOrderId] = useState<string | null>(null);
+
 
   const [cart, setCart] = useState<CartItem[]>(() => {
     if (typeof window !== 'undefined') {
@@ -271,6 +291,21 @@ export function App() {
     return accountService.getStoredUser();
   });
 
+  // Admin Authentication & Authorization Guard State
+  const [adminAuthState, setAdminAuthState] = useState<{
+    isChecking: boolean;
+    isAdmin: boolean;
+  }>(() => {
+    if (typeof window === 'undefined') return { isChecking: false, isAdmin: false };
+    const path = window.location.pathname;
+    const isAdminRoute = path === '/admin' || path.startsWith('/admin/');
+    const isAdminLoginRoute = path === '/admin/login';
+    return {
+      isChecking: isAdminRoute || isAdminLoginRoute,
+      isAdmin: false,
+    };
+  });
+
   const [isAuthOpen, setIsAuthOpen] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
       const hash = window.location.hash || '';
@@ -316,24 +351,35 @@ export function App() {
     };
   }, []);
 
-  // Supabase Auth listener for session persistence and recovery link handling
+  // Persistent Customer Authentication (Firebase Auth) & Profile Sync
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'PASSWORD_RECOVERY') {
-        setAuthMode('reset');
-        setIsAuthOpen(true);
-      } else if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION') {
-        if (session?.user) {
-          const freshUser = await authService.syncOAuthUserProfile(session.user);
-          if (freshUser) {
-            setUser(freshUser);
-            accountService.updateStoredUser(freshUser);
-            setIsAuthOpen(false);
-          }
+    // 1. Initialize Firebase customer auth listener
+    const unsubscribeCustomerAuth = customerAuthService.initAuthStateListener((customerProfile) => {
+      const path = window.location.pathname;
+      const isAdminRoute = path === '/admin' || path.startsWith('/admin/');
+      // Do not overwrite admin session on admin route
+      if (!isAdminRoute) {
+        setUser(customerProfile);
+        if (customerProfile) {
+          setIsAuthOpen(false);
         }
-      } else if (event === 'SIGNED_OUT') {
-        setUser(null);
-        accountService.updateStoredUser(null);
+      }
+    });
+
+    return () => {
+      unsubscribeCustomerAuth();
+    };
+  }, []);
+
+  // Supabase Auth listener strictly for Admin password recovery link handling
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        const path = window.location.pathname;
+        if (!path.startsWith('/admin')) {
+          setAuthMode('reset');
+          setIsAuthOpen(true);
+        }
       }
     });
 
@@ -366,6 +412,81 @@ export function App() {
     });
   };
 
+  // Admin Route Protection & Session Verification
+  useEffect(() => {
+    let isMounted = true;
+
+    const verifyAdmin = async () => {
+      const path = window.location.pathname;
+      const isAdminRoute = path === '/admin' || path.startsWith('/admin/');
+      const isAdminLoginRoute = path === '/admin/login';
+
+      if (!isAdminRoute && !isAdminLoginRoute) {
+        return;
+      }
+
+      setAdminAuthState((prev) => ({ ...prev, isChecking: true }));
+
+      try {
+        const result = await authService.verifyAdminSession();
+        if (!isMounted) return;
+
+        setAdminAuthState({
+          isChecking: false,
+          isAdmin: result.isAdmin,
+        });
+
+        if (result.isAdmin && result.user) {
+          setUser(result.user);
+        }
+
+        if (isAdminRoute && !isAdminLoginRoute) {
+          if (!result.isAdmin) {
+            // Unauthenticated or customer account:
+            if (result.user && result.user.role !== 'admin') {
+              showToast('Access denied. Administrator privileges required.', {
+                title: 'Restricted Portal',
+                type: 'info',
+              });
+            }
+            window.history.replaceState({ view: 'admin-login' }, '', '/admin/login');
+            setCurrentView('admin-login');
+          }
+        } else if (isAdminLoginRoute) {
+          if (result.isAdmin) {
+            // Already authenticated admin navigating to login page: redirect to admin dashboard
+            window.history.replaceState({ view: 'admin' }, '', '/admin');
+            setCurrentView('admin');
+          }
+        }
+      } catch {
+        if (!isMounted) return;
+        setAdminAuthState({ isChecking: false, isAdmin: false });
+        if (isAdminRoute && !isAdminLoginRoute) {
+          window.history.replaceState({ view: 'admin-login' }, '', '/admin/login');
+          setCurrentView('admin-login');
+        }
+      }
+    };
+
+    verifyAdmin();
+
+    const handleSessionChange = () => {
+      verifyAdmin();
+    };
+
+    window.addEventListener('ils_admin_session_changed', handleSessionChange);
+    window.addEventListener('ils_user_updated', handleSessionChange);
+    window.addEventListener('ils_route_change', handleSessionChange);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener('ils_admin_session_changed', handleSessionChange);
+      window.removeEventListener('ils_user_updated', handleSessionChange);
+      window.removeEventListener('ils_route_change', handleSessionChange);
+    };
+  }, [currentView]);
+
   // Dynamic SEO management per view & product
   useEffect(() => {
     const titles: Record<AppView, string> = {
@@ -381,6 +502,7 @@ export function App() {
       contact: 'Contact & VIP Concierge | ILoveSurprises.com',
       rewards: 'Surprise Club™ VIP Rewards & Loyalty | ILoveSurprises.com',
       admin: 'Admin Control Center | ILoveSurprises.com',
+      'admin-login': 'Admin Login | ILoveSurprises.com',
       appraisal: 'Free Jewelry Value / Appraisal | ILoveSurprises.com',
       'refund-policy': 'Refund & Return Policy | ILoveSurprises.com',
       terms: 'Terms & Conditions | ILoveSurprises.com',
@@ -403,6 +525,7 @@ export function App() {
       contact: 'Get in touch with the ILoveSurprises concierge team for order support, custom gifts, or partnership inquiries.',
       rewards: 'Earn 10 points per $1 spent on cash reveal candles and fine jewelry. Redeem points for discount vouchers, free candles, and VIP perks.',
       admin: 'Secure internal management system for store commerce, representatives, memberships, and commissions.',
+      'admin-login': 'Secure administrator portal for I Love Surprises executive controls.',
       appraisal: 'Found a piece of jewelry in your surprise candle? Enter your jewelry code or submit clear photos for free certified appraisal.',
       'refund-policy': 'Review the official I Love Surprises 60-day return policy and refund guidelines.',
       terms: 'Official Terms & Conditions and store policies for ILoveSurprises.com.',
@@ -496,7 +619,7 @@ export function App() {
 
   // Browser history popstate handler with back detection & drawer interception
   useEffect(() => {
-    const handlePopState = (e: PopStateEvent) => {
+    const handlePopState = (e: PopStateEvent | Event) => {
       // If modal/cart is open, close it first on mobile back
       if (isCartOpen) {
         setIsCartOpen(false);
@@ -509,18 +632,20 @@ export function App() {
 
       setNavDirection('backward');
 
-      if (e.state?.view) {
-        const targetView = e.state.view as AppView;
+      const eventState = 'state' in e ? (e as PopStateEvent).state : null;
+
+      if (eventState?.view) {
+        const targetView = eventState.view as AppView;
         setCurrentView(targetView);
         if (targetView === 'home') {
           setSelectedCategory('All Surprises');
           setSearchQuery('');
           setSelectedProduct(null);
-        } else if (e.state.category) {
-          setSelectedCategory(e.state.category);
+        } else if (eventState.category) {
+          setSelectedCategory(eventState.category);
         }
-        if (e.state.productId || e.state.productSlug) {
-          const identifier = (e.state.productSlug || e.state.productId) as string;
+        if (eventState.productId || eventState.productSlug) {
+          const identifier = (eventState.productSlug || eventState.productId) as string;
           setSelectedProduct((current) => {
             if (
               current &&
@@ -535,17 +660,30 @@ export function App() {
             return current;
           });
         }
-        if (e.state.orderId) {
-          setConfirmedOrderId(e.state.orderId);
+        if (eventState.orderId) {
+          setConfirmedOrderId(eventState.orderId);
         }
-        if (e.state.tab) {
-          setAccountActiveTab(e.state.tab);
+        if (eventState.tab) {
+          setAccountActiveTab(eventState.tab);
           if (
-            ['overview', 'representatives', 'memberships', 'commerce', 'commissions', 'reports', 'settings', 'permissions'].includes(
-              e.state.tab
-            )
+            [
+              'overview',
+              'products',
+              'collections',
+              'orders',
+              'customers',
+              'representatives',
+              'memberships',
+              'commerce',
+              'appraisals',
+              'commissions',
+              'content',
+              'reports',
+              'settings',
+              'permissions',
+            ].includes(eventState.tab)
           ) {
-            setAdminActiveTab(e.state.tab as AdminTab);
+            setAdminActiveTab(eventState.tab as AdminTab);
           }
         }
 
@@ -554,14 +692,30 @@ export function App() {
         window.scrollTo({ top: targetScroll, behavior: 'smooth' });
       } else {
         const path = window.location.pathname;
-        if (path === '/admin') {
+        if (path === '/admin/login') {
+          setCurrentView('admin-login');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (path === '/admin' || path.startsWith('/admin/')) {
           const params = new URLSearchParams(window.location.search);
           const tab = params.get('tab');
           if (
             tab &&
-            ['overview', 'representatives', 'memberships', 'commerce', 'commissions', 'reports', 'settings', 'permissions'].includes(
-              tab
-            )
+            [
+              'overview',
+              'products',
+              'collections',
+              'orders',
+              'customers',
+              'representatives',
+              'memberships',
+              'commerce',
+              'appraisals',
+              'commissions',
+              'content',
+              'reports',
+              'settings',
+              'permissions',
+            ].includes(tab)
           ) {
             setAdminActiveTab(tab as AdminTab);
           }
@@ -678,7 +832,11 @@ export function App() {
     };
 
     window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    window.addEventListener('ils_route_change', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('ils_route_change', handlePopState);
+    };
   }, [isCartOpen, isAuthOpen]);
 
   const handleOpenAuth = (mode: 'login' | 'signup' | 'forgot' | 'reset' = 'login') => {
@@ -1085,6 +1243,16 @@ export function App() {
     }
   };
 
+  const handleNavigateToAdminLogin = () => {
+    scrollPositions.current[currentView] = window.scrollY;
+    setNavDirection('forward');
+    setCurrentView('admin-login');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (window.history.pushState) {
+      window.history.pushState({ view: 'admin-login' }, '', '/admin/login');
+    }
+  };
+
   const handleNavigateToAdmin = (tab: AdminTab = 'overview') => {
     scrollPositions.current[currentView] = window.scrollY;
     setNavDirection('forward');
@@ -1092,8 +1260,27 @@ export function App() {
     setCurrentView('admin');
     window.scrollTo({ top: 0, behavior: 'smooth' });
     if (window.history.pushState) {
-      window.history.pushState({ view: 'admin', tab }, '', `/admin?tab=${tab}`);
+      window.history.pushState({ view: 'admin', tab }, '', tab === 'overview' ? '/admin' : `/admin?tab=${tab}`);
     }
+  };
+
+  const handleAdminLogout = async () => {
+    await authService.adminLogout();
+    setAdminAuthState({ isChecking: false, isAdmin: false });
+    setUser(null);
+    window.history.pushState({ view: 'admin-login' }, '', '/admin/login');
+    setCurrentView('admin-login');
+    showToast('You have been securely signed out of the Admin Suite.', {
+      title: 'Session Terminated',
+      type: 'info',
+    });
+  };
+
+  const handleAdminLoginSuccess = (adminUser: UserProfile) => {
+    setUser(adminUser);
+    setAdminAuthState({ isChecking: false, isAdmin: true });
+    window.history.pushState({ view: 'admin' }, '', '/admin');
+    setCurrentView('admin');
   };
 
   const handleNavigateToRefundPolicy = (direction: 'forward' | 'backward' = 'forward') => {
@@ -1136,7 +1323,7 @@ export function App() {
     const targetScroll = direction === 'backward' ? scrollPositions.current['shipping-policy'] || 0 : 0;
     window.scrollTo({ top: targetScroll, behavior: 'smooth' });
     if (window.history.pushState) {
-      window.history.pushState({ view: 'shipping-policy' }, '', '/shipping');
+      window.history.pushState({ view: 'shipping-policy' }, '', '/shipping-policy');
     }
   };
 
@@ -1172,6 +1359,7 @@ export function App() {
       | 'contact'
       | 'rewards'
       | 'admin'
+      | 'admin-login'
       | 'appraisal'
       | 'refund-policy'
       | 'terms'
@@ -1182,6 +1370,8 @@ export function App() {
   ) => {
     if (route === 'admin') {
       handleNavigateToAdmin('overview');
+    } else if (route === 'admin-login') {
+      handleNavigateToAdminLogin();
     } else if (route === 'appraisal') {
       handleNavigateToAppraisal('forward');
     } else if (route === 'refund-policy') {
@@ -1242,16 +1432,41 @@ export function App() {
         category={selectedCategory}
         accountTab={accountActiveTab}
       />
-      {currentView === 'admin' ? (
-        <div key="page-admin" className="flex-1 w-full min-h-screen bg-[#fcf9fb]">
+      {currentView === 'admin-login' ? (
+        <div key="page-admin-login" className="flex-1 w-full min-h-screen bg-[#0d0a11]">
           <Suspense fallback={<PageLoadingFallback />}>
-            <AdminDashboard
-              initialTab={adminActiveTab}
+            <AdminLogin
+              onSuccess={handleAdminLoginSuccess}
               onNavigateToHome={() => handleNavigateToHome('backward')}
               onShowToast={showToast}
             />
           </Suspense>
         </div>
+      ) : currentView === 'admin' ? (
+        adminAuthState.isChecking ? (
+          <div key="page-admin-checking" className="flex-1 w-full min-h-screen bg-[#0d0a11] flex flex-col items-center justify-center p-6 text-center text-white select-none">
+            <div className="w-16 h-16 rounded-2xl bg-[#D30915]/15 border border-[#D30915]/30 flex items-center justify-center mb-4 shadow-[0_0_30px_rgba(211,9,21,0.25)]">
+              <div className="w-7 h-7 border-3 border-white/20 border-t-[#D30915] rounded-full animate-spin" />
+            </div>
+            <h2 className="text-lg font-black tracking-wide uppercase text-white mb-1 font-display">
+              Verifying Executive Access
+            </h2>
+            <p className="text-xs text-[#9c93a4] font-medium max-w-xs">
+              Checking administrative session and cryptographic privileges...
+            </p>
+          </div>
+        ) : adminAuthState.isAdmin ? (
+          <div key="page-admin" className="flex-1 w-full min-h-screen bg-[#fcf9fb]">
+            <Suspense fallback={<PageLoadingFallback />}>
+              <AdminDashboard
+                initialTab={adminActiveTab}
+                onNavigateToHome={() => handleNavigateToHome('backward')}
+                onLogout={handleAdminLogout}
+                onShowToast={showToast}
+              />
+            </Suspense>
+          </div>
+        ) : null
       ) : isCheckoutFlow ? (
         <>
           {/* Minimal Checkout Header: Hidden on shipping, delivery, and payment pages (only page heading shown) */}

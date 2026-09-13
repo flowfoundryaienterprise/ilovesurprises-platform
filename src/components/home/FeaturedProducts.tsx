@@ -192,7 +192,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
   const isCardLoading = isLoading || (isFetchingLive && !liveProducts);
 
   return (
-    <section id="featured" data-section="best-sellers" className="relative max-w-[1460px] mx-auto px-3 sm:px-6 py-4 sm:py-6">
+    <section id="featured" data-section="best-sellers" className="relative max-w-[1460px] mx-auto px-2.5 sm:px-6 py-4 sm:py-6">
       <div id="best-sellers" className="absolute -top-20" />
 
       {/* Header & Quick Category Filter Chips */}
@@ -237,15 +237,8 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
         </div>
       </div>
 
-      {/* Product Grid */}
-      <div
-        className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 260px), 1fr))',
-          gap: '16px',
-        }}
-      >
+      {/* Product Grid - 2 products per row on mobile, smoothly scaling up to 5 on large screens */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5 sm:gap-4 lg:gap-5">
         {isCardLoading
           ? Array.from({ length: 12 }).map((_, i) => <ProductCardSkeleton key={i} />)
           : displayedProducts.map((product) => (

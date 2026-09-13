@@ -16,10 +16,11 @@ dist-ssr
 !.env.example
 !.env.production
 Backend_Data/
-*customer*
+*customer*export*
 *products_export*
 *orders_export*
 *Orders_export*
+!src/**
 *.csv
 *.tsv
 *.pem

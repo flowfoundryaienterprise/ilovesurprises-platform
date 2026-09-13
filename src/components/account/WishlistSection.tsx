@@ -51,7 +51,7 @@ export const WishlistSection: React.FC<WishlistSectionProps> = ({
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
-      <div className="bg-white rounded-[24px] p-6 sm:p-8 border border-[#eedbe6] shadow-[0_8px_24px_rgba(50,31,63,0.04)]">
+      <div className="bg-white rounded-[20px] sm:rounded-[24px] p-3.5 sm:p-8 border border-[#eedbe6] shadow-[0_8px_24px_rgba(50,31,63,0.04)]">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-[#f5eaf1] mb-6">
           <div>
@@ -82,8 +82,8 @@ export const WishlistSection: React.FC<WishlistSectionProps> = ({
 
         {/* Content State: Skeleton vs Empty vs Grid */}
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" role="status" aria-label="Loading saved items">
-            {Array.from({ length: 3 }).map((_, i) => (
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4" role="status" aria-label="Loading saved items">
+            {Array.from({ length: 4 }).map((_, i) => (
               <ProductCardSkeleton key={i} />
             ))}
           </div>
@@ -108,15 +108,15 @@ export const WishlistSection: React.FC<WishlistSectionProps> = ({
             </button>
           </div>
         ) : (
-          /* Wishlist Grid */
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          /* Wishlist Grid - 2 products per row on mobile */
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4">
             {wishlistProducts.map((product) => (
               <div
                 key={product.id}
-                className="p-4 rounded-[20px] bg-[#fffafc] border border-[#eedbe6] hover:border-[#fecdd3] transition-all flex flex-col justify-between group shadow-2xs hover:shadow-[0_6px_20px_rgba(211, 9, 21,0.08)]"
+                className="p-2.5 sm:p-4 rounded-[16px] sm:rounded-[20px] bg-[#fffafc] border border-[#eedbe6] hover:border-[#fecdd3] transition-all flex flex-col justify-between group shadow-2xs hover:shadow-[0_6px_20px_rgba(211,9,21,0.08)]"
               >
                 <div>
-                  <div className="relative w-full aspect-square rounded-[16px] bg-white border border-[#eee2eb] p-2 overflow-hidden flex items-center justify-center cursor-pointer mb-3">
+                  <div className="relative w-full aspect-square rounded-[12px] sm:rounded-[16px] bg-white border border-[#eee2eb] p-1.5 sm:p-2 overflow-hidden flex items-center justify-center cursor-pointer mb-2 sm:mb-3">
                     <img
                       src={product.image}
                       alt={product.name}
@@ -125,7 +125,7 @@ export const WishlistSection: React.FC<WishlistSectionProps> = ({
                     />
 
                     {product.badge && (
-                      <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-[#D30915] text-white text-[9px] font-black uppercase tracking-wider shadow-xs">
+                      <span className="absolute top-1.5 left-1.5 sm:top-2.5 sm:left-2.5 px-1.5 sm:px-2 py-0.5 rounded-full bg-[#D30915] text-white text-[8px] sm:text-[9px] font-black uppercase tracking-wider shadow-xs">
                         {product.badge}
                       </span>
                     )}
@@ -133,33 +133,33 @@ export const WishlistSection: React.FC<WishlistSectionProps> = ({
                     <button
                       type="button"
                       onClick={() => onWishlistToggle(product)}
-                      className="w-7 h-7 rounded-full bg-white/90 hover:bg-white text-red-500 absolute top-2.5 right-2.5 flex items-center justify-center shadow-xs transition-colors cursor-pointer border border-[#fecdd3]"
+                      className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-white/90 hover:bg-white text-red-500 absolute top-1.5 right-1.5 sm:top-2.5 sm:right-2.5 flex items-center justify-center shadow-xs transition-colors cursor-pointer border border-[#fecdd3]"
                       title="Remove from wishlist"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                     </button>
                   </div>
 
-                  <div className="flex items-center gap-1 text-amber-500 text-xs font-bold mb-1">
-                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                  <div className="flex items-center gap-1 text-amber-500 text-[10px] sm:text-xs font-bold mb-1">
+                    <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-amber-400 text-amber-400" />
                     <span>{product.rating}</span>
-                    <span className="text-[#8a858f] font-normal">({product.reviewCount})</span>
+                    <span className="text-[#8a858f] font-normal text-[8.5px] sm:text-xs">({product.reviewCount})</span>
                   </div>
 
                   <h4
                     onClick={() => onSelectProduct(product)}
-                    className="text-xs sm:text-sm font-black text-[#141219] m-0 line-clamp-2 hover:text-[#D30915] cursor-pointer"
+                    className="text-[11.5px] sm:text-sm font-black text-[#141219] m-0 line-clamp-2 hover:text-[#D30915] cursor-pointer"
                   >
                     {product.name}
                   </h4>
 
-                  <span className="text-[10px] text-emerald-700 font-bold block mt-1">
-                    {product.surpriseType === 'cash' ? '💵 Real Cash $2 - $2,500 Inside' : '💍 Guaranteed Luxury Jewelry'}
+                  <span className="text-[9px] sm:text-[10px] text-emerald-700 font-bold block mt-1 truncate">
+                    {product.surpriseType === 'cash' ? '💵 Real Cash $2-$2.5K Inside' : '💍 Guaranteed Luxury Jewelry'}
                   </span>
                 </div>
 
-                <div className="pt-3 mt-3 border-t border-[#f4edf2] flex items-center justify-between gap-2">
-                  <span className="text-sm font-black text-[#141219]">
+                <div className="pt-2 mt-2 sm:pt-3 sm:mt-3 border-t border-[#f4edf2] flex items-center justify-between gap-1">
+                  <span className="text-xs sm:text-sm font-black text-[#141219]">
                     ${product.price.toFixed(2)}
                   </span>
 
@@ -168,10 +168,10 @@ export const WishlistSection: React.FC<WishlistSectionProps> = ({
                     onClick={() => {
                       onAddToCart(product, 1);
                     }}
-                    className="h-[34px] px-3.5 rounded-[10px] bg-[#D30915] hover:bg-[#B60711] text-white text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+                    className="h-[28px] sm:h-[34px] px-2 sm:px-3.5 rounded-[8px] sm:rounded-[10px] bg-[#D30915] hover:bg-[#B60711] text-white text-[10.5px] sm:text-xs font-black uppercase tracking-wider flex items-center gap-1 shadow-2xs transition-all cursor-pointer"
                   >
-                    <ShoppingBag className="w-3.5 h-3.5" />
-                    <span>Add to Bag</span>
+                    <ShoppingBag className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                    <span>Add</span>
                   </button>
                 </div>
               </div>
