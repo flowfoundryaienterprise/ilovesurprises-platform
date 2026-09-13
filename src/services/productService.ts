@@ -28,6 +28,18 @@ const QUERY_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
  */
 const productSlugCache = new Map<string, Product>();
 
+export function cacheProduct(product: Product) {
+  if (!product) return;
+  if (product.slug) productSlugCache.set(product.slug.toLowerCase(), product);
+  if (product.id) productSlugCache.set(product.id.toLowerCase(), product);
+}
+
+export function getCachedProduct(identifier: string): Product | null {
+  if (!identifier) return null;
+  const clean = decodeURIComponent(identifier).trim().toLowerCase();
+  return productSlugCache.get(clean) || null;
+}
+
 /**
  * Resolves a product image URL, automatically recovering from 404s, generic Shopify placeholders,
  * or missing image fields by selecting the authentic category or product mockup.
@@ -647,7 +659,7 @@ export const productService = {
    */
   async getProductBySlug(slug: string): Promise<Product | null> {
     if (!slug) return null;
-    const cleanSlug = slug.trim();
+    const cleanSlug = decodeURIComponent(slug).trim();
     const lowerSlug = cleanSlug.toLowerCase();
 
     // 1. Check in-memory product cache first
@@ -659,36 +671,42 @@ export const productService = {
     if (isSupabaseConfigured()) {
       try {
         // Check by handle first (exact match)
-        const { data: byHandle, error: handleErr } = await supabase
+        const { data: byHandleRows, error: handleErr } = await supabase
           .from('products')
           .select(CARD_SELECT_COLUMNS)
           .eq('handle', cleanSlug)
-          .maybeSingle();
+          .limit(1);
 
-        if (!handleErr && byHandle) {
-          return mapRowToProduct(byHandle);
+        if (!handleErr && byHandleRows && byHandleRows.length > 0) {
+          const mapped = mapRowToProduct(byHandleRows[0]);
+          cacheProduct(mapped);
+          return mapped;
         }
 
         // Check by case-insensitive handle
-        const { data: byIlikeHandle, error: ilikeErr } = await supabase
+        const { data: byIlikeRows, error: ilikeErr } = await supabase
           .from('products')
           .select(CARD_SELECT_COLUMNS)
           .ilike('handle', cleanSlug)
-          .maybeSingle();
+          .limit(1);
 
-        if (!ilikeErr && byIlikeHandle) {
-          return mapRowToProduct(byIlikeHandle);
+        if (!ilikeErr && byIlikeRows && byIlikeRows.length > 0) {
+          const mapped = mapRowToProduct(byIlikeRows[0]);
+          cacheProduct(mapped);
+          return mapped;
         }
 
         // Check by product_id
-        const { data: byId, error: idErr } = await supabase
+        const { data: byIdRows, error: idErr } = await supabase
           .from('products')
           .select(CARD_SELECT_COLUMNS)
           .eq('product_id', cleanSlug)
-          .maybeSingle();
+          .limit(1);
 
-        if (!idErr && byId) {
-          return mapRowToProduct(byId);
+        if (!idErr && byIdRows && byIdRows.length > 0) {
+          const mapped = mapRowToProduct(byIdRows[0]);
+          cacheProduct(mapped);
+          return mapped;
         }
 
         // Check by handle formatted as title words
@@ -700,7 +718,9 @@ export const productService = {
           .limit(1);
 
         if (byTitle && byTitle.length > 0) {
-          return mapRowToProduct(byTitle[0]);
+          const mapped = mapRowToProduct(byTitle[0]);
+          cacheProduct(mapped);
+          return mapped;
         }
       } catch (err) {
         console.warn('❌ Supabase getProductBySlug error, using fallback:', err);
@@ -711,9 +731,17 @@ export const productService = {
     const staticMatch =
       productsData.find((p) => p.slug === cleanSlug || p.id === cleanSlug) || null;
     if (staticMatch) {
-      productSlugCache.set(lowerSlug, staticMatch);
+      cacheProduct(staticMatch);
     }
     return staticMatch;
+  },
+
+  cacheProduct(product: Product) {
+    cacheProduct(product);
+  },
+
+  getCachedProduct(identifier: string): Product | null {
+    return getCachedProduct(identifier);
   },
 
   /**
@@ -968,48 +996,129 @@ export const productService = {
    */
   async getCollectionByHandle(handle: string): Promise<Collection | null> {
     if (!handle) return null;
-    const clean = handle.trim().toLowerCase();
+    const clean = decodeURIComponent(handle).trim().toLowerCase();
 
-    // Map common navigation aliases to authoritative database handles
+    // Comprehensive map from navigation slugs to authoritative production Supabase collection handles
     const ALIAS_MAP: Record<string, string> = {
+      // Top Level Categories
+      'candles': 'candles',
+      'wax-melts': 'wax-melts',
+      'bath-bombs': 'bath-bombs',
+      'soaps': 'soap',
+      'soap': 'soap',
+      'jewelry': 'jewelry',
+      'candy': 'candy',
+      'chocolates': 'chocolates',
+      'slimes': 'slimes',
+      'cards': 'greeting-cards',
+      'greeting-cards': 'greeting-cards',
+
+      // Candles Subcategories
       'cash-candle': 'cash-candles',
       'cash-candles': 'cash-candles',
       'cash-money-candle': 'cash-money-candles',
       'cash-money-candles': 'cash-money-candles',
-      'money-candles': 'money-candles',
-      'zodiac-cash-candles': 'zodiac-cash-money-candles',
-      'zodiac-cash-money-candles': 'zodiac-cash-money-candles',
-      'zodiac': 'zodiac-cash-money-candles',
+      'jewelry-candle': 'jewelry-candles',
+      'jewelry-candles': 'jewelry-candles',
       'funny-cash-candles': 'funny-candle',
       'funny-candle': 'funny-candle',
+      'funny-candles': 'funny-candles',
       'military-cash-candles': 'military-cash-candles',
       'soda-pop-cash-candles': 'soda-pop-candles-soda-candles-soda-cash-candles-soda-money-candles',
-      'cereal-bowl-candles': 'cereal-bowl-candles',
+      'soda-pop-candles': 'soda-pop-candles-soda-candles-soda-cash-candles-soda-money-candles',
+      'cereal-bowl-candles': 'cereal-bowl-candles-cereal-candles',
+      'cereal-bowl-candles-cereal-candles': 'cereal-bowl-candles-cereal-candles',
       'cereal-cash-candles': 'cereal-candles-cereal-cash-candles',
+      'cereal-candles-cereal-cash-candles': 'cereal-candles-cereal-cash-candles',
+      'jewelry-cereal-candles': 'jewelry-cereal-candles',
       'coffee-mug-cash-candles': 'cash-coffee-candles-coffee-mug-candles',
       'foodie-cash-candles': 'foodie-jewelry-candles-jewelry-candles-for-foodies',
       'wine-bottle-cash-candles': 'wine-bottle-cash-candles',
-      'anime-cash-candles': 'cash-anime-candles',
+      'zodiac-cash-candles': 'zodiac-cash-money-candles',
+      'zodiac-cash-money-candles': 'zodiac-cash-money-candles',
+      'zodiac-candles': 'zodiac-candles',
+      'zodiac': 'zodiac-cash-money-candles',
       'astrology-birthdate-cash-candles': 'astrology-birthdate-cash-candles',
+      'anime-cash-candles': 'cash-anime-candles',
+      'cash-anime-candles': 'cash-anime-candles',
+
+      // Wax Melts Subcategories
+      'cereal-bowl-wax-melts': 'cereal-bowl-wax-melts',
       'cash-wax-melts': 'cash-wax-melts',
       'jewelry-wax-melts': 'jewelry-wax-melts',
-      'cereal-bowl-wax-melts': 'cereal-bowl-cash-wax-melts-cereal-bowl-melts',
       'wax-melt-bundles': 'cash-wax-melt-surprise-bundles',
-      'cash-bath-bombs': 'money-bath-bombs',
-      'jewelry-bath-bombs': 'ring-bath-bombs',
+      'cash-wax-melt-surprise-bundles': 'cash-wax-melt-surprise-bundles',
+
+      // Bath & Body Subcategories
+      'cash-bath-bombs': 'cash-bath-bombs',
+      'surprise-rose-bear-cash-bath-bomb-bundle': 'cash-surprise-bear-and-cash-wax-melt-bundles',
+      'surprise-rose-bear-bundle': 'cash-surprise-bear-and-cash-wax-melt-bundles',
+      'astrology-cash-bath-bombs': 'astrology-cash-bath-bombs',
+      'cash-bath-bomb-tube-bundles': 'cash-bath-bombs-bundles',
+      'cash-bath-bombs-bundles': 'cash-bath-bombs-bundles',
+      'jewelry-bath-bombs': 'jewelry-bath-bombs',
       'cash-sugar-scrubs': 'sugar-scrubs',
+      'sugar-scrubs': 'sugar-scrubs',
+      'jewelry-sugar-scrubs': 'jewelry-sugar-scrubs-1',
+      'jewelry-sugar-scrubs-1': 'jewelry-sugar-scrubs-1',
       'cash-bath-soaks': 'money-bath-salts',
-      'cash-candy': 'candy',
-      'cash-candy-tubes': 'cash-candy-tubes',
-      'candy': 'candy',
+      'money-bath-salts': 'money-bath-salts',
+
+      // Soaps Subcategories
+      'goat-milk-cash-money-soaps': 'goat-milk-soaps',
       'goat-milk-soaps': 'goat-milk-soaps',
+      'goat-milk-soap': 'goat-milk-soap',
+      'cash-mystery-soap-bars': 'money-soaps',
+      'cash-mystery-bars': 'money-soaps',
       'money-soaps': 'money-soaps',
+      'artisan-herbal-soaps': 'soap',
+      'soap-bundles-gift-sets': 'soap',
+
+      // Jewelry Subcategories
+      'mystery-rings': 'ring-candles',
+      'ring-candles': 'ring-candles',
+      'necklaces-pendants': 'necklace-candles',
+      'necklace-candles': 'necklace-candles',
+      'bracelets-bangles': 'bracelet-candles',
+      'bracelet-candles': 'bracelet-candles',
+      'earrings': 'earring-candles',
+      'earrings-studs': 'earring-candles',
+      'earring-candles': 'earring-candles',
+      'cash-jewelry': 'jewelry',
+      'zodiac-birthstone-jewelry': 'zodiac-candles',
+      'mens-jewelry': 'jewelry',
+      'surprise-jewelry-bundles': 'cash-wax-melt-surprise-bundles',
+
+      // Candy Subcategories
+      'cash-candy': 'cash-candy',
+      'jewelry-candy': 'jewelry-candy',
+      'gummy-surprise-pouches': 'giant-gummy-bear-wax-melts',
+      'sweet-treat-bundles': 'sweets-candies-confectionery',
+      'sweets-candies-confectionery': 'sweets-candies-confectionery',
+
+      // Chocolates Subcategories
+      'cash-chocolates': 'cash-chocolates',
+      'jewelry-chocolate': 'jewelry-chocolates',
+      'jewelry-chocolates': 'jewelry-chocolates',
+      'gourmet-chocolate-bars': 'city-cash-chocolates',
+      'city-cash-chocolates': 'city-cash-chocolates',
+      'luxury-reveal-gift-boxes': 'cash-wax-melt-surprise-bundles',
+
+      // Slimes Subcategories
+      'cash-slimes': 'mental-health-cash-slimes',
+      'mental-health-cash-slimes': 'mental-health-cash-slimes',
+      'cereal-bowl-slimes': 'cash-cereal-slimes',
       'cash-cereal-slimes': 'cash-cereal-slimes',
-      'jewelry-cash-slimes': 'jewelry-cash-slimes',
-      'candles': 'candles',
-      'wax-melts': 'wax-melts',
-      'jewelry': 'jewelry',
-      'bath-bombs': 'money-bath-bombs',
+      'astrology-cash-slimes': 'astrology-cash-slimes',
+      'jewelry-slimes': 'mental-health-jewelry-slimes',
+      'mental-health-jewelry-slimes': 'mental-health-jewelry-slimes',
+
+      // Cards Subcategories
+      'funny-cash-greeting-cards': 'funny-cash-greeting-cards',
+      'jewelry-greeting-cards': 'jewelry-cash-greeting-cards',
+      'jewelry-cash-greeting-cards': 'jewelry-cash-greeting-cards',
+      'birthday-surprise-cards': 'funny-greeting-cards',
+      'holiday-celebration-cards': 'greeting-cards',
     };
 
     const targetHandle = ALIAS_MAP[clean] || clean;
@@ -1017,42 +1126,81 @@ export const productService = {
     if (isSupabaseConfigured()) {
       try {
         // 1. Exact handle match
-        const { data: exactCol } = await (supabase as any)
+        const { data: exactRows } = await (supabase as any)
           .from('collections')
           .select('*')
           .eq('handle', targetHandle)
-          .maybeSingle();
+          .limit(1);
 
-        if (exactCol) return mapRowToCollection(exactCol);
+        if (exactRows && exactRows.length > 0) return mapRowToCollection(exactRows[0]);
 
         // 2. Case-insensitive handle match
-        const { data: ilikeCol } = await (supabase as any)
+        const { data: ilikeRows } = await (supabase as any)
           .from('collections')
           .select('*')
           .ilike('handle', targetHandle)
-          .maybeSingle();
+          .limit(1);
 
-        if (ilikeCol) return mapRowToCollection(ilikeCol);
+        if (ilikeRows && ilikeRows.length > 0) return mapRowToCollection(ilikeRows[0]);
 
         // 3. Match by collection_id
-        const { data: idCol } = await (supabase as any)
+        const { data: idRows } = await (supabase as any)
           .from('collections')
           .select('*')
           .eq('collection_id', clean)
-          .maybeSingle();
+          .limit(1);
 
-        if (idCol) return mapRowToCollection(idCol);
+        if (idRows && idRows.length > 0) return mapRowToCollection(idRows[0]);
 
-        // 4. Try original handle if targetHandle was an alias that failed
+        // 4. Try original clean handle if targetHandle was an alias
         if (targetHandle !== clean) {
-          const { data: origCol } = await (supabase as any)
+          const { data: origRows } = await (supabase as any)
             .from('collections')
             .select('*')
             .eq('handle', clean)
-            .maybeSingle();
+            .limit(1);
 
-          if (origCol) return mapRowToCollection(origCol);
+          if (origRows && origRows.length > 0) return mapRowToCollection(origRows[0]);
         }
+
+        // 5. Singular / Plural normalization (e.g. soaps <-> soap)
+        const singular = clean.endsWith('s') ? clean.slice(0, -1) : null;
+        const plural = clean + 's';
+        if (singular) {
+          const { data: singRows } = await (supabase as any)
+            .from('collections')
+            .select('*')
+            .eq('handle', singular)
+            .limit(1);
+          if (singRows && singRows.length > 0) return mapRowToCollection(singRows[0]);
+        }
+        const { data: plurRows } = await (supabase as any)
+          .from('collections')
+          .select('*')
+          .eq('handle', plural)
+          .limit(1);
+        if (plurRows && plurRows.length > 0) return mapRowToCollection(plurRows[0]);
+
+        // 6. Partial handle match with highest product count
+        const { data: partialRows } = await (supabase as any)
+          .from('collections')
+          .select('*')
+          .ilike('handle', `%${clean}%`)
+          .order('products_count', { ascending: false })
+          .limit(1);
+
+        if (partialRows && partialRows.length > 0) return mapRowToCollection(partialRows[0]);
+
+        // 7. Title match with highest product count
+        const titleQuery = clean.replace(/-/g, ' ');
+        const { data: titleRows } = await (supabase as any)
+          .from('collections')
+          .select('*')
+          .ilike('title', `%${titleQuery}%`)
+          .order('products_count', { ascending: false })
+          .limit(1);
+
+        if (titleRows && titleRows.length > 0) return mapRowToCollection(titleRows[0]);
       } catch (err) {
         console.warn('Error fetching collection by handle:', err);
       }
@@ -1064,6 +1212,7 @@ export const productService = {
   /**
    * Retrieves products belonging strictly to an authoritative collection from Supabase.
    * Utilizes product_collections join to ensure ONLY authentic collection products are returned.
+   * Includes smart fallback to category/title search if a collection has 0 join-table rows.
    */
   async getProductsByCollection(
     handleOrId: string,
@@ -1116,7 +1265,7 @@ export const productService = {
 
         const { data, count, error } = await query.range(from, to);
 
-        if (!error && data) {
+        if (!error && data && data.length > 0) {
           let prods = data
             .map((r: any) => r.products)
             .filter(Boolean)
@@ -1138,6 +1287,32 @@ export const productService = {
             totalPages: Math.max(1, Math.ceil(total / limit)),
           };
 
+          queryCache.set(cacheKey, { result: result as any, timestamp: Date.now() });
+          return result;
+        }
+
+        // Recovery: if join table had 0 products, try direct products match by category or title words
+        const searchKeyword = col.title
+          .replace(/[®™\(\)]/g, '')
+          .split(/\s+/)
+          .filter((w) => w.length > 3)[0] || col.title;
+
+        const { data: fallbackProds, count: fbCount } = await (supabase as any)
+          .from('products')
+          .select(CARD_SELECT_COLUMNS, { count: 'exact' })
+          .ilike('title', `%${searchKeyword}%`)
+          .range(from, to);
+
+        if (fallbackProds && fallbackProds.length > 0) {
+          const prods = fallbackProds.map(mapRowToProduct);
+          const total = fbCount || prods.length;
+          const result = {
+            collection: col,
+            products: deduplicateProducts(prods),
+            total,
+            page,
+            totalPages: Math.max(1, Math.ceil(total / limit)),
+          };
           queryCache.set(cacheKey, { result: result as any, timestamp: Date.now() });
           return result;
         }

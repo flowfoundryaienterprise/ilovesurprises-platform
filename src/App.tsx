@@ -183,8 +183,9 @@ export function App() {
     if (typeof window === 'undefined') return null;
     const path = window.location.pathname;
     if (path.startsWith('/product/')) {
-      const slug = path.replace('/product/', '').trim();
-      return productsData.find((p) => p.slug === slug || p.id === slug) || null;
+      const rawSlug = path.replace('/product/', '').trim();
+      const slug = decodeURIComponent(rawSlug);
+      return productService.getCachedProduct(slug) || productsData.find((p) => p.slug === slug || p.id === slug) || null;
     }
     return null;
   });
@@ -194,8 +195,18 @@ export function App() {
     if (typeof window !== 'undefined') {
       const path = window.location.pathname;
       if (path.startsWith('/product/')) {
-        const slug = path.replace('/product/', '').trim();
+        const rawSlug = path.replace('/product/', '').trim();
+        const slug = decodeURIComponent(rawSlug);
         if (slug) {
+          const cached = productService.getCachedProduct(slug);
+          if (cached) {
+            setSelectedProduct(cached);
+            setIsProductLoading(false);
+            setProductLoadingError(false);
+            return;
+          }
+
+          setIsProductLoading(true);
           productService.getProductBySlug(slug).then((prod) => {
             if (prod) {
               setSelectedProduct(prod);
@@ -810,7 +821,8 @@ export function App() {
           setCurrentView('collection');
           window.scrollTo({ top: 0, behavior: 'smooth' });
         } else if (path.startsWith('/product/')) {
-          const slug = path.replace('/product/', '').trim();
+          const rawSlug = path.replace('/product/', '').trim();
+          const slug = decodeURIComponent(rawSlug);
           setCurrentView('product-details');
           setSelectedProduct((current) => {
             if (
@@ -821,6 +833,13 @@ export function App() {
               setIsProductLoading(false);
               setProductLoadingError(false);
               return current;
+            }
+
+            const cached = productService.getCachedProduct(slug);
+            if (cached) {
+              setIsProductLoading(false);
+              setProductLoadingError(false);
+              return cached;
             }
 
             setIsProductLoading(true);
@@ -857,10 +876,8 @@ export function App() {
     };
 
     window.addEventListener('popstate', handlePopState);
-    window.addEventListener('ils_route_change', handlePopState);
     return () => {
       window.removeEventListener('popstate', handlePopState);
-      window.removeEventListener('ils_route_change', handlePopState);
     };
   }, [isCartOpen, isAuthOpen]);
 
@@ -1158,16 +1175,19 @@ export function App() {
   const handleSelectProduct = (product: Product) => {
     scrollPositions.current[currentView] = window.scrollY;
     setNavDirection('forward');
+    productService.cacheProduct(product);
     setSelectedProduct(product);
     setIsProductLoading(false);
     setProductLoadingError(false);
     setCurrentView('product-details');
     window.scrollTo(0, 0);
+    const targetSlug = product.slug || product.id;
     if (window.history.pushState) {
-      window.history.pushState({ view: 'product-details', productId: product.id, productSlug: product.slug }, '', `/product/${product.slug}`);
-    }
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('ils_route_change'));
+      window.history.pushState(
+        { view: 'product-details', productId: product.id, productSlug: targetSlug },
+        '',
+        `/product/${encodeURIComponent(targetSlug)}`
+      );
     }
   };
 

@@ -64,8 +64,17 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
   return (
     <div
       id={`product-${product.id}`}
+      role="button"
+      tabIndex={0}
       onClick={handleCardClick}
-      className="group relative rounded-[16px] sm:rounded-[20px] bg-white border border-[#eee7ed] hover:border-[#f1b8cb] p-2.5 sm:p-3.5 flex flex-col justify-between shadow-[0_2px_10px_rgba(50,31,63,0.03)] hover:shadow-[0_12px_32px_rgba(50,31,63,0.08)] hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden max-w-full"
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleCardClick();
+        }
+      }}
+      aria-label={`View product details for ${product.name}`}
+      className="group relative rounded-[16px] sm:rounded-[20px] bg-white border border-[#eee7ed] hover:border-[#f1b8cb] p-2.5 sm:p-3.5 flex flex-col justify-between shadow-[0_2px_10px_rgba(50,31,63,0.03)] hover:shadow-[0_12px_32px_rgba(50,31,63,0.08)] hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden max-w-full touch-manipulation select-none"
     >
       {/* Product Image Container with Hardware-Accelerated Isolated Overflow Clipping */}
       <div className="relative w-full max-w-full aspect-square rounded-[12px] sm:rounded-[14px] overflow-hidden bg-white border border-[#f5edf2] mb-2 sm:mb-2.5 flex items-center justify-center isolate">
