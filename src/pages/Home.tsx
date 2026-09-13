@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Hero } from '../components/home/Hero';
 import { CategorySection } from '../components/home/CategorySection';
-import { FeaturedCollectionsSection } from '../components/home/FeaturedCollectionsSection';
 import { AffiliateSection } from '../components/home/AffiliateSection';
 import { FeaturedProducts } from '../components/home/FeaturedProducts';
 import { ReviewsSection } from '../components/home/ReviewsSection';
@@ -57,26 +56,18 @@ export const Home: React.FC<HomeProps> = ({
         <Hero />
       </div>
 
-      {/* 2. Shop by Surprise (Categories & 4-Item Guarantees Bar) */}
+      {/* 2. Explore Section (Shop by Surprise - 12 Authoritative Collections with Direct Collection Routing) */}
       <div className="transition-all duration-300">
         <CategorySection
           isLoading={isLoading}
           selectedCategory={homeCategory}
           onSelectCategory={onSelectCategory}
+          onSelectCollection={onSelectCollection}
           onViewAllCategories={onViewAllCategories}
         />
       </div>
 
-      {/* 2.5 Main Featured Collections: Cash Candles, Trending Collection, Jewelry Candles */}
-      <div className="transition-all duration-300">
-        <FeaturedCollectionsSection
-          onSelectCategory={onSelectCategory}
-          onSelectCollection={onSelectCollection}
-          onSelectProduct={onSelectProduct}
-        />
-      </div>
-
-      {/* 3. Best Sellers / Featured Products */}
+      {/* 3. Trending Best Sellers (Curated Real Supabase Products, Zero Tabs, Max 10 Products) */}
       <div className="transition-all duration-300">
         <FeaturedProducts
           isLoading={isLoading}
@@ -85,6 +76,7 @@ export const Home: React.FC<HomeProps> = ({
           searchQuery=""
           selectedCategory={homeCategory}
           onSelectCategory={(cat) => setUserSelectedCategory(cat)}
+          onSelectCollection={onSelectCollection}
           onNavigateToShop={onNavigateToShop || (() => onSelectCategory?.('All Surprises'))}
           onAddToCart={onAddToCart}
           onUpdateQuantity={onUpdateQuantity}

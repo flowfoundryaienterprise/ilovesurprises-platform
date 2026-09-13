@@ -17,7 +17,7 @@ export const CARD_SELECT_COLUMNS =
  * tab switching, pagination back-and-forth, and filter toggles.
  */
 interface QueryCacheEntry {
-  result: PaginatedProductsResult;
+  result: any;
   timestamp: number;
 }
 const queryCache = new Map<string, QueryCacheEntry>();
@@ -54,7 +54,10 @@ export function resolveProductImage(
     !img ||
     img.includes('generic-candle.jpg') ||
     img.includes('placeholder') ||
-    img === '/placeholder.svg';
+    img === '/placeholder.svg' ||
+    img.includes('youtube.com') ||
+    img.includes('youtu.be') ||
+    img.includes('vimeo.com');
 
   if (!isBroken) {
     return img;
@@ -82,14 +85,30 @@ export function resolveProductImage(
   }
   // Slimes
   if (n.includes('slime') || c.includes('slime')) {
-    return '/assets/ilovesurprises/products/Brown-Sugar-Boba-Cash-Cereal-Slimes.jpg';
+    return '/assets/ilovesurprises/categories/BDayCake.webp';
+  }
+  // Candy
+  if (n.includes('candy') || c.includes('candy')) {
+    return '/assets/ilovesurprises/categories/cash_candy.jpg';
+  }
+  // Chocolates
+  if (n.includes('chocolate') || c.includes('chocolate')) {
+    return '/assets/ilovesurprises/categories/chocolates.jpg';
   }
   // Zodiac
   if (n.includes('zodiac') || c.includes('zodiac')) {
     return '/assets/ilovesurprises/categories/AQUARIUSZODIACCANDLE.webp';
   }
-  // Cash / Soda Pop Candles
-  if (n.includes('cash') || n.includes('soda') || c.includes('cash')) {
+  // Cash Money Candles
+  if (n.includes('cash money') || c.includes('cash-money') || c.includes('cash money')) {
+    return '/assets/ilovesurprises/categories/cash_money_candles.jpg';
+  }
+  // Cash Candles
+  if (n.includes('cash') || c.includes('cash')) {
+    return '/assets/ilovesurprises/categories/cash_candles.jpg';
+  }
+  // Soda Pop Candles
+  if (n.includes('soda') || c.includes('soda')) {
     return '/assets/ilovesurprises/categories/Coke_CSH_Sodapop-CND_JC.jpg';
   }
   // Default Jewelry Candle Mockup
@@ -140,15 +159,22 @@ export function mapRowToProduct(row: any): Product {
   let rawImage: string | null = null;
   let allImages: string[] = [];
   if (Array.isArray(row.product_images) && row.product_images.length > 0) {
-    const sortedImages = [...row.product_images].sort(
+    const validImages = row.product_images.filter((img: any) => {
+      const u = (img?.image_url || '').toLowerCase();
+      return u && !u.includes('youtube.com') && !u.includes('youtu.be') && !u.includes('vimeo.com');
+    });
+    const sortedImages = [...validImages].sort(
       (a: any, b: any) => (a.position || 0) - (b.position || 0)
     );
     rawImage = sortedImages[0]?.image_url || null;
     allImages = sortedImages.map((img: any) => img.image_url).filter(Boolean);
   }
   if (!rawImage && row.image) {
-    rawImage = row.image;
-    allImages = [row.image];
+    const u = String(row.image).toLowerCase();
+    if (!u.includes('youtube.com') && !u.includes('youtu.be') && !u.includes('vimeo.com')) {
+      rawImage = row.image;
+      allImages = [row.image];
+    }
   }
   const resolvedImage = resolveProductImage(rawImage, name, categoryName);
   if (allImages.length === 0 && resolvedImage) {
@@ -386,6 +412,30 @@ export const productService = {
             catParam.includes('trending')
           ) {
             query = query.or('tags.ilike.%trending%,tags.ilike.%bestseller%,title.ilike.%diamond%');
+          } else if (
+            catParam === 'jewelry candles' ||
+            catParam === 'jewelry candle' ||
+            catParam === 'jewellery candles' ||
+            catParam === 'jewellery candle'
+          ) {
+            query = query
+              .ilike('title', '%Jewelry Candle%')
+              .not('title', 'ilike', '%military%')
+              .not('title', 'ilike', '%candy%');
+          } else if (
+            catParam === 'cash candles' ||
+            catParam === 'cash candle'
+          ) {
+            query = query
+              .ilike('title', '%Cash%Candle%')
+              .not('title', 'ilike', '%candy%');
+          } else if (
+            catParam === 'cash money candles' ||
+            catParam === 'cash money candle'
+          ) {
+            query = query
+              .ilike('title', '%Cash Money Candle%')
+              .not('title', 'ilike', '%candy%');
           } else {
             const tokens = catParam
               .split(/[\s+/,-]+/)
@@ -1020,6 +1070,11 @@ export const productService = {
       'cash-money-candles': 'cash-money-candles',
       'jewelry-candle': 'jewelry-candles',
       'jewelry-candles': 'jewelry-candles',
+      'jewelry-candles-1': 'jewelry-candles',
+      'jewellery': 'jewelry',
+      'jewellery-candle': 'jewelry-candles',
+      'jewellery-candles': 'jewelry-candles',
+      'jewellery-candles-1': 'jewelry-candles',
       'funny-cash-candles': 'funny-candle',
       'funny-candle': 'funny-candle',
       'funny-candles': 'funny-candles',
@@ -1291,31 +1346,6 @@ export const productService = {
           return result;
         }
 
-        // Recovery: if join table had 0 products, try direct products match by category or title words
-        const searchKeyword = col.title
-          .replace(/[®™\(\)]/g, '')
-          .split(/\s+/)
-          .filter((w) => w.length > 3)[0] || col.title;
-
-        const { data: fallbackProds, count: fbCount } = await (supabase as any)
-          .from('products')
-          .select(CARD_SELECT_COLUMNS, { count: 'exact' })
-          .ilike('title', `%${searchKeyword}%`)
-          .range(from, to);
-
-        if (fallbackProds && fallbackProds.length > 0) {
-          const prods = fallbackProds.map(mapRowToProduct);
-          const total = fbCount || prods.length;
-          const result = {
-            collection: col,
-            products: deduplicateProducts(prods),
-            total,
-            page,
-            totalPages: Math.max(1, Math.ceil(total / limit)),
-          };
-          queryCache.set(cacheKey, { result: result as any, timestamp: Date.now() });
-          return result;
-        }
       } catch (err) {
         console.warn(`Error fetching products for collection ${col.handle}:`, err);
       }
@@ -1328,6 +1358,59 @@ export const productService = {
       page,
       totalPages: 1,
     };
+  },
+
+  /**
+   * Retrieves a small, curated set of real Supabase products (max 10) for the Homepage Trending / Best Sellers section.
+   * Strictly synchronized with the authoritative "Cash Candles" collection (ID: 328977285309).
+   * Guarantees real Supabase data and zero unrelated product contamination.
+   */
+  async getCuratedTrendingProducts(limit = 10): Promise<Product[]> {
+    const cappedLimit = Math.min(10, Math.max(1, limit));
+    const cacheKey = `curated_trending_home_${cappedLimit}`;
+    const cached = queryCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < QUERY_CACHE_TTL_MS) {
+      return cached.result as Product[];
+    }
+
+    try {
+      const colRes = await this.getProductsByCollection('cash-candles', {
+        page: 1,
+        limit: cappedLimit,
+        sort: 'featured',
+      });
+
+      if (colRes && colRes.products.length > 0) {
+        const products = colRes.products.slice(0, cappedLimit);
+        queryCache.set(cacheKey, { result: products as any, timestamp: Date.now() });
+        return products;
+      }
+    } catch (err) {
+      console.warn('Error fetching curated trending products from cash-candles:', err);
+    }
+
+    // Direct fallback strictly from cash-candles if join query fails
+    if (isSupabaseConfigured()) {
+      try {
+        const { data } = await (supabase as any)
+          .from('products')
+          .select(CARD_SELECT_COLUMNS)
+          .ilike('title', '%Cash%Candle%')
+          .not('title', 'ilike', '%candy%')
+          .not('title', 'ilike', '%military%')
+          .limit(cappedLimit);
+
+        if (data && data.length > 0) {
+          const prods = deduplicateProducts(data.map(mapRowToProduct)).slice(0, cappedLimit);
+          queryCache.set(cacheKey, { result: prods as any, timestamp: Date.now() });
+          return prods;
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    return [];
   },
 
   /**

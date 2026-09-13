@@ -11,6 +11,7 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { resolveProductImage } from '../../services/productService';
+import { handleImageErrorSafely } from '../../utils/imageUtils';
 
 interface ProductGalleryProps {
   mainImage: string;
@@ -139,8 +140,13 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
           className={`w-full h-full max-h-[480px] object-contain mx-auto transition-transform duration-200 ease-out ${isHoverZooming ? 'scale-[2.1]' : 'scale-100 group-hover:scale-102'
             }`}
           loading="eager"
-          decoding="async"
-          onError={() => setFailedImages((prev) => ({ ...prev, [rawCurrentImage]: true }))}
+          onError={(e) => {
+            if (!failedImages[rawCurrentImage]) {
+              setFailedImages((prev) => ({ ...prev, [rawCurrentImage]: true }));
+            } else {
+              handleImageErrorSafely(e);
+            }
+          }}
         />
 
         {/* Top Badges */}
@@ -215,6 +221,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                   height={80}
                   loading="lazy"
                   decoding="async"
+                  onError={(e) => handleImageErrorSafely(e)}
                   className="w-full h-full object-contain rounded-[10px]"
                 />
               </button>
@@ -318,7 +325,13 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                     transform: `scale(${lightboxScale})`,
                   }}
                   className="max-w-full max-h-[70vh] object-contain transition-transform duration-200 select-none shadow-2xl rounded-[18px]"
-                  onError={() => setFailedImages((prev) => ({ ...prev, [rawCurrentImage]: true }))}
+                  onError={(e) => {
+                    if (!failedImages[rawCurrentImage]) {
+                      setFailedImages((prev) => ({ ...prev, [rawCurrentImage]: true }));
+                    } else {
+                      handleImageErrorSafely(e);
+                    }
+                  }}
                 />
               </div>
 
@@ -357,6 +370,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                     <img
                       src={img}
                       alt="Thumbnail"
+                      onError={(e) => handleImageErrorSafely(e)}
                       className="w-full h-full object-contain rounded-[8px]"
                     />
                   </button>

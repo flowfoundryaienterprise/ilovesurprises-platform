@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Heart, Plus, Minus, Star, Sparkles } from 'lucide-react';
 import type { Product } from '../../types';
 import { resolveProductImage } from '../../services/productService';
+import { handleImageErrorSafely, getCategoryFallback } from '../../utils/imageUtils';
 
 interface ProductCardProps {
   product: Product;
@@ -28,8 +29,12 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
   const imageSrc =
     failedSrc === resolved ? resolveProductImage(null, product.name, product.category) : resolved;
 
-  const handleImageError = () => {
-    setFailedSrc(resolved);
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    if (failedSrc !== resolved) {
+      setFailedSrc(resolved);
+    } else {
+      handleImageErrorSafely(e, getCategoryFallback(product.category));
+    }
   };
 
   const handleCardClick = () => {

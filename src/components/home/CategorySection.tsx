@@ -2,11 +2,13 @@ import React from 'react';
 import { ShieldCheck, Truck, RotateCcw, Lock } from 'lucide-react';
 import { categoriesData } from '../../data/categories';
 import { CategorySkeleton } from '../ui/CategorySkeleton';
+import { handleImageErrorSafely, getCategoryFallback } from '../../utils/imageUtils';
 
 interface CategorySectionProps {
   selectedCategory?: string;
   isLoading?: boolean;
   onSelectCategory?: (categoryId: string) => void;
+  onSelectCollection?: (handle: string) => void;
   onViewAllCategories?: () => void;
 }
 
@@ -14,7 +16,8 @@ export const CategorySection: React.FC<CategorySectionProps> = React.memo(({
   selectedCategory,
   isLoading = false,
   onSelectCategory,
-  onViewAllCategories,
+  onSelectCollection,
+  onViewAllCategories: _onViewAllCategories,
 }) => {
   const [isExpanded, setIsExpanded] = React.useState(false);
 
@@ -24,15 +27,20 @@ export const CategorySection: React.FC<CategorySectionProps> = React.memo(({
 
   const handleToggleCollections = () => {
     setIsExpanded((prev) => !prev);
-    if (onViewAllCategories) {
-      onViewAllCategories();
+  };
+
+  const handleCardClick = (category: typeof categoriesData[0]) => {
+    if (onSelectCollection) {
+      onSelectCollection(category.slug);
+    } else if (onSelectCategory) {
+      onSelectCategory(category.name);
     }
   };
 
   return (
-    <section id="categories" className="max-w-[1460px] mx-auto px-3 sm:px-6 pt-3 pb-6 sm:py-8">
+    <section id="categories" aria-label="Explore Collections" className="max-w-[1460px] mx-auto px-3 sm:px-6 pt-3 pb-6 sm:py-8">
 
-      {/* Section Header Matching Screenshot */}
+      {/* Section Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2.5 sm:gap-2 mb-5 sm:mb-6">
         <div className="text-center sm:text-left w-full sm:w-auto">
           <span className="block text-[10px] sm:text-[11px] font-black uppercase tracking-[0.18em] text-[#D30915] mb-1">
@@ -52,17 +60,17 @@ export const CategorySection: React.FC<CategorySectionProps> = React.memo(({
           className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#D30915] hover:text-[#B60711] hover:underline active:scale-95 transition-all self-center sm:self-end cursor-pointer"
           aria-expanded={isExpanded}
         >
-          <span>{isExpanded ? 'Show less collections' : 'View all collections'}</span>
+          <span>{isExpanded ? 'Show less collections' : `View all ${categoriesData.length} collections`}</span>
           <span className="text-[13px]">{isExpanded ? '↑' : '→'}</span>
         </button>
       </div>
 
-      {/* 6 Category Cards Grid (3 per line on mobile, 6 on desktop by default; expandable to all) */}
+      {/* 12 Category Cards Grid (3 per line on mobile, 6 on desktop by default; expandable to all 12) */}
       {isLoading ? (
         <div
           className="grid grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4 mb-6 sm:mb-8"
           role="status"
-          aria-label="Loading categories"
+          aria-label="Loading collections"
         >
           {Array.from({ length: 6 }).map((_, index) => (
             <CategorySkeleton key={index} />
@@ -71,14 +79,14 @@ export const CategorySection: React.FC<CategorySectionProps> = React.memo(({
       ) : (
         <div className="grid grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4 mb-6 sm:mb-8 transition-all duration-300">
           {displayedCategories.map((category) => {
-            const isSelected = selectedCategory === category.name || selectedCategory === category.id;
+            const isSelected = selectedCategory === category.name || selectedCategory === category.id || selectedCategory === category.slug;
             return (
               <button
                 key={category.id}
                 type="button"
-                onClick={() => onSelectCategory?.(category.name)}
+                onClick={() => handleCardClick(category)}
                 className={`p-2 min-[375px]:p-2.5 sm:p-4 rounded-[16px] sm:rounded-[20px] border transition-all duration-300 flex flex-col items-center text-center cursor-pointer group hover:-translate-y-1.5 active:translate-y-0 active:scale-95 animate-in fade-in zoom-in-95 duration-200 ${isSelected
-                  ? 'border-[#D30915] bg-[#fff1f2] shadow-[0_8px_24px_rgba(211, 9, 21,0.18)]'
+                  ? 'border-[#D30915] bg-[#fff1f2] shadow-[0_8px_24px_rgba(211,9,21,0.18)]'
                   : 'border-[#eee7ed] bg-white hover:border-[#f1b8cb] hover:bg-[#fff9fb] shadow-[0_4px_16px_rgba(50,31,63,0.03)] hover:shadow-[0_12px_28px_rgba(50,31,63,0.08)]'
                   }`}
               >
@@ -91,6 +99,7 @@ export const CategorySection: React.FC<CategorySectionProps> = React.memo(({
                     height={80}
                     loading="lazy"
                     decoding="async"
+                    onError={(e) => handleImageErrorSafely(e, getCategoryFallback(category.slug))}
                     className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
                   />
                 </div>

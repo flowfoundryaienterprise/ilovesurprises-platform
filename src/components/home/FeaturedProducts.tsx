@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Sparkles } from 'lucide-react';
-import { productsData } from '../../data/products';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Sparkles, ArrowRight } from 'lucide-react';
 import { productService } from '../../services/productService';
 import { deduplicateProducts } from '../../utils/productUtils';
 import { ProductCard } from '../products/ProductCard';
@@ -14,6 +13,7 @@ interface FeaturedProductsProps {
   selectedCategory?: string;
   isLoading?: boolean;
   onSelectCategory?: (category: string) => void;
+  onSelectCollection?: (handle: string) => void;
   onNavigateToShop?: () => void;
   onAddToCart?: (product: Product) => void;
   onUpdateQuantity?: (productId: string, delta: number) => void;
@@ -21,23 +21,13 @@ interface FeaturedProductsProps {
   onSelectProduct?: (product: Product) => void;
 }
 
-const filterChips = [
-  'All Surprises',
-  'Cash Candles',
-  'Jewelry Candles',
-  'Bath & Body',
-  'Wax Melts',
-  'Soaps',
-  'Slimes',
-];
+const FEATURED_COLLECTION_HANDLE = 'cash-candles';
 
 export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
   cart = [],
   wishlistIds = [],
-  searchQuery = '',
-  selectedCategory = 'All Surprises',
   isLoading = false,
-  onSelectCategory,
+  onSelectCollection,
   onNavigateToShop,
   onAddToCart,
   onUpdateQuantity,
@@ -45,202 +35,94 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
   onSelectProduct,
 }) => {
   const wishlistSet = useMemo(() => new Set(wishlistIds), [wishlistIds]);
-  // If selectedCategory is an unknown subcategory or empty, normalize to 'All Surprises'
-  const isKnownChip = filterChips.some(
-    (chip) => chip.toLowerCase() === (selectedCategory || '').toLowerCase()
-  );
-  const activeChip = isKnownChip ? selectedCategory : 'All Surprises';
 
-  const [liveProducts, setLiveProducts] = useState<Product[] | null>(null);
-  const [isFetchingLive, setIsFetchingLive] = useState<boolean>(true);
-  const chipCacheRef = useRef<Record<string, Product[]>>({});
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isFetching, setIsFetching] = useState<boolean>(true);
 
   useEffect(() => {
     let isCancelled = false;
+    setIsFetching(true);
 
-    // Check in-memory chip cache first
-    if (chipCacheRef.current[activeChip]) {
-      setLiveProducts(chipCacheRef.current[activeChip]);
-      setIsFetchingLive(false);
-      return;
-    }
-
-    setIsFetchingLive(true);
-
-    const loadProducts = async () => {
-      try {
-        if (activeChip === 'All Surprises') {
-          // Fetch 60 diverse, distinct products interleaved across all categories
-          const diverse = await productService.getDiverseFeaturedProducts(60);
-          if (!isCancelled) {
-            chipCacheRef.current[activeChip] = diverse;
-            setLiveProducts(diverse);
-            setIsFetchingLive(false);
-          }
-        } else {
-          // Fetch category products and deduplicate repetitive series concepts
-          const res = await productService.getProducts({
-            category: activeChip,
-            limit: 90,
-            sort: 'best-sellers',
-          });
-
-          if (!isCancelled) {
-            if (res && res.products.length > 0) {
-              const getRootConcept = (name: string) => {
-                return name
-                  .toLowerCase()
-                  .replace(/(\d+)\s*(year|years|oz|pack|piece|pc|clean|sober)/gi, '')
-                  .replace(
-                    /(candles|candle|wax melts|wax melt|bath bombs|bath bomb|greeting cards|greeting card|goat milk soaps|goat milk soap|slimes|slime|diamond carat candle)/gi,
-                    ''
-                  )
-                  .replace(/[^a-z0-9]/gi, ' ')
-                  .trim()
-                  .slice(0, 14);
-              };
-
-              const seenConcepts = new Set<string>();
-              const seenIds = new Set<string>();
-              const diverseCategoryProducts: Product[] = [];
-
-              for (const p of res.products) {
-                if (seenIds.has(p.id)) continue;
-                const concept = getRootConcept(p.name);
-                if (concept.length > 3 && seenConcepts.has(concept)) continue;
-
-                seenIds.add(p.id);
-                if (concept.length > 3) seenConcepts.add(concept);
-                diverseCategoryProducts.push(p);
-                if (diverseCategoryProducts.length >= 60) break;
-              }
-
-              // Backfill up to 60 if needed
-              if (diverseCategoryProducts.length < 50) {
-                for (const p of res.products) {
-                  if (!seenIds.has(p.id)) {
-                    seenIds.add(p.id);
-                    diverseCategoryProducts.push(p);
-                    if (diverseCategoryProducts.length >= 60) break;
-                  }
-                }
-              }
-
-              chipCacheRef.current[activeChip] = diverseCategoryProducts;
-              setLiveProducts(diverseCategoryProducts);
-            } else {
-              setLiveProducts([]);
-            }
-            setIsFetchingLive(false);
-          }
-        }
-      } catch (err) {
-        console.warn('Error fetching homepage featured products from Supabase:', err);
+    productService
+      .getCuratedTrendingProducts(10)
+      .then((items) => {
         if (!isCancelled) {
-          setIsFetchingLive(false);
+          setProducts(deduplicateProducts(items).slice(0, 10));
+          setIsFetching(false);
         }
-      }
-    };
-
-    loadProducts();
+      })
+      .catch((err) => {
+        console.warn('Error fetching curated trending products:', err);
+        if (!isCancelled) {
+          setIsFetching(false);
+        }
+      });
 
     return () => {
       isCancelled = true;
     };
-  }, [activeChip]);
+  }, []);
 
-  const handleChipClick = (chip: string) => {
-    onSelectCategory?.(chip);
-  };
-
-  // Fallback in-memory list (used only if Supabase request fails or during SSR)
-  const fallbackFilteredProducts = useMemo(() => {
-    const list = productsData.filter((product) => {
-      const matchesCategory =
-        !activeChip ||
-        activeChip === 'All Surprises' ||
-        activeChip === 'All' ||
-        product.category.toLowerCase() === activeChip.toLowerCase() ||
-        product.name.toLowerCase().includes(activeChip.toLowerCase()) ||
-        (product.description && product.description.toLowerCase().includes(activeChip.toLowerCase())) ||
-        (product.scentNotes && product.scentNotes.some((s) => s.toLowerCase().includes(activeChip.toLowerCase())));
-
-      const matchesSearch =
-        !searchQuery ||
-        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.category.toLowerCase().includes(searchQuery.toLowerCase());
-
-      return matchesCategory && matchesSearch;
-    });
-
-    return list.length > 0 ? list : productsData;
-  }, [activeChip, searchQuery]);
-
-  // Strictly deduplicate products to guarantee unique product cards
-  const displayedProducts = useMemo(() => {
-    if (liveProducts !== null) {
-      return deduplicateProducts(liveProducts);
+  const handleViewAllClick = () => {
+    if (onSelectCollection) {
+      onSelectCollection(FEATURED_COLLECTION_HANDLE);
+    } else if (onNavigateToShop) {
+      onNavigateToShop();
+    } else {
+      window.history.pushState({ view: 'collection', collectionHandle: FEATURED_COLLECTION_HANDLE }, '', `/collections/${FEATURED_COLLECTION_HANDLE}`);
+      window.dispatchEvent(new CustomEvent('ils_route_change', { detail: { route: 'collection', handle: FEATURED_COLLECTION_HANDLE } }));
+      window.dispatchEvent(new PopStateEvent('popstate', { state: { view: 'collection', collectionHandle: FEATURED_COLLECTION_HANDLE } }));
     }
-    return deduplicateProducts(fallbackFilteredProducts);
-  }, [liveProducts, fallbackFilteredProducts]);
+  };
 
   const getProductQuantity = (productId: string) => {
     const item = cart.find((i) => i.product.id === productId);
     return item ? item.quantity : 0;
   };
 
-  const isCardLoading = isLoading || (isFetchingLive && !liveProducts);
+  const isCardLoading = isLoading || isFetching;
+  const displayedProducts = products.slice(0, 10);
 
   return (
-    <section id="featured" data-section="best-sellers" className="relative max-w-[1460px] mx-auto px-2.5 sm:px-6 py-4 sm:py-6">
+    <section
+      id="featured"
+      data-section="best-sellers"
+      aria-label="Trending Best Sellers"
+      className="relative max-w-[1460px] mx-auto px-2.5 sm:px-6 py-6 sm:py-10"
+    >
       <div id="best-sellers" className="absolute -top-20" />
 
-      {/* Header & Quick Category Filter Chips */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 min-w-0 max-w-full">
-        <div>
-          <h2 className="text-base sm:text-xl font-black text-[#141219] uppercase tracking-wide flex items-center gap-2 m-0 font-display">
-            <span>Trending Best Sellers</span>
-            <span className="inline-flex items-center gap-1 text-[10px] font-black tracking-normal px-2 py-0.5 rounded-full bg-rose-50 border border-rose-200 text-[#D30915] normal-case">
-              <Sparkles className="w-3 h-3" />
-              Live Catalog
-            </span>
+      {/* Header (No tabs - clean title & View All CTA) */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6 sm:mb-8 pb-4 border-b border-[#f4edf2]">
+        <div className="flex flex-col items-center sm:items-start text-center sm:text-left w-full sm:w-auto">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#fff1f2] border border-[#fecdd3] text-[#D30915] text-[10px] sm:text-[11px] font-black uppercase tracking-wider mb-2">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Curated Collection</span>
+          </div>
+
+          <h2 className="text-2xl sm:text-3xl font-black text-[#141219] tracking-tight m-0 font-display">
+            Trending Best Sellers
           </h2>
-          <p className="text-xs text-[#716d77] m-0 mt-0.5">
-            Discover real hidden cash prizes and genuine certified jewelry surprises
+          <p className="text-xs sm:text-sm text-[#716d77] m-0 mt-1 max-w-xl mx-auto sm:mx-0">
+            Discover real hidden cash prizes ($2–$2,500) and authentic reveals in our highest-rated creations.
           </p>
         </div>
 
-        {/* Scrollable Filter Chips */}
-        <div
-          role="tablist"
-          aria-label="Filter products by category"
-          className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 max-w-full -mx-1 px-1 sm:mx-0 sm:px-0"
+        {/* Top View All CTA */}
+        <button
+          type="button"
+          onClick={handleViewAllClick}
+          className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#D30915] hover:text-[#B60711] hover:underline active:scale-95 transition-all self-center sm:self-end cursor-pointer"
         >
-          {filterChips.map((chip) => {
-            const isActive = activeChip === chip;
-            return (
-              <button
-                key={chip}
-                role="tab"
-                aria-selected={isActive}
-                onClick={() => handleChipClick(chip)}
-                className={`text-xs px-3 py-1.5 rounded-full font-bold whitespace-nowrap transition-all duration-150 cursor-pointer ${
-                  isActive
-                    ? 'bg-[#141219] text-white shadow-2xs'
-                    : 'bg-[#f4edf2] text-[#554f5c] hover:bg-[#ebdce5] hover:text-[#141219]'
-                }`}
-              >
-                {chip}
-              </button>
-            );
-          })}
-        </div>
+          <span>View All Cash Candles</span>
+          <ArrowRight className="w-4 h-4" />
+        </button>
       </div>
 
-      {/* Product Grid - 2 products per row on mobile, smoothly scaling up to 5 on large screens */}
+      {/* Product Grid - Exactly max 10 products, responsive layout */}
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5 sm:gap-4 lg:gap-5">
         {isCardLoading
-          ? Array.from({ length: 12 }).map((_, i) => <ProductCardSkeleton key={i} />)
+          ? Array.from({ length: 10 }).map((_, i) => <ProductCardSkeleton key={i} />)
           : displayedProducts.map((product) => (
               <ProductCard
                 key={product.id}
@@ -255,40 +137,17 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
             ))}
       </div>
 
-      {/* Empty State */}
-      {!isCardLoading && displayedProducts.length === 0 && (
-        <div className="text-center py-12 px-4 bg-gray-50 rounded-2xl border border-gray-200 mt-4">
-          <p className="text-sm font-bold text-gray-700">No surprises found in this category.</p>
+      {/* Bottom CTA to the exact collection page */}
+      {!isCardLoading && displayedProducts.length > 0 && (
+        <div className="mt-8 sm:mt-12 text-center">
           <button
             type="button"
-            onClick={() => handleChipClick('All Surprises')}
-            className="mt-3 text-xs font-bold text-[#D30915] hover:underline cursor-pointer"
+            onClick={handleViewAllClick}
+            className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 rounded-full bg-[#141219] hover:bg-[#D30915] text-white font-bold text-xs uppercase tracking-wider transition-all duration-300 shadow-sm hover:shadow-md active:scale-95 cursor-pointer"
           >
-            View All Surprises
+            <span>Explore All Cash Candles</span>
+            <ArrowRight className="w-4 h-4" />
           </button>
-        </div>
-      )}
-
-      {/* Explore Full Catalog Link */}
-      {!isCardLoading && displayedProducts.length >= 50 && (
-        <div className="mt-8 text-center">
-          <a
-            href="/shop"
-            onClick={(e) => {
-              e.preventDefault();
-              if (onNavigateToShop) {
-                onNavigateToShop();
-              } else {
-                window.history.pushState({ view: 'shop', category: 'All Surprises' }, '', '/shop');
-                window.dispatchEvent(new CustomEvent('ils_route_change', { detail: { route: 'shop' } }));
-                window.dispatchEvent(new PopStateEvent('popstate', { state: { view: 'shop', category: 'All Surprises' } }));
-              }
-            }}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#141219] text-white font-bold text-xs uppercase tracking-wider hover:bg-[#D30915] transition-all duration-300 shadow-sm hover:shadow-md active:scale-95 cursor-pointer"
-          >
-            <span>Explore All 57,000+ Surprises in Shop</span>
-            <span aria-hidden="true">&rarr;</span>
-          </a>
         </div>
       )}
     </section>
