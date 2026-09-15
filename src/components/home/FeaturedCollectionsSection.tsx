@@ -326,15 +326,6 @@ export const FeaturedCollectionsSection: React.FC<FeaturedCollectionsSectionProp
             <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-600" />
             <span>Cash & Jewelry Verified</span>
           </div>
-
-          <button
-            type="button"
-            onClick={() => onSelectCategory?.('All Surprises')}
-            className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-white hover:bg-rose-50 text-[#D30915] border border-rose-200 text-xs sm:text-sm font-black transition-all cursor-pointer shadow-2xs hover:shadow-xs group"
-          >
-            <span>View Full Catalog</span>
-            <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 transition-transform group-hover:translate-x-1" />
-          </button>
         </div>
       </div>
 
