@@ -1345,39 +1345,51 @@ export const adminService = {
       promoBannerActive: true,
       featuredCards: [
         {
+          id: 'halloween',
+          title: 'Halloween',
+          categoryKey: 'Halloween',
+          badge: 'Holiday Priority',
+          tagline: 'Limited-edition Halloween reveal candles & bath treats with cash and jewelry inside',
+          ctaText: 'Shop Halloween Collection',
+          image: 'https://cdn.shopify.com/s/files/1/0172/4672/products/4_Mockup_Jewelry_JewelryCandles_37b9e8df-fc51-4b27-9db3-6236ee9d84b6.jpg?v=1602742369',
+          itemCount: 83,
+          accentBorder: 'hover:border-orange-500',
+          active: true,
+        },
+        {
+          id: 'christmas-candles-1',
+          title: 'Christmas',
+          categoryKey: 'Christmas Candles',
+          badge: 'Holiday Priority',
+          tagline: 'Magical Christmas reveal candles and seasonal celebration scents with hidden treasures',
+          ctaText: 'Shop Christmas Collection',
+          image: 'https://cdn.shopify.com/s/files/1/0172/4672/products/1_Mockup_Jewelry_Jewelry_Candles_9c1f97ea-399f-403a-ae64-3f3afc816a87.jpg?v=1573149158',
+          itemCount: 98,
+          accentBorder: 'hover:border-red-500',
+          active: true,
+        },
+        {
           id: 'cash-candles',
           title: 'Cash Candles',
           categoryKey: 'Cash Candles',
           badge: 'Win Up To $2,500',
-          tagline: 'Real cash prizes ($2 – $2,500) hidden inside every candle',
+          tagline: 'Real cash prizes ($2 – $2,500) hidden inside every single candle',
           ctaText: 'Shop Cash Candles',
           image: '/assets/ilovesurprises/categories/Coke_CSH_Sodapop-CND_JC.jpg',
-          itemCount: 10986,
+          itemCount: 495,
           accentBorder: 'hover:border-emerald-400',
           active: true,
         },
         {
-          id: 'trending-collection',
-          title: 'Trending Collection',
-          categoryKey: 'Trending',
-          badge: 'Most Loved Reveals',
-          tagline: 'The most viral & top-rated customer surprise reveals',
-          ctaText: 'Explore Trending',
-          image: '/assets/ilovesurprises/categories/1_Mockup_Jewelry_JewelryCandles_93d459aa-d530-474d-ba4c-32fb9af4f94c.jpg',
-          itemCount: 500,
-          accentBorder: 'hover:border-amber-400',
-          active: true,
-        },
-        {
           id: 'zodiac-cash-money-candles',
-          title: 'ZODIAC CASH MONEY CANDLES',
+          title: 'Zodiac Cash Candles',
           categoryKey: 'ZODIAC CASH MONEY CANDLES',
           badge: 'Real Cash Inside',
           tagline: 'Astrology horoscope cash candles with real money prizes up to $2,500',
           ctaText: 'Shop Zodiac Cash Candles',
           image: '/assets/ilovesurprises/categories/AQUARIUSZODIACCANDLE.webp',
           itemCount: 12,
-          accentBorder: 'hover:border-[#D30915]',
+          accentBorder: 'hover:border-purple-500',
           active: true,
         },
       ],
@@ -1386,7 +1398,17 @@ export const adminService = {
     if (typeof window === 'undefined') return DEFAULT_CONTENT;
     try {
       const stored = localStorage.getItem(ADMIN_HOMEPAGE_CONTENT_KEY);
-      if (stored) return JSON.parse(stored);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        const hasHalloween = parsed.featuredCards?.some((c: any) => c.id === 'halloween');
+        const hasChristmas = parsed.featuredCards?.some((c: any) => c.id === 'christmas-candles-1');
+        const hasCash = parsed.featuredCards?.some((c: any) => c.id === 'cash-candles');
+        const hasZodiac = parsed.featuredCards?.some((c: any) => c.id === 'zodiac-cash-money-candles');
+        const hasObsolete = parsed.featuredCards?.some((c: any) => c.id === 'trending-collection');
+        if (hasHalloween && hasChristmas && hasCash && hasZodiac && !hasObsolete) {
+          return parsed;
+        }
+      }
       localStorage.setItem(ADMIN_HOMEPAGE_CONTENT_KEY, JSON.stringify(DEFAULT_CONTENT));
       return DEFAULT_CONTENT;
     } catch {
@@ -1425,7 +1447,7 @@ export const adminService = {
     const defaultStaff: AdminStaffUser[] = [
       {
         id: 'staff-primary-admin',
-        email: 'flowfoundry.aisolutions@gmail.com',
+        email: 'ilovesurprises.admin@gmail.com',
         name: 'Harsha (Founder & Admin)',
         role: 'super_admin',
         avatarUrl: '/assets/ilovesurprises/avatars/founder.png',
@@ -1488,7 +1510,7 @@ export const adminService = {
         let assignedRole: AdminRole = 'support_rep';
         if (overrides[p.id]) {
           assignedRole = overrides[p.id];
-        } else if (p.role === 'admin' || p.email === 'flowfoundry.aisolutions@gmail.com' || p.email === 'cookuwithcomali336@gmail.com') {
+        } else if (p.role === 'admin' || p.email === 'ilovesurprises.admin@gmail.com') {
           assignedRole = 'super_admin';
         } else if ((p.role as string) === 'representative' || (p.role as string) === 'rep') {
           assignedRole = 'affiliate_manager';

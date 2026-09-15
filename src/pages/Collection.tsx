@@ -63,7 +63,7 @@ export const CollectionPage: React.FC<CollectionPageProps> = ({
     productService
       .getProductsByCollection(collectionHandle, {
         page: currentPage,
-        limit: 24,
+        limit: 15,
         sort: sortBy,
       })
       .then((res) => {
@@ -127,8 +127,8 @@ export const CollectionPage: React.FC<CollectionPageProps> = ({
 
       {/* 2. Collection Header Banner */}
       <header className="mb-8 pb-6 border-b border-[#f4edf2]">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div className="max-w-3xl">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="flex-1 max-w-3xl">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#fff1f2] border border-[#fecdd3] text-[#D30915] text-[11px] font-black uppercase tracking-wider mb-2.5">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Authentic Collection</span>
@@ -164,14 +164,28 @@ export const CollectionPage: React.FC<CollectionPageProps> = ({
                 )}
               </div>
             )}
+
+            <div className="mt-4">
+              <span className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-[#f8f5f7] border border-[#ebdce5] text-xs font-black text-[#141219]">
+                {totalCount.toLocaleString()} {totalCount === 1 ? 'Product' : 'Products'}
+              </span>
+            </div>
           </div>
 
-          {/* Total Products Count Badge */}
-          <div className="self-start md:self-end shrink-0">
-            <span className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-[#f8f5f7] border border-[#ebdce5] text-xs font-black text-[#141219]">
-              {totalCount.toLocaleString()} {totalCount === 1 ? 'Product' : 'Products'}
-            </span>
-          </div>
+          {/* Authentic Collection Image Showcase */}
+          {collection?.imageUrl && (
+            <div className="hidden lg:block lg:w-72 lg:h-48 rounded-2xl overflow-hidden border border-[#eedbe6] shadow-sm shrink-0 relative isolate group">
+              <img
+                src={collection.imageUrl}
+                alt={collection.title}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute bottom-2.5 left-3 right-3 text-white text-[11px] font-bold truncate drop-shadow-sm pointer-events-none">
+                {collection.title}
+              </div>
+            </div>
+          )}
         </div>
       </header>
 
@@ -209,13 +223,13 @@ export const CollectionPage: React.FC<CollectionPageProps> = ({
 
       {/* 4. Products Grid */}
       {isLoading ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
-          {Array.from({ length: 8 }).map((_, i) => (
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5 sm:gap-4 lg:gap-5">
+          {Array.from({ length: 15 }).map((_, i) => (
             <ProductCardSkeleton key={i} />
           ))}
         </div>
       ) : products.length > 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5 sm:gap-4 lg:gap-5">
           {products.map((product) => (
             <ProductCard
               key={product.id}

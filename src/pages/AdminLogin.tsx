@@ -233,7 +233,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@ilovesurprises.com"
+                placeholder="ilovesurprises.admin@gmail.com"
                 disabled={isLoading}
                 required
                 className="w-full pl-10 pr-4 py-3 bg-[#1e1927] border border-white/10 rounded-xl text-sm text-white placeholder-[#685e72] focus:outline-none focus:border-[#D30915] focus:ring-1 focus:ring-[#D30915] transition-all disabled:opacity-50"
@@ -395,7 +395,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
                   type="email"
                   value={forgotEmail}
                   onChange={(e) => setForgotEmail(e.target.value)}
-                  placeholder="admin@ilovesurprises.com"
+                  placeholder="ilovesurprises.admin@gmail.com"
                   disabled={isForgotLoading}
                   required
                   className="w-full px-3.5 py-2.5 bg-[#1e1927] border border-white/10 rounded-xl text-sm text-white placeholder-[#685e72] focus:outline-none focus:border-[#D30915] transition-all"

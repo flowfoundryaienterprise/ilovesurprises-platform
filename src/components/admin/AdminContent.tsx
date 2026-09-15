@@ -20,7 +20,7 @@ export const AdminContent: React.FC<AdminContentProps> = ({ onShowToast }) => {
     adminService.getHomepageContent()
   );
   const [activeTab, setActiveTab] = useState<'featured' | 'banners'>('featured');
-  const [editingCardId, setEditingCardId] = useState<string>('cash-candles');
+  const [editingCardId, setEditingCardId] = useState<string>(() => content.featuredCards[0]?.id || 'halloween');
 
   const handleUpdateCard = (cardId: string, updates: Partial<HomepageFeaturedCard>) => {
     setContent((prev) => ({
@@ -59,7 +59,7 @@ export const AdminContent: React.FC<AdminContentProps> = ({ onShowToast }) => {
             </h2>
           </div>
           <p className="text-xs text-[#716d77] m-0 mt-0.5">
-            Configure Cash Candles, Trending Collection, ZODIAC CASH MONEY CANDLES showcase, announcement banner, and promo alerts.
+            Configure Halloween, Christmas, Cash Candles, Zodiac Cash Candles showcase, announcement banner, and promo alerts.
           </p>
         </div>
 
@@ -96,7 +96,7 @@ export const AdminContent: React.FC<AdminContentProps> = ({ onShowToast }) => {
           }`}
         >
           <Sparkles className="w-3.5 h-3.5" />
-          <span>Featured Collections (3 Cards)</span>
+          <span>Featured Priority Collections ({content.featuredCards.length} Cards)</span>
         </button>
 
         <button
@@ -122,8 +122,8 @@ export const AdminContent: React.FC<AdminContentProps> = ({ onShowToast }) => {
               Select Showcase Card to Customize
             </span>
 
-            {/* 3 Card Selector Tabs */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            {/* Priority Collection Card Selector Tabs */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {content.featuredCards.map((c) => (
                 <button
                   key={c.id}

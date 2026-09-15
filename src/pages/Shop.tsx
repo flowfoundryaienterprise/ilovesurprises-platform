@@ -233,7 +233,7 @@ export const Shop: React.FC<ShopProps> = ({
     productService
       .getProducts({
         page: currentPage,
-        limit: 25,
+        limit: 15,
         category: appliedFilters.categories[0],
         searchQuery,
         minPrice: appliedFilters.minPrice,
@@ -270,8 +270,12 @@ export const Shop: React.FC<ShopProps> = ({
     if (serverProducts !== null) {
       return deduplicateProducts(serverProducts);
     }
-    return deduplicateProducts(filteredProducts);
-  }, [serverProducts, filteredProducts]);
+    const from = (currentPage - 1) * 15;
+    const to = from + 15;
+    return deduplicateProducts(filteredProducts).slice(from, to);
+  }, [serverProducts, filteredProducts, currentPage]);
+
+  const totalPages = serverProducts !== null ? serverTotalPages : Math.max(1, Math.ceil(filteredProducts.length / 15));
 
   const displayTotalCount = serverTotal ?? productsData.length;
 
@@ -483,7 +487,7 @@ export const Shop: React.FC<ShopProps> = ({
           }
         />
 
-        {serverTotalPages > 1 && (
+        {totalPages > 1 && (
           <div className="flex items-center justify-center gap-2 mt-8 mb-4">
             <button
               type="button"
@@ -497,15 +501,15 @@ export const Shop: React.FC<ShopProps> = ({
               Previous
             </button>
             <span className="text-xs font-black text-[#716d77] px-3">
-              Page {currentPage} of {serverTotalPages}
+              Page {currentPage} of {totalPages}
             </span>
             <button
               type="button"
               onClick={() => {
-                setCurrentPage((p) => Math.min(serverTotalPages, p + 1));
+                setCurrentPage((p) => Math.min(totalPages, p + 1));
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              disabled={currentPage >= serverTotalPages}
+              disabled={currentPage >= totalPages}
               className="px-4 py-2 rounded-xl border border-[#ebdce5] bg-white text-xs font-bold text-[#141219] hover:bg-[#faf5f8] disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-2xs"
             >
               Next

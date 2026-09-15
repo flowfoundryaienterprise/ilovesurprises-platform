@@ -543,8 +543,7 @@ export const authService = {
       }
 
       const isFounder =
-        user.email?.toLowerCase() === 'flowfoundry.aisolutions@gmail.com' ||
-        user.email?.toLowerCase() === 'cookuwithcomali336@gmail.com';
+        user.email?.toLowerCase() === 'ilovesurprises.admin@gmail.com';
       const isAdmin = userRole === 'admin' || isFounder;
 
       const userProfile: UserProfile = {

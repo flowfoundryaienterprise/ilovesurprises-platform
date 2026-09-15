@@ -14,9 +14,22 @@ import {
   RefreshCw,
   X,
   Eye,
+  FileText,
+  CheckCircle2,
+  Clock,
 } from 'lucide-react';
-import type { JewelryAppraisal, JewelryType, AppraisalStatus } from '../../types/appraisal';
-import { appraisalService, APPRAISALS_UPDATED_EVENT } from '../../services/appraisalService';
+import type {
+  JewelryAppraisal,
+  JewelryType,
+  AppraisalStatus,
+  CustomerAppraisalSubmission,
+  AppraisalSubmissionStatus,
+} from '../../types/appraisal';
+import {
+  appraisalService,
+  APPRAISALS_UPDATED_EVENT,
+  APPRAISAL_SUBMISSIONS_UPDATED_EVENT,
+} from '../../services/appraisalService';
 
 interface AdminAppraisalsProps {
   onShowToast: (message: string, options?: { title?: string; type?: 'success' | 'info' }) => void;
@@ -31,6 +44,21 @@ const PRESET_IMAGES = [
 ];
 
 export const AdminAppraisals: React.FC<AdminAppraisalsProps> = ({ onShowToast }) => {
+  // Navigation Section: Customer Submissions vs Certificate Lookup Codes
+  const [activeSection, setActiveSection] = useState<'submissions' | 'certificates'>('submissions');
+
+  // Customer Submissions State
+  const [submissions, setSubmissions] = useState<CustomerAppraisalSubmission[]>(() =>
+    appraisalService.getAllSubmissions()
+  );
+  const [submissionSearch, setSubmissionSearch] = useState('');
+  const [submissionStatusFilter, setSubmissionStatusFilter] = useState<'all' | AppraisalSubmissionStatus>('all');
+  const [selectedSubmission, setSelectedSubmission] = useState<CustomerAppraisalSubmission | null>(null);
+  const [reviewStatus, setReviewStatus] = useState<AppraisalSubmissionStatus>('pending');
+  const [reviewValuation, setReviewValuation] = useState<number>(0);
+  const [reviewNotes, setReviewNotes] = useState<string>('');
+
+  // Certificate Codes State
   const [appraisals, setAppraisals] = useState<JewelryAppraisal[]>(() =>
     appraisalService.getAllAppraisals()
   );
@@ -40,11 +68,11 @@ export const AdminAppraisals: React.FC<AdminAppraisalsProps> = ({ onShowToast })
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [viewingCertificate, setViewingCertificate] = useState<JewelryAppraisal | null>(null);
 
-  // Modal State for Add / Edit
+  // Modal State for Add / Edit Certificate
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<JewelryAppraisal | null>(null);
 
-  // Form State
+  // Form State for Certificate
   const [formData, setFormData] = useState({
     code: '',
     name: '',
@@ -69,9 +97,41 @@ export const AdminAppraisals: React.FC<AdminAppraisalsProps> = ({ onShowToast })
     const handleUpdate = () => {
       setAppraisals(appraisalService.getAllAppraisals());
     };
+    const handleSubmissionsUpdate = () => {
+      setSubmissions(appraisalService.getAllSubmissions());
+    };
+
     window.addEventListener(APPRAISALS_UPDATED_EVENT, handleUpdate);
-    return () => window.removeEventListener(APPRAISALS_UPDATED_EVENT, handleUpdate);
+    window.addEventListener(APPRAISAL_SUBMISSIONS_UPDATED_EVENT, handleSubmissionsUpdate);
+    return () => {
+      window.removeEventListener(APPRAISALS_UPDATED_EVENT, handleUpdate);
+      window.removeEventListener(APPRAISAL_SUBMISSIONS_UPDATED_EVENT, handleSubmissionsUpdate);
+    };
   }, []);
+
+  // Filtered Submissions
+  const filteredSubmissions = useMemo(() => {
+    return submissions.filter((sub) => {
+      const q = submissionSearch.toLowerCase().trim();
+      const matchesSearch =
+        !q ||
+        sub.customerName.toLowerCase().includes(q) ||
+        sub.customerEmail.toLowerCase().includes(q) ||
+        sub.productName.toLowerCase().includes(q) ||
+        sub.jewelryType.toLowerCase().includes(q) ||
+        (sub.orderNumber && sub.orderNumber.toLowerCase().includes(q)) ||
+        (sub.codeInfo && sub.codeInfo.toLowerCase().includes(q));
+
+      const matchesStatus =
+        submissionStatusFilter === 'all' || sub.status === submissionStatusFilter;
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [submissions, submissionSearch, submissionStatusFilter]);
+
+  const pendingSubmissionsCount = submissions.filter((s) => s.status === 'pending').length;
+  const approvedSubmissionsCount = submissions.filter((s) => s.status === 'approved').length;
+  const reviewedSubmissionsCount = submissions.filter((s) => s.status === 'reviewed').length;
 
   // Filtered appraisals
   const filteredAppraisals = useMemo(() => {
@@ -243,6 +303,73 @@ export const AdminAppraisals: React.FC<AdminAppraisalsProps> = ({ onShowToast })
     }
   };
 
+  const handleOpenReviewSubmission = (sub: CustomerAppraisalSubmission) => {
+    setSelectedSubmission(sub);
+    setReviewStatus(sub.status);
+    setReviewValuation(sub.estimatedValue || 0);
+    setReviewNotes(sub.notes || '');
+  };
+
+  const handleSaveSubmissionReview = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedSubmission) return;
+
+    appraisalService.updateSubmission(selectedSubmission.id, {
+      status: reviewStatus,
+      estimatedValue: reviewValuation > 0 ? Number(reviewValuation) : undefined,
+      notes: reviewNotes.trim() || undefined,
+    });
+
+    onShowToast(`Appraisal submission for ${selectedSubmission.customerName} updated (${reviewStatus}).`, {
+      title: 'Submission Updated',
+      type: 'success',
+    });
+
+    setSelectedSubmission(null);
+  };
+
+  const handleDeleteSubmission = (id: string, name: string) => {
+    if (window.confirm(`Delete appraisal submission from ${name}?`)) {
+      appraisalService.deleteSubmission(id);
+      if (selectedSubmission?.id === id) setSelectedSubmission(null);
+      onShowToast('Appraisal submission removed.', {
+        title: 'Submission Deleted',
+        type: 'info',
+      });
+    }
+  };
+
+  const handleConvertSubmissionToCertificate = (sub: CustomerAppraisalSubmission) => {
+    setSelectedSubmission(null);
+    const suggestedCode = sub.codeInfo
+      ? appraisalService.normalizeCode(sub.codeInfo)
+      : `ILS-${sub.jewelryType.toUpperCase().slice(0, 4)}-${Math.floor(100 + Math.random() * 900)}`;
+
+    setEditingItem(null);
+    setFormData({
+      code: suggestedCode,
+      name: `${sub.jewelryType} - ${sub.productName}`,
+      type: (['Ring', 'Necklace', 'Earrings', 'Bracelet', 'Pendant'].includes(sub.jewelryType)
+        ? sub.jewelryType
+        : 'Ring') as JewelryType,
+      estimatedValue: sub.estimatedValue || 250,
+      image: PRESET_IMAGES[0].url,
+      material: 'Solid .925 Sterling Silver',
+      stone: 'AAA Cubic Zirconia',
+      cutSetting: 'Custom Reveal Setting',
+      description: `Official certified appraisal for surprise revealed fine jewelry from ${sub.productName}.`,
+      status: 'active',
+      serialNumber: `ILS-VAL-${Math.floor(100000 + Math.random() * 900000)}`,
+      inspectedDate: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+      customerName: sub.customerName,
+      customerEmail: sub.customerEmail,
+      orderId: sub.orderNumber || '',
+      productName: sub.productName,
+    });
+    setIsModalOpen(true);
+    setActiveSection('certificates');
+  };
+
   return (
     <div className="space-y-6">
       {/* 1. Header Banner & Actions */}
@@ -256,7 +383,7 @@ export const AdminAppraisals: React.FC<AdminAppraisalsProps> = ({ onShowToast })
             Jewelry Appraisal Management
           </h1>
           <p className="text-xs sm:text-sm text-[#716d77]">
-            Register and manage authentic jewelry codes printed inside candles for customer appraisal lookup.
+            Review customer appraisal submissions, assign valuations, and manage authentic jewelry certificate codes.
           </p>
         </div>
 
@@ -282,8 +409,448 @@ export const AdminAppraisals: React.FC<AdminAppraisalsProps> = ({ onShowToast })
         </div>
       </div>
 
-      {/* 2. KPI Summary Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      {/* 2. Sub-tab switcher: Customer Submissions vs Certificate Lookup Codes */}
+      <div className="flex items-center gap-2 border-b border-[#eedbe6] bg-white p-2 rounded-2xl shadow-xs">
+        <button
+          type="button"
+          onClick={() => setActiveSection('submissions')}
+          className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+            activeSection === 'submissions'
+              ? 'bg-[#D30915] text-white shadow-2xs'
+              : 'text-[#716d77] hover:bg-gray-50'
+          }`}
+        >
+          <FileText className="w-4 h-4" />
+          <span>Customer Submissions</span>
+          <span
+            className={`text-[10px] px-2 py-0.5 rounded-full font-black ${
+              activeSection === 'submissions' ? 'bg-white/20 text-white' : 'bg-[#fff0f3] text-[#D30915]'
+            }`}
+          >
+            {submissions.length}
+          </span>
+          {pendingSubmissionsCount > 0 && (
+            <span
+              className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"
+              title={`${pendingSubmissionsCount} pending review`}
+            />
+          )}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveSection('certificates')}
+          className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+            activeSection === 'certificates'
+              ? 'bg-[#D30915] text-white shadow-2xs'
+              : 'text-[#716d77] hover:bg-gray-50'
+          }`}
+        >
+          <Award className="w-4 h-4" />
+          <span>Certificate Verification Codes</span>
+          <span
+            className={`text-[10px] px-2 py-0.5 rounded-full font-black ${
+              activeSection === 'certificates' ? 'bg-white/20 text-white' : 'bg-gray-100 text-[#716d77]'
+            }`}
+          >
+            {appraisals.length}
+          </span>
+        </button>
+      </div>
+
+      {/* 3. Customer Submissions View */}
+      {activeSection === 'submissions' && (
+        <div className="space-y-4">
+          {/* Submissions KPIs */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className="p-4 rounded-[18px] bg-white border border-[#eedbe6] shadow-2xs">
+              <span className="text-[10px] font-black uppercase tracking-wider text-[#716d77] block mb-1">
+                Total Submissions
+              </span>
+              <div className="text-2xl font-black text-[#141219]">{submissions.length}</div>
+              <span className="text-[11px] text-[#716d77] font-medium mt-1 block">
+                From /appraise-your-jewelry
+              </span>
+            </div>
+
+            <div className="p-4 rounded-[18px] bg-white border border-[#eedbe6] shadow-2xs">
+              <span className="text-[10px] font-black uppercase tracking-wider text-[#716d77] block mb-1">
+                Pending Review
+              </span>
+              <div className="text-2xl font-black text-amber-600">{pendingSubmissionsCount}</div>
+              <span className="text-[11px] text-amber-700 font-bold mt-1 block">
+                Awaiting Gemologist Review
+              </span>
+            </div>
+
+            <div className="p-4 rounded-[18px] bg-white border border-[#eedbe6] shadow-2xs">
+              <span className="text-[10px] font-black uppercase tracking-wider text-[#716d77] block mb-1">
+                Reviewed Submissions
+              </span>
+              <div className="text-2xl font-black text-blue-600">{reviewedSubmissionsCount}</div>
+              <span className="text-[11px] text-blue-700 font-bold mt-1 block">
+                Preliminary Valuation Logged
+              </span>
+            </div>
+
+            <div className="p-4 rounded-[18px] bg-white border border-[#eedbe6] shadow-2xs">
+              <span className="text-[10px] font-black uppercase tracking-wider text-[#716d77] block mb-1">
+                Approved Appraisals
+              </span>
+              <div className="text-2xl font-black text-emerald-600">{approvedSubmissionsCount}</div>
+              <span className="text-[11px] text-emerald-700 font-bold mt-1 block">
+                Official Valuations Issued
+              </span>
+            </div>
+          </div>
+
+          {/* Submissions Search & Filter */}
+          <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#eedbe6] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="relative flex-1 max-w-md">
+              <input
+                type="text"
+                value={submissionSearch}
+                onChange={(e) => setSubmissionSearch(e.target.value)}
+                placeholder="Search by customer name, email, product, order #..."
+                className="w-full h-10 pl-9 pr-3 rounded-xl bg-[#faf7f9] border border-[#eedbe6] text-xs text-[#141219] focus:outline-none focus:border-[#D30915]"
+              />
+              <Search className="w-4 h-4 text-[#8a858f] absolute left-3 top-1/2 -translate-y-1/2" />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <select
+                value={submissionStatusFilter}
+                onChange={(e) => setSubmissionStatusFilter(e.target.value as any)}
+                className="h-10 px-3 rounded-xl bg-[#faf7f9] border border-[#eedbe6] text-xs font-bold text-[#141219] focus:outline-none focus:border-[#D30915] cursor-pointer"
+              >
+                <option value="all">All Submission Statuses</option>
+                <option value="pending">Pending Review</option>
+                <option value="reviewed">Reviewed</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Submissions Table */}
+          <div className="bg-white rounded-2xl sm:rounded-3xl border border-[#eedbe6] shadow-xs overflow-hidden">
+            {filteredSubmissions.length === 0 ? (
+              <div className="p-12 text-center space-y-3">
+                <FileText className="w-10 h-10 text-gray-300 mx-auto" />
+                <h3 className="text-base font-bold text-[#141219] m-0">No appraisal submissions found</h3>
+                <p className="text-xs text-[#716d77] max-w-md mx-auto m-0">
+                  {submissionSearch || submissionStatusFilter !== 'all'
+                    ? 'No submissions match your active filter criteria.'
+                    : 'Customer appraisal requests submitted through /appraise-your-jewelry will appear here for gemologist valuation.'}
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto scrollbar-thin">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead className="bg-[#fdf9fb] border-b border-[#eedbe6] text-[10px] font-extrabold uppercase text-[#716d77] tracking-wider">
+                    <tr>
+                      <th className="py-3.5 px-4">Ref ID & Date</th>
+                      <th className="py-3.5 px-3">Customer</th>
+                      <th className="py-3.5 px-3">Item / Product</th>
+                      <th className="py-3.5 px-3">Code / Tag</th>
+                      <th className="py-3.5 px-3">Photos</th>
+                      <th className="py-3.5 px-3">Status</th>
+                      <th className="py-3.5 px-3">Valuation</th>
+                      <th className="py-3.5 px-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#f5eaf1] font-medium">
+                    {filteredSubmissions.map((sub) => (
+                      <tr key={sub.id} className="hover:bg-[#fffbfd] transition-colors">
+                        <td className="py-3 px-4 whitespace-nowrap">
+                          <div className="font-mono font-bold text-[#141219] text-[11px]">{sub.id}</div>
+                          <div className="text-[10px] text-[#716d77] mt-0.5">
+                            {new Date(sub.createdAt).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                            })}
+                          </div>
+                        </td>
+
+                        <td className="py-3 px-3">
+                          <div className="font-bold text-[#141219]">{sub.customerName}</div>
+                          <div className="text-[11px] text-[#716d77] truncate max-w-[180px]">
+                            {sub.customerEmail}
+                          </div>
+                          {sub.orderNumber && (
+                            <div className="text-[10px] text-purple-700 font-medium">
+                              Order #{sub.orderNumber}
+                            </div>
+                          )}
+                        </td>
+
+                        <td className="py-3 px-3">
+                          <div className="font-semibold text-[#141219] truncate max-w-[200px]">
+                            {sub.productName}
+                          </div>
+                          <span className="inline-block mt-0.5 px-2 py-0.2 rounded-full text-[10px] font-bold bg-[#fff0f3] text-[#D30915]">
+                            {sub.jewelryType}
+                          </span>
+                        </td>
+
+                        <td className="py-3 px-3 font-mono text-[11px] text-[#55505a]">
+                          {sub.codeInfo ? (
+                            <span className="font-bold text-[#141219]">{sub.codeInfo}</span>
+                          ) : (
+                            <span className="text-[#8a858f] italic">None</span>
+                          )}
+                        </td>
+
+                        <td className="py-3 px-3">
+                          {sub.photoPreviews && sub.photoPreviews.length > 0 ? (
+                            <div className="flex items-center gap-1">
+                              <img
+                                src={sub.photoPreviews[0]}
+                                alt="Jewelry preview"
+                                className="w-8 h-8 rounded-lg object-cover border border-[#eedbe6]"
+                              />
+                              {sub.photoPreviews.length > 1 && (
+                                <span className="text-[10px] font-bold text-[#716d77]">
+                                  +{sub.photoPreviews.length - 1}
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-[10px] text-[#8a858f]">No photos</span>
+                          )}
+                        </td>
+
+                        <td className="py-3 px-3 whitespace-nowrap">
+                          {sub.status === 'pending' && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-bold">
+                              <Clock className="w-3 h-3" />
+                              <span>Pending</span>
+                            </span>
+                          )}
+                          {sub.status === 'reviewed' && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200 text-[10px] font-bold">
+                              <Check className="w-3 h-3" />
+                              <span>Reviewed</span>
+                            </span>
+                          )}
+                          {sub.status === 'approved' && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-bold">
+                              <CheckCircle2 className="w-3 h-3" />
+                              <span>Approved</span>
+                            </span>
+                          )}
+                          {sub.status === 'rejected' && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-800 border border-rose-200 text-[10px] font-bold">
+                              <X className="w-3 h-3" />
+                              <span>Rejected</span>
+                            </span>
+                          )}
+                        </td>
+
+                        <td className="py-3 px-3 whitespace-nowrap">
+                          {sub.estimatedValue ? (
+                            <span className="font-black text-[#D30915] text-xs">
+                              ${sub.estimatedValue.toFixed(2)}
+                            </span>
+                          ) : (
+                            <span className="text-[#8a858f] text-[11px] italic">Pending</span>
+                          )}
+                        </td>
+
+                        <td className="py-3 px-4 text-right whitespace-nowrap">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleOpenReviewSubmission(sub)}
+                              className="px-2.5 py-1 rounded-xl bg-[#faf7f9] border border-[#eedbe6] text-[#141219] hover:text-[#D30915] hover:border-[#D30915] text-xs font-bold transition-all inline-flex items-center gap-1 cursor-pointer"
+                            >
+                              <Edit2 className="w-3 h-3" />
+                              <span>Review</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteSubmission(sub.id, sub.customerName)}
+                              className="p-1 rounded-lg text-[#716d77] hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                              title="Delete submission"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 4. Submission Review & Valuation Modal */}
+      {selectedSubmission && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white w-full max-w-lg rounded-2xl sm:rounded-3xl shadow-2xl border border-[#eedbe6] overflow-hidden my-6 animate-in fade-in zoom-in-95">
+            {/* Modal Header */}
+            <div className="p-4 sm:p-5 border-b border-[#eedbe6] flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-[#D30915]" />
+                <div>
+                  <h3 className="text-base font-black text-[#141219] m-0">
+                    Review Appraisal Submission
+                  </h3>
+                  <p className="text-[11px] text-[#716d77] m-0 mt-0.5">
+                    Reference #{selectedSubmission.id}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedSubmission(null)}
+                className="p-2 rounded-xl text-[#716d77] hover:bg-gray-100 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-4 sm:p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+              {/* Customer Details Summary */}
+              <div className="p-3.5 rounded-xl bg-[#faf7f9] border border-[#eedbe6] space-y-2 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-[#716d77]">Customer Name:</span>
+                  <span className="font-bold text-[#141219]">{selectedSubmission.customerName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#716d77]">Customer Email:</span>
+                  <span className="font-bold text-[#141219]">{selectedSubmission.customerEmail}</span>
+                </div>
+                {selectedSubmission.orderNumber && (
+                  <div className="flex justify-between">
+                    <span className="text-[#716d77]">Associated Order #:</span>
+                    <span className="font-bold text-purple-700">{selectedSubmission.orderNumber}</span>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <span className="text-[#716d77]">Product Revealed From:</span>
+                  <span className="font-bold text-[#141219]">{selectedSubmission.productName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#716d77]">Jewelry Type:</span>
+                  <span className="font-bold text-[#D30915]">{selectedSubmission.jewelryType}</span>
+                </div>
+                {selectedSubmission.codeInfo && (
+                  <div className="flex justify-between">
+                    <span className="text-[#716d77]">Customer Tag / Code:</span>
+                    <span className="font-mono font-bold text-[#141219]">{selectedSubmission.codeInfo}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Photo Gallery Previews */}
+              {selectedSubmission.photoPreviews && selectedSubmission.photoPreviews.length > 0 && (
+                <div className="space-y-1.5">
+                  <span className="text-xs font-bold text-[#141219]">Customer Uploaded Photos:</span>
+                  <div className="grid grid-cols-2 gap-2">
+                    {selectedSubmission.photoPreviews.map((photo, idx) => (
+                      <div key={idx} className="rounded-xl overflow-hidden border border-[#eedbe6] bg-gray-50 h-36">
+                        <img
+                          src={photo}
+                          alt={`Customer photo ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Gemologist Review Form */}
+              <form onSubmit={handleSaveSubmissionReview} className="space-y-3 pt-2 border-t border-gray-100">
+                <div>
+                  <label className="block text-[11px] font-bold text-[#141219] mb-1">
+                    Appraisal Status *
+                  </label>
+                  <select
+                    value={reviewStatus}
+                    onChange={(e) => setReviewStatus(e.target.value as any)}
+                    className="w-full h-10 px-3 rounded-xl bg-[#faf7f9] border border-[#eedbe6] text-xs font-bold"
+                  >
+                    <option value="pending">Pending Review</option>
+                    <option value="reviewed">Reviewed (In Progress)</option>
+                    <option value="approved">Approved (Certified)</option>
+                    <option value="rejected">Rejected (Ineligible)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-[#141219] mb-1">
+                    Appraised Value ($ MSRP)
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    step={1}
+                    value={reviewValuation || ''}
+                    onChange={(e) => setReviewValuation(Number(e.target.value))}
+                    placeholder="e.g. 250"
+                    className="w-full h-10 px-3 rounded-xl bg-[#faf7f9] border border-[#eedbe6] text-xs font-bold text-[#D30915]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-[#141219] mb-1">
+                    Gemologist / Internal Review Notes
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={reviewNotes}
+                    onChange={(e) => setReviewNotes(e.target.value)}
+                    placeholder="Notes on metal purity, stones, appraisal rationale..."
+                    className="w-full p-2.5 rounded-xl bg-[#faf7f9] border border-[#eedbe6] text-xs font-medium resize-none"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between gap-2 pt-3 border-t border-gray-100">
+                  <button
+                    type="button"
+                    onClick={() => handleConvertSubmissionToCertificate(selectedSubmission)}
+                    className="px-3.5 py-2 rounded-xl bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+                    title="Generate a verifiable public lookup certificate code from this submission"
+                  >
+                    <Award className="w-3.5 h-3.5" />
+                    <span>Issue Certificate Code</span>
+                  </button>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedSubmission(null)}
+                      className="px-3 py-2 rounded-xl border border-[#eedbe6] text-xs font-bold text-[#716d77] hover:bg-gray-50 cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 rounded-xl bg-[#D30915] hover:bg-[#B60711] text-white text-xs font-black uppercase tracking-wider cursor-pointer shadow-xs"
+                    >
+                      Save Review
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 5. Certificate Codes View */}
+      {activeSection === 'certificates' && (
+        <div className="space-y-6">
+          {/* KPI Summary Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div className="p-4 rounded-[18px] bg-white border border-[#eedbe6] shadow-2xs">
           <span className="text-[10px] font-black uppercase tracking-wider text-[#716d77] block mb-1">
             Registered Codes
@@ -528,6 +1095,8 @@ export const AdminAppraisals: React.FC<AdminAppraisalsProps> = ({ onShowToast })
           </table>
         </div>
       </div>
+    </div>
+    )}
 
       {/* 5. Add / Edit Appraisal Modal */}
       {isModalOpen && (

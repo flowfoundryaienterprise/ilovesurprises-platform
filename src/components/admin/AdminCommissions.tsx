@@ -151,7 +151,7 @@ export const AdminCommissions: React.FC<AdminCommissionsProps> = ({
           previousRate: prev,
           newRate: next,
           changeAction: `Rate adjusted from ${prev}% to ${next}%`,
-          adminUser: 'Admin Superuser (admin@ilovesurprises.com)',
+          adminUser: 'Super Admin (ilovesurprises.admin@gmail.com)',
         });
       }
     });

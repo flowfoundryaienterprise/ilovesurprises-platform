@@ -111,8 +111,200 @@ export function resolveProductImage(
   if (n.includes('soda') || c.includes('soda')) {
     return '/assets/ilovesurprises/categories/Coke_CSH_Sodapop-CND_JC.jpg';
   }
+  // Christmas & Holiday Candles
+  if (n.includes('christmas') || n.includes('holiday') || c.includes('christmas')) {
+    return 'https://cdn.shopify.com/s/files/1/0172/4672/products/1_Mockup_Jewelry_Jewelry_Candles_9c1f97ea-399f-403a-ae64-3f3afc816a87.jpg?v=1573149158';
+  }
+  // Halloween Candles & Bath Bombs
+  if (n.includes('halloween') || c.includes('halloween')) {
+    return 'https://cdn.shopify.com/s/files/1/0172/4672/products/4_Mockup_Jewelry_JewelryCandles_37b9e8df-fc51-4b27-9db3-6236ee9d84b6.jpg?v=1602742369';
+  }
   // Default Jewelry Candle Mockup
   return '/assets/ilovesurprises/categories/1_Mockup_Jewelry_JewelryCandles_93d459aa-d530-474d-ba4c-32fb9af4f94c.jpg';
+}
+
+/**
+ * Resolves the authoritative founder-specified price for products based on category & type.
+ * Ensures 100% consistent pricing across all store views, search, cart, and checkout.
+ */
+export function resolveFounderCategoryPrice(name: string, categoryName: string, defaultPrice: number): number {
+  const n = (name || '').toLowerCase();
+  const c = (categoryName || '').toLowerCase();
+
+  // 1. Cereal Bowl Cash & Jewelry Candles -> $49.99
+  if (n.includes('cereal') && (n.includes('candle') || c.includes('candle'))) {
+    if (n.includes('cash') || n.includes('money') || n.includes('jewelry') || n.includes('jewellery') || n.includes('ring')) {
+      return 49.99;
+    }
+  }
+
+  // 2. Soda Can Cash & Jewelry Candles -> $29.99
+  if (n.includes('soda') && (n.includes('candle') || c.includes('candle'))) {
+    return 29.99;
+  }
+
+  // 14. Cash Surprise Bear & Cash Wax Melt Bundles -> $59.99
+  if (n.includes('bear') && (n.includes('bundle') || n.includes('melt') || n.includes('treasure')) && (n.includes('cash') || n.includes('money'))) {
+    return 59.99;
+  }
+
+  // 6. Giant Jewelry Wax Melts -> $34.99
+  if (n.includes('giant') && (n.includes('wax') || n.includes('melt'))) {
+    return 34.99;
+  }
+
+  // 7. Cash Figurine Wax Melts -> $34.99
+  if ((n.includes('figurine') || n.includes('shaped') || n.includes('skull')) && (n.includes('wax') || n.includes('melt'))) {
+    return 34.99;
+  }
+
+  // 4. 5.5 oz Cash & Jewelry Wax Melts (non-figurine) -> $19.99
+  if ((n.includes('wax melt') || c.includes('wax melt') || n.includes('wax-melt')) && !n.includes('giant') && !n.includes('figurine') && !n.includes('bundle')) {
+    return 19.99;
+  }
+
+  // 5. Cash & Jewelry Slimes (single jars) -> $19.99
+  if (n.includes('slime') || c.includes('slime')) {
+    return 19.99;
+  }
+
+  // 9. Cash & Jewelry Bath Bomb 2-Pack Tubes -> $34.99
+  if ((n.includes('bath bomb') || c.includes('bath bomb')) && (n.includes('2-pack') || n.includes('2 pack') || n.includes('tube') || n.includes('bundle'))) {
+    return 34.99;
+  }
+
+  // 8. Cash & Jewelry Bath Bombs (Singles) -> $19.99
+  if (n.includes('bath bomb') || c.includes('bath bomb')) {
+    return 19.99;
+  }
+
+  // 10. Cash & Jewelry Bath Soaks (Tubes) -> $19.99
+  if (n.includes('bath soak') || n.includes('bath salt') || c.includes('bath soak') || c.includes('bath salt') || n.includes('money bath salt')) {
+    return 19.99;
+  }
+
+  // 11. 7.5 oz Cash & Jewelry Sugar Scrubs -> $19.99
+  if (n.includes('sugar scrub') || c.includes('sugar scrub')) {
+    return 19.99;
+  }
+
+  // 12. Cash Candy & Chocolate Candy Tubes -> $27.99
+  if ((n.includes('candy') || n.includes('chocolate')) && (n.includes('tube') || n.includes('cash') || n.includes('money'))) {
+    return 27.99;
+  }
+
+  // 13. Cash & Jewelry Greeting Cards -> $14.99
+  if (n.includes('greeting card') || c.includes('greeting card') || n.includes('card')) {
+    return 14.99;
+  }
+
+  // 3. All other Cash & Jewelry Candles, including Necklace and Ring candles -> $44.99
+  if (n.includes('candle') || c.includes('candle')) {
+    if (
+      n.includes('cash') ||
+      n.includes('money') ||
+      n.includes('jewelry') ||
+      n.includes('jewellery') ||
+      n.includes('ring') ||
+      n.includes('necklace') ||
+      n.includes('diamond')
+    ) {
+      return 44.99;
+    }
+  }
+
+  return defaultPrice > 0 ? defaultPrice : 44.99;
+}
+
+/**
+ * Authoritative Customer Visibility Filter:
+ * Temporarily hides ALL products that are NOT related to Cash or Jewelry.
+ * Plain cereal bowl versions with no contents are hidden.
+ * Products remain intact in Supabase database.
+ */
+export function isCustomerVisible(product: {
+  name?: string;
+  title?: string;
+  handle?: string;
+  slug?: string;
+  surpriseType?: string;
+  category?: string;
+  categoryName?: string;
+  productType?: string;
+  tags?: string;
+}): boolean {
+  if (!product) return false;
+
+  const title = (product.title || product.name || '').toLowerCase();
+  const handle = (product.handle || product.slug || '').toLowerCase();
+  const surpriseType = (product.surpriseType || '').toLowerCase();
+  const category = (product.category || product.categoryName || '').toLowerCase();
+  const productType = (product.productType || '').toLowerCase();
+  const tags = (product.tags || '').toLowerCase();
+
+  // Specifically hide scented flowers bouquet if matched
+  if (
+    handle === 'scented-flowers-bouquet' ||
+    title.includes('scented flowers bouquet') ||
+    title.includes('scented flower bouquet')
+  ) {
+    return false;
+  }
+
+  // Check Cash / Money relation
+  const hasCash =
+    surpriseType.includes('cash') ||
+    surpriseType.includes('money') ||
+    title.includes('cash') ||
+    title.includes('money') ||
+    handle.includes('cash') ||
+    handle.includes('money') ||
+    category.includes('cash') ||
+    productType.includes('cash') ||
+    tags.includes('cash');
+
+  // Check Jewelry / Gem / Diamond / Ring / Necklace / Bracelet / Earring relation
+  const hasJewelry =
+    surpriseType.includes('jewel') ||
+    surpriseType.includes('diamond') ||
+    surpriseType.includes('ring') ||
+    title.includes('jewelry') ||
+    title.includes('jewellery') ||
+    title.includes('ring') ||
+    title.includes('necklace') ||
+    title.includes('bracelet') ||
+    title.includes('earring') ||
+    title.includes('diamond') ||
+    handle.includes('jewelry') ||
+    handle.includes('jewellery') ||
+    handle.includes('ring') ||
+    handle.includes('necklace') ||
+    handle.includes('bracelet') ||
+    handle.includes('earring') ||
+    handle.includes('diamond') ||
+    category.includes('jewelry') ||
+    category.includes('jewellery') ||
+    productType.includes('jewelry') ||
+    tags.includes('jewelry');
+
+  // Hide plain cereal bowl versions with no contents
+  if (title.includes('cereal') || handle.includes('cereal')) {
+    if (!hasCash && !hasJewelry) {
+      return false;
+    }
+  }
+
+  // Check Holiday / Christmas priority collection (Founder Priority Collection)
+  const isChristmasOrHoliday =
+    title.includes('christmas') ||
+    title.includes('holiday') ||
+    handle.includes('christmas') ||
+    handle.includes('holiday') ||
+    category.includes('christmas') ||
+    productType.includes('christmas');
+
+  // Must be related to either Cash or Jewelry, or the Founder Priority Holiday collection
+  return hasCash || hasJewelry || isChristmasOrHoliday;
 }
 
 /**
@@ -155,6 +347,9 @@ export function mapRowToProduct(row: any): Product {
     sku = row.sku || undefined;
   }
 
+  // Apply authoritative founder category pricing
+  price = resolveFounderCategoryPrice(name, categoryName, price);
+
   // Image resolution from product_images relation or fallback
   let rawImage: string | null = null;
   let allImages: string[] = [];
@@ -190,7 +385,7 @@ export function mapRowToProduct(row: any): Product {
       variantId: String(v.variant_id || ''),
       productId: id,
       title: v.title || [v.option1_value, v.option2_value, v.option3_value].filter(Boolean).join(' / ') || undefined,
-      price: Number(v.price) || price,
+      price: resolveFounderCategoryPrice(name, categoryName, Number(v.price) || price),
       compareAtPrice: v.compare_at_price ? Number(v.compare_at_price) : undefined,
       sku: v.sku || undefined,
       inStock: v.inventory_qty !== undefined && v.inventory_qty !== null ? v.inventory_qty > 0 : true,
@@ -307,17 +502,30 @@ export function mapRowToProduct(row: any): Product {
   return prod;
 }
 
+const SIGNATURE_COLLECTION_IMAGES: Record<string, string> = {
+  'halloween': 'https://cdn.shopify.com/s/files/1/0172/4672/products/4_Mockup_Jewelry_JewelryCandles_37b9e8df-fc51-4b27-9db3-6236ee9d84b6.jpg?v=1602742369',
+  'christmas-candles-1': 'https://cdn.shopify.com/s/files/1/0172/4672/products/1_Mockup_Jewelry_Jewelry_Candles_9c1f97ea-399f-403a-ae64-3f3afc816a87.jpg?v=1573149158',
+  'christmas': 'https://cdn.shopify.com/s/files/1/0172/4672/products/1_Mockup_Jewelry_Jewelry_Candles_9c1f97ea-399f-403a-ae64-3f3afc816a87.jpg?v=1573149158',
+  'cash-candles': '/assets/ilovesurprises/categories/Coke_CSH_Sodapop-CND_JC.jpg',
+  'zodiac-cash-money-candles': '/assets/ilovesurprises/categories/AQUARIUSZODIACCANDLE.webp',
+  'giant-jewelry-wax-melts': 'https://cdn.shopify.com/s/files/1/0172/4672/products/1_Mockup_Jewelry_JewelryCandles_93d459aa-d530-474d-ba4c-32fb9af4f94c.jpg',
+  'cash-figurine-wax-melts': '/assets/ilovesurprises/categories/Wax_melts_JC.jpg',
+  'cash-surprise-bear-and-cash-wax-melt-bundles': 'https://cdn.shopify.com/s/files/1/0172/4672/products/1_Mockup_Jewelry_JewelryCandles_93d459aa-d530-474d-ba4c-32fb9af4f94c.jpg',
+};
+
 /**
  * Maps a Supabase collections table row to frontend Collection model.
  */
 export function mapRowToCollection(row: any): Collection {
+  const handle = String(row.handle || '').toLowerCase();
+  const fallbackImg = SIGNATURE_COLLECTION_IMAGES[handle] || undefined;
   return {
     id: String(row.collection_id || row.id || ''),
     handle: String(row.handle || ''),
     title: String(row.title || 'Collection'),
     bodyHtml: row.body_html || undefined,
     productsCount: Number(row.products_count) || 0,
-    imageUrl: row.image_url || undefined,
+    imageUrl: row.image_url || fallbackImg,
     sortOrder: row.sort_order || undefined,
   };
 }
@@ -347,7 +555,7 @@ export const productService = {
    */
   async getProducts(params: GetProductsParams = {}): Promise<PaginatedProductsResult> {
     const page = Math.max(1, params.page || 1);
-    const limit = params.limit || 25;
+    const limit = params.limit || 15;
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
@@ -380,6 +588,11 @@ export const productService = {
         let query = supabase
           .from('products')
           .select(CARD_SELECT_COLUMNS, { count: 'exact' });
+
+        // Temporarily hide all products NOT related to Cash or Jewelry from customer catalog
+        if (isUnfiltered) {
+          query = query.or('title.ilike.%cash%,title.ilike.%money%,title.ilike.%jewelry%,title.ilike.%jewellery%,title.ilike.%ring%,title.ilike.%necklace%,title.ilike.%bracelet%,title.ilike.%earring%,title.ilike.%diamond%,product_type.ilike.%cash%,product_type.ilike.%jewelry%');
+        }
 
         // Category / Collection filter with intelligent subcategory mapping
         if (params.category && params.category !== 'All Surprises' && params.category !== 'All') {
@@ -482,12 +695,12 @@ export const productService = {
         }
 
         if (!error && data && data.length > 0) {
-          const products = deduplicateProducts(data.map(mapRowToProduct));
+          const products = deduplicateProducts(data.map(mapRowToProduct)).filter(isCustomerVisible);
           const total =
             count !== null && count !== undefined && count > 0
               ? count
               : isUnfiltered
-              ? 57479
+              ? 39471
               : products.length;
 
           const result: PaginatedProductsResult = {
@@ -515,7 +728,7 @@ export const productService = {
     }
 
     // Fallback in-memory pagination and filtering (only if network offline or Supabase unavailable)
-    let filtered = [...productsData];
+    let filtered = productsData.filter(isCustomerVisible);
 
     if (params.category && params.category !== 'All Surprises' && params.category !== 'All') {
       const catParam = params.category.toLowerCase().trim();
@@ -684,7 +897,7 @@ export const productService = {
           }
         }
 
-        const mapped = candidateRows.map(mapRowToProduct);
+        const mapped = candidateRows.map(mapRowToProduct).filter(isCustomerVisible);
         const ranked = rankProductsBySearch(mapped, q);
         return ranked.slice(0, limit);
       } catch (err) {
@@ -693,7 +906,7 @@ export const productService = {
     }
 
     // Static fallback
-    const staticMatches = productsData.filter((p) => {
+    const staticMatches = productsData.filter(isCustomerVisible).filter((p) => {
       const name = p.name.toLowerCase();
       const cat = p.category.toLowerCase();
       const desc = (p.description || '').toLowerCase();
@@ -729,6 +942,7 @@ export const productService = {
 
         if (!handleErr && byHandleRows && byHandleRows.length > 0) {
           const mapped = mapRowToProduct(byHandleRows[0]);
+          if (!isCustomerVisible(mapped)) return null;
           cacheProduct(mapped);
           return mapped;
         }
@@ -742,6 +956,7 @@ export const productService = {
 
         if (!ilikeErr && byIlikeRows && byIlikeRows.length > 0) {
           const mapped = mapRowToProduct(byIlikeRows[0]);
+          if (!isCustomerVisible(mapped)) return null;
           cacheProduct(mapped);
           return mapped;
         }
@@ -755,6 +970,7 @@ export const productService = {
 
         if (!idErr && byIdRows && byIdRows.length > 0) {
           const mapped = mapRowToProduct(byIdRows[0]);
+          if (!isCustomerVisible(mapped)) return null;
           cacheProduct(mapped);
           return mapped;
         }
@@ -769,6 +985,7 @@ export const productService = {
 
         if (byTitle && byTitle.length > 0) {
           const mapped = mapRowToProduct(byTitle[0]);
+          if (!isCustomerVisible(mapped)) return null;
           cacheProduct(mapped);
           return mapped;
         }
@@ -780,10 +997,11 @@ export const productService = {
     // Static fallback (exact slug or ID match only)
     const staticMatch =
       productsData.find((p) => p.slug === cleanSlug || p.id === cleanSlug) || null;
-    if (staticMatch) {
+    if (staticMatch && isCustomerVisible(staticMatch)) {
       cacheProduct(staticMatch);
+      return staticMatch;
     }
-    return staticMatch;
+    return null;
   },
 
   cacheProduct(product: Product) {
@@ -1062,6 +1280,10 @@ export const productService = {
       'slimes': 'slimes',
       'cards': 'greeting-cards',
       'greeting-cards': 'greeting-cards',
+      'halloween': 'halloween',
+      'christmas': 'christmas-candles-1',
+      'christmas-candles': 'christmas-candles-1',
+      'christmas-candles-1': 'christmas-candles-1',
 
       // Candles Subcategories
       'cash-candle': 'cash-candles',
@@ -1284,7 +1506,7 @@ export const productService = {
     totalPages: number;
   }> {
     const page = Math.max(1, params.page || 1);
-    const limit = params.limit || 24;
+    const limit = params.limit || 15;
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
@@ -1325,6 +1547,22 @@ export const productService = {
             .map((r: any) => r.products)
             .filter(Boolean)
             .map(mapRowToProduct);
+
+          // For authentic priority collections (like Christmas Candles & Halloween), all products linked to that collection are valid
+          const isPriorityHolidayCol =
+            col.handle.includes('christmas') ||
+            col.handle.includes('halloween') ||
+            col.title.toLowerCase().includes('christmas') ||
+            col.title.toLowerCase().includes('halloween');
+
+          if (!isPriorityHolidayCol) {
+            prods = prods.filter(isCustomerVisible);
+          }
+
+          // If collection has no image, fallback to first product image
+          if (!col.imageUrl && prods.length > 0 && prods[0].image) {
+            col.imageUrl = prods[0].image;
+          }
 
           // Apply client-side sorting for price if requested
           if (params.sort === 'price-asc') {

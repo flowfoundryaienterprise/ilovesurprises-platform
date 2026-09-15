@@ -47,3 +47,21 @@ export interface AppraisalLookupResponse {
   data?: PublicAppraisalResult;
   error?: string;
 }
+
+export type AppraisalSubmissionStatus = 'pending' | 'reviewed' | 'approved' | 'rejected';
+
+export interface CustomerAppraisalSubmission {
+  id: string;
+  customerName: string;
+  customerEmail: string;
+  orderNumber?: string;
+  productName: string;
+  jewelryType: string;
+  codeInfo?: string;
+  photoPreviews?: string[];
+  status: AppraisalSubmissionStatus;
+  notes?: string;
+  estimatedValue?: number;
+  createdAt: string;
+  updatedAt?: string;
+}

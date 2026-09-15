@@ -34,12 +34,10 @@ export const ProductGrid: React.FC<ProductGridProps> = React.memo(({
   onSelectProduct,
   emptyMessage = 'No surprise products match your selected filters.',
   onResetFilters,
-  isFullWidth = false,
+  isFullWidth: _isFullWidth = false,
   searchQuery: _searchQuery = '',
 }) => {
-  const gridClasses = isFullWidth
-    ? 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'
-    : 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4';
+  const gridClasses = 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5';
 
   // Strictly deduplicate products to guarantee no repeated product cards
   const displayedProducts = useMemo(() => {

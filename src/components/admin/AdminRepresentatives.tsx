@@ -10,9 +10,11 @@ import {
   Sparkles,
   Check,
   Ban,
+  Copy,
 } from 'lucide-react';
 import type { RepresentativeAdminRecord, RepStatus } from '../../types/admin';
 import { qualificationService } from '../../services/qualificationService';
+import { attributionService } from '../../services/attributionService';
 
 interface AdminRepresentativesProps {
   representatives: RepresentativeAdminRecord[];
@@ -534,6 +536,53 @@ export const AdminRepresentatives: React.FC<AdminRepresentativesProps> = ({
                 <span className="font-bold text-[#141219]">{selectedRep.joinDate}</span>
               </div>
             </div>
+
+            {/* Referral Link & Customer Attribution Card */}
+            {(() => {
+              const referralLink = typeof window !== 'undefined'
+                ? `${window.location.origin}/?rep=${selectedRep.repUsername}`
+                : `https://ilovesurprises.com/?rep=${selectedRep.repUsername}`;
+              const attributions = attributionService.getStoredAttributions();
+              const attributedCustomers = Object.values(attributions).filter(
+                (a) => a.repUsername.toLowerCase() === selectedRep.repUsername.toLowerCase()
+              );
+
+              return (
+                <div className="bg-[#fff9fb] p-3.5 rounded-xl border border-[#f2dfec] space-y-2.5 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="font-black uppercase tracking-wider text-[10px] text-[#716d77]">
+                      Affiliate Referral Link &amp; Attribution
+                    </span>
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                      {attributedCustomers.length} Lifetime Customer{attributedCustomers.length === 1 ? '' : 's'}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="text"
+                      readOnly
+                      value={referralLink}
+                      className="flex-1 h-8 px-2.5 rounded-lg bg-white border border-[#eedbe6] text-[11px] font-mono text-[#D30915] select-all outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(referralLink);
+                        onShowToast(`Referral link for @${selectedRep.repUsername} copied!`, {
+                          title: 'Link Copied',
+                          type: 'success',
+                        });
+                      }}
+                      className="h-8 px-2.5 rounded-lg bg-[#faf7f9] border border-[#eedbe6] hover:bg-[#fff0f3] text-xs font-bold text-[#141219] flex items-center gap-1 cursor-pointer"
+                    >
+                      <Copy className="w-3.5 h-3.5 text-[#D30915]" />
+                      <span>Copy</span>
+                    </button>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Monthly Qualification Details Card */}
             {(() => {

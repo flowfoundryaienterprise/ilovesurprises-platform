@@ -660,7 +660,19 @@ export function App() {
 
       setNavDirection('backward');
 
-      const eventState = 'state' in e ? (e as PopStateEvent).state : null;
+      const customDetail = (e && 'detail' in e) ? (e as CustomEvent).detail : null;
+      const eventState = (e && 'state' in e && (e as PopStateEvent).state) ? (e as PopStateEvent).state : (customDetail || null);
+
+      if (customDetail?.route === 'admin-login' || customDetail?.view === 'admin-login') {
+        setCurrentView('admin-login');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+      if (customDetail?.route === 'admin' || customDetail?.view === 'admin') {
+        setCurrentView('admin');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
 
       if (eventState?.view) {
         const targetView = eventState.view as AppView;
@@ -876,10 +888,13 @@ export function App() {
     };
 
     window.addEventListener('popstate', handlePopState);
+    window.addEventListener('ils_route_change', handlePopState);
     return () => {
       window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('ils_route_change', handlePopState);
     };
   }, [isCartOpen, isAuthOpen]);
+
 
   const handleOpenAuth = (mode: 'login' | 'signup' | 'forgot' | 'reset' = 'login') => {
     setAuthMode(mode);

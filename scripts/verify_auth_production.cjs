@@ -80,7 +80,7 @@ async function run() {
   // Test 2: Verify Existing Account Login & Profile Retrieval
   console.log('\n--- 2. Testing Production Login with Existing Account ---');
   // Use known account created during previous flow verification
-  const existingUserEmail = 'cookuwithcomali336@gmail.com';
+  const existingUserEmail = 'ilovesurprises.admin@gmail.com';
   // Attempt with test password or test credentials
   try {
     const { data: loginData, error: loginErr } = await client.auth.signInWithPassword({
@@ -285,7 +285,7 @@ async function run() {
   // Test 9: Forgot Password / Password Reset Flow
   console.log('\n--- 9. Testing Forgot Password Flow ---');
   try {
-    const { error: forgotErr } = await client.auth.resetPasswordForEmail('cookuwithcomali336@gmail.com', {
+    const { error: forgotErr } = await client.auth.resetPasswordForEmail('ilovesurprises.admin@gmail.com', {
       redirectTo: 'https://ilovesurprises.com/?type=recovery',
     });
 
@@ -316,7 +316,7 @@ async function run() {
   console.log('\n--- 10. Testing Wrong Password Rejection ---');
   try {
     const { error: wrongPwErr } = await client.auth.signInWithPassword({
-      email: 'cookuwithcomali336@gmail.com',
+      email: 'ilovesurprises.admin@gmail.com',
       password: 'CompletelyWrongPassword!123',
     });
     const rejected = !!wrongPwErr && wrongPwErr.message.toLowerCase().includes('invalid login credentials');

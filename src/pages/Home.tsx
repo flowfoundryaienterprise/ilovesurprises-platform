@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Hero } from '../components/home/Hero';
+import { FeaturedCollectionsSection } from '../components/home/FeaturedCollectionsSection';
 import { CategorySection } from '../components/home/CategorySection';
 import { AffiliateSection } from '../components/home/AffiliateSection';
 import { FeaturedProducts } from '../components/home/FeaturedProducts';
@@ -56,7 +57,16 @@ export const Home: React.FC<HomeProps> = ({
         <Hero />
       </div>
 
-      {/* 2. Explore Section (Shop by Surprise - 12 Authoritative Collections with Direct Collection Routing) */}
+      {/* 2. Prioritized Holiday & Signature Collections (Row 1: Halloween & Christmas, Row 2: Cash Candles & Zodiac Cash Candles) */}
+      <div className="transition-all duration-300">
+        <FeaturedCollectionsSection
+          onSelectCategory={onSelectCategory}
+          onSelectCollection={onSelectCollection}
+          onSelectProduct={onSelectProduct}
+        />
+      </div>
+
+      {/* 3. Explore Section (Shop by Surprise - 12 Authoritative Collections with Direct Collection Routing) */}
       <div className="transition-all duration-300">
         <CategorySection
           isLoading={isLoading}
