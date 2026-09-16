@@ -1,15 +1,24 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Sparkles, ArrowRight, DollarSign, Flame, Calendar, Gift, Gem, ShieldCheck } from 'lucide-react';
 import { adminService } from '../../services/adminService';
-import type { Product } from '../../types';
+import { productService } from '../../services/productService';
+import { deduplicateProducts } from '../../utils/productUtils';
+import { ProductCard } from '../products/ProductCard';
+import { ProductCardSkeleton } from '../ui/ProductCardSkeleton';
+import type { Product, CartItem } from '../../types';
 
 interface FeaturedCollectionsSectionProps {
+  cart?: CartItem[];
+  wishlistIds?: string[];
   onSelectCategory?: (category: string) => void;
   onSelectCollection?: (handle: string) => void;
   onSelectProduct?: (product: Product) => void;
+  onAddToCart?: (product: Product) => void;
+  onUpdateQuantity?: (productId: string, delta: number) => void;
+  onWishlistToggle?: (product: Product) => void;
 }
 
-interface CuratedCardConfig {
+interface CuratedCollectionConfig {
   id: string;
   title: string;
   categoryKey: string;
@@ -24,7 +33,7 @@ interface CuratedCardConfig {
   theme: 'amber' | 'red' | 'emerald' | 'purple';
 }
 
-const DEFAULT_CURATED_CARDS: Record<string, CuratedCardConfig> = {
+const DEFAULT_CURATED_CARDS: Record<string, CuratedCollectionConfig> = {
   halloween: {
     id: 'halloween',
     title: 'Halloween',
@@ -41,7 +50,7 @@ const DEFAULT_CURATED_CARDS: Record<string, CuratedCardConfig> = {
   },
   'christmas-candles-1': {
     id: 'christmas-candles-1',
-    title: 'Christmas',
+    title: 'Christmas Candles',
     categoryKey: 'Christmas Candles',
     badge: 'Holiday Priority',
     badgeIcon: Gift,
@@ -83,59 +92,21 @@ const DEFAULT_CURATED_CARDS: Record<string, CuratedCardConfig> = {
   },
 };
 
-const THEME_STYLES = {
-  amber: {
-    border: 'border-amber-500/25',
-    hoverBorder: 'group-hover:border-amber-400',
-    hoverShadow: 'hover:shadow-[0_20px_50px_-12px_rgba(245,158,11,0.38)]',
-    iconColor: 'text-amber-500',
-    dotBg: 'bg-amber-400 shadow-[0_0_10px_rgba(251,146,60,0.9)]',
-    ctaHover: 'group-hover:bg-amber-500',
-    glowSheen: 'from-amber-500/15 via-orange-500/5 to-transparent',
-    titleHover: 'group-hover:text-amber-200',
-    eyebrowColor: 'text-amber-200',
-  },
-  red: {
-    border: 'border-red-500/25',
-    hoverBorder: 'group-hover:border-red-400',
-    hoverShadow: 'hover:shadow-[0_20px_50px_-12px_rgba(220,38,38,0.38)]',
-    iconColor: 'text-red-500',
-    dotBg: 'bg-red-400 shadow-[0_0_10px_rgba(248,113,113,0.9)]',
-    ctaHover: 'group-hover:bg-[#D30915]',
-    glowSheen: 'from-red-500/15 via-rose-500/5 to-transparent',
-    titleHover: 'group-hover:text-red-200',
-    eyebrowColor: 'text-red-200',
-  },
-  emerald: {
-    border: 'border-emerald-500/25',
-    hoverBorder: 'group-hover:border-emerald-400',
-    hoverShadow: 'hover:shadow-[0_20px_50px_-12px_rgba(16,185,129,0.38)]',
-    iconColor: 'text-emerald-500',
-    dotBg: 'bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.9)]',
-    ctaHover: 'group-hover:bg-emerald-600',
-    glowSheen: 'from-emerald-500/15 via-teal-500/5 to-transparent',
-    titleHover: 'group-hover:text-emerald-200',
-    eyebrowColor: 'text-emerald-200',
-  },
-  purple: {
-    border: 'border-purple-500/25',
-    hoverBorder: 'group-hover:border-purple-400',
-    hoverShadow: 'hover:shadow-[0_20px_50px_-12px_rgba(168,85,247,0.38)]',
-    iconColor: 'text-purple-500',
-    dotBg: 'bg-purple-400 shadow-[0_0_10px_rgba(192,132,252,0.9)]',
-    ctaHover: 'group-hover:bg-purple-600',
-    glowSheen: 'from-purple-500/15 via-indigo-500/5 to-transparent',
-    titleHover: 'group-hover:text-purple-200',
-    eyebrowColor: 'text-purple-200',
-  },
-};
-
 export const FeaturedCollectionsSection: React.FC<FeaturedCollectionsSectionProps> = ({
+  cart = [],
+  wishlistIds = [],
   onSelectCategory,
   onSelectCollection,
-  onSelectProduct: _onSelectProduct,
+  onSelectProduct,
+  onAddToCart,
+  onUpdateQuantity,
+  onWishlistToggle,
 }) => {
   const [homepageConfig, setHomepageConfig] = useState(() => adminService.getHomepageContent());
+  const [collectionProducts, setCollectionProducts] = useState<Record<string, Product[]>>({});
+  const [isFetching, setIsFetching] = useState<boolean>(true);
+
+  const wishlistSet = useMemo(() => new Set(wishlistIds), [wishlistIds]);
 
   useEffect(() => {
     const handleUpdate = () => {
@@ -148,10 +119,10 @@ export const FeaturedCollectionsSection: React.FC<FeaturedCollectionsSectionProp
   // Guarantee Founder Hierarchy:
   // Row 1: Halloween & Christmas (Upcoming Holiday Priority)
   // Row 2: Cash Candles & Zodiac Cash Candles (Signature Cash Reveals)
-  const { row1Cards, row2Cards } = useMemo(() => {
+  const { row1Cards, row2Cards, allFeaturedCards } = useMemo(() => {
     const cards = homepageConfig.featuredCards || [];
 
-    const resolveCard = (id: string, defaultCard: CuratedCardConfig): CuratedCardConfig => {
+    const resolveCard = (id: string, defaultCard: CuratedCollectionConfig): CuratedCollectionConfig => {
       const found = cards.find((c) => c.id === id);
       if (!found) return defaultCard;
       return {
@@ -173,129 +144,159 @@ export const FeaturedCollectionsSection: React.FC<FeaturedCollectionsSectionProp
     return {
       row1Cards: [halloween, christmas],
       row2Cards: [cash, zodiac],
+      allFeaturedCards: [halloween, christmas, cash, zodiac],
     };
   }, [homepageConfig]);
 
-  const renderCard = (col: CuratedCardConfig, _index: number, _rowNum: number) => {
+  // Fetch real Supabase products for all featured collections (max 10 products per collection)
+  useEffect(() => {
+    let isCancelled = false;
+    setIsFetching(true);
+
+    const fetchAllCollections = async () => {
+      try {
+        const results = await Promise.all(
+          allFeaturedCards.map(async (col) => {
+            try {
+              const res = await productService.getProductsByCollection(col.id, {
+                page: 1,
+                limit: 10,
+                sort: 'featured',
+              });
+              const prods = deduplicateProducts(res?.products || []).slice(0, 10);
+              return { id: col.id, products: prods };
+            } catch (err) {
+              console.warn(`Error fetching products for collection ${col.id}:`, err);
+              return { id: col.id, products: [] };
+            }
+          })
+        );
+
+        if (!isCancelled) {
+          const map: Record<string, Product[]> = {};
+          results.forEach((r) => {
+            map[r.id] = r.products;
+          });
+          setCollectionProducts(map);
+          setIsFetching(false);
+        }
+      } catch (err) {
+        console.warn('Error fetching featured collection products:', err);
+        if (!isCancelled) {
+          setIsFetching(false);
+        }
+      }
+    };
+
+    fetchAllCollections();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [allFeaturedCards]);
+
+  const handleViewCollection = (handle: string, categoryKey?: string) => {
+    if (onSelectCollection) {
+      onSelectCollection(handle);
+    } else if (onSelectCategory && categoryKey) {
+      onSelectCategory(categoryKey);
+    } else {
+      window.history.pushState(
+        { view: 'collection', collectionHandle: handle },
+        '',
+        `/collections/${handle}`
+      );
+      window.dispatchEvent(new CustomEvent('ils_route_change', { detail: { route: 'collection', handle } }));
+      window.dispatchEvent(new PopStateEvent('popstate', { state: { view: 'collection', collectionHandle: handle } }));
+    }
+  };
+
+  const getProductQuantity = (productId: string) => {
+    const item = cart.find((i) => i.product.id === productId);
+    return item ? item.quantity : 0;
+  };
+
+  const handleAddToCart = onAddToCart || ((product: Product) => onSelectProduct?.(product));
+
+  const renderCollectionGrid = (col: CuratedCollectionConfig) => {
+    const prods = collectionProducts[col.id] || [];
+    const isCardLoading = isFetching;
     const BadgeIcon = col.badgeIcon;
-    const cardTestId = `featured-collection-${col.id}`;
-    const themeStyles = THEME_STYLES[col.theme];
+    const testId = `featured-collection-${col.id}`;
 
     return (
       <div
         key={col.id}
-        id={cardTestId}
-        data-testid={cardTestId}
-        onClick={() => {
-          if (onSelectCollection) {
-            onSelectCollection(col.id);
-          } else if (onSelectCategory) {
-            onSelectCategory(col.categoryKey);
-          }
-        }}
-        className={`group relative rounded-none overflow-hidden cursor-pointer transition-all duration-300 ease-out isolate border ${themeStyles.border} ${themeStyles.hoverBorder} ${themeStyles.hoverShadow} bg-white flex flex-col justify-between shadow-md hover:shadow-xl aspect-square md:aspect-auto md:h-[360px] lg:h-[380px] w-full`}
-        style={{
-          position: 'relative',
-          width: '100%',
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          boxSizing: 'border-box',
-          backgroundColor: '#ffffff',
-          borderRadius: '0px',
-        }}
+        id={testId}
+        data-testid={testId}
+        className="mb-10 sm:mb-14 last:mb-0"
       >
-        {/* Full-Cover Background Image - Zero Internal Edges */}
-        <img
-          src={col.image}
-          alt={col.title}
-          loading="lazy"
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 will-change-transform"
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            objectPosition: 'center center',
-            display: 'block',
-          }}
-          onError={(e) => {
-            // High quality fallback if CDN image has connectivity issue
-            if (col.id.includes('halloween')) {
-              (e.target as HTMLImageElement).src = '/assets/ilovesurprises/categories/Cat-2_Figurines_JWL_wax_melts.jpg';
-            } else if (col.id.includes('christmas')) {
-              (e.target as HTMLImageElement).src = '/assets/ilovesurprises/categories/Heartfelt-Hugs.jpg';
-            } else {
-              (e.target as HTMLImageElement).src = '/assets/ilovesurprises/categories/Coke_CSH_Sodapop-CND_JC.jpg';
-            }
-          }}
-        />
-
-        {/* Top Vignette Gradient for Badges Legibility */}
-        <div
-          className="absolute inset-x-0 top-0 h-14 sm:h-20 bg-gradient-to-b from-black/80 via-black/35 to-transparent pointer-events-none"
-          style={{ position: 'absolute', top: 0, left: 0, right: 0, pointerEvents: 'none' }}
-        />
-
-        {/* Bottom Deep Luxury Gradient Scrim for Content Contrast */}
-        <div
-          className="absolute inset-x-0 bottom-0 h-[62%] sm:h-[58%] bg-gradient-to-t from-[#0c0914] via-[#0c0914]/90 via-45% to-transparent pointer-events-none"
-          style={{ position: 'absolute', bottom: 0, left: 0, right: 0, pointerEvents: 'none' }}
-        />
-
-        {/* Ambient Theme Glow on Hover */}
-        <div
-          className={`absolute inset-0 bg-gradient-to-tr ${themeStyles.glowSheen} opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none`}
-          style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}
-        />
-
-        {/* TOP BADGES LAYER */}
-        <div className="relative z-10 p-2 sm:p-3 md:p-3.5 flex items-center justify-between gap-1 sm:gap-2 pointer-events-none">
-          <div className="inline-flex items-center gap-1 px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[8px] min-[360px]:text-[9px] sm:text-xs font-black shadow-md backdrop-blur-md bg-white/95 text-[#141219] border border-white/90 truncate">
-            <BadgeIcon className={`w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 shrink-0 ${themeStyles.iconColor}`} />
-            <span className="truncate">{col.badge}</span>
-          </div>
-
-          <div className="inline-flex items-center px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[8px] min-[360px]:text-[9px] sm:text-[11px] font-bold text-white/95 bg-black/60 backdrop-blur-md border border-white/20 shadow-sm shrink-0">
-            <span>{col.itemCount.toLocaleString()}</span>
-            <span className="hidden min-[380px]:inline ml-0.5">items</span>
-          </div>
-        </div>
-
-        {/* BOTTOM CONTENT LAYER */}
-        <div className="relative z-10 p-2 sm:p-3 md:p-3.5 mt-auto flex flex-col justify-end pointer-events-none">
-          {/* Eyebrow Label with Glowing Status Dot */}
-          <div className="flex items-center gap-1 mb-0.5">
-            <span className={`w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full ${themeStyles.dotBg} animate-pulse shrink-0`} />
-            <span className={`text-[7.5px] min-[360px]:text-[8.5px] sm:text-[10px] md:text-[11px] font-black uppercase tracking-wider ${themeStyles.eyebrowColor} drop-shadow-sm truncate`}>
-              {col.eyebrow}
-            </span>
-          </div>
-
-          {/* Collection Title */}
-          <h3 className={`text-xs sm:text-base md:text-lg lg:text-xl font-black text-white tracking-tight leading-tight m-0 font-display drop-shadow-md ${themeStyles.titleHover} transition-colors truncate`}>
-            {col.title}
-          </h3>
-
-          {/* Tagline / Description - shown on tablet and desktop, cleanly hidden on small mobile to stay short */}
-          <p className="hidden sm:block text-[11px] md:text-xs text-white/90 mt-0.5 sm:mt-1 line-clamp-1 leading-relaxed m-0 drop-shadow-sm font-medium">
-            {col.tagline}
-          </p>
-
-          {/* Bottom Action CTA Row */}
-          <div className="mt-1 sm:mt-2 pt-1 sm:pt-1.5 border-t border-white/15 flex items-center justify-between gap-1.5">
-            <span className="text-[10px] sm:text-xs md:text-sm font-extrabold text-white group-hover:text-white transition-colors truncate">
-              <span className="hidden sm:inline">{col.ctaText}</span>
-              <span className="sm:hidden">Shop Collection</span>
-            </span>
-            <div className={`w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 rounded-full bg-white/20 ${themeStyles.ctaHover} text-white flex items-center justify-center shrink-0 transition-all duration-300 shadow-sm group-hover:scale-110`}>
-              <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-3.5 md:h-3.5 transition-transform group-hover:translate-x-0.5" />
+        {/* Header (No tabs - clean title & View All CTA, matching Trending structure) */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6 sm:mb-8 pb-4 border-b border-[#f4edf2]">
+          <div className="flex flex-col items-center sm:items-start text-center sm:text-left w-full sm:w-auto">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#fff1f2] border border-[#fecdd3] text-[#D30915] text-[10px] sm:text-[11px] font-black uppercase tracking-wider mb-2">
+              <BadgeIcon className="w-3.5 h-3.5" />
+              <span>{col.badge || 'Curated Collection'}</span>
             </div>
+
+            <h3
+              onClick={() => handleViewCollection(col.id, col.categoryKey)}
+              className="text-2xl sm:text-3xl font-black text-[#141219] tracking-tight m-0 font-display hover:text-[#D30915] cursor-pointer transition-colors"
+            >
+              {col.title}
+            </h3>
+            {col.tagline && (
+              <p className="text-xs sm:text-sm text-[#716d77] m-0 mt-1 max-w-xl mx-auto sm:mx-0">
+                {col.tagline}
+              </p>
+            )}
           </div>
+
+          {/* Top View All CTA */}
+          <button
+            type="button"
+            onClick={() => handleViewCollection(col.id, col.categoryKey)}
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#D30915] hover:text-[#B60711] hover:underline active:scale-95 transition-all self-center sm:self-end cursor-pointer"
+          >
+            <span>View All {col.title}</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
         </div>
+
+        {/* Product Grid - Exactly max 10 products, responsive layout identical to Trending */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5 sm:gap-4 lg:gap-5">
+          {isCardLoading
+            ? Array.from({ length: 10 }).map((_, i) => <ProductCardSkeleton key={i} />)
+            : prods.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  cartQuantity={getProductQuantity(product.id)}
+                  onAddToCart={handleAddToCart}
+                  onUpdateQuantity={onUpdateQuantity}
+                  onToggleWishlist={() => onWishlistToggle?.(product)}
+                  onSelectProduct={onSelectProduct}
+                  isWishlisted={wishlistSet.has(product.id)}
+                />
+              ))}
+        </div>
+
+        {/* COLLECTION NAME UNDERNEATH & COLLECTION LINK/VIEW ALL */}
+        {!isCardLoading && prods.length > 0 && (
+          <div className="mt-8 sm:mt-12 text-center flex flex-col items-center justify-center">
+            <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-[#716d77] mb-2">
+              {col.title}
+            </span>
+            <button
+              type="button"
+              onClick={() => handleViewCollection(col.id, col.categoryKey)}
+              className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 rounded-full bg-[#141219] hover:bg-[#D30915] text-white font-bold text-xs uppercase tracking-wider transition-all duration-300 shadow-sm hover:shadow-md active:scale-95 cursor-pointer"
+            >
+              <span>Explore All {col.title}</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </div>
     );
   };
@@ -303,20 +304,20 @@ export const FeaturedCollectionsSection: React.FC<FeaturedCollectionsSectionProp
   return (
     <section
       id="featured-collections"
-      className="w-full max-w-[1040px] mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10 md:py-12 box-border overflow-hidden"
+      className="relative max-w-[1460px] mx-auto px-2.5 sm:px-6 py-6 sm:py-10 box-border overflow-hidden"
       aria-label="Featured Collections"
     >
       {/* Section Main Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4 mb-5 sm:mb-7 md:mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4 mb-8 sm:mb-10 pb-4 border-b border-[#eedbe6]/70">
         <div>
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-gradient-to-r from-rose-500/10 via-amber-500/10 to-purple-500/10 border border-rose-200/80 text-[#D30915] text-[10px] sm:text-[11px] font-black uppercase tracking-wider mb-1.5 sm:mb-2 shadow-2xs">
             <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#D30915] animate-pulse" />
             <span>Founder Curated Collections</span>
           </div>
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-[#141219] tracking-tight font-display m-0">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#141219] tracking-tight font-display m-0">
             Featured Collections
           </h2>
-          <p className="text-xs sm:text-sm text-[#716d77] m-0 mt-0.5 sm:mt-1 max-w-2xl leading-relaxed">
+          <p className="text-xs sm:text-sm text-[#716d77] m-0 mt-1 max-w-2xl leading-relaxed">
             Prioritized upcoming holiday specials & signature cash reveals. Real cash or jewelry in every item.
           </p>
         </div>
@@ -329,15 +330,15 @@ export const FeaturedCollectionsSection: React.FC<FeaturedCollectionsSectionProp
         </div>
       </div>
 
-      {/* ROW 1: Upcoming Holiday Collections (Halloween & Christmas) */}
-      <div className="mb-5 sm:mb-7 md:mb-8">
-        <div className="flex flex-wrap items-center justify-between gap-1.5 sm:gap-2 mb-2.5 sm:mb-3.5 pb-1.5 sm:pb-2 border-b border-[#eedbe6]/70">
+      {/* Row 1: Upcoming Holiday Collections (Halloween & Christmas) */}
+      <div className="mb-10 sm:mb-14">
+        <div className="flex flex-wrap items-center justify-between gap-1.5 sm:gap-2 mb-6 pb-2 border-b border-[#eedbe6]/70">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600 shadow-2xs shrink-0">
               <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-600" />
             </div>
-            <h3 className="text-xs sm:text-sm font-black text-[#141219] uppercase tracking-wider font-display m-0">
-              Row 1: Upcoming Holiday Collections
+            <h3 className="text-sm sm:text-base font-black text-[#141219] uppercase tracking-wider font-display m-0">
+              Upcoming Holiday Collections
             </h3>
           </div>
 
@@ -347,21 +348,21 @@ export const FeaturedCollectionsSection: React.FC<FeaturedCollectionsSectionProp
           </div>
         </div>
 
-        {/* 2 cards per line on mobile: grid-cols-2 at all breakpoints */}
-        <div className="w-full grid grid-cols-2 gap-2.5 sm:gap-5 md:gap-6">
-          {row1Cards.map((col, idx) => renderCard(col, idx, 1))}
+        {/* Product Grids for Row 1 collections */}
+        <div className="space-y-10 sm:space-y-14">
+          {row1Cards.map((col) => renderCollectionGrid(col))}
         </div>
       </div>
 
-      {/* ROW 2: Signature Cash Candles (Cash Candles & Zodiac Cash Candles) */}
+      {/* Row 2: Signature Cash Candles (Cash Candles & Zodiac Cash Candles) */}
       <div>
-        <div className="flex flex-wrap items-center justify-between gap-1.5 sm:gap-2 mb-2.5 sm:mb-3.5 pb-1.5 sm:pb-2 border-b border-[#eedbe6]/70">
+        <div className="flex flex-wrap items-center justify-between gap-1.5 sm:gap-2 mb-6 pb-2 border-b border-[#eedbe6]/70">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600 shadow-2xs shrink-0">
               <DollarSign className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600" />
             </div>
-            <h3 className="text-xs sm:text-sm font-black text-[#141219] uppercase tracking-wider font-display m-0">
-              Row 2: Signature Cash Candles
+            <h3 className="text-sm sm:text-base font-black text-[#141219] uppercase tracking-wider font-display m-0">
+              Signature Cash Candles
             </h3>
           </div>
 
@@ -371,9 +372,9 @@ export const FeaturedCollectionsSection: React.FC<FeaturedCollectionsSectionProp
           </div>
         </div>
 
-        {/* 2 cards per line on mobile: grid-cols-2 at all breakpoints */}
-        <div className="w-full grid grid-cols-2 gap-2.5 sm:gap-5 md:gap-6">
-          {row2Cards.map((col, idx) => renderCard(col, idx, 2))}
+        {/* Product Grids for Row 2 collections */}
+        <div className="space-y-10 sm:space-y-14">
+          {row2Cards.map((col) => renderCollectionGrid(col))}
         </div>
       </div>
     </section>
