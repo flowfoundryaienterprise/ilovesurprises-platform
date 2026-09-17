@@ -30,6 +30,7 @@ import {
   Volume2,
   Megaphone,
   Gem,
+  Zap,
 } from 'lucide-react';
 import type { UserProfile, Product } from '../../types';
 import { productService } from '../../services/productService';
@@ -195,6 +196,24 @@ export const Header: React.FC<HeaderProps> = ({
   const megaMenuTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const megaMenuCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [expandedMobileCategory, setExpandedMobileCategory] = useState<string | null>(null);
+
+  // Real-time flash sale announcement countdown timer
+  const [topCountdownSecs, setTopCountdownSecs] = useState(() => {
+    const now = Date.now();
+    const cycleDuration = 6 * 3600 * 1000;
+    return Math.floor((cycleDuration - (now % cycleDuration)) / 1000);
+  });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTopCountdownSecs((prev) => (prev > 1 ? prev - 1 : 6 * 3600));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const topTimerHours = String(Math.floor(topCountdownSecs / 3600)).padStart(2, '0');
+  const topTimerMinutes = String(Math.floor((topCountdownSecs % 3600) / 60)).padStart(2, '0');
+  const topTimerSeconds = String(topCountdownSecs % 60).padStart(2, '0');
 
   // Typewriter Search Bar Animation: Types letters out, holds, then backspaces to next
   useEffect(() => {
@@ -1027,13 +1046,20 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <>
-      {/* 1. Top Announcement Ribbon */}
-      <div className="hidden md:block bg-[#FCF2F4] border-b border-[#F4E3EC] text-[11px] font-semibold text-[#141219] py-1.5 px-4 relative z-30">
-        <div className="max-w-[1460px] mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2 text-[#141219] truncate">
-            <Truck className="w-4 h-4 text-[#D30915] fill-[#D30915] shrink-0" />
-            <span className="truncate">
-              Fast Express Dispatch • Guaranteed Real Cash ($2-$2,500) or Jewelry in 100% of Orders
+      {/* 1. Top Announcement Ribbon with Live Urgency Countdown Timer */}
+      <div className="block bg-[#FCF2F4] border-b border-[#F4E3EC] text-[11px] font-semibold text-[#141219] py-1.5 px-3 sm:px-4 relative z-30">
+        <div className="max-w-[1460px] mx-auto flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 text-[#141219] truncate min-w-0">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#D30915] text-white font-black text-[9.5px] uppercase tracking-wider shadow-2xs shrink-0">
+              <Zap className="w-2.5 h-2.5 fill-white animate-pulse" />
+              <span>Flash Sale</span>
+            </span>
+            <span className="font-extrabold text-[#D30915] font-mono tracking-tight shrink-0">
+              Ends in {topTimerHours}h : {topTimerMinutes}m : {topTimerSeconds}s
+            </span>
+            <span className="text-[#e2d5de] hidden sm:inline">|</span>
+            <span className="truncate hidden sm:inline">
+              Free Shipping $75+ • Guaranteed Real Cash ($2-$2,500) or Jewelry in Every Item
             </span>
           </div>
 
@@ -1058,7 +1084,7 @@ export const Header: React.FC<HeaderProps> = ({
             <span className="text-[#e2d5de]">|</span>
             <div className="flex items-center gap-1.5">
               <Gift className="w-3.5 h-3.5 text-[#D30915] shrink-0" />
-              <span>Free Shipping $50+</span>
+              <span>Free Shipping $75+</span>
             </div>
             <span className="text-[#e2d5de]">|</span>
             <a

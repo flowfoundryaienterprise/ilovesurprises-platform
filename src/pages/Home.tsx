@@ -57,16 +57,7 @@ export const Home: React.FC<HomeProps> = ({
         <Hero />
       </div>
 
-      {/* 2. Prioritized Holiday & Signature Collections (Row 1: Halloween & Christmas, Row 2: Cash Candles & Zodiac Cash Candles) */}
-      <div className="transition-all duration-300">
-        <FeaturedCollectionsSection
-          onSelectCategory={onSelectCategory}
-          onSelectCollection={onSelectCollection}
-          onSelectProduct={onSelectProduct}
-        />
-      </div>
-
-      {/* 3. Explore Section (Shop by Surprise - 12 Authoritative Collections with Direct Collection Routing) */}
+      {/* 2. Explore Section (Shop by Surprise & Trust Badges) - Directly below Main Banner */}
       <div className="transition-all duration-300">
         <CategorySection
           isLoading={isLoading}
@@ -77,7 +68,16 @@ export const Home: React.FC<HomeProps> = ({
         />
       </div>
 
-      {/* 3. Trending Best Sellers (Curated Real Supabase Products, Zero Tabs, Max 10 Products) */}
+      {/* 3. Featured Curated Collections (Holiday & Signature Collections) */}
+      <div className="transition-all duration-300">
+        <FeaturedCollectionsSection
+          onSelectCategory={onSelectCategory}
+          onSelectCollection={onSelectCollection}
+          onSelectProduct={onSelectProduct}
+        />
+      </div>
+
+      {/* 4. Trending Best Sellers (Curated Real Supabase Products, Zero Tabs, Max 10 Products) */}
       <div className="transition-all duration-300">
         <FeaturedProducts
           isLoading={isLoading}
@@ -95,12 +95,12 @@ export const Home: React.FC<HomeProps> = ({
         />
       </div>
 
-      {/* 4. Affiliate Program (Earn More with I Love Surprises & Commission Structure) */}
+      {/* 5. Affiliate Program (Earn More with I Love Surprises & Commission Structure) */}
       <div className="transition-all duration-300">
         <AffiliateSection isLoading={isLoading} />
       </div>
 
-      {/* 5. Customer Reviews & Social Proof Numbers Strip */}
+      {/* 6. Customer Reviews & Social Proof Numbers Strip */}
       <div className="transition-all duration-300">
         <ReviewsSection isLoading={isLoading} />
       </div>

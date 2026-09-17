@@ -6,6 +6,7 @@ interface SEOHeadProps {
   view: AppView;
   product?: Product | null;
   category?: string;
+  collectionHandle?: string;
   repUsername?: string | null;
   accountTab?: string;
 }
@@ -99,7 +100,7 @@ function getCategorySEO(category?: string): { title: string; description: string
   }
 }
 
-export function SEOHead({ view, product, category, repUsername, accountTab }: SEOHeadProps) {
+export function SEOHead({ view, product, category, repUsername, accountTab, collectionHandle }: SEOHeadProps) {
   useEffect(() => {
     let seo: SEOResult;
 
@@ -133,21 +134,41 @@ export function SEOHead({ view, product, category, repUsername, accountTab }: SE
         };
         break;
 
-      case 'collection':
+      case 'collection': {
+        const rawHandle = collectionHandle || '';
+        const cleanCol = rawHandle.replace(/^\/collections?\//, '').replace(/\/$/, '').trim().toLowerCase();
+        const colPath =
+          cleanCol === 'cash-candles' ||
+          cleanCol === 'jewelry-candles' ||
+          cleanCol === 'cash-money-candles' ||
+          cleanCol === 'zodiac-cash-money-candles' ||
+          cleanCol === 'funny-candle'
+            ? `/candles/${cleanCol}`
+            : cleanCol === 'candles'
+            ? '/candles'
+            : cleanCol ? `/${cleanCol}` : '/candles';
+        const displayTitle = cleanCol
+          ? cleanCol.replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())
+          : 'Candles';
+
         seo = {
-          title: `Collections ${BRAND_SUFFIX}`,
+          title: `${displayTitle} ${BRAND_SUFFIX}`,
           description:
-            'Explore authentic handcrafted surprise reveal collections with real cash prizes or fine jewelry inside.',
-          canonical: `${SITE_ORIGIN}/collections`,
+            `Explore authentic handcrafted surprise reveals in ${displayTitle} with real cash prizes ($2–$2,500) or fine jewelry inside every product.`,
+          canonical: `${SITE_ORIGIN}${colPath}`,
           isPrivate: false,
           ogType: 'website',
           ogImage: DEFAULT_IMAGE,
           breadcrumbs: [
             { name: 'Home', url: `${SITE_ORIGIN}/` },
-            { name: 'Collections', url: `${SITE_ORIGIN}/collections` },
+            { name: 'Candles', url: `${SITE_ORIGIN}/candles` },
+            ...(cleanCol && cleanCol !== 'candles'
+              ? [{ name: displayTitle, url: `${SITE_ORIGIN}${colPath}` }]
+              : []),
           ],
         };
         break;
+      }
 
       case 'categories': {
         const isSpecific = category && category !== 'All Surprises';

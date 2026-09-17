@@ -69,7 +69,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
     } else if (onNavigateToShop) {
       onNavigateToShop();
     } else {
-      window.history.pushState({ view: 'collection', collectionHandle: FEATURED_COLLECTION_HANDLE }, '', `/collections/${FEATURED_COLLECTION_HANDLE}`);
+      window.history.pushState({ view: 'collection', collectionHandle: FEATURED_COLLECTION_HANDLE }, '', `/candles/${FEATURED_COLLECTION_HANDLE}`);
       window.dispatchEvent(new CustomEvent('ils_route_change', { detail: { route: 'collection', handle: FEATURED_COLLECTION_HANDLE } }));
       window.dispatchEvent(new PopStateEvent('popstate', { state: { view: 'collection', collectionHandle: FEATURED_COLLECTION_HANDLE } }));
     }

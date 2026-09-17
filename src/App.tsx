@@ -80,6 +80,63 @@ export type AppView =
   | 'privacy'
   | 'faqs';
 
+export const KNOWN_COLLECTION_HANDLES = new Set([
+  'candles',
+  'cash-candles',
+  'cash-money-candles',
+  'jewelry-candles',
+  'zodiac-cash-money-candles',
+  'funny-candle',
+  'wax-melts',
+  'giant-jewelry-wax-melts',
+  'cash-figurine-wax-melts',
+  'cash-surprise-bear-and-cash-wax-melt-bundles',
+  'bath-bombs',
+  'bath-soaks',
+  'soap',
+  'soaps',
+  'slimes',
+  'candy',
+  'cash-candy',
+  'chocolates',
+  'greeting-cards',
+  'halloween',
+  'christmas-candles-1',
+  'christmas-candles',
+]);
+
+export function getCleanCollectionUrl(handle: string): string {
+  const clean = handle.replace(/^\/collections?\//, '').replace(/\/$/, '').trim().toLowerCase();
+  if (
+    clean === 'cash-candles' ||
+    clean === 'cash-money-candles' ||
+    clean === 'jewelry-candles' ||
+    clean === 'zodiac-cash-money-candles' ||
+    clean === 'funny-candle' ||
+    clean === 'candles'
+  ) {
+    return clean === 'candles' ? '/candles' : `/candles/${clean}`;
+  }
+  return `/${clean}`;
+}
+
+export function parseCollectionPath(path: string): string | null {
+  if (path.startsWith('/collections/') || path.startsWith('/collection/')) {
+    return path.replace(/^\/collections?\//, '').replace(/\/$/, '').trim();
+  }
+  if (path === '/candles' || path === '/candles/') {
+    return 'candles';
+  }
+  if (path.startsWith('/candles/')) {
+    return path.replace('/candles/', '').replace(/\/$/, '').trim();
+  }
+  const directSlug = path.replace(/^\//, '').replace(/\/$/, '').trim().toLowerCase();
+  if (KNOWN_COLLECTION_HANDLES.has(directSlug)) {
+    return directSlug;
+  }
+  return null;
+}
+
 export function App() {
   const pathname = usePathname();
 
@@ -88,7 +145,7 @@ export function App() {
     const path = window.location.pathname;
     if (path === '/admin/login') return 'admin-login';
     if (path === '/admin' || path.startsWith('/admin/')) return 'admin';
-    if (path.startsWith('/collections/') || path.startsWith('/collection/')) return 'collection';
+    if (parseCollectionPath(path)) return 'collection';
     if (path === '/shop') return 'shop';
     if (path === '/categories') return 'categories';
     if (path.startsWith('/product/')) return 'product-details';
@@ -170,12 +227,8 @@ export function App() {
   const [selectedCollectionHandle, setSelectedCollectionHandle] = useState<string>(() => {
     if (typeof window === 'undefined') return '';
     const path = window.location.pathname;
-    if (path.startsWith('/collections/')) {
-      return path.replace('/collections/', '').replace(/\/$/, '').trim();
-    }
-    if (path.startsWith('/collection/')) {
-      return path.replace('/collection/', '').replace(/\/$/, '').trim();
-    }
+    const parsed = parseCollectionPath(path);
+    if (parsed) return parsed;
     return '';
   });
 
@@ -827,8 +880,8 @@ export function App() {
         } else if (path === '/faqs' || path === '/faq') {
           setCurrentView('faqs');
           window.scrollTo({ top: scrollPositions.current['faqs'] || 0, behavior: 'smooth' });
-        } else if (path.startsWith('/collections/') || path.startsWith('/collection/')) {
-          const handle = path.replace(/^\/collections?\//, '').replace(/\/$/, '').trim();
+        } else if (parseCollectionPath(path)) {
+          const handle = parseCollectionPath(path)!;
           setSelectedCollectionHandle(handle);
           setCurrentView('collection');
           window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1213,8 +1266,9 @@ export function App() {
     setSelectedCollectionHandle(cleanHandle);
     setCurrentView('collection');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    const cleanUrl = getCleanCollectionUrl(cleanHandle);
     if (window.history.pushState) {
-      window.history.pushState({ view: 'collection', collectionHandle: cleanHandle }, '', `/collections/${cleanHandle}`);
+      window.history.pushState({ view: 'collection', collectionHandle: cleanHandle }, '', cleanUrl);
     }
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('ils_route_change', { detail: { route: 'collection', handle: cleanHandle } }));
@@ -1505,6 +1559,7 @@ export function App() {
         view={currentView}
         product={selectedProduct}
         category={selectedCategory}
+        collectionHandle={selectedCollectionHandle}
         accountTab={accountActiveTab}
       />
       {currentView === 'admin-login' ? (

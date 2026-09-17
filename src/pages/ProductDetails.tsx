@@ -16,6 +16,9 @@ import {
   X,
   MessageSquare,
   Check,
+  Clock,
+  ChevronDown,
+  Flame,
 } from 'lucide-react';
 import { ProductGallery } from '../components/products/ProductGallery';
 import { ProductCard } from '../components/products/ProductCard';
@@ -52,6 +55,30 @@ const LOCAL_REVIEWS_KEY = 'ilovesurprises_user_reviews_v1';
 const RING_SIZES = [5, 6, 7, 8, 9, 10];
 const JEWELRY_TYPES = ['Ring', 'Necklace', 'Earrings', 'Bracelet'];
 
+// Authoritative 20 Scents in exact founder non-alphabetized order
+export const FOUNDER_SCENTS = [
+  'Birthday Cake',
+  'Black Raspberry Vanilla',
+  'Fresh Baked Sugar Cookies',
+  'Baked Apple Pie',
+  'French Vanilla',
+  'Fresh Linen',
+  'Blueberry Muffin',
+  'Cinnamon Apple',
+  'Lavender Vanilla',
+  'Cinnamon Bun',
+  'Bahama Mama',
+  'Calming Lavender',
+  'Strawberry Fields',
+  'Pumpkin Spice',
+  'Jamaican Me Crazy',
+  'Cafe Mocha',
+  'Fresh Cut Roses',
+  'Honeysuckle Jasmine',
+  'Cozy Cabin',
+  'Unscented',
+];
+
 export const ProductDetails: React.FC<ProductDetailsProps> = ({
   product,
   cart = [],
@@ -79,6 +106,44 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
       Boolean(product.surpriseValue && (product.surpriseValue || '').toLowerCase().includes('jewelry'))
     );
   }, [product]);
+
+  // Detect Halloween product
+  const isHalloween = useMemo(() => {
+    const combined = `${product.name} ${product.slug} ${product.category}`.toLowerCase();
+    return combined.includes('halloween');
+  }, [product.name, product.slug, product.category]);
+
+  // Order scents: Pumpkin Spice is ALWAYS #1 for Halloween products, then the remaining 19 scents in exact founder order
+  const orderedScents = useMemo(() => {
+    if (isHalloween) {
+      return ['Pumpkin Spice', ...FOUNDER_SCENTS.filter((s) => s !== 'Pumpkin Spice')];
+    }
+    return FOUNDER_SCENTS;
+  }, [isHalloween]);
+
+  const [selectedScent, setSelectedScent] = useState<string>(() => orderedScents[0]);
+
+  useEffect(() => {
+    setSelectedScent(orderedScents[0]);
+  }, [orderedScents]);
+
+  // Real-time urgency countdown timer (JewelryCandles conversion style)
+  const [productTimerSecs, setProductTimerSecs] = useState(() => {
+    const now = Date.now();
+    const cycleDuration = 4 * 3600 * 1000 + 38 * 60 * 1000 + 40 * 1000;
+    return Math.floor((cycleDuration - (now % cycleDuration)) / 1000);
+  });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setProductTimerSecs((prev) => (prev > 1 ? prev - 1 : 4 * 3600));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const pTimerHours = String(Math.floor(productTimerSecs / 3600)).padStart(2, '0');
+  const pTimerMinutes = String(Math.floor((productTimerSecs % 3600) / 60)).padStart(2, '0');
+  const pTimerSeconds = String(productTimerSecs % 60).padStart(2, '0');
 
   // Dynamic Options (from Supabase/Shopify authoritative schema)
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
@@ -201,15 +266,21 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
       originalPrice: currentCompareAtPrice || undefined,
       sku: currentSku || undefined,
     };
+    const otherOpts =
+      product.options && product.options.length > 0
+        ? Object.entries(selectedOptions)
+            .filter(([k]) => !k.toLowerCase().includes('scent') && !k.toLowerCase().includes('fragrance'))
+            .map(([k, v]) => `${k}: ${v}`)
+            .join(', ')
+        : '';
+    const formattedSize = [selectedScent ? `Scent: ${selectedScent}` : '', otherOpts || selectedSize]
+      .filter(Boolean)
+      .join(' | ');
+
     onAddToCart(customizedProduct, quantity, {
       selectedRingSize: isJewelrySurprise && selectedJewelryType === 'Ring' ? selectedRingSize : undefined,
       selectedJewelryType: isJewelrySurprise ? selectedJewelryType : undefined,
-      selectedSize:
-        product.options && product.options.length > 0
-          ? Object.entries(selectedOptions)
-              .map(([k, v]) => `${k}: ${v}`)
-              .join(', ')
-          : selectedSize,
+      selectedSize: formattedSize,
     });
   };
 
@@ -220,15 +291,21 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
       originalPrice: currentCompareAtPrice || undefined,
       sku: currentSku || undefined,
     };
+    const otherOpts =
+      product.options && product.options.length > 0
+        ? Object.entries(selectedOptions)
+            .filter(([k]) => !k.toLowerCase().includes('scent') && !k.toLowerCase().includes('fragrance'))
+            .map(([k, v]) => `${k}: ${v}`)
+            .join(', ')
+        : '';
+    const formattedSize = [selectedScent ? `Scent: ${selectedScent}` : '', otherOpts || selectedSize]
+      .filter(Boolean)
+      .join(' | ');
+
     const options = {
       selectedRingSize: isJewelrySurprise && selectedJewelryType === 'Ring' ? selectedRingSize : undefined,
       selectedJewelryType: isJewelrySurprise ? selectedJewelryType : undefined,
-      selectedSize:
-        product.options && product.options.length > 0
-          ? Object.entries(selectedOptions)
-              .map(([k, v]) => `${k}: ${v}`)
-              .join(', ')
-          : selectedSize,
+      selectedSize: formattedSize,
     };
     if (onBuyNow) {
       onBuyNow(customizedProduct, quantity, options);
@@ -396,13 +473,45 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
 
             {/* Authoritative SKU display (Preserve blank/null if blank/null in authoritative source) */}
             {currentSku && (
-              <div className="text-[11px] text-[#8a858f] font-mono mb-4">
+              <div className="text-[11px] text-[#8a858f] font-mono mb-3">
                 SKU: <span className="text-[#36323b] font-bold">{currentSku}</span>
               </div>
             )}
 
+            {/* Real-time Urgency Countdown Timer (JewelryCandles Conversion Feature) */}
+            <div className="mb-4 p-3 sm:p-3.5 rounded-[16px] bg-gradient-to-r from-[#fff1f2] via-[#fff7f8] to-[#fff1f2] border border-[#fecdd3] flex items-center justify-between gap-2 shadow-2xs">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-8 h-8 rounded-full bg-[#D30915] text-white flex items-center justify-center shrink-0 shadow-2xs">
+                  <Clock className="w-4 h-4 animate-spin-slow" />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[11px] sm:text-xs font-black text-[#141219] uppercase tracking-wider flex items-center gap-1.5 truncate">
+                    <span>Limited Surprise Batch</span>
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#D30915] animate-ping" />
+                  </div>
+                  <div className="text-[10.5px] sm:text-[11px] text-[#716d77] font-medium truncate">
+                    Order in next {pTimerHours}h {pTimerMinutes}m to ship today!
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1 shrink-0 font-mono">
+                <div className="bg-[#141219] text-white px-2 py-1 rounded-[8px] text-xs font-black text-center min-w-[28px]">
+                  {pTimerHours}h
+                </div>
+                <span className="font-bold text-[#D30915]">:</span>
+                <div className="bg-[#141219] text-white px-2 py-1 rounded-[8px] text-xs font-black text-center min-w-[28px]">
+                  {pTimerMinutes}m
+                </div>
+                <span className="font-bold text-[#D30915]">:</span>
+                <div className="bg-[#D30915] text-white px-2 py-1 rounded-[8px] text-xs font-black text-center min-w-[28px] animate-pulse">
+                  {pTimerSeconds}s
+                </div>
+              </div>
+            </div>
+
             {/* Surprise Reveal Guarantee Feature Card */}
-            <div className="p-4 rounded-[18px] bg-gradient-to-r from-[#fff5f5] via-[#fff8fb] to-[#fff5f5] border border-[#fecdd3] mb-6 shadow-2xs">
+            <div className="p-4 rounded-[18px] bg-gradient-to-r from-[#fff5f5] via-[#fff8fb] to-[#fff5f5] border border-[#fecdd3] mb-5 shadow-2xs">
               <div className="flex items-center gap-2 mb-1.5">
                 <div className="w-7 h-7 rounded-full bg-[#D30915] text-white flex items-center justify-center shrink-0">
                   {product.surpriseType === 'cash' ? (
@@ -427,43 +536,92 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
               </p>
             </div>
 
-            {/* AUTHORITATIVE PRODUCT OPTIONS (From Supabase / Shopify Schema) */}
-            {product.options && product.options.length > 0 ? (
-              <div className="mb-6 space-y-4">
-                {product.options.map((opt) => {
-                  const currentVal = selectedOptions[opt.name] || opt.values[0];
-                  return (
-                    <div key={opt.name} className="p-3.5 rounded-[16px] bg-[#fffbfd] border border-[#eedbe6]">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-[11px] font-black uppercase tracking-wider text-[#141219]">
-                          {opt.name}:
-                        </span>
-                        <span className="text-xs font-bold text-[#D30915]">{currentVal}</span>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {opt.values.map((val) => {
-                          const isSelected = currentVal === val;
-                          return (
-                            <button
-                              key={val}
-                              type="button"
-                              onClick={() => setSelectedOptions((prev) => ({ ...prev, [opt.name]: val }))}
-                              className={`py-2 px-3 rounded-[12px] text-xs font-bold border transition-all cursor-pointer ${
-                                isSelected
-                                  ? 'border-[#D30915] bg-[#fff1f2] text-[#D30915] font-black shadow-xs ring-2 ring-[#D30915]/15'
-                                  : 'border-[#ebdce5] bg-white text-[#55505a] hover:border-[#f1b8cb] hover:bg-[#fffdfd]'
-                              }`}
-                            >
-                              {val}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })}
+            {/* Clean Dropdown Scent Selection (Exact 20 Scents in Founder Order) */}
+            <div className="mb-5 p-4 rounded-[18px] bg-[#fffbfd] border border-[#eedbe6] shadow-2xs">
+              <div className="flex items-center justify-between mb-2">
+                <label htmlFor="scent-dropdown" className="text-[11px] font-black uppercase tracking-wider text-[#141219] flex items-center gap-1.5 cursor-pointer">
+                  <Sparkles className="w-3.5 h-3.5 text-[#D30915]" />
+                  <span>Choose Scent / Fragrance (Required):</span>
+                </label>
+                <span className="text-xs font-bold text-[#D30915]">{selectedScent}</span>
               </div>
-            ) : isJewelrySurprise ? (
+              <div className="relative">
+                <select
+                  id="scent-dropdown"
+                  value={selectedScent}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setSelectedScent(val);
+                    setSelectedOptions((prev) => ({ ...prev, Scent: val, Fragrance: val }));
+                  }}
+                  className="w-full h-[46px] px-3.5 pr-10 rounded-[14px] bg-white border border-[#eedbe6] hover:border-[#D30915] focus:border-[#D30915] focus:ring-2 focus:ring-[#D30915]/20 text-xs sm:text-sm font-bold text-[#141219] appearance-none cursor-pointer transition-all outline-none shadow-2xs"
+                >
+                  {orderedScents.map((scent, idx) => (
+                    <option key={scent} value={scent} className="text-sm font-medium text-[#141219]">
+                      {idx + 1}. {scent} {idx === 0 && isHalloween ? '🎃 (Halloween Priority Scent)' : ''}
+                    </option>
+                  ))}
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-[#716d77]">
+                  <ChevronDown className="w-4 h-4" />
+                </div>
+              </div>
+              <p className="text-[11px] text-[#716d77] m-0 mt-2 font-medium flex items-center gap-1">
+                {isHalloween ? (
+                  <>
+                    <Flame className="w-3.5 h-3.5 text-orange-500 shrink-0" />
+                    <span>Pumpkin Spice is curated #1 holiday favorite for this item.</span>
+                  </>
+                ) : (
+                  <span>✨ 20 signature scents hand-crafted with premium fragrance oils.</span>
+                )}
+              </p>
+            </div>
+
+            {/* AUTHORITATIVE PRODUCT OPTIONS (Non-Scent options like Size/Style) */}
+            {product.options &&
+              product.options
+                .filter((opt) => !opt.name.toLowerCase().includes('scent') && !opt.name.toLowerCase().includes('fragrance'))
+                .length > 0 && (
+                <div className="mb-5 space-y-4">
+                  {product.options
+                    .filter((opt) => !opt.name.toLowerCase().includes('scent') && !opt.name.toLowerCase().includes('fragrance'))
+                    .map((opt) => {
+                      const currentVal = selectedOptions[opt.name] || opt.values[0];
+                      return (
+                        <div key={opt.name} className="p-3.5 rounded-[16px] bg-[#fffbfd] border border-[#eedbe6]">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-[11px] font-black uppercase tracking-wider text-[#141219]">
+                              {opt.name}:
+                            </span>
+                            <span className="text-xs font-bold text-[#D30915]">{currentVal}</span>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {opt.values.map((val) => {
+                              const isSelected = currentVal === val;
+                              return (
+                                <button
+                                  key={val}
+                                  type="button"
+                                  onClick={() => setSelectedOptions((prev) => ({ ...prev, [opt.name]: val }))}
+                                  className={`py-2 px-3 rounded-[12px] text-xs font-bold border transition-all cursor-pointer ${
+                                    isSelected
+                                      ? 'border-[#D30915] bg-[#fff1f2] text-[#D30915] font-black shadow-xs ring-2 ring-[#D30915]/15'
+                                      : 'border-[#ebdce5] bg-white text-[#55505a] hover:border-[#f1b8cb] hover:bg-[#fffdfd]'
+                                  }`}
+                                >
+                                  {val}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              )}
+
+            {isJewelrySurprise && (
               <div className="mb-6 p-4 rounded-[18px] bg-[#fffbfd] border border-[#eedbe6] space-y-4">
                 {/* Jewelry Type Selector */}
                 <div>
@@ -535,7 +693,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                   </div>
                 )}
               </div>
-            ) : null}
+            )}
 
             {/* Scent Notes & Aroma Profile */}
             {product.scentNotes && product.scentNotes.length > 0 && (

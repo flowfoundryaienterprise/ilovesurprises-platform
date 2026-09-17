@@ -132,53 +132,54 @@ export function resolveFounderCategoryPrice(name: string, categoryName: string, 
   const c = (categoryName || '').toLowerCase();
 
   // 1. Cereal Bowl Cash & Jewelry Candles -> $49.99
-  if (n.includes('cereal') && (n.includes('candle') || c.includes('candle'))) {
-    if (n.includes('cash') || n.includes('money') || n.includes('jewelry') || n.includes('jewellery') || n.includes('ring')) {
-      return 49.99;
-    }
+  if (n.includes('cereal') && (n.includes('candle') || c.includes('candle') || n.includes('bowl'))) {
+    return 49.99;
   }
 
-  // 2. Soda Can Cash & Jewelry Candles -> $29.99
-  if (n.includes('soda') && (n.includes('candle') || c.includes('candle'))) {
+  // 2. Beer Mug Cash & Jewelry Candles (e.g. creepin-real-this-halloween-beer-cash-candle) -> $49.99
+  if (n.includes('beer') && (n.includes('candle') || n.includes('mug') || c.includes('candle'))) {
+    return 49.99;
+  }
+
+  // 3. Soda Can Cash & Jewelry Candles -> $29.99 (reduced from $35.00)
+  if (n.includes('soda') && (n.includes('candle') || c.includes('candle') || n.includes('can'))) {
     return 29.99;
   }
 
-  // 14. Cash Surprise Bear & Cash Wax Melt Bundles -> $59.99
+  // 4. Cash Surprise Bear & Cash Wax Melt Bundles -> $59.99
   if (n.includes('bear') && (n.includes('bundle') || n.includes('melt') || n.includes('treasure')) && (n.includes('cash') || n.includes('money'))) {
     return 59.99;
   }
 
-  // 6. Giant Jewelry Wax Melts -> $34.99
-  if (n.includes('giant') && (n.includes('wax') || n.includes('melt'))) {
+  // 5. Giant Jewelry Wax Melts & Cash Figurine Wax Melts -> $34.99
+  if (
+    (n.includes('giant') && (n.includes('wax') || n.includes('melt'))) ||
+    ((n.includes('figurine') || n.includes('shaped') || n.includes('skull')) && (n.includes('wax') || n.includes('melt')))
+  ) {
     return 34.99;
   }
 
-  // 7. Cash Figurine Wax Melts -> $34.99
-  if ((n.includes('figurine') || n.includes('shaped') || n.includes('skull')) && (n.includes('wax') || n.includes('melt'))) {
-    return 34.99;
-  }
-
-  // 4. 5.5 oz Cash & Jewelry Wax Melts (non-figurine) -> $19.99
+  // 6. 5.5 oz Cash & Jewelry Wax Melts (non-figurine) -> $19.99
   if ((n.includes('wax melt') || c.includes('wax melt') || n.includes('wax-melt')) && !n.includes('giant') && !n.includes('figurine') && !n.includes('bundle')) {
     return 19.99;
   }
 
-  // 5. Cash & Jewelry Slimes (single jars) -> $19.99
+  // 7. Cash & Jewelry Slimes (single jars) -> $19.99
   if (n.includes('slime') || c.includes('slime')) {
     return 19.99;
   }
 
-  // 9. Cash & Jewelry Bath Bomb 2-Pack Tubes -> $34.99
+  // 8. Cash & Jewelry Bath Bomb 2-Pack Tubes -> $34.99
   if ((n.includes('bath bomb') || c.includes('bath bomb')) && (n.includes('2-pack') || n.includes('2 pack') || n.includes('tube') || n.includes('bundle'))) {
     return 34.99;
   }
 
-  // 8. Cash & Jewelry Bath Bombs (Singles) -> $19.99
+  // 9. Cash & Jewelry Bath Bombs (Singles) -> $19.99
   if (n.includes('bath bomb') || c.includes('bath bomb')) {
     return 19.99;
   }
 
-  // 10. Cash & Jewelry Bath Soaks (Tubes) -> $19.99
+  // 10. Cash & Jewelry Bath Soaks (Tubes) -> $19.99 (reduced from $29.99)
   if (n.includes('bath soak') || n.includes('bath salt') || c.includes('bath soak') || c.includes('bath salt') || n.includes('money bath salt')) {
     return 19.99;
   }
@@ -198,19 +199,9 @@ export function resolveFounderCategoryPrice(name: string, categoryName: string, 
     return 14.99;
   }
 
-  // 3. All other Cash & Jewelry Candles, including Necklace and Ring candles -> $44.99
+  // 14. All Cash & Jewelry Candles (including Necklace, Ring, and Bracelet candles, e.g. birthday-cake-bracelet-candles) -> $44.99
   if (n.includes('candle') || c.includes('candle')) {
-    if (
-      n.includes('cash') ||
-      n.includes('money') ||
-      n.includes('jewelry') ||
-      n.includes('jewellery') ||
-      n.includes('ring') ||
-      n.includes('necklace') ||
-      n.includes('diamond')
-    ) {
-      return 44.99;
-    }
+    return 44.99;
   }
 
   return defaultPrice > 0 ? defaultPrice : 44.99;
@@ -219,7 +210,8 @@ export function resolveFounderCategoryPrice(name: string, categoryName: string, 
 /**
  * Authoritative Customer Visibility Filter:
  * Temporarily hides ALL products that are NOT related to Cash or Jewelry.
- * Plain cereal bowl versions with no contents are hidden.
+ * Plain cereal bowl versions and plain beer mug versions with no contents are hidden.
+ * Specific soap design 'you-make-me-so-happy' and scented flower bouquet are hidden.
  * Products remain intact in Supabase database.
  */
 export function isCustomerVisible(product: {
@@ -242,11 +234,19 @@ export function isCustomerVisible(product: {
   const productType = (product.productType || '').toLowerCase();
   const tags = (product.tags || '').toLowerCase();
 
-  // Specifically hide scented flowers bouquet if matched
+  // Specifically hide scented flowers bouquet
   if (
-    handle === 'scented-flowers-bouquet' ||
+    handle.includes('scented-flower') ||
     title.includes('scented flowers bouquet') ||
     title.includes('scented flower bouquet')
+  ) {
+    return false;
+  }
+
+  // Specifically hide the 'you make me so happy' soap design
+  if (
+    handle.includes('you-make-me-so-happy') ||
+    title.includes('you make me so happy')
   ) {
     return false;
   }
@@ -294,8 +294,19 @@ export function isCustomerVisible(product: {
     }
   }
 
-  // Check Holiday / Christmas priority collection (Founder Priority Collection)
-  const isChristmasOrHoliday =
+  // Hide plain beer mug versions with no contents
+  if (title.includes('beer') || handle.includes('beer')) {
+    if (!hasCash && !hasJewelry) {
+      return false;
+    }
+  }
+
+  // Check Holiday priority collection (Halloween & Christmas Priority Collections)
+  const isHoliday =
+    title.includes('halloween') ||
+    handle.includes('halloween') ||
+    category.includes('halloween') ||
+    productType.includes('halloween') ||
     title.includes('christmas') ||
     title.includes('holiday') ||
     handle.includes('christmas') ||
@@ -303,8 +314,8 @@ export function isCustomerVisible(product: {
     category.includes('christmas') ||
     productType.includes('christmas');
 
-  // Must be related to either Cash or Jewelry, or the Founder Priority Holiday collection
-  return hasCash || hasJewelry || isChristmasOrHoliday;
+  // Must be related to either Cash or Jewelry, or the Founder Priority Holiday collections
+  return hasCash || hasJewelry || isHoliday;
 }
 
 /**
@@ -326,6 +337,24 @@ export function mapRowToProduct(row: any): Product {
   }
   if (!categoryName) {
     categoryName = 'Candles';
+  }
+
+  // Authoritative Flameless vs Scented Candles Terminology:
+  // Candles must NEVER say Flameless — they are SCENTED CANDLES.
+  // Wax Melts are FLAMELESS CANDLES.
+  const nameLower = name.toLowerCase();
+  const catLower = categoryName.toLowerCase();
+  const isWaxMelt = nameLower.includes('wax melt') || nameLower.includes('wax-melt') || catLower.includes('wax melt');
+  const isCandle = !isWaxMelt && (nameLower.includes('candle') || catLower.includes('candle'));
+
+  if (isCandle) {
+    if (categoryName.toLowerCase().includes('flameless')) {
+      categoryName = 'Scented Candles';
+    }
+  } else if (isWaxMelt) {
+    if (!categoryName.toLowerCase().includes('flameless')) {
+      categoryName = 'Wax Melts (Flameless Candles)';
+    }
   }
 
   // Variant pricing & SKU resolution
@@ -441,7 +470,6 @@ export function mapRowToProduct(row: any): Product {
 
   // Determine surprise type
   let surpriseType: SurpriseType = (row.surprise_type as SurpriseType) || 'mystery';
-  const nameLower = name.toLowerCase();
   if (!row.surprise_type) {
     if (nameLower.includes('cash') || nameLower.includes('money')) {
       surpriseType = 'cash';
